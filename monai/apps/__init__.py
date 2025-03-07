@@ -11,6 +11,6 @@
 
 from __future__ import annotations
 
-from .datasets import CrossValidation, DecathlonDataset, MedNISTDataset, TciaDataset
-from .mmars import MODEL_DESC, RemoteMMARKeys, download_mmar, get_model_spec, load_from_mmar
-from .utils import SUPPORTED_HASH_TYPES, check_hash, download_and_extract, download_url, extractall, get_logger, logger
+from monai.apps.datasets import CrossValidation, DecathlonDataset, MedNISTDataset, TciaDataset
+from monai.apps.mmars import MODEL_DESC, RemoteMMARKeys, download_mmar, get_model_spec, load_from_mmar
+from monai.apps.utils import SUPPORTED_HASH_TYPES, check_hash, download_and_extract, download_url, extractall, get_logger, logger

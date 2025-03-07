@@ -160,6 +160,7 @@ class LoadImaged(MapTransform):
         """
         d = dict(data)
         for key, meta_key, meta_key_postfix in self.key_iterator(d, self.meta_keys, self.meta_key_postfix):
+            print(f"Lade Datei : {d[key]}")
             data = self._loader(d[key], reader)
             if self._loader.image_only:
                 d[key] = data
