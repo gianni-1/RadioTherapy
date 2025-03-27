@@ -91,7 +91,7 @@ if __name__ == '__main__':
                     ),
                 ]
             )       
-            train_ds = CustomDataset(
+            train_ds_full = CustomDataset(
                 root_dir=root_dir,
                 section="training",  # validation
                 cache_rate=0.0,  # you may need a few Gb of RAM... Set to 0 otherwise
@@ -100,12 +100,30 @@ if __name__ == '__main__':
                 download=False,
                 seed=0,
             )
+
+            dataset_size = len(train_ds_full)
+            train_size = int(dataset_size * 0.8) # 80% Training, 20% Validation
+            val_size = dataset_size - train_size
+
+            train_ds, val_ds = random_split(
+                train_ds_full,
+                [train_size, val_size],
+                generator=torch.Generator().manual_seed(42)  # for reproducibility
+            )
+
             train_loader = DataLoader(
                 train_ds,
                 batch_size=batch_size,
                 shuffle=True,
                 num_workers=0,
                 persistent_workers=False,
+            )
+
+            val_loader = DataLoader(
+                val_ds,
+                batch_size=batch_size,
+                shuffle=False,
+                num_workers=0
             )
             print(f'Image shape {train_ds[0]["image"].shape}')
             # -
