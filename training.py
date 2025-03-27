@@ -5,6 +5,7 @@ import tempfile
 import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
+from torch.utils.data import random_split
 from monai import transforms
 from monai.apps.datasets import CustomDataset
 from monai.apps.datasets import DecathlonDataset
@@ -87,7 +88,7 @@ if __name__ == '__main__':
                 ),
             ]
         )       
-        train_ds = DecathlonDataset(
+        train_ds_full = DecathlonDataset(
             root_dir=root_dir,
             task="Task01_BrainTumour",
             section="training",  # validation
@@ -96,6 +97,17 @@ if __name__ == '__main__':
             transform=train_transforms,
             download=False,
         )
+
+        dataset_size = len(train_ds_full)
+        train_size = int(dataset_size * 0.8) # 80% Training, 20% Validation
+        val_size = dataset_size - train_size
+
+        train_ds, val_ds = random_split(
+            train_ds_full,
+            [train_size, val_size],
+            generator=torch.Generator().manual_seed(42)  # for reproducibility
+        )
+
         train_loader = DataLoader(
             train_ds,
             batch_size=batch_size,
@@ -103,6 +115,14 @@ if __name__ == '__main__':
             num_workers=0,
             persistent_workers=False,
         )
+
+        val_loader = DataLoader(
+            val_ds,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=0
+        )
+
         print(f'Image shape {train_ds[0]["image"].shape}')
         # -
 
@@ -241,6 +261,21 @@ if __name__ == '__main__':
             epoch_recon_loss_list.append(epoch_loss / (step + 1))
             epoch_gen_loss_list.append(gen_epoch_loss / (step + 1))
             epoch_disc_loss_list.append(disc_epoch_loss / (step + 1))
+
+            # Validation - Autoencoder
+            if (epoch + 1) % val_interval == 0:
+                autoencoder.eval()
+                discriminator.eval()
+                val_loss = 0
+                with torch.no_grad():
+                    for step, batch in enumerate(val_loader):
+                        images = batch["image"].to(device)
+                        reconstruction, z_mu, z_sigma = autoencoder(images)
+                        loss = F.l1_loss(reconstruction, images)
+                        val_loss += loss.item()
+                val_loss /= len(val_loader)
+                print(f"[Autoencoder] Epoch {epoch+1}/{n_epochs} | "
+                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
 
         del discriminator
         del loss_perceptual
@@ -386,6 +421,21 @@ if __name__ == '__main__':
 
                 progress_bar.set_postfix({"loss": epoch_loss / (step + 1)})
             epoch_loss_list.append(epoch_loss / (step + 1))
+
+            # Validation - Diffusion Model
+            if (epoch + 1) % val_interval == 0:
+                autoencoder.eval()
+                discriminator.eval()
+                val_loss = 0
+                with torch.no_grad():
+                    for step, batch in enumerate(val_loader):
+                        images = batch["image"].to(device)
+                        reconstruction, z_mu, z_sigma = autoencoder(images)
+                        loss = F.l1_loss(reconstruction, images)
+                        val_loss += loss.item()
+                val_loss /= len(val_loader)
+                print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
+                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
         # -
 
         plt.plot(epoch_loss_list, label='Training Loss')
