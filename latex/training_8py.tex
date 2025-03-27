@@ -1,0 +1,173 @@
+\doxysection{training.\+py File Reference}
+\hypertarget{training_8py}{}\label{training_8py}\index{training.py@{training.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacetraining}{training}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetraining_aa3c7c69c4948ab69757e85881ec70de4}{training.\+select\+\_\+channel}} (image, \mbox{\hyperlink{namespacetraining_a6a19e36ca2973d062ada227b4334ea22}{channel}}=0)
+\item 
+\mbox{\hyperlink{namespacetraining_ac397f585901f98e7641ec939e7100361}{training.\+KL\+\_\+loss}} (\mbox{\hyperlink{namespacetraining_a2cd3eab0c728c5d13c4a9ffed35586e4}{z\+\_\+mu}}, \mbox{\hyperlink{namespacetraining_ad7e870dcaeb35c2e00fd8b3e6e818473}{z\+\_\+sigma}})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetraining_ae95e1f39090a37341e13a6d57fc34d01}{training.\+force}}
+\item 
+\mbox{\hyperlink{namespacetraining_af97251d7685066a2394b70872db1d9d6}{training.\+directory}} = os.\+environ.\+get("{}MONAI\+\_\+\+DATA\+\_\+\+DIRECTORY"{})
+\item 
+str \mbox{\hyperlink{namespacetraining_af9cf11684fa66b5f3c35868d34ac48ef}{training.\+root\+\_\+dir}} = "{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/data"{}
+\item 
+int \mbox{\hyperlink{namespacetraining_a7b646060343fb55c2cd4bd93f7f8700b}{training.\+batch\+\_\+size}} = 1
+\item 
+int \mbox{\hyperlink{namespacetraining_a6a19e36ca2973d062ada227b4334ea22}{training.\+channel}} = 0
+\item 
+\mbox{\hyperlink{namespacetraining_afff5309d80cb7064ae68a100d698c702}{training.\+train\+\_\+transforms}}
+\item 
+\mbox{\hyperlink{namespacetraining_afa811e971dc88624429d857151d09301}{training.\+train\+\_\+ds}}
+\item 
+\mbox{\hyperlink{namespacetraining_a1dad551e6b78b06c9b027213609b1f3e}{training.\+train\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacetraining_ac2e72ed2e193555d2666612591286b46}{training.\+device}} = torch.\+device("{}cuda"{} if torch.\+cuda.\+is\+\_\+available() else "{}cpu"{})
+\item 
+\mbox{\hyperlink{namespacetraining_a57ba5773263cb4f583c8e6652320b9dc}{training.\+autoencoder}}
+\item 
+\mbox{\hyperlink{namespacetraining_ad944473fb2d682790c347a0def2e5190}{training.\+discriminator}}
+\item 
+\mbox{\hyperlink{namespacetraining_ad6d0d00cfc64770ac28cb11210729a39}{training.\+l1\+\_\+loss}} = L1\+Loss()
+\item 
+\mbox{\hyperlink{namespacetraining_a1ae302bf1d4c39293194d26fd06fe594}{training.\+adv\+\_\+loss}} = Patch\+Adversarial\+Loss(criterion="{}least\+\_\+squares"{})
+\item 
+\mbox{\hyperlink{namespacetraining_a621cdbd3806638c3600ef205346d0b02}{training.\+loss\+\_\+perceptual}}
+\item 
+float \mbox{\hyperlink{namespacetraining_a47dd5a0c213ce0c0d8f6250f980e3c5e}{training.\+adv\+\_\+weight}} = 0.\+01
+\item 
+float \mbox{\hyperlink{namespacetraining_ae814e35d053417f2305925ab33aea345}{training.\+perceptual\+\_\+weight}} = 0.\+001
+\item 
+int \mbox{\hyperlink{namespacetraining_a17caef3eab656229514bcfb64643d91f}{training.\+kl\+\_\+weight}} = 1e-\/6
+\item 
+\mbox{\hyperlink{namespacetraining_a195e526bc225ca922bfd50418d43f573}{training.\+optimizer\+\_\+g}} = torch.\+optim.\+Adam(params=autoencoder.\+parameters(), lr=1e-\/4)
+\item 
+\mbox{\hyperlink{namespacetraining_a6627d345a3207e87519fb26d3d45dffb}{training.\+optimizer\+\_\+d}} = torch.\+optim.\+Adam(params=discriminator.\+parameters(), lr=1e-\/4)
+\item 
+int \mbox{\hyperlink{namespacetraining_a195f6eb059ea5ded1c78baa7520e2fac}{training.\+n\+\_\+epochs}} = 10
+\item 
+int \mbox{\hyperlink{namespacetraining_ad2306f43853d7561a29187f93ea02672}{training.\+autoencoder\+\_\+warm\+\_\+up\+\_\+n\+\_\+epochs}} = 5
+\item 
+int \mbox{\hyperlink{namespacetraining_acb77d6c0f1c0bd1f6f57a537e724024d}{training.\+val\+\_\+interval}} = 10
+\item 
+list \mbox{\hyperlink{namespacetraining_af34848d9774d20aa4c3c64f227b88991}{training.\+epoch\+\_\+recon\+\_\+loss\+\_\+list}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetraining_aa979d8f4c3cbf310021c28561646afc9}{training.\+epoch\+\_\+gen\+\_\+loss\+\_\+list}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetraining_a71e114b005b9cc5b99eb8aab5df629e2}{training.\+epoch\+\_\+disc\+\_\+loss\+\_\+list}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetraining_a4caf0bd6482657203cb209cf60cb9703}{training.\+val\+\_\+recon\+\_\+epoch\+\_\+loss\+\_\+list}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacetraining_ab6d54e5e573572d57d495f8e3240ad97}{training.\+intermediary\+\_\+images}} = \mbox{[}$\,$\mbox{]}
+\item 
+int \mbox{\hyperlink{namespacetraining_af99c62fd839f17beafc660f1fbbfa6dc}{training.\+n\+\_\+example\+\_\+images}} = 4
+\item 
+int \mbox{\hyperlink{namespacetraining_ad4d64869dd3391087fde7e66e62bb93e}{training.\+epoch\+\_\+loss}} = 0
+\item 
+int \mbox{\hyperlink{namespacetraining_a695789c9874ae81b39a2be9f2936ff9c}{training.\+gen\+\_\+epoch\+\_\+loss}} = 0
+\item 
+int \mbox{\hyperlink{namespacetraining_a9c169df83c2678cf4d07ab87861e9918}{training.\+disc\+\_\+epoch\+\_\+loss}} = 0
+\item 
+\mbox{\hyperlink{namespacetraining_a2fa3aecda63a9d35990fbf0c928c316f}{training.\+progress\+\_\+bar}} = tqdm(enumerate(\mbox{\hyperlink{namespacetraining_a1dad551e6b78b06c9b027213609b1f3e}{train\+\_\+loader}}), total=len(\mbox{\hyperlink{namespacetraining_a1dad551e6b78b06c9b027213609b1f3e}{train\+\_\+loader}}), \mbox{\hyperlink{namespacetraining_a87472fa42d8f8bfdc4e386a49f022040}{ncols}}=110)
+\item 
+\mbox{\hyperlink{namespacetraining_a60daebefe79b2f7162dfc801921765af}{training.\+images}} = batch\mbox{[}"{}image"{}\mbox{]}.to(\mbox{\hyperlink{namespacetraining_ac2e72ed2e193555d2666612591286b46}{device}})
+\item 
+\mbox{\hyperlink{namespacetraining_ac61c15ad0e4f79cc2ebc49667748b0a6}{training.\+set\+\_\+to\+\_\+none}}
+\item 
+\mbox{\hyperlink{namespacetraining_a8c4da363a35e7bd34d22012d01919cf5}{training.\+reconstruction}}
+\item 
+\mbox{\hyperlink{namespacetraining_a2cd3eab0c728c5d13c4a9ffed35586e4}{training.\+z\+\_\+mu}}
+\item 
+\mbox{\hyperlink{namespacetraining_ad7e870dcaeb35c2e00fd8b3e6e818473}{training.\+z\+\_\+sigma}}
+\item 
+\mbox{\hyperlink{namespacetraining_ad8f28182347fc97929b9a49efa5079af}{training.\+kl\+\_\+loss}} = \mbox{\hyperlink{namespacetraining_ac397f585901f98e7641ec939e7100361}{KL\+\_\+loss}}(\mbox{\hyperlink{namespacetraining_a2cd3eab0c728c5d13c4a9ffed35586e4}{z\+\_\+mu}}, \mbox{\hyperlink{namespacetraining_ad7e870dcaeb35c2e00fd8b3e6e818473}{z\+\_\+sigma}})
+\item 
+\mbox{\hyperlink{namespacetraining_af627eea81e13276b45f3c0ae038f5a84}{training.\+recons\+\_\+loss}} = \mbox{\hyperlink{namespacetraining_ad6d0d00cfc64770ac28cb11210729a39}{l1\+\_\+loss}}(reconstruction.\+float(), images.\+float())
+\item 
+\mbox{\hyperlink{namespacetraining_a317496fb726f3606c1a9992b6f5e9899}{training.\+p\+\_\+loss}} = \mbox{\hyperlink{namespacetraining_a621cdbd3806638c3600ef205346d0b02}{loss\+\_\+perceptual}}(reconstruction.\+float(), images.\+float())
+\item 
+int \mbox{\hyperlink{namespacetraining_afdc85e405efc71f7892a7ee6606e5e23}{training.\+loss\+\_\+g}} = \mbox{\hyperlink{namespacetraining_af627eea81e13276b45f3c0ae038f5a84}{recons\+\_\+loss}} + \mbox{\hyperlink{namespacetraining_a17caef3eab656229514bcfb64643d91f}{kl\+\_\+weight}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{namespacetraining_ad8f28182347fc97929b9a49efa5079af}{kl\+\_\+loss}} + \mbox{\hyperlink{namespacetraining_ae814e35d053417f2305925ab33aea345}{perceptual\+\_\+weight}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{namespacetraining_a317496fb726f3606c1a9992b6f5e9899}{p\+\_\+loss}}
+\item 
+\mbox{\hyperlink{namespacetraining_a1e2f8ec561388e69fc8bb37aa3a5930e}{training.\+logits\+\_\+fake}} = \mbox{\hyperlink{namespacetraining_ad944473fb2d682790c347a0def2e5190}{discriminator}}(reconstruction.\+contiguous().float())\mbox{[}-\/1\mbox{]}
+\item 
+\mbox{\hyperlink{namespacetraining_a5d36ddfdaa62c930c002240d5c362b43}{training.\+generator\+\_\+loss}}
+\item 
+\mbox{\hyperlink{namespacetraining_a8e6b0846fc0dcbadfc338f2dcf8b1d02}{training.\+loss\+\_\+d\+\_\+fake}}
+\item 
+\mbox{\hyperlink{namespacetraining_a005332922e2a72cd36e0b33e60ad36d8}{training.\+logits\+\_\+real}} = \mbox{\hyperlink{namespacetraining_ad944473fb2d682790c347a0def2e5190}{discriminator}}(images.\+contiguous().detach())\mbox{[}-\/1\mbox{]}
+\item 
+\mbox{\hyperlink{namespacetraining_a49f252553ce57d75a2fdd5a86a40d9c3}{training.\+loss\+\_\+d\+\_\+real}}
+\item 
+tuple \mbox{\hyperlink{namespacetraining_ae08c81334e30e5cba7ad5124f4033887}{training.\+discriminator\+\_\+loss}} = (\mbox{\hyperlink{namespacetraining_a8e6b0846fc0dcbadfc338f2dcf8b1d02}{loss\+\_\+d\+\_\+fake}} + \mbox{\hyperlink{namespacetraining_a49f252553ce57d75a2fdd5a86a40d9c3}{loss\+\_\+d\+\_\+real}}) \texorpdfstring{$\ast$}{*} 0.\+5
+\item 
+float \mbox{\hyperlink{namespacetraining_ac77f55de4cd1cb14a9ba7acb8dc27542}{training.\+loss\+\_\+d}} = \mbox{\hyperlink{namespacetraining_a47dd5a0c213ce0c0d8f6250f980e3c5e}{adv\+\_\+weight}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{namespacetraining_ae08c81334e30e5cba7ad5124f4033887}{discriminator\+\_\+loss}}
+\item 
+\mbox{\hyperlink{namespacetraining_ae4658ac1f5dd4fd3f065a2787b1f5e2d}{training.\+fontsize}}
+\item 
+\mbox{\hyperlink{namespacetraining_a0a94c23759bc33b642eee674783bddbd}{training.\+prop}}
+\item 
+\mbox{\hyperlink{namespacetraining_ae6e5a935cde52b48bfcf15329b663fe3}{training.\+color}}
+\item 
+\mbox{\hyperlink{namespacetraining_ace3d8455fb4a76f9c7306d95df7ffa3f}{training.\+linewidth}}
+\item 
+\mbox{\hyperlink{namespacetraining_a40c8eeb21937c513c86ae10fb8b51c93}{training.\+label}}
+\item 
+int \mbox{\hyperlink{namespacetraining_a62902f5e805af286ffcd7961376a3ebc}{training.\+idx}} = 0
+\item 
+\mbox{\hyperlink{namespacetraining_ab876b11f161f3ff5f96fa740468ea87a}{training.\+img}} = \mbox{\hyperlink{namespacetraining_a8c4da363a35e7bd34d22012d01919cf5}{reconstruction}}\mbox{[}\mbox{\hyperlink{namespacetraining_a62902f5e805af286ffcd7961376a3ebc}{idx}}, \mbox{\hyperlink{namespacetraining_a6a19e36ca2973d062ada227b4334ea22}{channel}}\mbox{]}.detach().cpu().numpy()
+\item 
+\mbox{\hyperlink{namespacetraining_a7f3e242cbdfda52c0f71420c44961dbb}{training.\+fig}}
+\item 
+\mbox{\hyperlink{namespacetraining_a6126b3c2c2c8613f18efd0ceba489642}{training.\+axs}}
+\item 
+\mbox{\hyperlink{namespacetraining_a42059bc1be8500c5849414a4e9220172}{training.\+nrows}}
+\item 
+\mbox{\hyperlink{namespacetraining_a87472fa42d8f8bfdc4e386a49f022040}{training.\+ncols}}
+\item 
+\mbox{\hyperlink{namespacetraining_acb3a1ed3e438addfba34cb8b9207d11f}{training.\+ax}} = \mbox{\hyperlink{namespacetraining_a6126b3c2c2c8613f18efd0ceba489642}{axs}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacetraining_a957ac07698baa6c7ecc554c082fb781b}{training.\+cmap}}
+\item 
+\mbox{\hyperlink{namespacetraining_a5a8b9b4825d205a673e21352b91cf716}{training.\+unet}}
+\item 
+\mbox{\hyperlink{namespacetraining_a9fa3b45221836282657747b1c5c0bfd1}{training.\+scheduler}}
+\item 
+\mbox{\hyperlink{namespacetraining_ae9652d83fbe87882dff58283216545de}{training.\+enabled}}
+\item 
+\mbox{\hyperlink{namespacetraining_aff151287638b4debf8d1d3ca23e3e151}{training.\+first\+\_\+batch}} = first(\mbox{\hyperlink{namespacetraining_a1dad551e6b78b06c9b027213609b1f3e}{train\+\_\+loader}})
+\item 
+\mbox{\hyperlink{namespacetraining_aa3b20336dd35c41b00e8433dafe88c08}{training.\+z}} = autoencoder.\+encode\+\_\+stage\+\_\+2\+\_\+inputs(\mbox{\hyperlink{namespacetraining_aff151287638b4debf8d1d3ca23e3e151}{first\+\_\+batch}}\mbox{[}"{}image"{}\mbox{]}.to(\mbox{\hyperlink{namespacetraining_ac2e72ed2e193555d2666612591286b46}{device}}))
+\item 
+int \mbox{\hyperlink{namespacetraining_a92e8c1918f5006039bf08ad89f6a5b6d}{training.\+scale\+\_\+factor}} = 1 / torch.\+std(\mbox{\hyperlink{namespacetraining_aa3b20336dd35c41b00e8433dafe88c08}{z}})
+\item 
+\mbox{\hyperlink{namespacetraining_a137beeade654d0c6abe37f9a9ed039ce}{training.\+inferer}} = Latent\+Diffusion\+Inferer(\mbox{\hyperlink{namespacetraining_a9fa3b45221836282657747b1c5c0bfd1}{scheduler}}, \mbox{\hyperlink{namespacetraining_a92e8c1918f5006039bf08ad89f6a5b6d}{scale\+\_\+factor}}=\mbox{\hyperlink{namespacetraining_a92e8c1918f5006039bf08ad89f6a5b6d}{scale\+\_\+factor}})
+\item 
+\mbox{\hyperlink{namespacetraining_aab00c6ded1dbcdd39e6c8b99cdeb4212}{training.\+optimizer\+\_\+diff}} = torch.\+optim.\+Adam(params=unet.\+parameters(), lr=1e-\/4)
+\item 
+list \mbox{\hyperlink{namespacetraining_abb676488240e36e121315308c9101522}{training.\+epoch\+\_\+loss\+\_\+list}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{namespacetraining_ae31c0032dea952c82ed488c0c0200c7f}{training.\+scaler}} = Grad\+Scaler()
+\item 
+\mbox{\hyperlink{namespacetraining_acf5b70a3b8ad89e4cacbb60030d5b6a4}{training.\+device\+\_\+type}}
+\item 
+\mbox{\hyperlink{namespacetraining_ae85fdada3b87e7e73b7d1a7ca20680a0}{training.\+noise}} = torch.\+randn\+\_\+like(\mbox{\hyperlink{namespacetraining_aa3b20336dd35c41b00e8433dafe88c08}{z}}).to(\mbox{\hyperlink{namespacetraining_ac2e72ed2e193555d2666612591286b46}{device}})
+\item 
+\mbox{\hyperlink{namespacetraining_a9f54d343a09f11ab6b7830e33f2b7cc0}{training.\+timesteps}}
+\item 
+\mbox{\hyperlink{namespacetraining_aee05a4a026bfd6da60b6a754b13b4d9e}{training.\+noise\+\_\+pred}}
+\item 
+\mbox{\hyperlink{namespacetraining_a4384320b3de144a884cd975abb4a3a06}{training.\+loss}} = F.\+mse\+\_\+loss(noise\+\_\+pred.\+float(), noise.\+float())
+\item 
+\mbox{\hyperlink{namespacetraining_a66e1f3060beddf3de574b43f8023a346}{training.\+num\+\_\+inference\+\_\+steps}}
+\item 
+\mbox{\hyperlink{namespacetraining_a8a53cfb53649304f990778b717ceb1ab}{training.\+synthetic\+\_\+images}}
+\end{DoxyCompactItemize}

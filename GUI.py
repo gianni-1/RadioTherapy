@@ -2,6 +2,7 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QFileDialog, QVBoxLayout, QWidget, QMenuBar, QMenu, QWidgetAction
 )
 import sys 
+import nibabel as nib
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -34,9 +35,18 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(layout)
 
     def open_file_dialog(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Datei auswählen", "", "Nifty Files (*.nii *.nii.gz)") 
+        file_path, _ = QFileDialog.getOpenFileName(self, "Nifty-Datei auswählen", "", "Nifty Files (*.nii *.nii.gz)") 
         if file_path:
             print("Datei ausgewählt: ", file_path)
+
+            #Laden der Nifty-Datei
+            try: 
+                img = nib.load(file_path)
+                data = img.get_fdata()
+                print("Bildgröße: ", data.shape)
+            except Exception as e:
+                print("Fehler beim Laden der Datei: ", e)
+            
 
 app = QApplication(sys.argv)
 window = MainWindow()
