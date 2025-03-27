@@ -1,0 +1,110 @@
+\@ifundefined {etoctocstyle}{\let \etoc@startlocaltoc \@gobble \let \etoc@settocdepth \@gobble \let \etoc@depthtag \@gobble \let \etoc@setlocaltop \@gobble }{}
+\contentsline {chapter}{\numberline {1}Namespace Index}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Package List}{1}{section.1.1}%
+\contentsline {chapter}{\numberline {2}Hierarchical Index}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Class Hierarchy}{3}{section.2.1}%
+\contentsline {chapter}{\numberline {3}Class Index}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Class List}{5}{section.3.1}%
+\contentsline {chapter}{\numberline {4}File Index}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}File List}{7}{section.4.1}%
+\contentsline {chapter}{\numberline {5}Namespace Documentation}{9}{chapter.5}%
+\contentsline {section}{\numberline {5.1}GUI Namespace Reference}{9}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Variable Documentation}{9}{subsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.1}app}{9}{subsubsection.5.1.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.1.2}window}{9}{subsubsection.5.1.1.2}%
+\contentsline {section}{\numberline {5.2}training Namespace Reference}{9}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Function Documentation}{11}{subsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.1.1}KL\_loss()}{11}{subsubsection.5.2.1.1}%
+\contentsline {subsubsection}{\numberline {5.2.1.2}select\_channel()}{11}{subsubsection.5.2.1.2}%
+\contentsline {subsection}{\numberline {5.2.2}Variable Documentation}{11}{subsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.2.1}adv\_loss}{11}{subsubsection.5.2.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2.2}adv\_weight}{11}{subsubsection.5.2.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.2.3}autoencoder}{12}{subsubsection.5.2.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.2.4}autoencoder\_warm\_up\_n\_epochs}{12}{subsubsection.5.2.2.4}%
+\contentsline {subsubsection}{\numberline {5.2.2.5}ax}{12}{subsubsection.5.2.2.5}%
+\contentsline {subsubsection}{\numberline {5.2.2.6}axs}{12}{subsubsection.5.2.2.6}%
+\contentsline {subsubsection}{\numberline {5.2.2.7}batch\_size}{12}{subsubsection.5.2.2.7}%
+\contentsline {subsubsection}{\numberline {5.2.2.8}channel}{12}{subsubsection.5.2.2.8}%
+\contentsline {subsubsection}{\numberline {5.2.2.9}cmap}{12}{subsubsection.5.2.2.9}%
+\contentsline {subsubsection}{\numberline {5.2.2.10}color}{12}{subsubsection.5.2.2.10}%
+\contentsline {subsubsection}{\numberline {5.2.2.11}device}{12}{subsubsection.5.2.2.11}%
+\contentsline {subsubsection}{\numberline {5.2.2.12}device\_type}{13}{subsubsection.5.2.2.12}%
+\contentsline {subsubsection}{\numberline {5.2.2.13}directory}{13}{subsubsection.5.2.2.13}%
+\contentsline {subsubsection}{\numberline {5.2.2.14}disc\_epoch\_loss}{13}{subsubsection.5.2.2.14}%
+\contentsline {subsubsection}{\numberline {5.2.2.15}discriminator}{13}{subsubsection.5.2.2.15}%
+\contentsline {subsubsection}{\numberline {5.2.2.16}discriminator\_loss}{13}{subsubsection.5.2.2.16}%
+\contentsline {subsubsection}{\numberline {5.2.2.17}enabled}{13}{subsubsection.5.2.2.17}%
+\contentsline {subsubsection}{\numberline {5.2.2.18}epoch\_disc\_loss\_list}{13}{subsubsection.5.2.2.18}%
+\contentsline {subsubsection}{\numberline {5.2.2.19}epoch\_gen\_loss\_list}{13}{subsubsection.5.2.2.19}%
+\contentsline {subsubsection}{\numberline {5.2.2.20}epoch\_loss}{13}{subsubsection.5.2.2.20}%
+\contentsline {subsubsection}{\numberline {5.2.2.21}epoch\_loss\_list}{14}{subsubsection.5.2.2.21}%
+\contentsline {subsubsection}{\numberline {5.2.2.22}epoch\_recon\_loss\_list}{14}{subsubsection.5.2.2.22}%
+\contentsline {subsubsection}{\numberline {5.2.2.23}fig}{14}{subsubsection.5.2.2.23}%
+\contentsline {subsubsection}{\numberline {5.2.2.24}first\_batch}{14}{subsubsection.5.2.2.24}%
+\contentsline {subsubsection}{\numberline {5.2.2.25}fontsize}{14}{subsubsection.5.2.2.25}%
+\contentsline {subsubsection}{\numberline {5.2.2.26}force}{14}{subsubsection.5.2.2.26}%
+\contentsline {subsubsection}{\numberline {5.2.2.27}gen\_epoch\_loss}{14}{subsubsection.5.2.2.27}%
+\contentsline {subsubsection}{\numberline {5.2.2.28}generator\_loss}{14}{subsubsection.5.2.2.28}%
+\contentsline {subsubsection}{\numberline {5.2.2.29}idx}{14}{subsubsection.5.2.2.29}%
+\contentsline {subsubsection}{\numberline {5.2.2.30}images}{15}{subsubsection.5.2.2.30}%
+\contentsline {subsubsection}{\numberline {5.2.2.31}img}{15}{subsubsection.5.2.2.31}%
+\contentsline {subsubsection}{\numberline {5.2.2.32}inferer}{15}{subsubsection.5.2.2.32}%
+\contentsline {subsubsection}{\numberline {5.2.2.33}intermediary\_images}{15}{subsubsection.5.2.2.33}%
+\contentsline {subsubsection}{\numberline {5.2.2.34}kl\_loss}{15}{subsubsection.5.2.2.34}%
+\contentsline {subsubsection}{\numberline {5.2.2.35}kl\_weight}{15}{subsubsection.5.2.2.35}%
+\contentsline {subsubsection}{\numberline {5.2.2.36}l1\_loss}{15}{subsubsection.5.2.2.36}%
+\contentsline {subsubsection}{\numberline {5.2.2.37}label}{15}{subsubsection.5.2.2.37}%
+\contentsline {subsubsection}{\numberline {5.2.2.38}linewidth}{15}{subsubsection.5.2.2.38}%
+\contentsline {subsubsection}{\numberline {5.2.2.39}logits\_fake}{15}{subsubsection.5.2.2.39}%
+\contentsline {subsubsection}{\numberline {5.2.2.40}logits\_real}{16}{subsubsection.5.2.2.40}%
+\contentsline {subsubsection}{\numberline {5.2.2.41}loss}{16}{subsubsection.5.2.2.41}%
+\contentsline {subsubsection}{\numberline {5.2.2.42}loss\_d}{16}{subsubsection.5.2.2.42}%
+\contentsline {subsubsection}{\numberline {5.2.2.43}loss\_d\_fake}{16}{subsubsection.5.2.2.43}%
+\contentsline {subsubsection}{\numberline {5.2.2.44}loss\_d\_real}{16}{subsubsection.5.2.2.44}%
+\contentsline {subsubsection}{\numberline {5.2.2.45}loss\_g}{16}{subsubsection.5.2.2.45}%
+\contentsline {subsubsection}{\numberline {5.2.2.46}loss\_perceptual}{16}{subsubsection.5.2.2.46}%
+\contentsline {subsubsection}{\numberline {5.2.2.47}n\_epochs}{16}{subsubsection.5.2.2.47}%
+\contentsline {subsubsection}{\numberline {5.2.2.48}n\_example\_images}{17}{subsubsection.5.2.2.48}%
+\contentsline {subsubsection}{\numberline {5.2.2.49}ncols}{17}{subsubsection.5.2.2.49}%
+\contentsline {subsubsection}{\numberline {5.2.2.50}noise}{17}{subsubsection.5.2.2.50}%
+\contentsline {subsubsection}{\numberline {5.2.2.51}noise\_pred}{17}{subsubsection.5.2.2.51}%
+\contentsline {subsubsection}{\numberline {5.2.2.52}nrows}{17}{subsubsection.5.2.2.52}%
+\contentsline {subsubsection}{\numberline {5.2.2.53}num\_inference\_steps}{17}{subsubsection.5.2.2.53}%
+\contentsline {subsubsection}{\numberline {5.2.2.54}optimizer\_d}{17}{subsubsection.5.2.2.54}%
+\contentsline {subsubsection}{\numberline {5.2.2.55}optimizer\_diff}{17}{subsubsection.5.2.2.55}%
+\contentsline {subsubsection}{\numberline {5.2.2.56}optimizer\_g}{17}{subsubsection.5.2.2.56}%
+\contentsline {subsubsection}{\numberline {5.2.2.57}p\_loss}{18}{subsubsection.5.2.2.57}%
+\contentsline {subsubsection}{\numberline {5.2.2.58}perceptual\_weight}{18}{subsubsection.5.2.2.58}%
+\contentsline {subsubsection}{\numberline {5.2.2.59}progress\_bar}{18}{subsubsection.5.2.2.59}%
+\contentsline {subsubsection}{\numberline {5.2.2.60}prop}{18}{subsubsection.5.2.2.60}%
+\contentsline {subsubsection}{\numberline {5.2.2.61}recons\_loss}{18}{subsubsection.5.2.2.61}%
+\contentsline {subsubsection}{\numberline {5.2.2.62}reconstruction}{18}{subsubsection.5.2.2.62}%
+\contentsline {subsubsection}{\numberline {5.2.2.63}root\_dir}{18}{subsubsection.5.2.2.63}%
+\contentsline {subsubsection}{\numberline {5.2.2.64}scale\_factor}{18}{subsubsection.5.2.2.64}%
+\contentsline {subsubsection}{\numberline {5.2.2.65}scaler}{18}{subsubsection.5.2.2.65}%
+\contentsline {subsubsection}{\numberline {5.2.2.66}scheduler}{18}{subsubsection.5.2.2.66}%
+\contentsline {subsubsection}{\numberline {5.2.2.67}set\_to\_none}{19}{subsubsection.5.2.2.67}%
+\contentsline {subsubsection}{\numberline {5.2.2.68}synthetic\_images}{19}{subsubsection.5.2.2.68}%
+\contentsline {subsubsection}{\numberline {5.2.2.69}timesteps}{19}{subsubsection.5.2.2.69}%
+\contentsline {subsubsection}{\numberline {5.2.2.70}train\_ds}{19}{subsubsection.5.2.2.70}%
+\contentsline {subsubsection}{\numberline {5.2.2.71}train\_loader}{19}{subsubsection.5.2.2.71}%
+\contentsline {subsubsection}{\numberline {5.2.2.72}train\_transforms}{20}{subsubsection.5.2.2.72}%
+\contentsline {subsubsection}{\numberline {5.2.2.73}unet}{20}{subsubsection.5.2.2.73}%
+\contentsline {subsubsection}{\numberline {5.2.2.74}val\_interval}{20}{subsubsection.5.2.2.74}%
+\contentsline {subsubsection}{\numberline {5.2.2.75}val\_recon\_epoch\_loss\_list}{20}{subsubsection.5.2.2.75}%
+\contentsline {subsubsection}{\numberline {5.2.2.76}z}{20}{subsubsection.5.2.2.76}%
+\contentsline {subsubsection}{\numberline {5.2.2.77}z\_mu}{20}{subsubsection.5.2.2.77}%
+\contentsline {subsubsection}{\numberline {5.2.2.78}z\_sigma}{20}{subsubsection.5.2.2.78}%
+\contentsline {chapter}{\numberline {6}Class Documentation}{21}{chapter.6}%
+\contentsline {section}{\numberline {6.1}GUI.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Main\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}Window Class Reference}{21}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Constructor \& Destructor Documentation}{21}{subsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.1.1}\_\_init\_\_()}{21}{subsubsection.6.1.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Member Function Documentation}{21}{subsection.6.1.2}%
+\contentsline {subsubsection}{\numberline {6.1.2.1}open\_file\_dialog()}{21}{subsubsection.6.1.2.1}%
+\contentsline {subsection}{\numberline {6.1.3}Member Data Documentation}{22}{subsection.6.1.3}%
+\contentsline {subsubsection}{\numberline {6.1.3.1}close}{22}{subsubsection.6.1.3.1}%
+\contentsline {subsubsection}{\numberline {6.1.3.2}open\_file\_dialog}{22}{subsubsection.6.1.3.2}%
+\contentsline {chapter}{\numberline {7}File Documentation}{23}{chapter.7}%
+\contentsline {section}{\numberline {7.1}GUI.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}py File Reference}{23}{section.7.1}%
+\contentsline {section}{\numberline {7.2}training.\discretionary {\mbox {\scriptsize $\hookleftarrow $}}{}{}py File Reference}{23}{section.7.2}%
+\contentsline {chapter}{Index}{27}{section*.14}%

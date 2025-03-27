@@ -77,14 +77,14 @@ if __name__ == '__main__':
             ),
         ]
     )       
-    train_ds = DecathlonDataset(
+    train_ds = CustomDataset(
         root_dir=root_dir,
-        task="Task01_BrainTumour",
         section="training",  # validation
         cache_rate=0.0,  # you may need a few Gb of RAM... Set to 0 otherwise
         num_workers=0,  # Set download to True  if the dataset hasnt been downloaded yet
         transform=train_transforms,
         download=False,
+        seed=0,
     )
     train_loader = DataLoader(
         train_ds,
