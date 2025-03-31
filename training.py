@@ -43,7 +43,6 @@ def select_channel(image, channel=0):
 print_config()
 # -
 
-
 resolutions = [
     (8.0, 8.0, 8.0),  # sehr grob
     (6.0, 6.0, 6.0),  # grob
@@ -83,7 +82,7 @@ if __name__ == '__main__':
                     transforms.EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
                     transforms.EnsureTyped(keys=["image"]),
                     transforms.Orientationd(keys=["image"], axcodes="RAS"),
-                    transforms.Spacingd(keys=["image"], pixdim=(2.4, 2.4, 2.2), mode=("bilinear")),
+                    transforms.Spacingd(keys=["image"], pixdim=res, mode=("bilinear")),
                     SpatialPadd(keys=["image"], spatial_size=(32, 32, 32), method='symmetric'),
                     transforms.CenterSpatialCropd(keys=["image"], roi_size=(32, 32, 32)),
                     transforms.ScaleIntensityRangePercentilesd(
@@ -264,25 +263,25 @@ if __name__ == '__main__':
                 epoch_gen_loss_list.append(gen_epoch_loss / (step + 1))
                 epoch_disc_loss_list.append(disc_epoch_loss / (step + 1))
 
-            # Validation - Autoencoder
-            if (epoch + 1) % val_interval == 0:
-                autoencoder.eval()
-                discriminator.eval()
-                val_loss = 0
-                with torch.no_grad():
-                    for step, batch in enumerate(val_loader):
-                        images = batch["image"].to(device)
-                        reconstruction, z_mu, z_sigma = autoencoder(images)
-                        loss = F.l1_loss(reconstruction, images)
-                        val_loss += loss.item()
-                val_loss /= len(val_loader)
-                print(f"[Autoencoder] Epoch {epoch+1}/{n_epochs} | "
-                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
+                # Validation - Autoencoder
+                if (epoch + 1) % val_interval == 0:
+                    autoencoder.eval()
+                    discriminator.eval()
+                    val_loss = 0
+                    with torch.no_grad():
+                        for step, batch in enumerate(val_loader):
+                            images = batch["image"].to(device)
+                            reconstruction, z_mu, z_sigma = autoencoder(images)
+                            loss = F.l1_loss(reconstruction, images)
+                            val_loss += loss.item()
+                    val_loss /= len(val_loader)
+                    print(f"[Autoencoder] Epoch {epoch+1}/{n_epochs} | "
+                        f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
 
-        del discriminator
-        del loss_perceptual
-        torch.cuda.empty_cache()
-        # -
+            del discriminator
+            del loss_perceptual
+            torch.cuda.empty_cache()
+            # -
 
             plt.style.use("ggplot")
             plt.title("Learning Curves", fontsize=20)
@@ -422,23 +421,23 @@ if __name__ == '__main__':
                     epoch_loss += loss.item()
 
                 progress_bar.set_postfix({"loss": epoch_loss / (step + 1)})
-            epoch_loss_list.append(epoch_loss / (step + 1))
+                epoch_loss_list.append(epoch_loss / (step + 1))
 
-            # Validation - Diffusion Model
-            if (epoch + 1) % val_interval == 0:
-                autoencoder.eval()
-                discriminator.eval()
-                val_loss = 0
-                with torch.no_grad():
-                    for step, batch in enumerate(val_loader):
-                        images = batch["image"].to(device)
-                        reconstruction, z_mu, z_sigma = autoencoder(images)
-                        loss = F.l1_loss(reconstruction, images)
-                        val_loss += loss.item()
-                val_loss /= len(val_loader)
-                print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
-                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
-        # -
+                # Validation - Diffusion Model
+                if (epoch + 1) % val_interval == 0:
+                    autoencoder.eval()
+                    discriminator.eval()
+                    val_loss = 0
+                    with torch.no_grad():
+                        for step, batch in enumerate(val_loader):
+                            images = batch["image"].to(device)
+                            reconstruction, z_mu, z_sigma = autoencoder(images)
+                            loss = F.l1_loss(reconstruction, images)
+                            val_loss += loss.item()
+                    val_loss /= len(val_loader)
+                    print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
+                        f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
+            # -
 
             plt.plot(epoch_loss_list, label='Training Loss')
             plt.title("Learning Curves", fontsize=20)
@@ -486,7 +485,7 @@ if __name__ == '__main__':
             ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
             plt.savefig(f'synthetic_sample_res{res}_energy{energy}.png')
 
-    # ## Clean-up data
+# ## Clean-up data
 
-    if directory is None:
-        shutil.rmtree(root_dir)
+if directory is None:
+    shutil.rmtree(root_dir)
