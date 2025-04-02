@@ -44,7 +44,7 @@ print_config()
 # -
 
 resolutions = [
-    (8.0, 8.0, 8.0),  # sehr grob
+    (10.0, 10.0, 10.0),  # sehr grob
     (6.0, 6.0, 6.0),  # grob
 ]
 
@@ -189,9 +189,9 @@ if __name__ == '__main__':
             # ### Train model
 
             # +
-            n_epochs = 2   #hier war ursprünglich 100, dann 10 
+            n_epochs = 1   #hier war ursprünglich 100, dann 10 
             autoencoder_warm_up_n_epochs = 2
-            val_interval = 10
+            val_interval = 3
             epoch_recon_loss_list = []
             epoch_gen_loss_list = []
             epoch_disc_loss_list = []
@@ -259,6 +259,7 @@ if __name__ == '__main__':
                             "disc_loss": disc_epoch_loss / (step + 1),
                         }
                     )
+                   
                 epoch_recon_loss_list.append(epoch_loss / (step + 1))
                 epoch_gen_loss_list.append(gen_epoch_loss / (step + 1))
                 epoch_disc_loss_list.append(disc_epoch_loss / (step + 1))
@@ -374,7 +375,7 @@ if __name__ == '__main__':
             # ### Train diffusion model
 
             # +
-            n_epochs = 2       #hier waren ursprünglich 150 und dann 25
+            n_epochs = 1       #hier waren ursprünglich 150 und dann 25
             epoch_loss_list = []
             autoencoder.eval()
             scaler = GradScaler()
@@ -459,7 +460,7 @@ if __name__ == '__main__':
 
             noise = torch.randn((1, 3, 24, 24, 16))
             noise = noise.to(device)
-            scheduler.set_timesteps(num_inference_steps=1000)
+            scheduler.set_timesteps(num_inference_steps=5) # 1000
             if noise.shape[1] == 3:
                 noise = noise[:, :2, :, :, :]
             synthetic_images = inferer.sample(
@@ -484,6 +485,29 @@ if __name__ == '__main__':
             ax = axs[2]
             ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
             plt.savefig(f'synthetic_sample_res{res}_energy{energy}.png')
+
+# ## Save model in .ckpt format
+
+checkpoint_path = f"model_res{res}_energy{energy}.ckpt"
+torch.save(
+    {
+        "autoencoder": autoencoder.state_dict(),
+        "unet": unet.state_dict(),
+        "optimizer_diff": optimizer_diff.state_dict(),
+        "optimizer_g": optimizer_g.state_dict(),
+        "optimizer_d": optimizer_d.state_dict(),
+        "epoch": epoch,
+    },
+    checkpoint_path,
+)
+
+# Load the model
+#checkpoint = torch.load(checkpoint_path)
+#autoencoder.load_state_dict(checkpoint["autoencoder"])
+#unet.load_state_dict(checkpoint["unet"])
+#optimizer_diff.load_state_dict(checkpoint["optimizer_diff"])
+#optimizer_g.load_state_dict(checkpoint["optimizer_g"])
+#optimizer_d.load_state_dict(checkpoint["optimizer_d"])
 
 # ## Clean-up data
 
