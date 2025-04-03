@@ -58,7 +58,12 @@ if __name__ == '__main__':
     # Specify a MONAI_DATA_DIRECTORY variable, where the data will be downloaded. If not specified a temporary directory will be used.
     directory = os.environ.get("MONAI_DATA_DIRECTORY")
     root_dir = "/Users/maximilianpalm/Documents/GitHub/RadioTherapy/data"
-    print(root_dir)
+
+    if root_dir is None:
+        root_dir = tempfile.mkdtemp()
+        print(f"No MONAI_DATA_DIRECTORY specified, using temporary directory for data download.")
+
+    print(f"Directory: {root_dir}")
 
 
 

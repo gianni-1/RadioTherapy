@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QFileDialog, QVBoxLayout, QWidget, QMenuBar, QMenu, QWidgetAction
+    QApplication, QMainWindow, QPushButton, QFileDialog, QVBoxLayout, QWidget, QMenuBar, QMenu, QWidgetAction, QMessageBox
 )
 import sys 
 import nibabel as nib
@@ -34,6 +34,9 @@ class MainWindow(QMainWindow):
         layout.addWidget(upload_button)
         central_widget.setLayout(layout)
 
+        # Zeige die Einleitung beim Start
+        self.show_introduction()
+
     def open_file_dialog(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Nifty-Datei auswählen", "", "Nifty Files (*.nii *.nii.gz)") 
         if file_path:
@@ -46,7 +49,15 @@ class MainWindow(QMainWindow):
                 print("Bildgröße: ", data.shape)
             except Exception as e:
                 print("Fehler beim Laden der Datei: ", e)
-            
+
+    def show_introduction(self):
+        intro_text = (
+            "Willkommen bei der RadioTherapy App\n\n"
+            "Im Folgenden werden Sie aufgefordert, die Nifty-Daten ihrer Patienten auszuwählen.\n"
+            "Außerdem können Sie Informationen über Partikel und Energieniveaus eingeben.\n"
+            "Die App wird Ihnen dann die Möglichkeit geben, die Daten zu analysieren und zu visualisieren.\n\n"
+                    )
+        QMessageBox.information(self, "Einleitung", intro_text)
 
 app = QApplication(sys.argv)
 window = MainWindow()
