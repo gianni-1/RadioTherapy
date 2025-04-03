@@ -43,9 +43,8 @@ def select_channel(image, channel=0):
 print_config()
 # -
 
-
 resolutions = [
-    (8.0, 8.0, 8.0),  # sehr grob
+    (10.0, 10.0, 10.0),  # sehr grob
     (6.0, 6.0, 6.0),  # grob
 ]
 
@@ -59,7 +58,12 @@ if __name__ == '__main__':
     # Specify a MONAI_DATA_DIRECTORY variable, where the data will be downloaded. If not specified a temporary directory will be used.
     directory = os.environ.get("MONAI_DATA_DIRECTORY")
     root_dir = "/Users/maximilianpalm/Documents/GitHub/RadioTherapy/data"
-    print(root_dir)
+
+    if root_dir is None:
+        root_dir = tempfile.mkdtemp()
+        print(f"No MONAI_DATA_DIRECTORY specified, using temporary directory for data download.")
+
+    print(f"Directory: {root_dir}")
 
 
 
@@ -83,7 +87,7 @@ if __name__ == '__main__':
                     transforms.EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
                     transforms.EnsureTyped(keys=["image"]),
                     transforms.Orientationd(keys=["image"], axcodes="RAS"),
-                    transforms.Spacingd(keys=["image"], pixdim=(2.4, 2.4, 2.2), mode=("bilinear")),
+                    transforms.Spacingd(keys=["image"], pixdim=res, mode=("bilinear")),
                     SpatialPadd(keys=["image"], spatial_size=(32, 32, 32), method='symmetric'),
                     transforms.CenterSpatialCropd(keys=["image"], roi_size=(32, 32, 32)),
                     transforms.ScaleIntensityRangePercentilesd(
@@ -210,9 +214,9 @@ if __name__ == '__main__':
             # ### Train model
 
             # +
-            n_epochs = 2   #hier war ursprünglich 100, dann 10 
+            n_epochs = 1   #hier war ursprünglich 100, dann 10 
             autoencoder_warm_up_n_epochs = 2
-            val_interval = 10
+            val_interval = 3
             epoch_recon_loss_list = []
             epoch_gen_loss_list = []
             epoch_disc_loss_list = []
@@ -285,6 +289,7 @@ if __name__ == '__main__':
                             "disc_loss": disc_epoch_loss / (step + 1),
                         }
                     )
+                   
                 epoch_recon_loss_list.append(epoch_loss / (step + 1))
                 epoch_gen_loss_list.append(gen_epoch_loss / (step + 1))
                 epoch_disc_loss_list.append(disc_epoch_loss / (step + 1))
@@ -368,7 +373,7 @@ if __name__ == '__main__':
         #
         # In this section, we will define the diffusion model that will learn data distribution of the latent representation of the autoencoder. Together with the diffusion model, we define a beta scheduler responsible for defining the amount of noise tahat is added across the diffusion's model Markov chain.
 
-        # +
+            # +
         if res == resolutions[0]:
             unet = DiffusionModelUNet(
                 spatial_dims=3,
@@ -416,7 +421,7 @@ if __name__ == '__main__':
         # ### Train diffusion model
 
         # +
-        n_epochs = 2       #hier waren ursprünglich 150 und dann 25
+        n_epochs = 1       #hier waren ursprünglich 150 und dann 25
         epoch_loss_list = []
         autoencoder.eval()
         scaler = GradScaler()
@@ -463,23 +468,23 @@ if __name__ == '__main__':
                 epoch_loss += loss.item()
 
             progress_bar.set_postfix({"loss": epoch_loss / (step + 1)})
-        epoch_loss_list.append(epoch_loss / (step + 1))
+            epoch_loss_list.append(epoch_loss / (step + 1))
 
-        # Validation - Diffusion Model
-        if (epoch + 1) % val_interval == 0:
-            autoencoder.eval()
-            discriminator.eval()
-            val_loss = 0
-            with torch.no_grad():
-                for step, batch in enumerate(val_loader):
-                    images = batch["image"].to(device)
-                    reconstruction, z_mu, z_sigma = autoencoder(images)
-                    loss = F.l1_loss(reconstruction, images)
-                    val_loss += loss.item()
-            val_loss /= len(val_loader)
-            print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
-                f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
-    # -
+            # Validation - Diffusion Model
+            if (epoch + 1) % val_interval == 0:
+                autoencoder.eval()
+                discriminator.eval()
+                val_loss = 0
+                with torch.no_grad():
+                    for step, batch in enumerate(val_loader):
+                        images = batch["image"].to(device)
+                        reconstruction, z_mu, z_sigma = autoencoder(images)
+                        loss = F.l1_loss(reconstruction, images)
+                        val_loss += loss.item()
+                val_loss /= len(val_loader)
+                print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
+                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
+        # -
 
         plt.plot(epoch_loss_list, label='Training Loss')
         plt.title("Learning Curves", fontsize=20)
@@ -501,7 +506,7 @@ if __name__ == '__main__':
 
         noise = torch.randn((1, 3, 24, 24, 16))
         noise = noise.to(device)
-        scheduler.set_timesteps(num_inference_steps=1000)
+        scheduler.set_timesteps(num_inference_steps=5) # 1000
         if noise.shape[1] == 3:
             noise = noise[:, :2, :, :, :]
         synthetic_images = inferer.sample(
@@ -510,22 +515,60 @@ if __name__ == '__main__':
             diffusion_model=unet,
             scheduler=scheduler,
         )
+        unet.to(device)
+
+
+        scheduler = DDPMScheduler(
+            num_train_timesteps=1000,
+            schedule="scaled_linear_beta",
+            beta_start=0.0015,
+            beta_end=0.0195,
+        )
+    # -
+
+        # ### Scaling factor
+        #
+        # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
+        #
+        # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
+        #
+
+        # +
+        with torch.no_grad():
+            with autocast('cuda', enabled=True):
+                first_batch = first(train_loader)
+                z = autoencoder.encode_stage_2_inputs(first_batch["image"].to(device))
+
+        print(f"Scaling factor set to {1/torch.std(z)}")
+        scale_factor = 1 / torch.std(z)
         # -
 
-        # ### Visualise synthetic data
+        # We define the inferer using the scale factor:
 
-        idx = 0
-        img = synthetic_images[idx, channel].detach().cpu().numpy()  # images
-        fig, axs = plt.subplots(nrows=1, ncols=3)
-        for ax in axs:
-            ax.axis("off")
-        ax = axs[0]
-        ax.imshow(img[..., img.shape[2] // 2], cmap="gray")
-        ax = axs[1]
-        ax.imshow(img[:, img.shape[1] // 2, ...], cmap="gray")
-        ax = axs[2]
-        ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
-        plt.savefig(f'synthetic_sample_res{res}_energy{energy}.png')
+        inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
+
+# ## Save model in .ckpt format
+
+checkpoint_path = f"model_res{res}_energy{energy}.ckpt"
+torch.save(
+    {
+        "autoencoder": autoencoder.state_dict(),
+        "unet": unet.state_dict(),
+        "optimizer_diff": optimizer_diff.state_dict(),
+        "optimizer_g": optimizer_g.state_dict(),
+        "optimizer_d": optimizer_d.state_dict(),
+        "epoch": epoch,
+    },
+    checkpoint_path,
+)
+
+# Load the model
+#checkpoint = torch.load(checkpoint_path)
+#autoencoder.load_state_dict(checkpoint["autoencoder"])
+#unet.load_state_dict(checkpoint["unet"])
+#optimizer_diff.load_state_dict(checkpoint["optimizer_diff"])
+#optimizer_g.load_state_dict(checkpoint["optimizer_g"])
+#optimizer_d.load_state_dict(checkpoint["optimizer_d"])
 
 # ## Clean-up data
 
