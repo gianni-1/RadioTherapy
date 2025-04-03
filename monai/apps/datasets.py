@@ -805,10 +805,12 @@ class CustomDataset(CacheDataset):
             for cube in cubes_info["cubes"]:
                 input_path = patient_dir / cube["input"]
                 target_path = patient_dir / cube["target"]
+                energy = cube.get("energy", None)  #Energie abfragen
                 if input_path.exists() and target_path.exists():
-                    data_list.append(
-                        {"input": str(input_path), "target": str(target_path)}
-                    )
+                    item = {"input": str(input_path), "target": str(target_path)}
+                    if energy is not None:         #Das hier hinzugefügt
+                        item["energy"] = energy    #Das hier hinzugefügt
+                    data_list.append(item)         #Das hier hinzugefügt
         return data_list
 
 

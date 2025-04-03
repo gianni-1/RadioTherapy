@@ -99,8 +99,21 @@ if __name__ == '__main__':
                 transform=train_transforms,
                 download=False,
                 seed=0,
+                energy=energy    #DAS hier hinzugefügt 
             )
+            
+            #check if samples are complete
+            incomplete_samples = 0
+            for idx, sample in enumerate(train_ds_full):
+                if "input" not in sample or "target" not in sample: 
+                    print(f"WARNING: Sample {idx} is incomplete. ('input' or 'target' not in sample).")
+                    incomplete_samples += 1
+                if incomplete_samples > 0:
+                    print(f"WARNING: {incomplete_samples} samples are incomplete. Please check training data!")
+                else:
+                    print("All samples are complete.")
 
+            #splitting in training and validation set
             dataset_size = len(train_ds_full)
             train_size = int(dataset_size * 0.8) # 80% Training, 20% Validation
             val_size = dataset_size - train_size
@@ -110,6 +123,7 @@ if __name__ == '__main__':
                 [train_size, val_size],
                 generator=torch.Generator().manual_seed(42)  # for reproducibility
             )
+            print(f"Training set size: {len(train_ds)}; Validation set size: {len(val_ds)}")
 
             train_loader = DataLoader(
                 train_ds,
@@ -126,6 +140,12 @@ if __name__ == '__main__':
                 num_workers=0
             )
             print(f'Image shape {train_ds[0]["image"].shape}')
+            print(f"Training set: {len(train_ds)} Samples")
+            print(f"Batch size: {batch_size}")
+            print(f"Count Batches: {len(train_loader)}")
+
+            sample_batch = next(iter(train_loader))
+            print("Beispiel-Batch Shape:", sample_batch["image"].shape)
             # -
 
             # ## Autoencoder KL
@@ -199,6 +219,11 @@ if __name__ == '__main__':
             val_recon_epoch_loss_list = []
             intermediary_images = []
             n_example_images = 4
+            #earlystopping part
+            patience = 5
+            best_val_loss = float("inf")
+            epochs_no_improvement = 0
+            training_complete = False
 
             for epoch in range(n_epochs):
                 autoencoder.train()
@@ -278,215 +303,231 @@ if __name__ == '__main__':
                 val_loss /= len(val_loader)
                 print(f"[Autoencoder] Epoch {epoch+1}/{n_epochs} | "
                     f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
+            
+            #Early stopping logik 
+            if val_loss < best_val_loss:   #Threshold for early stopping
+                best_val_loss = val_loss
+                epochs_no_improvement = 0
+                torch.save(autoencoder.state_dict(), "best_autoencoder.pt") #save the best model
+            else: 
+                epochs_no_improvement += 1
+            
+            if epochs_no_improvement >= patience:
+                print("Early stopping triggered")
+                training_complete = True
+
+            if training_complete:
+                print("Training complete")
+                break
 
         del discriminator
         del loss_perceptual
         torch.cuda.empty_cache()
-        # -
+        #-
 
-            plt.style.use("ggplot")
-            plt.title("Learning Curves", fontsize=20)
-            plt.plot(epoch_recon_loss_list)
-            plt.yticks(fontsize=12)
-            plt.xticks(fontsize=12)
-            plt.xlabel("Epochs", fontsize=16)
-            plt.ylabel("Loss", fontsize=16)
-            plt.legend(prop={"size": 14})
-            plt.show()
-            plt.savefig(f'learning_curves_res{res}_energy{energy}.png')
+        plt.style.use("ggplot")
+        plt.title("Learning Curves", fontsize=20)
+        plt.plot(epoch_recon_loss_list)
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.xlabel("Epochs", fontsize=16)
+        plt.ylabel("Loss", fontsize=16)
+        plt.legend(prop={"size": 14})
+        plt.show()
+        plt.savefig(f'learning_curves_res{res}_energy{energy}.png')
 
-            plt.title("Adversarial Training Curves", fontsize=20)
-            plt.plot(epoch_gen_loss_list, color="C0", linewidth=2.0, label="Generator")
-            plt.plot(epoch_disc_loss_list, color="C1", linewidth=2.0, label="Discriminator")
-            plt.yticks(fontsize=12)
-            plt.xticks(fontsize=12)
-            plt.xlabel("Epochs", fontsize=16)
-            plt.ylabel("Loss", fontsize=16)
-            plt.legend(prop={"size": 14})
-            plt.show()
-            plt.savefig(f'adversarial_training_curves_res{res}_energy{energy}.png') 
+        plt.title("Adversarial Training Curves", fontsize=20)
+        plt.plot(epoch_gen_loss_list, color="C0", linewidth=2.0, label="Generator")
+        plt.plot(epoch_disc_loss_list, color="C1", linewidth=2.0, label="Discriminator")
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.xlabel("Epochs", fontsize=16)
+        plt.ylabel("Loss", fontsize=16)
+        plt.legend(prop={"size": 14})
+        plt.show()
+        plt.savefig(f'adversarial_training_curves_res{res}_energy{energy}.png') 
 
-            # ### Visualise reconstructions
+        # ### Visualise reconstructions
 
-            # Plot axial, coronal and sagittal slices of a training sample
-            idx = 0
-            img = reconstruction[idx, channel].detach().cpu().numpy()
-            fig, axs = plt.subplots(nrows=1, ncols=3)
-            for ax in axs:
-                ax.axis("off")
-            ax = axs[0]
-            ax.imshow(img[..., img.shape[2] // 2], cmap="gray")
-            ax = axs[1]
-            ax.imshow(img[:, img.shape[1] // 2, ...], cmap="gray")
-            ax = axs[2]
-            ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
+        # Plot axial, coronal and sagittal slices of a training sample
+        idx = 0
+        img = reconstruction[idx, channel].detach().cpu().numpy()
+        fig, axs = plt.subplots(nrows=1, ncols=3)
+        for ax in axs:
+            ax.axis("off")
+        ax = axs[0]
+        ax.imshow(img[..., img.shape[2] // 2], cmap="gray")
+        ax = axs[1]
+        ax.imshow(img[:, img.shape[1] // 2, ...], cmap="gray")
+        ax = axs[2]
+        ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
 
-            # ## Diffusion Model
-            #
-            # ### Define diffusion model and scheduler
-            #
-            # In this section, we will define the diffusion model that will learn data distribution of the latent representation of the autoencoder. Together with the diffusion model, we define a beta scheduler responsible for defining the amount of noise tahat is added across the diffusion's model Markov chain.
+        # ## Diffusion Model
+        #
+        # ### Define diffusion model and scheduler
+        #
+        # In this section, we will define the diffusion model that will learn data distribution of the latent representation of the autoencoder. Together with the diffusion model, we define a beta scheduler responsible for defining the amount of noise tahat is added across the diffusion's model Markov chain.
 
-            # +
-            if res == resolutions[0]:
-                unet = DiffusionModelUNet(
-                    spatial_dims=3,
-                    in_channels=2,
-                    out_channels=2,
-                    num_res_blocks=1,
-                    num_channels=(32, 64, 64),
-                    attention_levels=(False, True, True),
-                    num_head_channels=(0, 64, 64),
-                )
-                unet.to(device)
-
-
-                scheduler = DDPMScheduler(
-                    num_train_timesteps=1000,
-                    schedule="scaled_linear_beta",
-                    beta_start=0.0015,
-                    beta_end=0.0195,
-                )
-            # -
-
-                # ### Scaling factor
-                #
-                # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
-                #
-                # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
-                #
-
-                # +
-                with torch.no_grad():
-                    with autocast('cuda', enabled=True):
-                        first_batch = first(train_loader)
-                        z = autoencoder.encode_stage_2_inputs(first_batch["image"].to(device))
-
-                print(f"Scaling factor set to {1/torch.std(z)}")
-                scale_factor = 1 / torch.std(z)
-                # -
-
-                # We define the inferer using the scale factor:
-
-                inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
-
-                optimizer_diff = torch.optim.Adam(params=unet.parameters(), lr=1e-4)
-
-            # ### Train diffusion model
-
-            # +
-            n_epochs = 2       #hier waren ursprünglich 150 und dann 25
-            epoch_loss_list = []
-            autoencoder.eval()
-            scaler = GradScaler()
-
-            first_batch = first(train_loader)
-            z = autoencoder.encode_stage_2_inputs(first_batch["image"].to(device))
-
-            for epoch in range(n_epochs):
-                unet.train()
-                epoch_loss = 0
-                progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), ncols=70)
-                progress_bar.set_description(f"Epoch {epoch}")
-                for step, batch in progress_bar:
-                    images = batch["image"].to(device)
-                    optimizer_diff.zero_grad(set_to_none=True)
-
-                    with autocast(device_type="cpu", enabled=True):
-                        # Generate random noise
-                        noise = torch.randn_like(z).to(device)
-
-                        # Create timesteps
-                        timesteps = torch.randint(
-                            0,
-                            inferer.scheduler.num_train_timesteps,
-                            (images.shape[0],),
-                            device=images.device,
-                        ).long()
-
-                        # Get model prediction
-                        noise_pred = inferer(
-                            inputs=images,
-                            autoencoder_model=autoencoder,
-                            diffusion_model=unet,
-                            noise=noise,
-                            timesteps=timesteps,
-                        )
-
-                        loss = F.mse_loss(noise_pred.float(), noise.float())
-
-                    scaler.scale(loss).backward()
-                    scaler.step(optimizer_diff)
-                    scaler.update()
-
-                    epoch_loss += loss.item()
-
-                progress_bar.set_postfix({"loss": epoch_loss / (step + 1)})
-            epoch_loss_list.append(epoch_loss / (step + 1))
-
-            # Validation - Diffusion Model
-            if (epoch + 1) % val_interval == 0:
-                autoencoder.eval()
-                discriminator.eval()
-                val_loss = 0
-                with torch.no_grad():
-                    for step, batch in enumerate(val_loader):
-                        images = batch["image"].to(device)
-                        reconstruction, z_mu, z_sigma = autoencoder(images)
-                        loss = F.l1_loss(reconstruction, images)
-                        val_loss += loss.item()
-                val_loss /= len(val_loader)
-                print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
-                    f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
-        # -
-
-            plt.plot(epoch_loss_list, label='Training Loss')
-            plt.title("Learning Curves", fontsize=20)
-            plt.plot(epoch_loss_list)
-            plt.yticks(fontsize=12)
-            plt.xticks(fontsize=12)
-            plt.xlabel("Epochs", fontsize=16)
-            plt.ylabel("Loss", fontsize=16)
-            plt.legend(prop={"size": 14})
-            plt.show()
-            plt.savefig(f'training_loss_res{res}_energy{energy}.png')
-            # ### Plotting sampling example
-            #
-            # Finally, we generate an image with our LDM. For that, we will initialize a latent representation with just noise. Then, we will use the `unet` to perform 1000 denoising steps. In the last step, we decode the latent representation and plot the sampled image.
-
-            # +
-            autoencoder.eval()
-            unet.eval()
-
-            noise = torch.randn((1, 3, 24, 24, 16))
-            noise = noise.to(device)
-            scheduler.set_timesteps(num_inference_steps=1000)
-            if noise.shape[1] == 3:
-                noise = noise[:, :2, :, :, :]
-            synthetic_images = inferer.sample(
-                input_noise=noise,
-                autoencoder_model=autoencoder,
-                diffusion_model=unet,
-                scheduler=scheduler,
+        # +
+        if res == resolutions[0]:
+            unet = DiffusionModelUNet(
+                spatial_dims=3,
+                in_channels=2,
+                out_channels=2,
+                num_res_blocks=1,
+                num_channels=(32, 64, 64),
+                attention_levels=(False, True, True),
+                num_head_channels=(0, 64, 64),
             )
+            unet.to(device)
+
+
+            scheduler = DDPMScheduler(
+                num_train_timesteps=1000,
+                schedule="scaled_linear_beta",
+                beta_start=0.0015,
+                beta_end=0.0195,
+            )
+        # -
+
+            # ### Scaling factor
+            #
+            # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
+            #
+            # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
+            #
+
+            # +
+            with torch.no_grad():
+                with autocast('cuda', enabled=True):
+                    first_batch = first(train_loader)
+                    z = autoencoder.encode_stage_2_inputs(first_batch["image"].to(device))
+
+            print(f"Scaling factor set to {1/torch.std(z)}")
+            scale_factor = 1 / torch.std(z)
             # -
 
-            # ### Visualise synthetic data
+            # We define the inferer using the scale factor:
 
-            idx = 0
-            img = synthetic_images[idx, channel].detach().cpu().numpy()  # images
-            fig, axs = plt.subplots(nrows=1, ncols=3)
-            for ax in axs:
-                ax.axis("off")
-            ax = axs[0]
-            ax.imshow(img[..., img.shape[2] // 2], cmap="gray")
-            ax = axs[1]
-            ax.imshow(img[:, img.shape[1] // 2, ...], cmap="gray")
-            ax = axs[2]
-            ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
-            plt.savefig(f'synthetic_sample_res{res}_energy{energy}.png')
+            inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
 
-    # ## Clean-up data
+            optimizer_diff = torch.optim.Adam(params=unet.parameters(), lr=1e-4)
 
-    if directory is None:
-        shutil.rmtree(root_dir)
+        # ### Train diffusion model
+
+        # +
+        n_epochs = 2       #hier waren ursprünglich 150 und dann 25
+        epoch_loss_list = []
+        autoencoder.eval()
+        scaler = GradScaler()
+
+        first_batch = first(train_loader)
+        z = autoencoder.encode_stage_2_inputs(first_batch["image"].to(device))
+
+        for epoch in range(n_epochs):
+            unet.train()
+            epoch_loss = 0
+            progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), ncols=70)
+            progress_bar.set_description(f"Epoch {epoch}")
+            for step, batch in progress_bar:
+                images = batch["image"].to(device)
+                optimizer_diff.zero_grad(set_to_none=True)
+
+                with autocast(device_type="cpu", enabled=True):
+                    # Generate random noise
+                    noise = torch.randn_like(z).to(device)
+
+                    # Create timesteps
+                    timesteps = torch.randint(
+                        0,
+                        inferer.scheduler.num_train_timesteps,
+                        (images.shape[0],),
+                        device=images.device,
+                    ).long()
+
+                    # Get model prediction
+                    noise_pred = inferer(
+                        inputs=images,
+                        autoencoder_model=autoencoder,
+                        diffusion_model=unet,
+                        noise=noise,
+                        timesteps=timesteps,
+                    )
+
+                    loss = F.mse_loss(noise_pred.float(), noise.float())
+
+                scaler.scale(loss).backward()
+                scaler.step(optimizer_diff)
+                scaler.update()
+
+                epoch_loss += loss.item()
+
+            progress_bar.set_postfix({"loss": epoch_loss / (step + 1)})
+        epoch_loss_list.append(epoch_loss / (step + 1))
+
+        # Validation - Diffusion Model
+        if (epoch + 1) % val_interval == 0:
+            autoencoder.eval()
+            discriminator.eval()
+            val_loss = 0
+            with torch.no_grad():
+                for step, batch in enumerate(val_loader):
+                    images = batch["image"].to(device)
+                    reconstruction, z_mu, z_sigma = autoencoder(images)
+                    loss = F.l1_loss(reconstruction, images)
+                    val_loss += loss.item()
+            val_loss /= len(val_loader)
+            print(f"[Diffusion] Epoch {epoch+1}/{n_epochs} | "
+                f"Train Loss: {epoch_loss/(step+1):.4f} | Val Loss: {val_loss:.4f}")
+    # -
+
+        plt.plot(epoch_loss_list, label='Training Loss')
+        plt.title("Learning Curves", fontsize=20)
+        plt.plot(epoch_loss_list)
+        plt.yticks(fontsize=12)
+        plt.xticks(fontsize=12)
+        plt.xlabel("Epochs", fontsize=16)
+        plt.ylabel("Loss", fontsize=16)
+        plt.legend(prop={"size": 14})
+        plt.show()
+        plt.savefig(f'training_loss_res{res}_energy{energy}.png')
+        # ### Plotting sampling example
+        #
+        # Finally, we generate an image with our LDM. For that, we will initialize a latent representation with just noise. Then, we will use the `unet` to perform 1000 denoising steps. In the last step, we decode the latent representation and plot the sampled image.
+
+        # +
+        autoencoder.eval()
+        unet.eval()
+
+        noise = torch.randn((1, 3, 24, 24, 16))
+        noise = noise.to(device)
+        scheduler.set_timesteps(num_inference_steps=1000)
+        if noise.shape[1] == 3:
+            noise = noise[:, :2, :, :, :]
+        synthetic_images = inferer.sample(
+            input_noise=noise,
+            autoencoder_model=autoencoder,
+            diffusion_model=unet,
+            scheduler=scheduler,
+        )
+        # -
+
+        # ### Visualise synthetic data
+
+        idx = 0
+        img = synthetic_images[idx, channel].detach().cpu().numpy()  # images
+        fig, axs = plt.subplots(nrows=1, ncols=3)
+        for ax in axs:
+            ax.axis("off")
+        ax = axs[0]
+        ax.imshow(img[..., img.shape[2] // 2], cmap="gray")
+        ax = axs[1]
+        ax.imshow(img[:, img.shape[1] // 2, ...], cmap="gray")
+        ax = axs[2]
+        ax.imshow(img[img.shape[0] // 2, ...], cmap="gray")
+        plt.savefig(f'synthetic_sample_res{res}_energy{energy}.png')
+
+# ## Clean-up data
+
+if directory is None:
+    shutil.rmtree(root_dir)
