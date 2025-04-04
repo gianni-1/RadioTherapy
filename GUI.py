@@ -1,8 +1,10 @@
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QFileDialog, QVBoxLayout, QWidget, QMenuBar, QMenu, QWidgetAction, QMessageBox
+    QApplication, QMainWindow, QPushButton, QFileDialog, QVBoxLayout, QWidget, QMenuBar, QMenu, QWidgetAction, QMessageBox, QInputDialog
 )
 import sys 
 import nibabel as nib
+import dose_prediction
+import visualization  # newly added for visualization
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -30,8 +32,12 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         upload_button = QPushButton("CT-Scan hochladen")
         upload_button.clicked.connect(self.open_file_dialog)
-
         layout.addWidget(upload_button)
+        
+        dose_button = QPushButton("Dosisverteilung berechnen")
+        dose_button.clicked.connect(self.calculate_dose)
+        layout.addWidget(dose_button)
+
         central_widget.setLayout(layout)
 
         # Zeige die Einleitung beim Start
@@ -49,6 +55,35 @@ class MainWindow(QMainWindow):
                 print("Bildgröße: ", data.shape)
             except Exception as e:
                 print("Fehler beim Laden der Datei: ", e)
+
+    def calculate_dose(self):
+        # Let the user select the patient CT file.
+        input_path, _ = QFileDialog.getOpenFileName(
+            self, "Patienten-CT auswählen", "", "Nifty Files (*.nii *.nii.gz)"
+        )
+        if not input_path:
+            return
+
+        # Let the user select the trained DoseNet model (.ckpt file)
+        model_path, _ = QFileDialog.getOpenFileName(
+            self, "DoseNet Modell auswählen", "", "Checkpoint Files (*.ckpt);;All Files (*)"
+        )
+        if not model_path:
+            return
+
+        # Let the user choose the output path for the dose distribution.
+        output_path, _ = QFileDialog.getSaveFileName(
+            self, "Speicherort für Dosisverteilung", "", "Nifty Files (*.nii *.nii.gz)"
+        )
+        if not output_path:
+            return
+
+        try:
+            dose = dose_prediction.predict_dose(input_path, output_path, model_path)
+            QMessageBox.information(self, "Erfolg", "Dosisverteilung wurde berechnet und gespeichert.")
+            visualization.visualize_dose(dose)  # visualize the dose result
+        except Exception as e:
+            QMessageBox.critical(self, "Fehler", f"Fehler bei der Dosisberechnung: {e}")
 
     def show_introduction(self):
         intro_text = (
