@@ -11,9 +11,14 @@ from torch.optim import Adam
 
 class SystemManager:
     """
-    SystemManager orchestrates the complete workflow of the project.
-    It loads the dataset, splits it, runs training for each resolution and energy,
-    and finally triggers inference after training is complete.
+    The SystemManager class orchestrates the complete training and inference workflow.
+    
+    It iterates over each combination of spatial resolution and energy level:
+      - Loads the dataset using the DataLoaderModule.
+      - Splits the data into training and validation sets.
+      - Initializes and trains the autoencoder (and optionally diffusion model) 
+        using early stopping based on validation loss.
+      - Sets a training-completion flag for subsequent inference.
     """
     def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, seed=42):
         """
@@ -39,9 +44,15 @@ class SystemManager:
 
     def run_training(self):
         """
-        Executes the full training pipeline over all combinations of resolutions and energies.
-        For each combination, it loads the dataset, splits it, creates data loaders, and trains
-        the autoencoder and diffusion models. Early stopping is applied based on validation loss.
+        Executes the full training pipeline over all resolution and energy combinations.
+        
+        For each combination, the following steps are executed:
+          1. Load and split the dataset filtered by the current energy.
+          2. Create DataLoaders for training and validation.
+          3. Initialize the autoencoder, discriminator, and diffusion models.
+          4. Run the autoencoder training loop with early stopping based on validation loss.
+        
+        After all configurations have been processed, a flag is set to indicate that training is complete.
         """
         # Iterate over all resolution and energy combinations
         for res in self.resolutions:
@@ -79,7 +90,11 @@ class SystemManager:
                     attention_levels=(False, False, True),
                 ).to(self.device)
                 discriminator = PatchDiscriminator(
-                    spatial_dims=3, num_layers_d=3, num_channels=32, in_channels=1, out_channels=1
+                    spatial_dims=3,
+                    num_layers_d=3, 
+                    num_channels=32, 
+                    in_channels=1, 
+                    out_channels=1
                 ).to(self.device)
                 unet = DiffusionModelUNet(
                     spatial_dims=3,
@@ -90,6 +105,8 @@ class SystemManager:
                     attention_levels=(False, True, True),
                     num_head_channels=(0, 64, 64),
                 ).to(self.device)
+
+                # Initialize optimizers
                 optimizer_g = Adam(autoencoder.parameters(), lr=1e-4)
                 optimizer_d = Adam(discriminator.parameters(), lr=1e-4)
                 optimizer_diff = Adam(unet.parameters(), lr=1e-4)
@@ -115,9 +132,10 @@ class SystemManager:
                 # Mark training as complete for this configuration
                 print(f"Training complete for resolution {res} and energy {energy} keV.\n")
                 
-                # Here you could save the best model for this configuration if needed.
+                # Here we could save the best model for this configuration if needed.
                 # torch.save(autoencoder.state_dict(), f"autoencoder_res{res}_energy{energy}.pt")
                 # torch.save(unet.state_dict(), f"diffusion_res{res}_energy{energy}.pt")
+                
         # End of training loop for all resolution-energy combinations
         self.training_complete = True
         print("All training configurations completed. System is ready for inference.")

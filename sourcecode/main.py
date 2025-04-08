@@ -4,8 +4,8 @@ import torch
 from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensord
 from monai.data import NibabelReader
 
-# Import the SystemManager from your modularized project
 from system_manager import SystemManager
+from parameter_manager import ParameterManager
 
 def main():
     """
@@ -37,19 +37,26 @@ def main():
     energies = [62, 75, 90]
     batch_size = 2
 
+    # Initialize the ParameterManager with the defined configurations.
+    # This class centralizes the configuration parameters for the project.
+    param_manager = ParameterManager(
+        resolutions=resolutions,
+        energies=energies,
+        batch_size=batch_size
+    )
+
     # Initialize the SystemManager with the given configuration.
     # SystemManager orchestrates the entire workflow: loading data, training, and inference.
     system_manager = SystemManager(
         root_dir=root_dir,
         transforms=transforms_chain,
-        resolutions=resolutions,
-        energies=energies,
-        batch_size=batch_size,
+        resolutions=param_manager.resolutions,
+        energies=param_manager.energies,
+        batch_size=param_manager.batch_size,
         device=device,
         seed=42
     )
 
-    # (Optional) Validate the dataset before training begins.
     # This function should check that the data is complete and correctly formatted.
     system_manager.validiereDaten()
 
