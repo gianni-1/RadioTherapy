@@ -116,7 +116,6 @@ class InferenceModule:
         conditioned_input = torch.cat((input_data, energy_tensor), dim=1)
         
         # Pass the conditioned input through the autoencoder.
-        # Note: Your autoencoder must be modified to accept (C+1) channels.
         latent_representation = self.autoencoder(conditioned_input)
         
         # Use the diffusion model to compute the dose distribution based on the latent representation.

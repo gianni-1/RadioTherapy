@@ -68,6 +68,18 @@ class DataLoaderModule:
         )
         return train_ds, val_ds
     
+    def custom_collate(self, batch):
+        """
+        Custom collate function that checks and collates 'input', 'target', and 'energy' if available.
+        """
+        for i, sample in enumerate(batch):
+            if "input" not in sample or "target" not in sample:
+                print(f"Warning: Sample {i} is missing required keys 'input' or 'target'.")
+        # Use the default collate function to combine the dictionaries, which will combine
+        # any common keys (including 'energy', if present)
+        return torch.utils.data.dataloader.default_collate(batch)
+
+    
     def create_data_loader(self, dataset, batch_size, shuffle=True, num_workers=0):
         """
          Creates a DataLoader from the given dataset.
@@ -86,5 +98,6 @@ class DataLoaderModule:
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers,
+            collate_fn=self.custom_collate,
             persistent_workers=False
         )

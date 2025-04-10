@@ -5,9 +5,6 @@ import torch.nn.functional as F
 from torch.nn import L1Loss
 from tqdm import tqdm
 
-###############################################################################
-# EarlyStopping
-###############################################################################
 class EarlyStopping:
     """
     Monitors the validation loss and triggers early stopping if the loss
@@ -45,12 +42,13 @@ class EarlyStopping:
         self.best_val_loss = float('inf')
         self.epochs_no_improvement = 0
 
-###############################################################################
-# AutoenconderTrainer
-###############################################################################
 class AutoenconderTrainer:
     """
     Encapsulates the training process for the autoencoder, including validation.
+
+    This implementation has been updated to integrate energy conditioning.
+    Each sample is expected to contain an "energy" field, which is normalized, expanded to match
+    the spatial dimensions of the image, and then concatenated as an additional input channel.
     """
     def __init__(self, autoenconder, discriminator, optim_g, optim_d, device,
                  kl_weight=1e-6, adv_weight=0.01, perceptual_weight=0.001, warm_up_epochs=2):
@@ -80,6 +78,12 @@ class AutoenconderTrainer:
     def train_one_epoch(self, train_loader, epoch):
         """
         Trains the autoencoder and the discriminator for an epoch.
+
+        This method integrates energy conditioning: for each batch, it extracts the "energy" values,
+        normalizes them, expands them to match the spatial dimensions, and concatenates them as an
+        additional channel to the input images. The autoencoder must be adapted to accept the increased
+        number of input channels.
+
         Args:
             train_loader (DataLoader): DataLoader for training data.
             epoch (int): Current epoch.
@@ -93,18 +97,37 @@ class AutoenconderTrainer:
         disc_epoch_loss = 0.0
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Autoencoder Epoch {epoch}")):
-            images = batch['image'].to(self.device)
-            self.optimizer_g.zero_grad(set_to_none=True)
+            #Move images to device
+            images = batch['image'].to(self.device)  #Expected shape: [B, 1, D, H, W]
 
-            reconstruction, z_mu, z_sigma = self.autoenconder(images)
+            #Check if energy information is available; if yes, condition the input.
+            if "energy" in batch:
+                energies = batch["energy"].to(self.device)  #Expected shape: [B]
+                # Normalize the energy values (example normalization: divide by 100)
+                normalized_energy = energies.float() / 100.0  # Shape: [B]
+                B, C, D, H, W = images.shape
+                #Reshape energies to [B, 1, 1, 1, 1] and expand to [B,1 ,D, H, W]
+                energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                #Concatenate along the channel dimension, resulting in a conditioned input of shape [B, 2, D, H, W]
+                conditioned_input = torch.cat([images, energy_tensor], dim=1)
+            else:
+                conditioned_input = images
+
+            #Zero the gradients for the generator 
+            self.optimizer_g.zero_grad(set_to_none=True)
+            # Pass the conditioned input through the autoencoder
+            # (Note: autoencoder's in_channels should be updated to handle conditioned input)
+            reconstruction, z_mu, z_sigma = self.autoenconder(conditioned_input)
 
             #calculate KL loss
             kl_loss = 0.5 * torch.sum(
                 z_mu.pow(2) + z_sigma.pow(2) - torch.log(z_sigma.pow(2)) - 1
             ) /images.size(0)
+            # Compute reconstruction loss (L1 loss)
             recons_loss = self.l1_loss(reconstruction.float(), images.float())
             loss_g = recons_loss + self.kl_weight * kl_loss
 
+            # Add adversarial loss if past warm-up phase and discriminator is used.
             if epoch > self.warm_up_epochs and self.discriminator is not None:
                 logits_fake = self.discriminator(reconstruction.contiguous().float())[-1]
                 #For the example: adversarial loss as MSE, target: ones (real)
@@ -147,15 +170,22 @@ class AutoenconderTrainer:
         with torch.no_grad():
             for batch in val_loader:
                 images = batch["image"].to(self.device)
-                reconstruction, z_mu, z_sigma = self.autoencoder(images)
+                # For validation, energy conditioning is optional.
+                if "energy" in batch:
+                    energies = batch["energy"].to(self.device)
+                    normalized_energy = energies.float() / 100.0
+                    B, C, D, H, W = images.shape
+                    energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                    conditioned_input = torch.cat([images, energy_tensor], dim=1)
+                else:
+                    conditioned_input = images
+                
+                reconstruction, z_mu, z_sigma = self.autoencoder(conditioned_input)
                 loss = self.l1_loss(reconstruction, images)
                 val_loss += loss.item()
         avg_val_loss = val_loss / len(val_loader)
         return avg_val_loss
 
-###############################################################################
-# DiffusionTrainer
-###############################################################################
 class DiffusionTrainer:
     """
     Encapsulates the training process for the diffusion model.    """
