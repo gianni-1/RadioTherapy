@@ -1,7 +1,10 @@
 # main.py
 
 import torch
-from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensord
+from monai.transforms import (
+    Compose, LoadImaged, EnsureChannelFirstd, Spacingd,
+    SpatialPadd, CenterSpatialCropd, ToTensord
+)
 from monai.data import NibabelReader
 
 from system_manager import SystemManager
@@ -22,28 +25,33 @@ def main():
     # Update this path to point to where your dataset is stored.
     root_dir = "/Users/giannigagliardi/Documents/Git/RadioTherapy/data"  
 
-    # Define a transformation pipeline for loading and preprocessing NIfTI images.
-    # In this case, we load the image using NibabelReader, ensure the channel dimension is first, and convert to tensor.
-    transforms_chain = Compose([
-        LoadImaged(keys=["image"], reader=NibabelReader),
-        EnsureChannelFirstd(keys=["image"]),
-        ToTensord(keys=["image"])
-    ])
-
     # Define the training configurations:
     # - Resolutions: a list of tuples representing different spatial resolutions (e.g., 64x64x64 and 32x32x32).
     # - Energies: a list of energy values (e.g., in keV) for which separate trainings will be executed.
     resolutions = [(64, 64, 64), (32, 32, 32)]
     energies = [62, 75, 90]
     batch_size = 2
+    cube_size = (64, 64, 64)  # Cube size to which CT data will be resized.
 
     # Initialize the ParameterManager with the defined configurations.
     # This class centralizes the configuration parameters for the project.
     param_manager = ParameterManager(
         resolutions=resolutions,
         energies=energies,
-        batch_size=batch_size
+        batch_size=batch_size,
+        cube_size=cube_size
     )
+
+    # Define a transformation pipeline for loading and preprocessing NIfTI images.
+    # In this case, we load the image using NibabelReader, ensure the channel dimension is first, and convert to tensor.
+    transforms_chain = Compose([
+        LoadImaged(keys=["image"], reader=NibabelReader),
+        EnsureChannelFirstd(keys=["image"]),
+        Spacingd(keys=["image"], pixdim=(2.4, 2.4, 2.4), mode=("bilinear")),
+        SpatialPadd(keys=["image"], spatial_size=param_manager.cube_size, method="symmetric"),
+        CenterSpatialCropd(keys=["image"], roi_size=param_manager.cube_size),
+        ToTensord(keys=["image"])
+    ])
 
     # Initialize the SystemManager with the given configuration.
     # SystemManager orchestrates the entire workflow: loading data, training, and inference.
