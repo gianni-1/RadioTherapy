@@ -56,7 +56,7 @@ class SystemManager:
         """
         # Iterate over all resolution and energy combinations
         for res in self.resolutions:
-            print(f"\n--- Starting training for resolution {res} and energy {energy} keV ---")
+            print(f"\n--- Starting training for resolution {res} (all energy levels integrated) ---")
             
             # Create a DataLoaderModule instance with the given energy
             data_module = DataLoaderModule(
@@ -129,7 +129,7 @@ class SystemManager:
                     print("Early stopping triggered.")
                     break
             # Mark training as complete for this configuration
-            print(f"Training complete for resolution {res} and energy {energy} keV.\n")
+            print(f"Training complete for resolution {res} (all energies integrated).\n")
             
             # Here we could save the best model for this configuration if needed.
             # torch.save(autoencoder.state_dict(), f"autoencoder_res{res}_energy{energy}.pt")

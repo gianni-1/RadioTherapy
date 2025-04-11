@@ -8,6 +8,7 @@ import visualization
 import dummy_dose  # for dummy dose generation
 import nibabel as nib  # for handling NIfTI files
 import inference_module as inference  # for dose calculation
+import numpy as np  # for numerical operations
 
 class MainWindow(QMainWindow):
     """
@@ -54,7 +55,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Upload button for CT scan
         upload_button = QPushButton("Upload CT Scan", self)
@@ -91,8 +92,8 @@ class MainWindow(QMainWindow):
             print(f"Selected file: {file_path}")
             try:
                 # Load the NIfTI file to ensure it's valid
-                img = nib.load(file_path)
-                data = img.get_fdata()
+                img = nib.load(file_path) 
+                data = np.asarray(img)
                 print(f"Image shape: {data.shape}")
             except Exception as e:
                 print(f"Error loading file: {e}")
