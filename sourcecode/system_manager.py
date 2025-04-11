@@ -56,86 +56,85 @@ class SystemManager:
         """
         # Iterate over all resolution and energy combinations
         for res in self.resolutions:
-            for energy in self.energies:
-                print(f"\n--- Starting training for resolution {res} and energy {energy} keV ---")
-                
-                # Create a DataLoaderModule instance with the given energy
-                data_module = DataLoaderModule(
-                    root_dir=self.root_dir,
-                    transforms=self.transforms,
-                    energy=energy,
-                    train_ratio=0.8,
-                    seed=self.seed
-                )
-                # Load and split dataset
-                ds_full = data_module.load_dataset(section="training")
-                train_ds, val_ds = data_module.split_dataset(ds_full)
-                train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
-                val_loader = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
-                
-                print(f"Dataset loaded: {len(ds_full)} samples. Train: {len(train_ds)}, Val: {len(val_ds)}")
-                sample_batch = next(iter(train_loader))
-                print("Sample batch shape:", sample_batch["image"].shape)
-                
-                # Initialize models and optimizers here (this is a simplified placeholder)
-                # You should replace these with your actual model initializations
-                autoencoder = AutoencoderKL(
-                    spatial_dims=3,
-                    in_channels=1,
-                    out_channels=1,
-                    num_channels=(32, 32, 32),
-                    latent_channels=2,
-                    num_res_blocks=1,
-                    norm_num_groups=8,
-                    attention_levels=(False, False, True),
-                ).to(self.device)
-                discriminator = PatchDiscriminator(
-                    spatial_dims=3,
-                    num_layers_d=3, 
-                    num_channels=32, 
-                    in_channels=1, 
-                    out_channels=1
-                ).to(self.device)
-                unet = DiffusionModelUNet(
-                    spatial_dims=3,
-                    in_channels=2,
-                    out_channels=2,
-                    num_res_blocks=1,
-                    num_channels=(32, 64, 64),
-                    attention_levels=(False, True, True),
-                    num_head_channels=(0, 64, 64),
-                ).to(self.device)
+            print(f"\n--- Starting training for resolution {res} and energy {energy} keV ---")
+            
+            # Create a DataLoaderModule instance with the given energy
+            data_module = DataLoaderModule(
+                root_dir=self.root_dir,
+                transforms=self.transforms,
+                energy=None,
+                train_ratio=0.8,
+                seed=self.seed
+            )
+            # Load and split dataset
+            ds_full = data_module.load_dataset(section="training")
+            train_ds, val_ds = data_module.split_dataset(ds_full)
+            train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
+            val_loader = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
+            
+            print(f"Dataset loaded: {len(ds_full)} samples. Train: {len(train_ds)}, Val: {len(val_ds)}")
+            sample_batch = next(iter(train_loader))
+            print("Sample batch shape:", sample_batch["image"].shape)
+            
+            # Initialize models and optimizers here (this is a simplified placeholder)
+            # You should replace these with your actual model initializations
+            autoencoder = AutoencoderKL(
+                spatial_dims=3,
+                in_channels=2,
+                out_channels=1,
+                num_channels=(32, 32, 32),
+                latent_channels=2,
+                num_res_blocks=1,
+                norm_num_groups=8,
+                attention_levels=(False, False, True),
+            ).to(self.device)
+            discriminator = PatchDiscriminator(
+                spatial_dims=3,
+                num_layers_d=3, 
+                num_channels=32, 
+                in_channels=1, 
+                out_channels=1
+            ).to(self.device)
+            unet = DiffusionModelUNet(
+                spatial_dims=3,
+                in_channels=2,
+                out_channels=2,
+                num_res_blocks=1,
+                num_channels=(32, 64, 64),
+                attention_levels=(False, True, True),
+                num_head_channels=(0, 64, 64),
+            ).to(self.device)
 
-                # Initialize optimizers
-                optimizer_g = Adam(autoencoder.parameters(), lr=1e-4)
-                optimizer_d = Adam(discriminator.parameters(), lr=1e-4)
-                optimizer_diff = Adam(unet.parameters(), lr=1e-4)
+            # Initialize optimizers
+            optimizer_g = Adam(autoencoder.parameters(), lr=1e-4)
+            optimizer_d = Adam(discriminator.parameters(), lr=1e-4)
+            optimizer_diff = Adam(unet.parameters(), lr=1e-4)
+            
+            # Set early stopping parameters
+            n_epochs = 5  # for testing purposes; adjust as needed
+            patience = 3
+            early_stopper = EarlyStopping(patience=patience)
+            
+            autoencoder_trainer = AutoencoderTrainer(autoencoder, discriminator,
+                                                        optimizer_g, optimizer_d, self.device)
+            
+            print("Starting autoencoder training...")
+            for epoch in range(n_epochs):
+                train_loss, gen_loss, disc_loss = autoencoder_trainer.train_one_epoch(train_loader, epoch)
+                val_loss = autoencoder_trainer.validate(val_loader)
+                print(f"Epoch {epoch+1}/{n_epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
                 
-                # Set early stopping parameters
-                n_epochs = 5  # for testing purposes; adjust as needed
-                patience = 3
-                early_stopper = EarlyStopping(patience=patience)
-                
-                autoencoder_trainer = AutoencoderTrainer(autoencoder, discriminator,
-                                                         optimizer_g, optimizer_d, self.device)
-                
-                print("Starting autoencoder training...")
-                for epoch in range(n_epochs):
-                    train_loss, gen_loss, disc_loss = autoencoder_trainer.train_one_epoch(train_loader, epoch)
-                    val_loss = autoencoder_trainer.validate(val_loader)
-                    print(f"Epoch {epoch+1}/{n_epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
-                    
-                    # Early stopping check
-                    if early_stopper.update(val_loss):
-                        print("Early stopping triggered.")
-                        break
-                # Mark training as complete for this configuration
-                print(f"Training complete for resolution {res} and energy {energy} keV.\n")
-                
-                # Here we could save the best model for this configuration if needed.
-                # torch.save(autoencoder.state_dict(), f"autoencoder_res{res}_energy{energy}.pt")
-                # torch.save(unet.state_dict(), f"diffusion_res{res}_energy{energy}.pt")
-                
+                # Early stopping check
+                if early_stopper.update(val_loss):
+                    print("Early stopping triggered.")
+                    break
+            # Mark training as complete for this configuration
+            print(f"Training complete for resolution {res} and energy {energy} keV.\n")
+            
+            # Here we could save the best model for this configuration if needed.
+            # torch.save(autoencoder.state_dict(), f"autoencoder_res{res}_energy{energy}.pt")
+            # torch.save(unet.state_dict(), f"diffusion_res{res}_energy{energy}.pt")
+
         # End of training loop for all resolution-energy combinations
         self.training_complete = True
         print("All training configurations completed. System is ready for inference.")

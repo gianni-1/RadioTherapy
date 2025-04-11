@@ -69,10 +69,10 @@ def main():
     system_manager.validiereDaten()
 
     # Run the training process for all resolution and energy combinations.
-    system_manager.starteTraining()
+    system_manager.run_training()
 
     # After training is complete, run inference.
-    system_manager.starteInferenz()
+    system_manager.run_inference()
 
 
 if __name__ == "__main__":
