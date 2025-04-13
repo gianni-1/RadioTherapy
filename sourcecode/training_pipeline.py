@@ -42,7 +42,7 @@ class EarlyStopping:
         self.best_val_loss = float('inf')
         self.epochs_no_improvement = 0
 
-class AutoenconderTrainer:
+class AutoencoderTrainer:
     """
     Encapsulates the training process for the autoencoder, including validation.
 
