@@ -23,6 +23,8 @@ class DataLoaderModule:
         self.root_dir = root_dir
         self.transforms = transforms
         self.energy = energy
+        self.resolution = None  # Placeholder for resolution filter
+        self.cubeSize = None  # Placeholder for cube size filter
         self.train_ratio = train_ratio
         self.seed = seed
 
@@ -45,6 +47,8 @@ class DataLoaderModule:
             download=False,             # set True if the dataset should be downloaded
             seed=0,
             energy=self.energy          # if CustomDataset can filter by energy
+            resolution=self.resolution,  # if CustomDataset can filter by resolution
+            cubeSize=self.cubeSize,        # if CustomDataset can filter by cube size
         )
         return dsfull
     
