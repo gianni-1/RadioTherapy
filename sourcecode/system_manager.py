@@ -1,5 +1,7 @@
 # system_manager.py
 
+import shutil
+import os
 import torch
 from data_management import DataLoaderModule
 from training_pipeline import AutoencoderTrainer, DiffusionTrainer, EarlyStopping
@@ -45,6 +47,20 @@ class SystemManager:
         self.patience = patience
         self.training_complete = False
 
+    def save_models(self, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
+        checkpoint_path = f"model_res{self.resolutions}_energy{self.energies}.ckpt"
+        torch.save(
+            {
+                "autoencoder": self.state_dict(),
+                "unet": unet.state_dict(),
+                "optimizer_diff": optimizer_diff.state_dict(),
+                "optimizer_g": optimizer_g.state_dict(),
+                "optimizer_d": optimizer_d.state_dict(),
+                "epoch": epoch,
+            },
+            checkpoint_path,
+        )
+
     def run_training(self):
         """
         Executes the full training pipeline over all resolution and energy combinations.
@@ -57,6 +73,7 @@ class SystemManager:
         
         After all configurations have been processed, a flag is set to indicate that training is complete.
         """
+        directory = os.environ.get("MONAI_DATA_DIRECTORY")
         # Iterate over all resolution and energy combinations
         for res in self.resolutions:
             print(f"\n--- Starting training for resolution {res} (all energy levels integrated) ---")
@@ -140,7 +157,12 @@ class SystemManager:
 
         # End of training loop for all resolution-energy combinations
         self.training_complete = True
+        self.save_models(unet, optimizer_diff, optimizer_g, optimizer_d, epoch)
         print("All training configurations completed. System is ready for inference.")
+        
+        # Clean up the directory if MONAI_DATA_DIRECTORY is not set
+        if directory is None:
+            shutil.rmtree(self.root_dir)
 
     def run_inference(self):
         """
