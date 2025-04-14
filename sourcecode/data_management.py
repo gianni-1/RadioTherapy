@@ -11,7 +11,7 @@ class DataLoaderModule:
     This module takes care of loading, splitting and creating DataLoaders
     for training and validation data from a CustomDataset.
     """
-    def __init__(self, root_dir, transforms, energy=None, train_ratio=0.8, seed=42):
+    def __init__(self, root_dir, transforms, energy=None, train_ratio=0.8, seed=42, resolution=None, cubeSize=None):
         """
         Args:
             root_dir (str): The root directory where the data is located.
@@ -23,8 +23,8 @@ class DataLoaderModule:
         self.root_dir = root_dir
         self.transforms = transforms
         self.energy = energy
-        self.resolution = None  # Placeholder for resolution filter
-        self.cubeSize = None  # Placeholder for cube size filter
+        self.resolution = resolution  # Placeholder for resolution filter
+        self.cubeSize = cubeSize  # Placeholder for cube size filter
         self.train_ratio = train_ratio
         self.seed = seed
 
@@ -46,9 +46,9 @@ class DataLoaderModule:
             transform=self.transforms,
             download=False,             # set True if the dataset should be downloaded
             seed=0,
-            energy=self.energy          # if CustomDataset can filter by energy
+            energy=self.energy,          # if CustomDataset can filter by energy
             resolution=self.resolution,  # if CustomDataset can filter by resolution
-            cubeSize=self.cubeSize,        # if CustomDataset can filter by cube size
+            cubeSize=self.cubeSize        # if CustomDataset can filter by cube size
         )
         return dsfull
     

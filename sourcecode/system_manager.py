@@ -20,7 +20,7 @@ class SystemManager:
         using early stopping based on validation loss.
       - Sets a training-completion flag for subsequent inference.
     """
-    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, seed=42):
+    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, n_epochs, lr, patience, seed=42):
         """
         Initializes the SystemManager with configuration parameters.
 
@@ -40,6 +40,9 @@ class SystemManager:
         self.batch_size = batch_size
         self.device = device
         self.seed = seed
+        self.n_epochs = n_epochs
+        self.lr = lr
+        self.patience = patience
         self.training_complete = False
 
     def run_training(self):
@@ -106,13 +109,13 @@ class SystemManager:
             ).to(self.device)
 
             # Initialize optimizers
-            optimizer_g = Adam(autoencoder.parameters(), lr=1e-4)
-            optimizer_d = Adam(discriminator.parameters(), lr=1e-4)
+            optimizer_g = Adam(autoencoder.parameters(), lr=self.lr)
+            optimizer_d = Adam(discriminator.parameters(), lr=self.lr)
             optimizer_diff = Adam(unet.parameters(), lr=1e-4)
             
             # Set early stopping parameters
-            n_epochs = 5  # for testing purposes; adjust as needed
-            patience = 3
+            n_epochs = self.n_epochs  # for testing purposes; adjust as needed
+            patience = self.patience
             early_stopper = EarlyStopping(patience=patience)
             
             autoencoder_trainer = AutoencoderTrainer(autoencoder, discriminator,

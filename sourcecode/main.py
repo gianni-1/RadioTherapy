@@ -32,6 +32,9 @@ def main():
     energies = [62, 75, 90]
     batch_size = 2
     cube_size = (64, 64, 64)  # Cube size to which CT data will be resized.
+    n_epochs = 5
+    lr = 1e-4  # Learning rate for the optimizer.
+    patience = 3
 
     # Initialize the ParameterManager with the defined configurations.
     # This class centralizes the configuration parameters for the project.
@@ -39,7 +42,10 @@ def main():
         resolutions=resolutions,
         energies=energies,
         batch_size=batch_size,
-        cube_size=cube_size
+        cube_size=cube_size,
+        n_epochs=n_epochs,
+        lr=lr,
+        patience=patience
     )
 
     # Define a transformation pipeline for loading and preprocessing NIfTI images.
@@ -62,6 +68,9 @@ def main():
         energies=param_manager.energies,
         batch_size=param_manager.batch_size,
         device=device,
+        n_epochs=param_manager.n_epochs,
+        lr=param_manager.lr,
+        patience=param_manager.patience,
         seed=42
     )
 
