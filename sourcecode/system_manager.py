@@ -74,56 +74,57 @@ class SystemManager:
         After all configurations have been processed, a flag is set to indicate that training is complete.
         """
         directory = os.environ.get("MONAI_DATA_DIRECTORY")
+        # Create a DataLoaderModule instance with the given energy
+        data_module = DataLoaderModule(
+            root_dir=self.root_dir,
+            transforms=self.transforms,
+            energy=None,
+            cubeSize=self.cube_size,
+            train_ratio=0.8,
+            seed=self.seed
+        )
+        # Load and split dataset
+        ds_full = data_module.load_dataset(section="training")
+        train_ds, val_ds = data_module.split_dataset(ds_full)
+        train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
+        val_loader = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
+        
+        print(f"Dataset loaded: {len(ds_full)} samples. Train: {len(train_ds)}, Val: {len(val_ds)}")
+        sample_batch = next(iter(train_loader))
+        print("Sample batch shape:", sample_batch["image"].shape)
+        
+        # Initialize models and optimizers
+        autoencoder = AutoencoderKL(
+            spatial_dims=3,
+            in_channels=2,
+            out_channels=1,
+            num_channels=(32, 32, 32),
+            latent_channels=2,
+            num_res_blocks=1,
+            norm_num_groups=8,
+            attention_levels=(False, False, True),
+        ).to(self.device)
+        discriminator = PatchDiscriminator(
+            spatial_dims=3,
+            num_layers_d=3, 
+            num_channels=32, 
+            in_channels=1, 
+            out_channels=1
+        ).to(self.device)
+        unet = DiffusionModelUNet(
+            spatial_dims=3,
+            in_channels=2,
+            out_channels=2,
+            num_res_blocks=1,
+            num_channels=(32, 64, 64),
+            attention_levels=(False, True, True),
+            num_head_channels=(0, 64, 64),
+        ).to(self.device)
         # Iterate over all resolution and energy combinations
         for res in self.resolutions:
             print(f"\n--- Starting training for resolution {res} (all energy levels integrated) ---")
             
-            # Create a DataLoaderModule instance with the given energy
-            data_module = DataLoaderModule(
-                root_dir=self.root_dir,
-                transforms=self.transforms,
-                energy=None,
-                train_ratio=0.8,
-                seed=self.seed
-            )
-            # Load and split dataset
-            ds_full = data_module.load_dataset(section="training")
-            train_ds, val_ds = data_module.split_dataset(ds_full)
-            train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
-            val_loader = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
             
-            print(f"Dataset loaded: {len(ds_full)} samples. Train: {len(train_ds)}, Val: {len(val_ds)}")
-            sample_batch = next(iter(train_loader))
-            print("Sample batch shape:", sample_batch["image"].shape)
-            
-            # Initialize models and optimizers here (this is a simplified placeholder)
-            # You should replace these with your actual model initializations
-            autoencoder = AutoencoderKL(
-                spatial_dims=3,
-                in_channels=2,
-                out_channels=1,
-                num_channels=(32, 32, 32),
-                latent_channels=2,
-                num_res_blocks=1,
-                norm_num_groups=8,
-                attention_levels=(False, False, True),
-            ).to(self.device)
-            discriminator = PatchDiscriminator(
-                spatial_dims=3,
-                num_layers_d=3, 
-                num_channels=32, 
-                in_channels=1, 
-                out_channels=1
-            ).to(self.device)
-            unet = DiffusionModelUNet(
-                spatial_dims=3,
-                in_channels=2,
-                out_channels=2,
-                num_res_blocks=1,
-                num_channels=(32, 64, 64),
-                attention_levels=(False, True, True),
-                num_head_channels=(0, 64, 64),
-            ).to(self.device)
 
             # Initialize optimizers
             optimizer_g = Adam(autoencoder.parameters(), lr=self.lr)
@@ -156,8 +157,8 @@ class SystemManager:
             # torch.save(unet.state_dict(), f"diffusion_res{res}_energy{energy}.pt")
 
         # End of training loop for all resolution-energy combinations
-        self.training_complete = True
         self.save_models(unet, optimizer_diff, optimizer_g, optimizer_d, epoch)
+        self.training_complete = True
         print("All training configurations completed. System is ready for inference.")
         
         # Clean up the directory if MONAI_DATA_DIRECTORY is not set

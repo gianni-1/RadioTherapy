@@ -28,8 +28,7 @@ def main():
     # Define the training configurations:
     # - Resolutions: a list of tuples representing different spatial resolutions (e.g., 64x64x64 and 32x32x32).
     # - Energies: a list of energy values (e.g., in keV) for which separate trainings will be executed.
-    resolutions = [(64, 64, 64), (32, 32, 32)]
-    energies = [62, 75, 90]
+    energies = [11.5] # Wurde aus Datei rausgezogen
     batch_size = 2
     cube_size = (64, 64, 64)  # Cube size to which CT data will be resized.
     n_epochs = 5
@@ -39,7 +38,6 @@ def main():
     # Initialize the ParameterManager with the defined configurations.
     # This class centralizes the configuration parameters for the project.
     param_manager = ParameterManager(
-        resolutions=resolutions,
         energies=energies,
         batch_size=batch_size,
         cube_size=cube_size,

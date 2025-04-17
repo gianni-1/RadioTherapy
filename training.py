@@ -156,7 +156,8 @@ if __name__ == '__main__':
             #
             # ### Define Autoencoder KL network
             #
-            # In this section, we will define an autoencoder with KL-regularization for the LDM. The autoencoder's primary purpose is to transform input images into a latent representation that the diffusion model will subsequently learn. By doing so, we can decrease the computational resources required to train the diffusion component, making this approach suitable for learning high-resolution medical images.
+            # In this section, we will define an autoencoder with KL-regularization for the LDM. The autoencoder's primary purpose is to transform input images into a latent representation that the diffusion model will subsequently learn. By doing so, we can decrease the 
+            # computational resources required to train the diffusion component, making this approach suitable for learning high-resolution medical images.
             #
 
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -397,7 +398,8 @@ if __name__ == '__main__':
 
             # ### Scaling factor
             #
-            # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
+            # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. 
+            # For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
             #
             # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
             #
