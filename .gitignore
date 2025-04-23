@@ -1,0 +1,2 @@
+# Exclude all Cache-Files
+*.pyc
