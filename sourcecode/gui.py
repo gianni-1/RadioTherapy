@@ -1,6 +1,8 @@
-import sys
+import sys, os
+#Project-root 
+sys.path.insert(0, os.path.abspath(os.path.join(__file__, "..", "..")))
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox
+    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QGroupBox
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
@@ -9,6 +11,9 @@ import dummy_dose  # for dummy dose generation
 import nibabel as nib  # for handling NIfTI files
 import inference_module as inference  # for dose calculation
 import numpy as np  # for numerical operations
+from main import main
+import os, sys
+
 
 class MainWindow(QMainWindow):
     """
@@ -20,7 +25,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("RadioTherapy GUI")
         self.setMinimumSize(600, 400)
 
-        self.ct_file = None  # store imported CT file
+        self.input_dir = None  # store the input directory for training inputs
+        self.output_dir = None # store the output directory for training outputs
+
+        self.ct_file = None  # store imported CT file (inference)
 
         # Create the menu bar and add the File menu
         self._create_menu_bar()
@@ -57,24 +65,55 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
+        # Training section
+        training_group = QGroupBox("Training", self)
+        training_layout = QVBoxLayout()
+        training_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        training_group.setLayout(training_layout)
+        layout.addWidget(training_group)
+
+        # Inference section
+        inference_group = QGroupBox("Inference", self)
+        inference_layout = QVBoxLayout()
+        inference_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        inference_group.setLayout(inference_layout)
+        layout.addWidget(inference_group)
+
         # Upload button for CT scan
         upload_button = QPushButton("Upload CT Scan", self)
         upload_button.setToolTip("Click to upload a CT scan (NIfTI file)")
         upload_button.clicked.connect(self.open_file_dialog)
-        layout.addWidget(upload_button)
+        inference_layout.addWidget(upload_button)
 
         # Dose calculation button (disabled until CT file is uploaded)
         self.dose_button = QPushButton("Calculate Dose", self)
         self.dose_button.setToolTip("Calculate dose distribution (requires CT scan)")
         self.dose_button.setEnabled(False)
         self.dose_button.clicked.connect(self.calculate_dose)
-        layout.addWidget(self.dose_button)
+        inference_layout.addWidget(self.dose_button)
 
         # Dummy dose visualization button
         visualize_dose_button = QPushButton("Visualize Dummy Dose", self)
         visualize_dose_button.setToolTip("Visualize a dummy dose distribution")
         visualize_dose_button.clicked.connect(self.visualize_dummy_dose)
-        layout.addWidget(visualize_dose_button)
+        inference_layout.addWidget(visualize_dose_button)
+
+        #Training folder selection buttons
+        self.input_button = QPushButton("Select Input Cubes Folder for the Training", self)
+        self.input_button.setToolTip("Select the folder containing input cubes for training")
+        self.input_button.clicked.connect(self.select_input_folder)
+        training_layout.addWidget(self.input_button)
+
+        self.output_button = QPushButton("Select Output Cubes Folder for the Training", self)
+        self.output_button.setToolTip("Select the folder containing output cubes for training")
+        self.output_button.clicked.connect(self.select_output_folder)
+        training_layout.addWidget(self.output_button)
+
+        self.train_button = QPushButton("Train Model", self)
+        self.train_button.setToolTip("Train the model with the selected input and output folders")
+        self.train_button.setEnabled(False)  # Initially disabled
+        self.train_button.clicked.connect(self.train_model)
+        training_layout.addWidget(self.train_button)
 
         central_widget.setLayout(layout)
 
@@ -122,6 +161,62 @@ class MainWindow(QMainWindow):
             visualization.visualize_dose(dose, title="Dummy Dose Distribution")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dummy dose: {e}")
+
+    def select_input_folder(self):
+        """
+        Opens a directory dialog to select the output cubes folder for training.
+        Enables the Train button if both folders are selected.
+        """
+        folder = QFileDialog.getExistingDirectory(self, "Select Input Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
+        if folder:
+            self.input_dir = folder
+            self.update_train_button_state()
+
+    def select_output_folder(self):
+        """
+        Opens a directory dialog to select the output cubes folder for training.
+        Enables the Train button if both folders are selected.
+        """
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
+        if folder:
+            self.output_dir = folder
+            self.update_train_button_state()
+    
+    def update_train_button_state(self):
+        """
+        Enables the Train button if both input and output directories are selected.
+        """
+        if self.input_dir and self.output_dir:
+            self.train_button.setEnabled(True)
+        else:
+            self.train_button.setEnabled(False)
+    
+    def train_model(self):
+        """
+        Calls the training pipeline using the selected input and output folders.
+        Expects both folders to be subdirectories of the same parent (root) folder.
+        """
+        if not self.input_dir or not self.output_dir:
+            QMessageBox.warning(self, "Error", "Please select both input and output folders.")
+            return
+        
+        #Check that both directories are subdirectories of the same parent (root) folder
+        parent_in = os.path.dirname(self.input_dir)
+        parent_out = os.path.dirname(self.output_dir)
+        if parent_in != parent_out:
+            QMessageBox.warning(self, "Error", "Input and output folders must be subdirectories of the same parent folder.")
+            return
+        
+        root_dir = parent_in
+        try:
+            #import training entry point and call it 
+            main(root_dir)
+            QMessageBox.information(self, "Success", "Model training completed successfully.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to train the model: {e}")
+        
+
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

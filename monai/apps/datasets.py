@@ -805,17 +805,11 @@ class CustomDataset(CacheDataset):
             for cube in cubes_info["cubes"]:
                 input_path = patient_dir / cube["input"]
                 target_path = patient_dir / cube["target"]
-                energy = cube.get("energy", None)  # Request energy information TODO: Prüfe auf Richtigkeit der Anfrage
                 cubeSize = cube.get("cubeSize", None)  # Request cube size information
-                resolution = cube.get("resolution", None)  # Request resolution information
                 if input_path.exists() and target_path.exists():
                     item = {"input": str(input_path), "target": str(target_path)}
-                    if energy is not None:         
-                        item["energy"] = energy
                     if cubeSize is not None:
-                        item["cubeSize"] = cubeSize
-                    if resolution is not None:
-                        item["resolution"] = resolution    
+                        item["cubeSize"] = cubeSize   
                     data_list.append(item)        
         return data_list
 

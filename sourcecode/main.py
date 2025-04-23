@@ -10,7 +10,7 @@ from monai.data import NibabelReader
 from system_manager import SystemManager
 from parameter_manager import ParameterManager
 
-def main():
+def main(root_dir):
     """
     Main entry point for the RadioTherapy project.
     
