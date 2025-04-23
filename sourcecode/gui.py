@@ -1,6 +1,7 @@
-import sys, os
-#Project-root 
-sys.path.insert(0, os.path.abspath(os.path.join(__file__, "..", "..")))
+import os
+import sys
+# ensure the project root (parent of sourcecode/) is on the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QGroupBox
 )
@@ -94,7 +95,7 @@ class MainWindow(QMainWindow):
         # Dummy dose visualization button
         visualize_dose_button = QPushButton("Visualize Dummy Dose", self)
         visualize_dose_button.setToolTip("Visualize a dummy dose distribution")
-        visualize_dose_button.clicked.connect(self.visualize_dummy_dose)
+        visualize_dose_button.clicked.connect(self.visualize_inference_results)
         inference_layout.addWidget(visualize_dose_button)
 
         #Training folder selection buttons
@@ -118,7 +119,7 @@ class MainWindow(QMainWindow):
         self.visualize_button.setToolTip("Visualize the calculated dose distribution")
         self.visualize_button.setEnabled(False)  # Disabled until inference is complete
         self.visualize_button.clicked.connect(self.visualize_inference_results)
-        layout.addWidget(self.visualize_button)
+        inference_layout.addWidget(self.visualize_button)
 
         central_widget.setLayout(layout)
 

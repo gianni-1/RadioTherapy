@@ -1,0 +1,9 @@
+data_management
+gui
+inference_module
+main
+parameter_manager
+storage
+system_manager
+training_pipeline
+visualization

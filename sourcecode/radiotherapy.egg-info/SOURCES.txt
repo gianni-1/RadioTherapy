@@ -1,0 +1,17 @@
+README.md
+setup.py
+sourcecode/data_management.py
+sourcecode/gui.py
+sourcecode/inference_module.py
+sourcecode/main.py
+sourcecode/parameter_manager.py
+sourcecode/storage.py
+sourcecode/system_manager.py
+sourcecode/training_pipeline.py
+sourcecode/visualization.py
+sourcecode/radiotherapy.egg-info/PKG-INFO
+sourcecode/radiotherapy.egg-info/SOURCES.txt
+sourcecode/radiotherapy.egg-info/dependency_links.txt
+sourcecode/radiotherapy.egg-info/entry_points.txt
+sourcecode/radiotherapy.egg-info/requires.txt
+sourcecode/radiotherapy.egg-info/top_level.txt
