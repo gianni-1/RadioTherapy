@@ -1,5 +1,5 @@
-# main.py
-
+# main.py braucht man nicht mehr weil alles in gui.py integriert ist
+"""
 import torch
 from monai.transforms import (
     Compose, LoadImaged, EnsureChannelFirstd, Spacingd,
@@ -11,12 +11,12 @@ from system_manager import SystemManager
 from parameter_manager import ParameterManager
 
 def main(root_dir):
-    """
+    
     Main entry point for the RadioTherapy project.
     
     This function sets up the configuration parameters, initializes the SystemManager,
     and triggers the training and inference processes.
-    """
+    
     # Set the device (prefer GPU if available, otherwise CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -84,3 +84,4 @@ def main(root_dir):
 
 if __name__ == "__main__":
     main()
+"""

@@ -2,6 +2,7 @@ import os
 import sys
 # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QGroupBox
 )
@@ -9,10 +10,14 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 import visualization
 import nibabel as nib  # for handling NIfTI files
-import inference_module as inference  # for dose calculation
 import numpy as np  # for numerical operations
-from main import main
-import os, sys
+from system_manager import SystemManager
+from parameter_manager import ParameterManager
+import torch
+from monai.transforms import (
+    Compose, LoadImaged, EnsureChannelFirstd, Spacingd,
+    SpatialPadd, CenterSpatialCropd, ToTensord
+)
 
 
 class MainWindow(QMainWindow):
@@ -29,6 +34,29 @@ class MainWindow(QMainWindow):
         self.output_dir = None # store the output directory for training outputs
 
         self.ct_file = None  # store imported CT file (inference)
+
+        # prepare parameters and transforms
+        pm = ParameterManager(
+            energies=[11.5], batch_size=2, cube_size=64,                  #cube_size muss noch von der .json extrahiert werden 
+            num_epochs=5, learning_rate=1e-4, patience=3
+        )
+        transforms_chain = Compose([
+            LoadImaged(keys=["image"], reader=NibabelReader),
+            EnsureChannelFirstd(keys=["image"]),
+            Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode="bilinear"),
+            SpatialPadd(keys=["image"], spatial_size=pm.cube_size, method="symmetric"),
+            CenterSpatialCropd(keys=["image"], roi_size=pm.cube_size),
+            ToTensord(keys=["image"])
+        ])
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # instantiate SystemManager here – no main.py needed
+        self.system_manager = SystemManager(
+            root_dir="", transforms=transforms_chain,
+            resolutions=pm.resolutions, energies=pm.energies,
+            batch_size=pm.batch_size, device=device,
+            num_epochs=pm.num_epochs, learning_rate=pm.learning_rate, patience=pm.patience,
+            seed=42
+        )
 
         # Create the menu bar and add the File menu
         self._create_menu_bar()
@@ -122,7 +150,64 @@ class MainWindow(QMainWindow):
         inference_layout.addWidget(self.visualize_button)
 
         central_widget.setLayout(layout)
+    
+    # Select input and output folders for training
+    def select_input_folder(self):
+        """
+        Opens a directory dialog to select the output cubes folder for training.
+        Enables the Train button if both folders are selected.
+        """
+        folder = QFileDialog.getExistingDirectory(self, "Select Input Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
+        if folder:
+            self.input_dir = folder
+            self.update_train_button_state()
 
+    def select_output_folder(self):
+        """
+        Opens a directory dialog to select the output cubes folder for training.
+        Enables the Train button if both folders are selected.
+        """
+        folder = QFileDialog.getExistingDirectory(self, "Select Output Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
+        if folder:
+            self.output_dir = folder
+            self.update_train_button_state()
+    
+    # Update the state of the Train button based on folder selection
+    def update_train_button_state(self):
+        """
+        Enables the Train button if both input and output directories are selected.
+        """
+        if self.input_dir and self.output_dir:
+            self.train_button.setEnabled(True)
+        else:
+            self.train_button.setEnabled(False)
+    
+    # Train the model using the selected input and output folders
+    def train_model(self):
+        """
+        Calls the training pipeline using the selected input and output folders.
+        Expects both folders to be subdirectories of the same parent (root) folder.
+        """
+        if not self.input_dir or not self.output_dir:
+            QMessageBox.warning(self, "Error", "Please select both input and output folders.")
+            return
+        
+        #Check that both directories are subdirectories of the same parent (root) folder
+        parent_in = os.path.dirname(self.input_dir)
+        parent_out = os.path.dirname(self.output_dir)
+        if parent_in != parent_out:
+            QMessageBox.warning(self, "Error", "Input and output folders must be subdirectories of the same parent folder.")
+            return
+        
+        self.system_manager.root_dir = parent_in  # Set the root directory for training
+        try:
+            self.system_manager.validiereDaten()
+            self.system_manager.run_training()
+            QMessageBox.information(self, "Success", "Model training completed successfully.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to train the model: {e}")
+
+    # Open a file dialog to select a CT scan file (inference)
     def open_file_dialog(self):
         """
         Opens a file dialog for selecting a CT scan file in NIfTI format.
@@ -144,6 +229,7 @@ class MainWindow(QMainWindow):
                 print(f"Error loading file: {e}")
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
 
+    # Calculate the dose distribution using the selected CT scan file(inference)
     def calculate_dose(self):
         """
         Placeholder for dose calculation logic. Requires a CT file to be uploaded first.
@@ -154,12 +240,13 @@ class MainWindow(QMainWindow):
 
         try:
             # Run inference
-            inference.run_inference(self.ct_file)
+            self.system_manager.run_inference(self.ct_file)
             QMessageBox.information(self, "Success", "Dose distribution calculated successfully.")
             self.visualize_button.setEnabled(True)  # Enable visualization button
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
 
+    # Visualize the dose distribution from inference results
     def visualize_inference_results(self):
         """
         Visualizes the calculated dose distribution from inference results and embeds it in the GUI window.
@@ -190,59 +277,6 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")
-
-    def select_input_folder(self):
-        """
-        Opens a directory dialog to select the output cubes folder for training.
-        Enables the Train button if both folders are selected.
-        """
-        folder = QFileDialog.getExistingDirectory(self, "Select Input Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
-        if folder:
-            self.input_dir = folder
-            self.update_train_button_state()
-
-    def select_output_folder(self):
-        """
-        Opens a directory dialog to select the output cubes folder for training.
-        Enables the Train button if both folders are selected.
-        """
-        folder = QFileDialog.getExistingDirectory(self, "Select Output Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
-        if folder:
-            self.output_dir = folder
-            self.update_train_button_state()
-    
-    def update_train_button_state(self):
-        """
-        Enables the Train button if both input and output directories are selected.
-        """
-        if self.input_dir and self.output_dir:
-            self.train_button.setEnabled(True)
-        else:
-            self.train_button.setEnabled(False)
-    
-    def train_model(self):
-        """
-        Calls the training pipeline using the selected input and output folders.
-        Expects both folders to be subdirectories of the same parent (root) folder.
-        """
-        if not self.input_dir or not self.output_dir:
-            QMessageBox.warning(self, "Error", "Please select both input and output folders.")
-            return
-        
-        #Check that both directories are subdirectories of the same parent (root) folder
-        parent_in = os.path.dirname(self.input_dir)
-        parent_out = os.path.dirname(self.output_dir)
-        if parent_in != parent_out:
-            QMessageBox.warning(self, "Error", "Input and output folders must be subdirectories of the same parent folder.")
-            return
-        
-        root_dir = parent_in
-        try:
-            #import training entry point and call it 
-            main(root_dir)
-            QMessageBox.information(self, "Success", "Model training completed successfully.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to train the model: {e}")
         
 
     

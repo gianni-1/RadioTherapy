@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.graph_objects as go
+import plotly.graph_objects as go 
 
 cube = np.load("mein_cube4.npy")
 # ---------- Interactive slice viewer ----------
@@ -14,7 +14,7 @@ ax.axis("off")
 
 slider_ax = plt.axes([0.2, 0.05, 0.6, 0.03])
 slider = widgets.Slider(
-    slider_ax, "z‑Slice", 0, cube.shape[2] - 1,
+    slider_ax, "z-Slice", 0, cube.shape[2] - 1,
     valinit=slice_idx, valfmt="%0.0f"
 )
 

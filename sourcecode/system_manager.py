@@ -22,7 +22,7 @@ class SystemManager:
         using early stopping based on validation loss.
       - Sets a training-completion flag for subsequent inference.
     """
-    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, n_epochs, lr, patience, seed=42):
+    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, num_epochs, learning_rate, patience, seed=42):
         """
         Initializes the SystemManager with configuration parameters.
 
@@ -42,8 +42,8 @@ class SystemManager:
         self.batch_size = batch_size
         self.device = device
         self.seed = seed
-        self.n_epochs = n_epochs
-        self.lr = lr
+        self.num_epochs = num_epochs
+        self.learning_rate = learning_rate
         self.patience = patience
         self.training_complete = False
 

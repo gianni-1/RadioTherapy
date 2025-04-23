@@ -7,7 +7,7 @@ class ParameterManager:
     learning rate, number of epochs, and additional parameters.
     """
 
-    def __init__(self, energies, batch_size, cube_size, learning_rate, num_epochs, other_parameters=None):
+    def __init__(self, energies, batch_size, cube_size, learning_rate, num_epochs, patience, other_parameters=None):
         """
         Initializes the ParameterManager with the required configuration parameters.
         
@@ -26,6 +26,7 @@ class ParameterManager:
         self.resolutions = [cube_size/4, cube_size/2, cube_size]  # Resolution scaling based on cube size
         self.learning_rate = learning_rate
         self.num_epochs = num_epochs
+        self.patience = patience
         self.other_parameters = other_parameters if other_parameters is not None else {}
 
     def get_parameters(self):
