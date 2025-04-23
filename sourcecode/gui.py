@@ -5,10 +5,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
 import visualization
-import dummy_dose  # for dummy dose generation
 import nibabel as nib  # for handling NIfTI files
 import inference_module as inference  # for dose calculation
 import numpy as np  # for numerical operations
+import os  # for file path operations
 
 class MainWindow(QMainWindow):
     """
@@ -70,11 +70,12 @@ class MainWindow(QMainWindow):
         self.dose_button.clicked.connect(self.calculate_dose)
         layout.addWidget(self.dose_button)
 
-        # Dummy dose visualization button
-        visualize_dose_button = QPushButton("Visualize Dummy Dose", self)
-        visualize_dose_button.setToolTip("Visualize a dummy dose distribution")
-        visualize_dose_button.clicked.connect(self.visualize_dummy_dose)
-        layout.addWidget(visualize_dose_button)
+        # Visualization button for inference results
+        self.visualize_button = QPushButton("Visualize Dose Distribution", self)
+        self.visualize_button.setToolTip("Visualize the calculated dose distribution")
+        self.visualize_button.setEnabled(False)  # Disabled until inference is complete
+        self.visualize_button.clicked.connect(self.visualize_inference_results)
+        layout.addWidget(self.visualize_button)
 
         central_widget.setLayout(layout)
 
@@ -88,12 +89,12 @@ class MainWindow(QMainWindow):
         )
         if file_path:
             self.ct_file = file_path  # store the imported CT file
-            self.dose_button.setEnabled(True)  # enable dose calculation button
             print(f"Selected file: {file_path}")
             try:
                 # Load the NIfTI file to ensure it's valid
                 img = nib.load(file_path) 
                 data = np.asarray(img)
+                self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
                 print(f"Image shape: {data.shape}")
             except Exception as e:
                 print(f"Error loading file: {e}")
@@ -108,20 +109,43 @@ class MainWindow(QMainWindow):
             return
 
         try:
+            # Run inference
             inference.run_inference(self.ct_file)
             QMessageBox.information(self, "Success", "Dose distribution calculated successfully.")
+            self.visualize_button.setEnabled(True)  # Enable visualization button
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
 
-    def visualize_dummy_dose(self):
+    def visualize_inference_results(self):
         """
-        Visualizes a dummy dose distribution using the visualization module.
+        Visualizes the calculated dose distribution from inference results and embeds it in the GUI window.
         """
         try:
-            dose = dummy_dose.generate_dummy_dose()
-            visualization.visualize_dose(dose, title="Dummy Dose Distribution")
+            # TODO: Impelement variable for dose_result_path
+            if not hasattr(self, 'dose_result_path') or not self.dose_result_path:
+                QMessageBox.warning(self, "Error", "No dose calculation results available. Please calculate dose first.")
+                return
+                
+            # Load the dose distribution from the result file
+            fig = visualization.load_and_visualize(self.dose_result_path, title="Calculated Dose Distribution")
+            
+            # Create a Qt widget from the matplotlib figure
+            canvas = visualization.get_visualization_widget(fig)
+            
+            # Create a new window to display the visualization
+            visualization_window = QWidget()
+            layout = QVBoxLayout()
+            layout.addWidget(canvas)
+            visualization_window.setLayout(layout)
+            visualization_window.setWindowTitle("Dose Visualization")
+            visualization_window.setMinimumSize(600, 500)
+            visualization_window.show()
+            
+            # Store a reference to prevent garbage collection
+            self._visualization_window = visualization_window
+            
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to visualize dummy dose: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

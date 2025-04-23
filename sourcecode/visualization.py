@@ -1,6 +1,7 @@
 #visualization.py
 
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 import nibabel as nib
 import numpy as np
 
@@ -107,20 +108,61 @@ class Visualization:
             plt.savefig(filename)
         plt.show()
 
+class MplCanvas(FigureCanvasQTAgg):
+    """
+    A custom widget that converts a matplotlib figure to a Qt widget.
+    This enables embedding matplotlib visualizations directly in the GUI.
+    """
+    def __init__(self, fig):
+        self.fig = fig
+        super().__init__(self.fig)
+        self.setMinimumSize(400, 300)
 
 def visualize_dose(dose, title="Dosisverteilung - Axiale Ansicht"):
-    # Visualizes the middle axial slice of a 3D dose distribution.
+    """
+    Visualizes the middle axial slice of a 3D dose distribution.
+    
+    Args:
+        dose: 3D numpy array containing the dose distribution
+        title: Title for the visualization
+        
+    Returns:
+        matplotlib.figure.Figure: A figure object that can be displayed
+    """
     if dose.ndim != 3:
         raise ValueError("Dose distribution must be a 3D array.")
+    
     mid_slice = dose[dose.shape[0] // 2]
-    plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     plt.imshow(mid_slice, cmap="hot")
     plt.title(title)
     plt.colorbar()
-    plt.show()
+    
+    return fig
 
 def load_and_visualize(nifti_path, title="Dosisverteilung - Axiale Ansicht"):
-    # Loads a Nifti dose distribution file and visualizes its middle axial slice.
+    """
+    Loads a Nifti dose distribution file and visualizes its middle axial slice.
+    
+    Args:
+        nifti_path: Path to the NIfTI file
+        title: Title for the visualization
+        
+    Returns:
+        matplotlib.figure.Figure: A figure object that can be displayed
+    """
     img = nib.load(nifti_path)
     dose = img.get_fdata()
-    visualize_dose(dose, title)
+    return visualize_dose(dose, title)
+
+def get_visualization_widget(figure):
+    """
+    Converts a matplotlib figure to a Qt widget for embedding in the GUI.
+    
+    Args:
+        figure: matplotlib.figure.Figure object
+        
+    Returns:
+        MplCanvas: A Qt widget containing the visualization
+    """
+    return MplCanvas(figure)
