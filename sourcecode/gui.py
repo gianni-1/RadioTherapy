@@ -42,7 +42,8 @@ class MainWindow(QMainWindow):
 
         self.ct_file = None  # store imported CT file (inference)
 
-        # prepare parameters and transforms
+        # prepare parameters and transforms with default values
+        # These values will be updated based on user input in the GUI
         self.pm = ParameterManager(
             energies=[0], batch_size=2, cube_size=64,                  #cube_size muss noch von der .json extrahiert werden 
             num_epochs=5, learning_rate=1e-4, patience=3
@@ -51,8 +52,8 @@ class MainWindow(QMainWindow):
             LoadImaged(keys=["image"], reader=NibabelReader),
             EnsureChannelFirstd(keys=["image"]),
             Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode="bilinear"),
-            SpatialPadd(keys=["image"], spatial_size=pm.cube_size, method="symmetric"),
-            CenterSpatialCropd(keys=["image"], roi_size=pm.cube_size),
+            SpatialPadd(keys=["image"], spatial_size=self.pm.cube_size, method="symmetric"),
+            CenterSpatialCropd(keys=["image"], roi_size=self.pm.cube_size),
             ToTensord(keys=["image"])
         ])
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
