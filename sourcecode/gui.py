@@ -4,8 +4,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, 
-    QMessageBox, QGroupBox, 
+    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog,
+    QMessageBox, QGroupBox, QToolButton,
     QLabel, QSpinBox, QDoubleSpinBox
 )
 from PySide6.QtCore import Qt
@@ -99,7 +99,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
         layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Training section
         training_group = QGroupBox("Training", self)
@@ -108,40 +108,55 @@ class MainWindow(QMainWindow):
         training_group.setLayout(training_layout)
         layout.addWidget(training_group)
 
-        #Paremeter inputs for training 
-        #batch_size
+        # Paremeter inputs for training 
+        # Advanced training parameters in checkable group box
+        advanced_group = QGroupBox("Advanced Settings", self)
+        advanced_group.setCheckable(True)
+        advanced_group.setChecked(False)
+        adv_layout = QVBoxLayout()
+        advanced_group.setLayout(adv_layout)
+        training_layout.addWidget(advanced_group)
+
+        # Advanced training parameters
         batch_label = QLabel("Batch Size:", self)
         self.batch_spin = QSpinBox(self)
         self.batch_spin.setRange(1, 128)
         self.batch_spin.setValue(2)
-        training_layout.addWidget(batch_label)
-        training_layout.addWidget(self.batch_spin)
-
-        #num_epochs 
+        adv_layout.addWidget(batch_label)
+        adv_layout.addWidget(self.batch_spin)
         epochs_label = QLabel("Number of Epochs:", self)
         self.epochs_spin = QSpinBox(self)
         self.epochs_spin.setRange(1, 1000)
         self.epochs_spin.setValue(5)
-        training_layout.addWidget(epochs_label)
-        training_layout.addWidget(self.epochs_spin)
-
-        #patience 
+        adv_layout.addWidget(epochs_label)
+        adv_layout.addWidget(self.epochs_spin)
         patience_label = QLabel("Early stopping patience:", self)
         self.patience_spin = QSpinBox(self)
         self.patience_spin.setRange(1, 100)
         self.patience_spin.setValue(3)
-        training_layout.addWidget(patience_label)
-        training_layout.addWidget(self.patience_spin)
-        
-        #learning_rate
+        adv_layout.addWidget(patience_label)
+        adv_layout.addWidget(self.patience_spin)
         learning_rate_label = QLabel("Learning Rate:", self)
         self.learning_rate_spin = QDoubleSpinBox(self)
         self.learning_rate_spin.setRange(1e-6, 1.0)
         self.learning_rate_spin.setDecimals(6)
         self.learning_rate_spin.setSingleStep(1e-4)
         self.learning_rate_spin.setValue(1e-4)
-        training_layout.addWidget(learning_rate_label)
-        training_layout.addWidget(self.learning_rate_spin)
+        adv_layout.addWidget(learning_rate_label)
+        adv_layout.addWidget(self.learning_rate_spin)
+
+        # Add a spacer to the advanced layout to push the widgets to the top
+        for idx in range(adv_layout.count()):
+            adv_layout.itemAt(idx).widget().setVisible(False)
+
+        # toggle visibility of advanced parameters when the group box is checked/unchecked
+        advanced_group.toggled.connect(
+            lambda chk: (
+                [adv_layout.itemAt(i).widget().setVisible(chk)
+                 for i in range(adv_layout.count())],
+                self.adjustSize()
+            )
+        )
 
         # Inference section
         inference_group = QGroupBox("Inference", self)
