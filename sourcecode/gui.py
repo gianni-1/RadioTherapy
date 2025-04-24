@@ -1,5 +1,7 @@
+# Add glob import for file searching
 import os
 import sys
+import glob
 # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
@@ -35,7 +37,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("RadioTherapy Project")
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(600, 700)
 
         self.input_dir = None  # store the input directory for training inputs
         self.output_dir = None # store the output directory for training outputs
@@ -122,12 +124,14 @@ class MainWindow(QMainWindow):
         self.batch_spin = QSpinBox(self)
         self.batch_spin.setRange(1, 128)
         self.batch_spin.setValue(2)
+        self.batch_spin.setSingleStep(1)
         adv_layout.addWidget(batch_label)
         adv_layout.addWidget(self.batch_spin)
         epochs_label = QLabel("Number of Epochs:", self)
         self.epochs_spin = QSpinBox(self)
         self.epochs_spin.setRange(1, 1000)
         self.epochs_spin.setValue(5)
+        self.epochs_spin.setSingleStep(1)
         adv_layout.addWidget(epochs_label)
         adv_layout.addWidget(self.epochs_spin)
         patience_label = QLabel("Early stopping patience:", self)
@@ -138,9 +142,9 @@ class MainWindow(QMainWindow):
         adv_layout.addWidget(self.patience_spin)
         learning_rate_label = QLabel("Learning Rate:", self)
         self.learning_rate_spin = QDoubleSpinBox(self)
-        self.learning_rate_spin.setRange(1e-6, 1.0)
+        self.learning_rate_spin.setRange(0.0, 1.0)
+        self.learning_rate_spin.setSingleStep(1e-5)
         self.learning_rate_spin.setDecimals(6)
-        self.learning_rate_spin.setSingleStep(1e-4)
         self.learning_rate_spin.setValue(1e-4)
         adv_layout.addWidget(learning_rate_label)
         adv_layout.addWidget(self.learning_rate_spin)
@@ -206,11 +210,17 @@ class MainWindow(QMainWindow):
         self.input_button.setToolTip("Select the folder containing input cubes for training")
         self.input_button.clicked.connect(self.select_input_folder)
         training_layout.addWidget(self.input_button)
+        # Input path label
+        self.input_label = QLabel("No input folder selected", self)
+        training_layout.addWidget(self.input_label)
 
         self.output_button = QPushButton("Select Output Cubes Folder for the Training", self)
         self.output_button.setToolTip("Select the folder containing output cubes for training")
         self.output_button.clicked.connect(self.select_output_folder)
         training_layout.addWidget(self.output_button)
+        # Output path label
+        self.output_label = QLabel("No output folder selected", self)
+        training_layout.addWidget(self.output_label)
 
         self.train_button = QPushButton("Train Model", self)
         self.train_button.setToolTip("Train the model with the selected input and output folders")
@@ -235,6 +245,31 @@ class MainWindow(QMainWindow):
         folder = QFileDialog.getExistingDirectory(self, "Select Input Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
         if folder:
             self.input_dir = folder
+            self.input_label.setText(f"Input folder: {folder}")
+            # determine cube size from first cube file in folder
+            files = glob.glob(os.path.join(folder, "*.npy")) + glob.glob(os.path.join(folder, "*.nii")) + glob.glob(os.path.join(folder, "*.nii.gz"))
+            if files:
+                sample = files[0]
+                try:
+                    if sample.lower().endswith(".npy"):
+                        arr = np.load(sample)
+                    else:
+                        arr = np.asarray(nib.load(sample).dataobj)
+                    size = arr.shape[0]
+                    self.pm.cube_size = size
+                    # update transforms in system_manager
+                    transforms_chain = Compose([
+                        LoadImaged(keys=["image"], reader=NibabelReader),
+                        EnsureChannelFirstd(keys=["image"]),
+                        Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode="bilinear"),
+                        SpatialPadd(keys=["image"], spatial_size=self.pm.cube_size, method="symmetric"),
+                        CenterSpatialCropd(keys=["image"], roi_size=self.pm.cube_size),
+                        ToTensord(keys=["image"])
+                    ])
+                    self.system_manager.transforms = transforms_chain
+                except Exception as e:
+                    QMessageBox.warning(self, "Warning", f"Failed to determine cube size: {e}")
+                print(f"Cube size set to: {self.pm.cube_size}")
             self.update_train_button_state()
 
     def select_output_folder(self):
@@ -245,6 +280,7 @@ class MainWindow(QMainWindow):
         folder = QFileDialog.getExistingDirectory(self, "Select Output Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
         if folder:
             self.output_dir = folder
+            self.output_label.setText(f"Output folder: {folder}")
             self.update_train_button_state()
     
     # Update the state of the Train button based on folder selection

@@ -89,11 +89,7 @@ class SystemManager:
                 # create data module for this combination
                 data_module = DataLoaderModule(
                     root_dir=self.root_dir,
-                    transforms=self.transforms,
-                    energy=energy,
-                    cubeSize=res,
-                    train_ratio=0.8,
-                    seed=self.seed
+                    transforms=self.transforms
                 )
                 ds_full = data_module.load_dataset(section="training")
                 train_ds, val_ds = data_module.split_dataset(ds_full)

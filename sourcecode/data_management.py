@@ -11,7 +11,7 @@ class DataLoaderModule:
     This module takes care of loading, splitting and creating DataLoaders
     for training and validation data from a CustomDataset.
     """
-    def __init__(self, root_dir, transforms, energy=None, train_ratio=0.8, seed=42, resolution=None, cubeSize=None):
+    def __init__(self, root_dir, transforms, train_ratio=0.8, seed=42):
         """
         Args:
             root_dir (str): The root directory where the data is located.
@@ -22,9 +22,6 @@ class DataLoaderModule:
         """
         self.root_dir = root_dir
         self.transforms = transforms
-        self.energy = energy
-        self.resolution = resolution  # Placeholder for resolution filter
-        self.cubeSize = cubeSize  # Placeholder for cube size filter
         self.train_ratio = train_ratio
         self.seed = seed
 
@@ -39,16 +36,11 @@ class DataLoaderModule:
             CustomDataset: The loaded dataset.
         """
         dsfull = CustomDataset(
-            root_dir=self.root_dir,
+            data_dir=self.root_dir,
             section=section,
             cache_rate=0.0,             # set to 0 to keep RAM consumption low
             num_workers=0,              # use 0 if multiprocessing causes problems
             transform=self.transforms,
-            download=False,             # set True if the dataset should be downloaded
-            seed=0,
-            energy=self.energy,          # if CustomDataset can filter by energy
-            resolution=self.resolution,  # if CustomDataset can filter by resolution
-            cubeSize=self.cubeSize        # if CustomDataset can filter by cube size
         )
         return dsfull
     
@@ -84,7 +76,7 @@ class DataLoaderModule:
         return torch.utils.data.dataloader.default_collate(batch)
 
     
-    def create_data_loader(self, dataset, batch_size, shuffle=True, num_workers=0):
+    def create_data_loader(self, dataset, batch_size, shuffle, num_workers=0):
         """
          Creates a DataLoader from the given dataset.
         
@@ -102,6 +94,5 @@ class DataLoaderModule:
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers,
-            collate_fn=self.custom_collate,
             persistent_workers=False
         )

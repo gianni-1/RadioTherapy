@@ -805,11 +805,8 @@ class CustomDataset(CacheDataset):
             for cube in cubes_info["cubes"]:
                 input_path = patient_dir / cube["input"]
                 target_path = patient_dir / cube["target"]
-                cubeSize = cube.get("cubeSize", None)  # Request cube size information
                 if input_path.exists() and target_path.exists():
-                    item = {"input": str(input_path), "target": str(target_path)}
-                    if cubeSize is not None:
-                        item["cubeSize"] = cubeSize   
+                    item = {"input": str(input_path), "target": str(target_path)} 
                     data_list.append(item)        
         return data_list
 
