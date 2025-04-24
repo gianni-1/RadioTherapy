@@ -43,8 +43,8 @@ class MainWindow(QMainWindow):
         self.ct_file = None  # store imported CT file (inference)
 
         # prepare parameters and transforms
-        pm = ParameterManager(
-            energies=[11.5], batch_size=2, cube_size=64,                  #cube_size muss noch von der .json extrahiert werden 
+        self.pm = ParameterManager(
+            energies=[0], batch_size=2, cube_size=64,                  #cube_size muss noch von der .json extrahiert werden 
             num_epochs=5, learning_rate=1e-4, patience=3
         )
         transforms_chain = Compose([
@@ -59,9 +59,9 @@ class MainWindow(QMainWindow):
         # instantiate SystemManager here – no main.py needed
         self.system_manager = SystemManager(
             root_dir="", transforms=transforms_chain,
-            resolutions=pm.resolutions, energies=pm.energies,
-            batch_size=pm.batch_size, device=device,
-            num_epochs=pm.num_epochs, learning_rate=pm.learning_rate, patience=pm.patience,
+            resolutions=self.pm.resolutions, energies=self.pm.energies,
+            batch_size=self.pm.batch_size, device=device,
+            num_epochs=self.pm.num_epochs, learning_rate=self.pm.learning_rate, patience=self.pm.patience,
             seed=42
         )
 
@@ -257,16 +257,21 @@ class MainWindow(QMainWindow):
         if parent_in != parent_out:
             QMessageBox.warning(self, "Error", "Input and output folders must be subdirectories of the same parent folder.")
             return
+
+        self.pm.batch_size = self.batch_spin.value()
+        self.pm.num_epochs = self.epochs_spin.value()
+        self.pm.patience = self.patience_spin.value()
+        self.pm.learning_rate = self.learning_rate_spin.value()
         
         self.system_manager.root_dir = parent_in  # Set the root directory for training
         #update training parameters from GUI
-        self.system_manager.batch_size = self.batch_spin.value()
-        self.system_manager.num_epochs = self.epochs_spin.value()
-        self.system_manager.patience = self.patience_spin.value()
-        self.system_manager.learning_rate = self.learning_rate_spin.value()
+        self.system_manager.batch_size = self.pm.batch_size
+        self.system_manager.num_epochs = self.pm.num_epochs
+        self.system_manager.patience = self.pm.patience
+        self.system_manager.learning_rate = self.pm.learning_rate
 
         try:
-            self.system_manager.validiereDaten()
+            #self.system_manager.validiereDaten() muss noch implementiert werden
             self.system_manager.run_training()
             QMessageBox.information(self, "Success", "Model training completed successfully.")
         except Exception as e:

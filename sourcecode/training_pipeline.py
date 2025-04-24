@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.nn import L1Loss
 from tqdm import tqdm
+from monai.losses import PatchAdversarialLoss, PerceptualLoss
 
 class EarlyStopping:
     """
@@ -50,28 +51,32 @@ class AutoencoderTrainer:
     Each sample is expected to contain an "energy" field, which is normalized, expanded to match
     the spatial dimensions of the image, and then concatenated as an additional input channel.
     """
-    def __init__(self, autoenconder, discriminator, optim_g, optim_d, device,
+    def __init__(self, autoencoder, discriminator, optimizer_g, optimizer_d, device,
                  kl_weight=1e-6, adv_weight=0.01, perceptual_weight=0.001, warm_up_epochs=2):
         """
         Args:
-            autoenconder (torch.nn.Module): The autoencoder model.
+            autoencoder (torch.nn.Module): The autoencoder model.
             discriminator (torch.nn.Module): The discriminator model (for adversarial training).
-            optim_g (torch.optim.Optimizer): Optimizer for the generator.
-            optim_d (torch.optim.Optimizer): Optimizer for the discriminator.
+            optimizer_g (torch.optim.Optimizer): Optimizer for the generator.
+            optimizer_d (torch.optim.Optimizer): Optimizer for the discriminator.
             device (str): Device to run the training on ('cpu' or 'cuda').
             kl_weight (float): Weight for KL divergence loss.
             adv_weight (float): Weight for adversarial loss.
-            perceptual_weight (float): Weight for perceptual loss.
             warm_up_epochs (int): Number of epochs to warm up the KL weight.
         """
-        self.autoenconder = autoenconder
+        self.autoencoder = autoencoder
         self.discriminator = discriminator
-        self.optim_g = optim_g
-        self.optim_d = optim_d
+        self.optimizer_g = optimizer_g
+        self.optimizer_d = optimizer_d
         self.device = device
         self.kl_weight = kl_weight
         self.adv_weight = adv_weight
         self.perceptual_weight = perceptual_weight
+        # adversarial and perceptual loss modules
+        self.adv_loss = PatchAdversarialLoss(criterion="least_squares")
+        self.perceptual_loss = PerceptualLoss(
+            spatial_dims=3, network_type="squeeze", is_fake_3d=True, fake_3d_ratio=0.2
+        ).to(self.device)
         self.warm_up_epochs = warm_up_epochs
         self.l1_loss = L1Loss()
 
@@ -90,7 +95,7 @@ class AutoencoderTrainer:
         Returns:
             tuple: Average reconstruction loss, generator loss and discriminator loss.
         """
-        self.autoenconder.train()
+        self.autoencoder.train()
         self.discriminator.train()
         epoch_loss = 0.0
         gen_epoch_loss = 0.0
@@ -117,7 +122,7 @@ class AutoencoderTrainer:
             self.optimizer_g.zero_grad(set_to_none=True)
             # Pass the conditioned input through the autoencoder
             # (Note: autoencoder's in_channels should be updated to handle conditioned input)
-            reconstruction, z_mu, z_sigma = self.autoenconder(conditioned_input)
+            reconstruction, z_mu, z_sigma = self.autoencoder(conditioned_input)
 
             #calculate KL loss
             kl_loss = 0.5 * torch.sum(
@@ -125,14 +130,19 @@ class AutoencoderTrainer:
             ) /images.size(0)
             # Compute reconstruction loss (L1 loss)
             recons_loss = self.l1_loss(reconstruction.float(), images.float())
-            loss_g = recons_loss + self.kl_weight * kl_loss
+            # compute adversarial loss if using discriminator
+            adv = 0.0
+            if epoch > self.warm_up_epochs and self.discriminator is not None:
+                logits_fake = self.discriminator(reconstruction.contiguous().float())[-1]
+                adv = self.adv_loss(logits_fake, torch.ones_like(logits_fake))
+            # compute perceptual loss
+            perc = self.perceptual_loss(reconstruction, images)
+            # total generator loss
+            loss_g = recons_loss + self.kl_weight * kl_loss + self.adv_weight * adv + self.perceptual_weight * perc
 
             # Add adversarial loss if past warm-up phase and discriminator is used.
             if epoch > self.warm_up_epochs and self.discriminator is not None:
-                logits_fake = self.discriminator(reconstruction.contiguous().float())[-1]
-                #For the example: adversarial loss as MSE, target: ones (real)
-                generator_loss = F.mse_loss(logits_fake, torch.ones_like(logits_fake))
-                gen_epoch_loss += generator_loss.item()
+                gen_epoch_loss += adv.item()
 
             loss_g.backward()
             self.optimizer_g.step()
@@ -189,6 +199,17 @@ class AutoencoderTrainer:
 class DiffusionTrainer:
     """
     Encapsulates the training process for the diffusion model.    """
+
+    """
+    Trains diffusion model for one epoch.
+
+    Args:
+        train_loader (DataLoader): DataLoader for training data.
+        epoch (int): Current epoch index.
+        inferer (callable): A callable with signature
+            inferer(inputs, autoencoder_model, diffusion_model, noise, timesteps)
+            that returns predicted noise.
+    """
     def __init__(self, diffusion_model, optimizer_diff, device):
         """
         Args:
