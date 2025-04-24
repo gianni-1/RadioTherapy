@@ -4,7 +4,9 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QGroupBox
+    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, 
+    QMessageBox, QGroupBox, 
+    QLabel, QSpinBox, QDoubleSpinBox
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction
@@ -22,12 +24,17 @@ from monai.transforms import (
 
 class MainWindow(QMainWindow):
     """
+    Main entry point for the RadioTherapy project.
+    
+    This function sets up the configuration parameters, initializes the SystemManager,
+    and triggers the training and inference processes.
+    
     MainWindow is the primary GUI window for the RadioTherapy project.
     It provides a menu bar with file actions and a central widget containing buttons for CT upload, dose calculation, and visualization.
     """
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("RadioTherapy GUI")
+        self.setWindowTitle("RadioTherapy Project")
         self.setMinimumSize(600, 400)
 
         self.input_dir = None  # store the input directory for training inputs
@@ -100,12 +107,64 @@ class MainWindow(QMainWindow):
         training_group.setLayout(training_layout)
         layout.addWidget(training_group)
 
+        #Paremeter inputs for training 
+        #batch_size
+        batch_label = QLabel("Batch Size:", self)
+        self.batch_spin = QSpinBox(self)
+        self.batch_spin.setRange(1, 128)
+        self.batch_spin.setValue(2)
+        training_layout.addWidget(batch_label)
+        training_layout.addWidget(self.batch_spin)
+
+        #num_epochs 
+        epochs_label = QLabel("Number of Epochs:", self)
+        self.epochs_spin = QSpinBox(self)
+        self.epochs_spin.setRange(1, 1000)
+        self.epochs_spin.setValue(5)
+        training_layout.addWidget(epochs_label)
+        training_layout.addWidget(self.epochs_spin)
+
+        #patience 
+        patience_label = QLabel("Early stopping patience:", self)
+        self.patience_spin = QSpinBox(self)
+        self.patience_spin.setRange(1, 100)
+        self.patience_spin.setValue(3)
+        training_layout.addWidget(patience_label)
+        training_layout.addWidget(self.patience_spin)
+        
+        #learning_rate
+        learning_rate_label = QLabel("Learning Rate:", self)
+        self.learning_rate_spin = QDoubleSpinBox(self)
+        self.learning_rate_spin.setRange(1e-6, 1.0)
+        self.learning_rate_spin.setDecimals(6)
+        self.learning_rate_spin.setSingleStep(1e-4)
+        self.learning_rate_spin.setValue(1e-4)
+        training_layout.addWidget(learning_rate_label)
+        training_layout.addWidget(self.learning_rate_spin)
+
         # Inference section
         inference_group = QGroupBox("Inference", self)
         inference_layout = QVBoxLayout()
         inference_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         inference_group.setLayout(inference_layout)
         layout.addWidget(inference_group)
+
+        #Energy spectrum inputs(eV)
+        energy_min_label = QLabel("Energy Min (eV):", self)
+        self.energy_min_spin = QDoubleSpinBox(self)
+        self.energy_min_spin.setRange(0.0, 10000.0)
+        self.energy_min_spin.setDecimals(2)
+        self.energy_min_spin.setValue(0.0)
+        inference_layout.addWidget(energy_min_label)
+        inference_layout.addWidget(self.energy_min_spin)
+
+        energy_max_label= QLabel("Energy Max (eV):", self)
+        self.energy_max_spin = QDoubleSpinBox(self)
+        self.energy_max_spin.setRange(0.0, 10000.0)
+        self.energy_max_spin.setDecimals(2)
+        self.energy_max_spin.setValue(50.0)
+        inference_layout.addWidget(energy_max_label)
+        inference_layout.addWidget(self.energy_max_spin)
 
         # Upload button for CT scan
         upload_button = QPushButton("Upload CT Scan", self)
@@ -200,6 +259,12 @@ class MainWindow(QMainWindow):
             return
         
         self.system_manager.root_dir = parent_in  # Set the root directory for training
+        #update training parameters from GUI
+        self.system_manager.batch_size = self.batch_spin.value()
+        self.system_manager.num_epochs = self.epochs_spin.value()
+        self.system_manager.patience = self.patience_spin.value()
+        self.system_manager.learning_rate = self.learning_rate_spin.value()
+
         try:
             self.system_manager.validiereDaten()
             self.system_manager.run_training()
@@ -237,6 +302,14 @@ class MainWindow(QMainWindow):
         if not self.ct_file:
             QMessageBox.warning(self, "Error", "Please upload a CT scan first.")
             return
+
+        min_e = self.energy_min_spin.value()
+        max_e = self.energy_max_spin.value()
+        #validate energy range
+        if min_e > max_e:
+            QMessageBox.warning(self, "Error", "Minimum energy must be less than maximum energy.")
+            return   
+        self.system_manager.energies = [min_e, max_e]  # Update the energy range for inference
 
         try:
             # Run inference
