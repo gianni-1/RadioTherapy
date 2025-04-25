@@ -19,9 +19,11 @@ from system_manager import SystemManager
 from parameter_manager import ParameterManager
 import torch
 from monai.transforms import (
-    Compose, LoadImaged, EnsureChannelFirstd, Spacingd,
-    SpatialPadd, CenterSpatialCropd, ToTensord
+    Compose, LoadImaged, EnsureChannelFirstd, Lambdad,
+    EnsureTyped, Orientationd, Spacingd, SpatialPadd,
+    CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
 )
+from monai.data import NumpyReader
 
 
 class MainWindow(QMainWindow):
@@ -51,12 +53,17 @@ class MainWindow(QMainWindow):
             num_epochs=5, learning_rate=1e-4, patience=3
         )
         transforms_chain = Compose([
-            LoadImaged(keys=["image"], reader=NibabelReader),
-            EnsureChannelFirstd(keys=["image"]),
-            Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode="bilinear"),
-            SpatialPadd(keys=["image"], spatial_size=self.pm.cube_size, method="symmetric"),
-            CenterSpatialCropd(keys=["image"], roi_size=self.pm.cube_size),
-            ToTensord(keys=["image"])
+            LoadImaged(keys=["input", "target"], reader=NumpyReader),
+            EnsureChannelFirstd(keys=["input", "target"]),
+            EnsureTyped(keys=["input", "target"]),
+            Orientationd(keys=["input", "target"], axcodes="RAS"),
+            Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode= ("bilinear", "nearest")[1]),
+            SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
+            CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
+            ScaleIntensityRangePercentilesd(
+                keys="input", lower=0, upper=99.5, b_min=0, b_max=1
+            ),
+            ToTensord(keys=["input", "target"])
         ])
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # instantiate SystemManager here – no main.py needed
@@ -235,6 +242,7 @@ class MainWindow(QMainWindow):
         inference_layout.addWidget(self.visualize_button)
 
         central_widget.setLayout(layout)
+        
     
     # Select input and output folders for training
     def select_input_folder(self):
@@ -255,16 +263,21 @@ class MainWindow(QMainWindow):
                         arr = np.load(sample)
                     else:
                         arr = np.asarray(nib.load(sample).dataobj)
-                    size = arr.shape[0]
+                    size = arr.shape
                     self.pm.cube_size = size
                     # update transforms in system_manager
                     transforms_chain = Compose([
-                        LoadImaged(keys=["image"], reader=NibabelReader),
-                        EnsureChannelFirstd(keys=["image"]),
-                        Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode="bilinear"),
-                        SpatialPadd(keys=["image"], spatial_size=self.pm.cube_size, method="symmetric"),
-                        CenterSpatialCropd(keys=["image"], roi_size=self.pm.cube_size),
-                        ToTensord(keys=["image"])
+                        LoadImaged(keys=["input", "target"], reader=NumpyReader),
+                        EnsureChannelFirstd(keys=["input", "target"]),
+                        EnsureTyped(keys=["input", "target"]),
+                        Orientationd(keys=["input", "target"], axcodes="RAS"),
+                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode= ("bilinear", "nearest")),
+                        SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
+                        CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
+                        ScaleIntensityRangePercentilesd(
+                            keys="input", lower=0, upper=99.5, b_min=0, b_max=1
+                        ),
+                        ToTensord(keys=["input", "target"])
                     ])
                     self.system_manager.transforms = transforms_chain
                 except Exception as e:
@@ -407,7 +420,8 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")
-        
+            
+    
 
     
 

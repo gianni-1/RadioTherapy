@@ -59,3 +59,4 @@ class ParameterManager:
             setattr(self, key, value)
         else:
             self.other_parameters[key] = value
+

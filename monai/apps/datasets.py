@@ -872,7 +872,7 @@ class CustomDataset(CacheDataset):
             metadata = manifest['cubes'][cube_key]
 
             # 6) Append the tuple to the list
-            data_list.append((inp_path, out_path, metadata))
+            data_list.append({"input": inp_path, "target": out_path, "metadata": metadata})
 
         print(f"Loaded {len(data_list)} items.")
         return data_list
