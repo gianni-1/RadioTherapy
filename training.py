@@ -87,7 +87,7 @@ if __name__ == '__main__':
                     transforms.EnsureChannelFirstd(keys=["image"], channel_dim="no_channel"),
                     transforms.EnsureTyped(keys=["image"]),
                     transforms.Orientationd(keys=["image"], axcodes="RAS"),
-                    transforms.Spacingd(keys=["image"], pixdim=(2.4,2.4,2.4), mode=("bilinear")),
+                    transforms.Spacingd(keys=["image"], pixdim=res, mode=("bilinear")),
                     SpatialPadd(keys=["image"], spatial_size=(32, 32, 32), method='symmetric'),
                     transforms.CenterSpatialCropd(keys=["image"], roi_size=(32, 32, 32)),
                     transforms.ScaleIntensityRangePercentilesd(
