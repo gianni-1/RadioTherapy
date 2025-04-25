@@ -851,6 +851,8 @@ class CustomDataset(CacheDataset):
             pattern = f"*{idx}.npy"
             inp_matches = glob.glob(os.path.join(input_dir, pattern))
             out_matches = glob.glob(os.path.join(output_dir, pattern))
+            print("inp_matches: ", inp_matches)
+            print("out_matches: ", out_matches)
 
             if len(inp_matches) == 0:
                 raise FileNotFoundError(f"No input cube matching '*{idx}.npy' in {input_dir}")
@@ -863,9 +865,11 @@ class CustomDataset(CacheDataset):
 
             inp_path = inp_matches[0]
             out_path = out_matches[0]
-
             # 5) Retrieve the metadata for this cube from the JSON
-            metadata = manifest['cubes'][idx]
+            cube_key = str(idx)
+            if cube_key not in manifest['cubes']:
+                raise KeyError(f"Cube {idx} not found in manifest.")
+            metadata = manifest['cubes'][cube_key]
 
             # 6) Append the tuple to the list
             data_list.append((inp_path, out_path, metadata))
