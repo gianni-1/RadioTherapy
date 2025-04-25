@@ -7,7 +7,7 @@
         "g4dcms",
         "output_cubes"
     ],
-    "n_cubes": 2000,
+    "n_cubes": 2,    
     "processed_cubes": 0,
     "cubes": {
         "0": {

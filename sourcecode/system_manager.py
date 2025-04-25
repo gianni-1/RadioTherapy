@@ -95,6 +95,7 @@ class SystemManager:
                 train_ds, val_ds = data_module.split_dataset(ds_full)
                 train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
                 val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
+                print(f"Found {len(ds_full)} samples for energy={energy}, resolution={res}")
                 
                 # instantiate models
                 autoencoder = AutoencoderKL(

@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import os
+import glob
 import shutil
 import sys
 import warnings
@@ -789,27 +790,88 @@ class CustomDataset(CacheDataset):
             runtime_cache=runtime_cache,
         )
 
+    """
+    OLD VERSION OF _PREPARE_DATA_LIST
     def _prepare_data_list(self) -> list:
-        """
-        Prepare the list of data dictionaries containing paths to input and target cubes.
-        """
+        
+       # Prepare the list of data dictionaries containing paths to input and target cubes.
+        
         data_list = []
+        print(f"Preparing data list from {self.data_dir}.")
         for patient_dir in self.data_dir.iterdir():
+            print(f"Processing patient directory: {patient_dir}.")
             if not patient_dir.is_dir():
                 continue
             cubes_file = patient_dir / "cubes.json"
+            print(f"Loading cubes from {cubes_file}.")
             if not cubes_file.exists():
                 continue
             with open(cubes_file, "r") as f:
                 cubes_info = json.load(f)
+                print(f"Loading cubes from {cubes_file} and cubes_info is {cubes_info}.")
             for cube in cubes_info["cubes"]:
                 input_path = patient_dir / cube["input"]
                 target_path = patient_dir / cube["target"]
                 if input_path.exists() and target_path.exists():
                     item = {"input": str(input_path), "target": str(target_path)} 
                     data_list.append(item)        
+        print(f"Loaded {len(data_list)} which are {data_list}.")
         return data_list
+    """
 
+
+    def _prepare_data_list(self) -> list:
+        """
+        Expects in the root_dir:
+        - cubes.json
+        - input_cubes/
+        - output_cubes/
+        Returns a list of tuples (input_filepath, output_filepath, metadata_dict).
+        """
+        # 1) Load the manifest JSON
+        manifest_path = os.path.join(self.data_dir, 'cubes.json')
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+
+        # 2) Define the input and output subdirectories
+        input_dir  = os.path.join(self.data_dir, 'inputcube')
+        output_dir = os.path.join(self.data_dir, 'outputcube')
+
+        # 3) Verify that both directories exist
+        if not os.path.isdir(input_dir):
+            raise FileNotFoundError(f"Input directory not found: {input_dir}")
+        if not os.path.isdir(output_dir):
+            raise FileNotFoundError(f"Output directory not found: {output_dir}")
+
+        data_list = []
+        print(f"Manifestcubes keys are {manifest['n_cubes']}.")
+        # 4) Iterate over each cube entry in the manifest
+        for idx in range(manifest['n_cubes']):
+            # 4a) Suche alle Dateien, die auf "{idx}.npy" enden
+            pattern = f"*{idx}.npy"
+            inp_matches = glob.glob(os.path.join(input_dir, pattern))
+            out_matches = glob.glob(os.path.join(output_dir, pattern))
+
+            if len(inp_matches) == 0:
+                raise FileNotFoundError(f"No input cube matching '*{idx}.npy' in {input_dir}")
+            if len(inp_matches) > 1:
+                raise RuntimeError(f"Multiple input cubes matching '*{idx}.npy' in {input_dir}: {inp_matches}")
+            if len(out_matches) == 0:
+                raise FileNotFoundError(f"No output cube matching '*{idx}.npy' in {output_dir}")
+            if len(out_matches) > 1:
+                raise RuntimeError(f"Multiple output cubes matching '*{idx}.npy' in {output_dir}: {out_matches}")
+
+            inp_path = inp_matches[0]
+            out_path = out_matches[0]
+
+            # 5) Retrieve the metadata for this cube from the JSON
+            metadata = manifest['cubes'][idx]
+
+            # 6) Append the tuple to the list
+            data_list.append((inp_path, out_path, metadata))
+
+        print(f"Loaded {len(data_list)} items.")
+        return data_list
 
 class CrossValidation:
     """
