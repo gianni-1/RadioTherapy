@@ -103,7 +103,7 @@ class AutoencoderTrainer:
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Autoencoder Epoch {epoch}")):
             #Move images to device
-            images = batch['image'].to(self.device)  #Expected shape: [B, 1, D, H, W]
+            images = batch["input"].to(self.device) #Expected shape: [B, 1, D, H, W]
 
             #Check if energy information is available; if yes, condition the input.
             if "energy" in batch:
@@ -134,7 +134,7 @@ class AutoencoderTrainer:
             adv = 0.0
             if epoch > self.warm_up_epochs and self.discriminator is not None:
                 logits_fake = self.discriminator(reconstruction.contiguous().float())[-1]
-                adv = self.adv_loss(logits_fake, torch.ones_like(logits_fake))
+                adv = self.adv_loss(logits_fake, target_is_real=True, for_discriminator=False)
             # compute perceptual loss
             perc = self.perceptual_loss(reconstruction, images)
             # total generator loss
@@ -179,7 +179,7 @@ class AutoencoderTrainer:
         val_loss = 0.0
         with torch.no_grad():
             for batch in val_loader:
-                images = batch["image"].to(self.device)
+                images = batch["input"].to(self.device)
                 # For validation, energy conditioning is optional.
                 if "energy" in batch:
                     energies = batch["energy"].to(self.device)
@@ -221,18 +221,22 @@ class DiffusionTrainer:
         self.optimizer_diff = optimizer_diff
         self.device = device
 
-    def train_one_epoch(self, train_loader, epoch, inferer):
+    def train_one_epoch(self, train_loader, epoch, inferer=None, autoencoder=None):
         """
         Args:
             diffusion_model (torch.nn.Module): The diffusion model (e.g. a UNet).
             optimizer_diff (torch.optim.Optimizer): Optimizer for the diffusion model.
             device (torch.device): CPU or GPU.
         """
+        # if no inferer or autoencoder provided, skip diffusion training
+        if inferer is None or autoencoder is None:
+            return 0.0
+
         self.diffusion_model.train()
         epoch_loss = 0.0
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Diffusion Epoch {epoch}")):
-            images = batch["image"].to(self.device)
+            images = batch["input"].to(self.device)
             self.optimizer_diff.zero_grad(set_to_none=True)
 
             # generates random noise, same shape as images
@@ -241,10 +245,10 @@ class DiffusionTrainer:
             #  generates random Timesteps
             timesteps = torch.randint(0, inferer.scheduler.num_train_timesteps, (images.shape[0],), device=self.device).long()
 
-            # predicts the noise
+            # predicts the noise using provided autoencoder for latent encoding
             noise_pred = inferer(
                 inputs=images,
-                autoencoder_model=None,  # here not used 
+                autoencoder_model=autoencoder,
                 diffusion_model=self.diffusion_model,
                 noise=noise,
                 timesteps=timesteps,

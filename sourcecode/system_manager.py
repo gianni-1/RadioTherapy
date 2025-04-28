@@ -8,9 +8,13 @@ from training_pipeline import AutoencoderTrainer, DiffusionTrainer, EarlyStoppin
 from inference_module import InferenceModule
 from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensord
 from visualization import Visualization
+from monai.utils import first, set_determinism
 from monai.data import NibabelReader
 from generative.networks.nets import AutoencoderKL, PatchDiscriminator, DiffusionModelUNet
+from generative.inferers import LatentDiffusionInferer
 from torch.optim import Adam
+from torch.amp import autocast
+from generative.networks.schedulers.ddpm import DDPMScheduler
 
 class SystemManager:
     """
@@ -47,12 +51,16 @@ class SystemManager:
         self.learning_rate = learning_rate
         self.patience = patience
         self.training_complete = False
+        # placeholders for trained models
+        self.autoencoder = None
+        self.unet = None
+        self.scheduler = None
 
-    def save_models(self, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
+    def save_models(self, autoencoder, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
         checkpoint_path = f"model_res{self.resolutions}_energy{self.energies}.ckpt"
         torch.save(
             {
-                "autoencoder": self.state_dict(),
+                "autoencoder": autoencoder.state_dict(),
                 "unet": unet.state_dict(),
                 "optimizer_diff": optimizer_diff.state_dict(),
                 "optimizer_g": optimizer_g.state_dict(),
@@ -100,7 +108,7 @@ class SystemManager:
                 # instantiate models
                 autoencoder = AutoencoderKL(
                     spatial_dims=3,
-                    in_channels=2,
+                    in_channels=1,
                     out_channels=1,
                     num_channels=(32, 32, 32),
                     latent_channels=2,
@@ -124,7 +132,33 @@ class SystemManager:
                     attention_levels=(False, True, True),
                     num_head_channels=(0, 64, 64),
                 ).to(self.device)
+
+                scheduler = DDPMScheduler(
+                    num_train_timesteps=1000,
+                    schedule="scaled_linear_beta",
+                    beta_start=0.0015,
+                    beta_end=0.0195,
+                )
                 
+                # ### Scaling factor
+                #
+                # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. 
+                # For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
+                #
+                # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
+                #
+
+                # +
+                with torch.no_grad():
+                    with autocast('cuda', enabled=True):
+                        first_batch = first(train_loader)
+                        z = autoencoder.encode_stage_2_inputs(first_batch["input"].to(self.device))
+
+                print(f"Scaling factor set to {1/torch.std(z)}")
+                scale_factor = 1 / torch.std(z)
+
+                inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
+
                 # optimizers
                 opt_g = Adam(autoencoder.parameters(), lr=self.learning_rate)
                 opt_d = Adam(discriminator.parameters(), lr=self.learning_rate)
@@ -149,7 +183,7 @@ class SystemManager:
                 diff_trainer = DiffusionTrainer(unet, opt_diff, self.device)
                 
                 for epoch in range(self.num_epochs):
-                    diff_loss = diff_trainer.train_one_epoch(train_loader, epoch)
+                    diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
                     # record diffusion loss
                     diff_losses.append(diff_loss)
 
@@ -162,26 +196,33 @@ class SystemManager:
                 )
                 
                 # save checkpoint for this config
-                self.save_models(unet, opt_diff, opt_g, opt_d, epoch)
+                self.save_models(autoencoder, unet, opt_diff, opt_g, opt_d, epoch)
+                # store trained models for inference
+                self.autoencoder = autoencoder
+                self.unet = unet
+                self.scheduler = scheduler
         # after loops
         self.training_complete = True
         print("All training finished.")
 
-    def run_inference(self):
+    def run_inference(self, ct_file_path):
         """
-        Executes the inference process if training is complete.
-        This function should load the trained models and run the inference module to generate outputs.
+        Load a CT scan and run inference to compute dose distribution.
         """
-        if not self.training_complete:
-            print("Training is not complete yet. Inference cannot be started.")
-            return
-        
-        # Here you would load your trained models. For demonstration, we'll use dummy models.
-        print("Running inference...")
-        # Dummy example of inference:
-        # from inference_module import InferenceModule
-        # inferencer = InferenceModule(trained_autoencoder, trained_diffusion, scheduler, self.device)
-        # dummy_noise = torch.randn((1, 3, 24, 24, 16))
-        # output = inferencer.run_inference(dummy_noise)
-        # print("Inference output shape:", output.shape)
-        print("Inference module is not fully implemented in this example.")
+        if self.autoencoder is None or self.unet is None:
+            raise RuntimeError("Keine trainierten Modelle gefunden. Bitte zuerst das Training ausführen.")
+        # lazy import to avoid circular
+        import nibabel as nib
+        import numpy as np
+        from inference_module import InferenceModule
+
+        # load CT scan, assume single channel
+        img = nib.load(ct_file_path)
+        arr = np.asarray(img.dataobj)
+        ct_tensor = torch.from_numpy(arr).unsqueeze(0).to(self.device)  # shape [1, D, H, W]
+
+        # initialize inference module
+        inf_mod = InferenceModule(self.autoencoder, self.unet, self.scheduler, self.device)
+        # run inference (assumes run_inference returns tensor)
+        dose = inf_mod.run_inference(ct_tensor)
+        return dose
