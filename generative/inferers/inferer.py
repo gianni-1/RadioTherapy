@@ -383,23 +383,54 @@ class LatentDiffusionInferer(DiffusionInferer):
             autoencode = autoencoder_model.encode_stage_2_inputs
             if isinstance(autoencoder_model, VQVAE):
                 autoencode = partial(autoencoder_model.encode_stage_2_inputs, quantized=quantized)
+            # Ensure inputs match autoencoder's expected in_channels
+            first_conv_ae = next(
+                (m for m in autoencoder_model.modules() if isinstance(m, torch.nn.Conv3d)),
+                None,
+            )
+            expected_ae_ch = first_conv_ae.in_channels if first_conv_ae else inputs.shape[1]
+            if inputs.ndim == 5 and inputs.shape[1] != expected_ae_ch:
+                # If model expects a single channel, average across channels
+                if expected_ae_ch == 1:
+                    inputs = inputs.mean(dim=1, keepdim=True)
+                else:
+                    # Otherwise, slice to the expected number of channels
+                    inputs = inputs[:, :expected_ae_ch, ...]
             latent = autoencode(inputs) * self.scale_factor
+            print("latent shape", latent.shape)
+            # Crop latent spatial dims to be divisible by UNet downsampling factor
+            down_convs = [
+                m for m in diffusion_model.modules()
+                if isinstance(m, torch.nn.Conv3d) and getattr(m, "stride", (1,))[0] > 1
+            ]
+            n_down = len(down_convs)
+            factor = 2 ** n_down if n_down > 0 else 1
+            B, C, D, H, W = latent.shape
+            new_D, new_H, new_W = (D // factor) * factor, (H // factor) * factor, (W // factor) * factor
+            if (new_D, new_H, new_W) != (D, H, W):
+                latent = latent[:, :, :new_D, :new_H, :new_W]
+                print(f"[INFER DEBUG] cropped latent to {tuple(latent.shape)} for factor {factor}")
 
         if self.ldm_latent_shape is not None:
             latent = torch.stack([self.ldm_resizer(i) for i in decollate_batch(latent)], 0)
 
-        call = super().__call__
-        if isinstance(diffusion_model, SPADEDiffusionModelUNet):
-            call = partial(super().__call__, seg=seg)
-
-        prediction = call(
-            inputs=latent,
-            diffusion_model=diffusion_model,
-            noise=noise,
+        # Use pipeline noise (cropped to latent spatial dims) for noise addition
+        if noise.ndim == 5 and noise.shape[2:] != latent.shape[2:]:
+            noise = noise[:, :, :latent.shape[2], :latent.shape[3], :latent.shape[4]]
+        noisy_latents = self.scheduler.add_noise(
+            original_samples=latent,
+            noise=noise.to(latent.device),
             timesteps=timesteps,
-            condition=condition,
-            mode=mode,
         )
+        if mode == "concat":
+            noisy_latents = torch.cat([noisy_latents, condition], dim=1)
+            condition = None
+        # Choose diffusion model with SPADE support if needed
+        if isinstance(diffusion_model, SPADEDiffusionModelUNet):
+            diffusion_fn = partial(diffusion_model, seg=seg)
+        else:
+            diffusion_fn = diffusion_model
+        prediction = diffusion_fn(x=noisy_latents, timesteps=timesteps, context=condition)
         return prediction
 
     @torch.no_grad()
@@ -919,6 +950,7 @@ class ControlNetLatentDiffusionInferer(ControlNetDiffusionInferer):
             if isinstance(autoencoder_model, VQVAE):
                 autoencode = partial(autoencoder_model.encode_stage_2_inputs, quantized=quantized)
             latent = autoencode(inputs) * self.scale_factor
+            
 
         if self.ldm_latent_shape is not None:
             latent = torch.stack([self.ldm_resizer(i) for i in decollate_batch(latent)], 0)

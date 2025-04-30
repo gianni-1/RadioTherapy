@@ -1,6 +1,7 @@
 # Add glob import for file searching
 import os
 import sys
+import traceback
 import glob
 # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -24,7 +25,11 @@ from monai.transforms import (
     CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
 )
 from monai.data import NumpyReader
+def handle_exception(exc_type, exc_value, exc_tb):
+    # Print full traceback for uncaught exceptions
+    traceback.print_exception(exc_type, exc_value, exc_tb)
 
+sys.excepthook = handle_exception
 
 class MainWindow(QMainWindow):
     """
@@ -49,7 +54,7 @@ class MainWindow(QMainWindow):
         # prepare parameters and transforms with default values
         # These values will be updated based on user input in the GUI
         self.pm = ParameterManager(
-            energies=[0], batch_size=2, cube_size=64,                  #cube_size muss noch von der .json extrahiert werden 
+            energies=[0], batch_size=2, cube_size=64,                  
             num_epochs=5, learning_rate=1e-4, patience=3
         )
         transforms_chain = Compose([
@@ -72,6 +77,7 @@ class MainWindow(QMainWindow):
             resolutions=self.pm.resolutions, energies=self.pm.energies,
             batch_size=self.pm.batch_size, device=device,
             num_epochs=self.pm.num_epochs, learning_rate=self.pm.learning_rate, patience=self.pm.patience,
+            cube_size= self.pm.cube_size,
             seed=42
         )
 
@@ -279,6 +285,7 @@ class MainWindow(QMainWindow):
                         ),
                         ToTensord(keys=["input", "target"])
                     ])
+                    self.system_manager.cube_size = self.pm.cube_size
                     self.system_manager.transforms = transforms_chain
                 except Exception as e:
                     QMessageBox.warning(self, "Warning", f"Failed to determine cube size: {e}")
@@ -340,6 +347,7 @@ class MainWindow(QMainWindow):
             self.system_manager.run_training()
             QMessageBox.information(self, "Success", "Model training completed successfully.")
         except Exception as e:
+            traceback.print_exc()
             QMessageBox.critical(self, "Error", f"Failed to train the model: {e}")
 
     # Open a file dialog to select a CT scan file (inference)
@@ -426,7 +434,11 @@ class MainWindow(QMainWindow):
     
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+    try:
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        window.show()
+        sys.exit(app.exec())
+    except Exception:
+        traceback.print_exc()
+        raise

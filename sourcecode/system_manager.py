@@ -15,6 +15,12 @@ from generative.inferers import LatentDiffusionInferer
 from torch.optim import Adam
 from torch.amp import autocast
 from generative.networks.schedulers.ddpm import DDPMScheduler
+from monai.transforms import (
+    Compose, LoadImaged, EnsureChannelFirstd, Lambdad,
+    EnsureTyped, Orientationd, Spacingd, SpatialPadd,
+    CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
+)
+from monai.data import NumpyReader
 
 class SystemManager:
     """
@@ -27,7 +33,7 @@ class SystemManager:
         using early stopping based on validation loss.
       - Sets a training-completion flag for subsequent inference.
     """
-    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, num_epochs, learning_rate, patience, seed=42):
+    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, num_epochs, learning_rate, patience,cube_size, seed=42):
         """
         Initializes the SystemManager with configuration parameters.
 
@@ -55,6 +61,7 @@ class SystemManager:
         self.autoencoder = None
         self.unet = None
         self.scheduler = None
+        self.cube_size = cube_size
 
     def save_models(self, autoencoder, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
         checkpoint_path = f"model_res{self.resolutions}_energy{self.energies}.ckpt"
@@ -87,6 +94,20 @@ class SystemManager:
         for res in self.resolutions:
             for energy in self.energies:
                 print(f"\n--- Training at resolution={res}, energy={energy} eV ---")
+                self.transforms = Compose([
+                    LoadImaged(keys=["input", "target"], reader=NumpyReader),
+                    EnsureChannelFirstd(keys=["input", "target"]),
+                    EnsureTyped(keys=["input", "target"]),
+                    Orientationd(keys=["input", "target"], axcodes="RAS"),
+                    Spacingd(keys=["input", "target"], pixdim=res, mode= ("bilinear", "nearest")),
+                    SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
+                    CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
+                    ScaleIntensityRangePercentilesd(
+                        keys="input", lower=0, upper=99.5, b_min=0, b_max=1
+                    ),
+                    ToTensord(keys=["input", "target"])
+                    ])
+                
                 # initialize history lists for plotting
                 ae_train_losses = []
                 ae_val_losses   = []
@@ -133,13 +154,16 @@ class SystemManager:
                     num_head_channels=(0, 64, 64),
                 ).to(self.device)
 
+
                 scheduler = DDPMScheduler(
                     num_train_timesteps=1000,
                     schedule="scaled_linear_beta",
                     beta_start=0.0015,
                     beta_end=0.0195,
                 )
-                
+            
+                                
+                    
                 # ### Scaling factor
                 #
                 # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. 
