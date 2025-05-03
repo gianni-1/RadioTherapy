@@ -198,8 +198,6 @@ class AutoencoderTrainer:
                 else:
                     conditioned_input = images
 
-                # DEBUG: check and clamp conditioned_input channels for validation
-                print(f"[AE VAL DEBUG] conditioned_input.shape = {tuple(conditioned_input.shape)}")
                 if conditioned_input.ndim == 5 and conditioned_input.shape[1] > expected_in_channels:
                     conditioned_input = conditioned_input[:, :expected_in_channels, ...]
 

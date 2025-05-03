@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
 )
 from PySide6.QtCore import Qt, QObject, Signal, QThread, Slot
-from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtGui import QAction, QPixmap, QGuiApplication
 import visualization
 import nibabel as nib  # for handling NIfTI files
 import numpy as np  # for numerical operations
@@ -571,11 +571,22 @@ class MainWindow(QMainWindow):
         plots_window.show()
         self._plots_window = plots_window
 
+    def center(self):
+        """
+        Center the window on the screen.
+        """
+        screen = QGuiApplication.primaryScreen()
+        screen_rect = screen.availableGeometry()
+        x = (screen_rect.width() - self.width()) // 2
+        y = (screen_rect.height() - self.height()) // 2
+        self.move(x, y)
+
 if __name__ == "__main__":
     try:
         app = QApplication(sys.argv)
         window = MainWindow()
         window.show()
+        window.center()
         sys.exit(app.exec())
     except Exception:
         traceback.print_exc()
