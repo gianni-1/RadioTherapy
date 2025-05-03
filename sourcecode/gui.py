@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
 )
 from PySide6.QtCore import Qt, QObject, Signal, QThread, Slot
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QPixmap
 import visualization
 import nibabel as nib  # for handling NIfTI files
 import numpy as np  # for numerical operations
@@ -60,7 +60,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("RadioTherapy Project")
-        self.setMinimumSize(600, 700)
+        self.setMinimumSize(800, 800)
 
         self.input_dir = None  # store the input directory for training inputs
         self.output_dir = None # store the output directory for training outputs
@@ -102,6 +102,10 @@ class MainWindow(QMainWindow):
 
         # Create the central widget with buttons
         self._create_central_widget()
+        # adjust window size to fit expanded widgets
+        self.adjustSize()
+        # optionally enforce minimum size to current content
+        self.setMinimumSize(self.size())
 
     def _create_menu_bar(self):
         """
@@ -256,6 +260,13 @@ class MainWindow(QMainWindow):
         self.train_button.setEnabled(False)  # Initially disabled
         self.train_button.clicked.connect(self.train_model)
         training_layout.addWidget(self.train_button)
+        # Button to show training graphs in-app
+        self.show_plots_button = QPushButton("Show Training Graphs", self)
+        self.show_plots_button.setToolTip("Display loss and adversarial curves inside GUI")
+        self.show_plots_button.setEnabled(False)  # Initially disabled
+        self.show_plots_button.clicked.connect(self.show_training_plots)
+        training_layout.addWidget(self.show_plots_button)
+
         # Visualization button for inference results
         self.visualize_button = QPushButton("Visualize Dose Distribution", self)
         self.visualize_button.setToolTip("Visualize the calculated dose distribution")
@@ -466,6 +477,10 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_train_progress'):
             self._train_progress.close()
         QMessageBox.information(self, "Success", "Training completed.")
+        # show plots in-app
+        self.show_training_plots()
+        # enable the button to show training plots
+        self.show_plots_button.setEnabled(True)
 
     @Slot(str)
     def on_training_error(self, msg):
@@ -473,6 +488,64 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_train_progress'):
             self._train_progress.close()
         QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")
+    
+    @Slot()
+    def show_training_plots(self):
+        """Open a window showing the three training plot images together."""
+        import glob
+        from PySide6.QtWidgets import QScrollArea
+        from PySide6.QtGui import QGuiApplication
+        # compute screen geometry
+        screen_rect = QGuiApplication.primaryScreen().availableGeometry()
+        # use up to 80% of screen
+        max_w_screen = int(screen_rect.width() * 0.8)
+        max_h_screen = int(screen_rect.height() * 0.8)
+        # divide screen into two rows: top row height, bottom row height
+        row_height = max_h_screen // 2
+        # divide width: top two share row, bottom spans
+        top_w = max_w_screen // 2
+        bottom_w = max_w_screen
+
+        patterns = ["loss_curves_res*.png", "learning_curve.png", "adv_curves.png"]
+        plots_window = QWidget()
+        plots_window.setWindowTitle("Training Graphs")
+        labels = []
+        idx = 0
+        for pattern in patterns:
+            for fname in glob.glob(pattern):
+                lbl = QLabel()
+                pix = QPixmap(fname)
+                # pick target dims by position
+                if idx < 2:
+                    target_w, target_h = top_w, row_height
+                else:
+                    target_w, target_h = bottom_w, row_height
+                pix = pix.scaled(target_w, target_h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                lbl.setPixmap(pix)
+                lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                labels.append(lbl)
+                idx += 1
+        from PySide6.QtWidgets import QGridLayout
+        grid = QGridLayout()
+        if len(labels) >= 2:
+            grid.addWidget(labels[0], 0, 0)
+            grid.addWidget(labels[1], 0, 1)
+            if len(labels) >= 3:
+                grid.addWidget(labels[2], 1, 0, 1, 2)
+        else:
+            for i, lbl in enumerate(labels):
+                grid.addWidget(lbl, i, 0)
+        scroll = QScrollArea()
+        container = QWidget()
+        container.setLayout(grid)
+        scroll.setWidget(container)
+        scroll.setWidgetResizable(True)
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(scroll)
+        plots_window.setLayout(main_layout)
+        plots_window.resize(max_w_screen, max_h_screen)
+        plots_window.show()
+        self._plots_window = plots_window
 
 if __name__ == "__main__":
     try:
