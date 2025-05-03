@@ -9,9 +9,9 @@ from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog,
     QMessageBox, QGroupBox, QToolButton,
-    QLabel, QSpinBox, QDoubleSpinBox
+    QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QObject, Signal, QThread
 from PySide6.QtGui import QAction
 import visualization
 import nibabel as nib  # for handling NIfTI files
@@ -30,6 +30,22 @@ def handle_exception(exc_type, exc_value, exc_tb):
     traceback.print_exception(exc_type, exc_value, exc_tb)
 
 sys.excepthook = handle_exception
+
+class TrainingWorker(QObject):
+    """
+    Worker object to run the training in a separate thread.
+    """
+    finished = Signal()
+    error = Signal(str)
+    def __init__(self, manager):
+        super().__init__()
+        self.manager = manager
+    def run(self):
+        try:
+            self.manager.run_training()
+            self.finished.emit()
+        except Exception as ex:
+            self.error.emit(str(ex))
 
 class MainWindow(QMainWindow):
     """
@@ -342,13 +358,27 @@ class MainWindow(QMainWindow):
         self.system_manager.patience = self.pm.patience
         self.system_manager.learning_rate = self.pm.learning_rate
 
-        try:
-            #self.system_manager.validiereDaten() muss noch implementiert werden
-            self.system_manager.run_training()
-            QMessageBox.information(self, "Success", "Model training completed successfully.")
-        except Exception as e:
-            traceback.print_exc()
-            QMessageBox.critical(self, "Error", f"Failed to train the model: {e}")
+        # run training in background thread to avoid freezing GUI
+        progress = QProgressDialog("Training model...", None, 0, 0, self)
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButton(None)
+        progress.setMinimumDuration(0)
+        progress.show()
+        # create worker and thread
+        thread = QThread(self)
+        worker = TrainingWorker(self.system_manager)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        worker.finished.connect(lambda: (progress.close(), QMessageBox.information(self, "Success", "Training completed.")))
+        worker.error.connect(lambda msg: (progress.close(), QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")))
+        # keep references to prevent garbage collection
+        self._train_thread = thread
+        self._train_worker = worker
+        self._train_progress = progress
+        thread.start()
 
     # Open a file dialog to select a CT scan file (inference)
     def open_file_dialog(self):
