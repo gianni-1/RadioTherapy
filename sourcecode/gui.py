@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QGroupBox, QToolButton,
     QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
 )
-from PySide6.QtCore import Qt, QObject, Signal, QThread
+from PySide6.QtCore import Qt, QObject, Signal, QThread, Slot
 from PySide6.QtGui import QAction
 import visualization
 import nibabel as nib  # for handling NIfTI files
@@ -372,8 +372,9 @@ class MainWindow(QMainWindow):
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
-        worker.finished.connect(lambda: (progress.close(), QMessageBox.information(self, "Success", "Training completed.")))
-        worker.error.connect(lambda msg: (progress.close(), QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")))
+        # handle completion and errors on main thread
+        worker.finished.connect(self.on_training_finished)
+        worker.error.connect(self.on_training_error)
         # keep references to prevent garbage collection
         self._train_thread = thread
         self._train_worker = worker
@@ -459,9 +460,19 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")
             
-    
+    @Slot()
+    def on_training_finished(self):
+        """Slot to close progress dialog and show success message on main thread"""
+        if hasattr(self, '_train_progress'):
+            self._train_progress.close()
+        QMessageBox.information(self, "Success", "Training completed.")
 
-    
+    @Slot(str)
+    def on_training_error(self, msg):
+        """Slot to close progress dialog and show error message on main thread"""
+        if hasattr(self, '_train_progress'):
+            self._train_progress.close()
+        QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")
 
 if __name__ == "__main__":
     try:

@@ -1,5 +1,7 @@
 # visualization.py
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 import nibabel as nib
@@ -36,7 +38,10 @@ class Visualization:
         plt.grid(True)
         if filename:
             plt.savefig(filename)
-        plt.show()
+        else:
+            # save to default file
+            plt.savefig('learning_curve.png')
+        plt.close()
 
     def plot_adversarial_curves(self, epochs, gen_loss, disc_loss, title="Adversarial Training Curves", filename=None):
         """
@@ -59,7 +64,9 @@ class Visualization:
         plt.grid(True)
         if filename:
             plt.savefig(filename)
-        plt.show()
+        else:
+            plt.savefig('adv_curves.png')
+        plt.close()
 
     def display_sample_images(self, images, title="Sample Images", filename=None):
         """
@@ -106,7 +113,9 @@ class Visualization:
 
         if filename:
             plt.savefig(filename)
-        plt.show()
+        else:
+            plt.savefig('sample_images.png')
+        plt.close()
 
     @staticmethod
     def plot_loss_curves(ae_train, ae_val, gen, disc, diff, resolution, energy):
@@ -133,7 +142,10 @@ class Visualization:
         plt.ylabel('Loss', fontsize=14)
         plt.legend(prop={"size": 12})
         plt.grid(True)
-        plt.show()
+        # save loss curves to file
+        fname = f'loss_curves_res{resolution}_energy{energy}.png'
+        plt.savefig(fname)
+        plt.close()
 
 
 class MplCanvas(FigureCanvasQTAgg):
