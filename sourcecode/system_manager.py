@@ -105,7 +105,9 @@ class SystemManager:
                     ScaleIntensityRangePercentilesd(
                         keys="input", lower=0, upper=99.5, b_min=0, b_max=1
                     ),
-                    ToTensord(keys=["input", "target"])
+                    ToTensord(keys=["input", "target"]),
+                    EnsureTyped(keys=["energy"]),
+                    ToTensord  (keys=["energy"])
                     ])
                 
                 # initialize history lists for plotting
@@ -120,7 +122,8 @@ class SystemManager:
                     root_dir=self.root_dir,
                     transforms=self.transforms
                 )
-                ds_full = data_module.load_dataset(section="training")
+                # Load dataset directly from root_dir, which contains energy subfolders
+                ds_full = data_module.load_dataset(section=None)
                 train_ds, val_ds = data_module.split_dataset(ds_full)
                 train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
                 val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
@@ -129,7 +132,7 @@ class SystemManager:
                 # instantiate models
                 autoencoder = AutoencoderKL(
                     spatial_dims=3,
-                    in_channels=1,
+                    in_channels=2,
                     out_channels=1,
                     num_channels=(32, 32, 32),
                     latent_channels=2,
@@ -148,6 +151,8 @@ class SystemManager:
                     spatial_dims=3,
                     in_channels=2,
                     out_channels=2,
+                    with_conditioning=True,
+                    cross_attention_dim=2,
                     num_res_blocks=1,
                     num_channels=(32, 64, 64),
                     attention_levels=(False, True, True),
@@ -176,7 +181,20 @@ class SystemManager:
                 with torch.no_grad():
                     with autocast('cuda', enabled=True):
                         first_batch = first(train_loader)
-                        z = autoencoder.encode_stage_2_inputs(first_batch["input"].to(self.device))
+                        # Build conditioned input for autoencoder with energy channel if available
+                        images = first_batch["input"].to(self.device)
+                        energies = first_batch.get("energy", None)
+                        if energies is not None:
+                            energies = energies.to(self.device)
+                            normalized_energy = energies.float() / 100.0  # match training normalization
+                            B, C, D, H, W = images.shape
+                            energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                            conditioned = torch.cat([images, energy_tensor], dim=1)
+                        else:
+                            conditioned = images
+                        # Encode to latents using conditioned input
+                        z = autoencoder.encode_stage_2_inputs(conditioned)
+
 
                 print(f"Scaling factor set to {1/torch.std(z)}")
                 scale_factor = 1 / torch.std(z)

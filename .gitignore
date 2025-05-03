@@ -1,2 +1,3 @@
 # Exclude all Cache-Files
 *.pyc
+.DS_Store

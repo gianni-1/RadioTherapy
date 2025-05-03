@@ -103,15 +103,13 @@ class AutoencoderTrainer:
         disc_epoch_loss = 0.0
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Autoencoder Epoch {epoch}")):
-            # Remove any energy key for pure autoencoder training
-            batch.pop("energy", None)
             #Move images to device
             images = batch["input"].to(self.device) #Expected shape: [B, 1, D, H, W]
 
             # Determine if the autoencoder expects an extra channel for energy
             first_conv = next((m for m in self.autoencoder.modules() if isinstance(m, torch.nn.Conv3d)), None)
             expected_in_channels = first_conv.in_channels if first_conv else images.shape[1]
-            print(f"Expected input channels: {expected_in_channels}, Actual input channels: {images.shape[1]}")
+            # print(f"Expected input channels: {expected_in_channels}, Actual input channels: {images.shape[1]}")
             # Apply energy conditioning only if the model was built with an extra input channel
             if "energy" in batch and expected_in_channels == images.shape[1] + 1:
                 energies = batch["energy"].to(self.device)
@@ -122,8 +120,6 @@ class AutoencoderTrainer:
             else:
                 conditioned_input = images
 
-            # DEBUG: check and clamp conditioned_input channels for autoencoder
-            print(f"[AE DEBUG] conditioned_input.shape = {tuple(conditioned_input.shape)}")
             # Ensure only expected channels are passed
             if conditioned_input.ndim == 5 and conditioned_input.shape[1] > expected_in_channels:
                 conditioned_input = conditioned_input[:, :expected_in_channels, ...]
@@ -189,13 +185,10 @@ class AutoencoderTrainer:
         val_loss = 0.0
         with torch.no_grad():
             for batch in val_loader:
-                # Remove any energy key for pure autoencoder validation
-                batch.pop("energy", None)
                 images = batch["input"].to(self.device)
-                # Determine if the autoencoder expects an extra channel for energy
+                # Apply energy conditioning as in training
                 first_conv = next((m for m in self.autoencoder.modules() if isinstance(m, torch.nn.Conv3d)), None)
                 expected_in_channels = first_conv.in_channels if first_conv else images.shape[1]
-                # Apply energy conditioning only if the model was built with an extra input channel
                 if "energy" in batch and expected_in_channels == images.shape[1] + 1:
                     energies = batch["energy"].to(self.device)
                     normalized_energy = energies.float() / 100.0
@@ -256,17 +249,23 @@ class DiffusionTrainer:
         epoch_loss = 0.0
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Diffusion Epoch {epoch}")):
-            # Remove energy key from batch (not used in diffusion)
-            batch.pop("energy", None)
             images = batch["input"].to(self.device)
-            # Drop any extra channels, keep only the first (image) channel
-            if images.ndim == 5 and images.shape[1] > 1:
-                images = images[:, :1, ...]
+            # Build conditioned input for autoencoder with energy channel if available
+            if "energy" in batch:
+                energies = batch["energy"].to(self.device)
+                normalized_energy = energies.float() / 100.0
+                B, C, D, H, W = images.shape
+                energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                conditioned_input = torch.cat([images, energy_tensor], dim=1)
+            else:
+                conditioned_input = images
+
+            # Zero gradients for diffusion optimizer
             self.optimizer_diff.zero_grad(set_to_none=True)
-            
-            # Encode images in latent space (handle different return types)
+
+            # Encode conditioned input to latents using the autoencoder
             with torch.no_grad():
-                encoded = autoencoder.encode(images)
+                encoded = autoencoder.encode(conditioned_input)
                 # If encode returns an object with a latent_dist attribute:
                 if hasattr(encoded, "latent_dist"):
                     latents = encoded.latent_dist.sample()
@@ -299,33 +298,33 @@ class DiffusionTrainer:
                     else:
                         # Otherwise slice to match expected channels
                         latents = latents[:, :expected_latent_ch, ...]
-
-            # DEBUG: inspect UNet input expectations vs. actual latents
-            first_conv_diff = next((m for m in self.diffusion_model.modules() if isinstance(m, torch.nn.Conv3d)), None)
-            if first_conv_diff is not None:
-                print(f"[DIFF DEBUG] first_conv_diff.weight.shape = {tuple(first_conv_diff.weight.shape)}")
-                print(f"[DIFF DEBUG] expected_latent_ch = {first_conv_diff.in_channels}")
-            print(f"[DIFF DEBUG] latents.shape = {tuple(latents.shape)}")
-            try:
-                # Direkter UNet-Test mit Dummy-Timesteps
-                dummy_timesteps = torch.zeros((latents.shape[0],), dtype=torch.long, device=self.device)
-                test_out = self.diffusion_model(latents, dummy_timesteps)
-                print(f"[DIFF DEBUG] UNet-Forward erfolgreich, output.shape = {tuple(test_out.shape)}")
-            except Exception as e:
-                print(f"[DIFF DEBUG] UNet-Forward-Fehler: {e!r}")
+           
             # generates random noise
             noise = torch.randn_like(latents)
 
             #  generates random Timesteps
             timesteps = torch.randint(0, inferer.scheduler.num_train_timesteps, (images.shape[0],), device=self.device).long()
 
-            # predicts the noise using provided autoencoder for latent encoding
+            # Build context vector by pooling latent representation of CT
+            with torch.no_grad():
+                # Use the same conditioned_input (CT + energy) as for the autoencoder encoding
+                encoded_ct = autoencoder.encode(conditioned_input)
+                # if encode returns (mu, sigma), take mu
+                if isinstance(encoded_ct, tuple):
+                    latent_ct = encoded_ct[0]
+                else:
+                    latent_ct = encoded_ct
+            # global average pooling over spatial dimensions -> [B, latent_channels]
+            context_tensor = latent_ct.mean(dim=(2, 3, 4))
+            # add sequence dimension for cross-attention: [B, 1, latent_channels]
+            context_tensor = context_tensor.unsqueeze(1)
             noise_pred = inferer(
                 inputs=latents,
                 autoencoder_model=autoencoder,
                 diffusion_model=self.diffusion_model,
                 noise=noise,
                 timesteps=timesteps,
+                condition=context_tensor,
             )
             # Crop original noise to match predicted noise spatial dimensions
             if noise.ndim == noise_pred.ndim and noise.shape[2:] != noise_pred.shape[2:]:

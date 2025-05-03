@@ -5,6 +5,80 @@ import torch
 from monai.data import DataLoader
 from monai.apps.datasets import CustomDataset
 from torch.utils.data import random_split
+import glob
+import numpy as np
+from torch.utils.data import Dataset
+from monai.transforms import Compose, LoadImaged
+from monai.data import NumpyReader
+
+class DoseNpyDataset(Dataset):
+    """
+    Dataset that loads input/output .npy cubes and parses the energy level from the folder name.
+    Expects directory structure:
+      root_dir/
+        <section>/         # e.g. "training"
+          <energy_folder>/ # e.g. "11_5"
+            inputcube/     # contains input .npy files
+            outputcube/    # contains target .npy files
+    """
+    def __init__(self, root_dir, section=None, transforms=None):
+        base_dir = root_dir if section is None else os.path.join(root_dir, section)
+        self.samples = []
+        for energy_folder in sorted(os.listdir(base_dir)):
+            folder_path = os.path.join(base_dir, energy_folder)
+            # Skip non-directories and hidden entries
+            if not os.path.isdir(folder_path) or energy_folder.startswith('.'):
+                continue
+            # Parse energy value from folder name
+            try:
+                energy = float(energy_folder.replace("_", "."))
+            except ValueError:
+                continue
+            in_dir = os.path.join(folder_path, "inputcube")
+            out_dir = os.path.join(folder_path, "outputcube")
+            # Skip if expected subdirectories do not exist
+            if not os.path.isdir(in_dir) or not os.path.isdir(out_dir):
+                continue
+            for fname in sorted(os.listdir(in_dir)):
+                if not fname.endswith(".npy"):
+                    continue
+                in_fp = os.path.join(in_dir, fname)
+                out_fp = os.path.join(out_dir, fname)
+                self.samples.append((in_fp, out_fp, energy))
+        self.transforms = transforms
+        print(f"Energy levels found: {sorted(set([s[2] for s in self.samples]))}")
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        in_fp, out_fp, energy = self.samples[idx]
+        # Determine if LoadImaged is expected by checking transforms
+        use_load_imaged = False
+        if self.transforms and isinstance(self.transforms, Compose):
+            from monai.transforms import LoadImaged
+            use_load_imaged = any(isinstance(tr, LoadImaged) for tr in self.transforms.transforms)
+
+        if use_load_imaged:
+            # Return file paths for MONAI LoadImaged
+            sample = {
+                "input": in_fp,
+                "target": out_fp,
+                "energy": torch.tensor([energy], dtype=torch.float32),
+            }
+        else:
+            # Load arrays directly for tensor-based pipeline
+            arr_in = np.load(in_fp)    # shape [D, H, W]
+            arr_out = np.load(out_fp)
+            sample = {
+                "input": torch.from_numpy(arr_in)[None].float(),    # [1,D,H,W]
+                "target": torch.from_numpy(arr_out)[None].float(),  # [1,D,H,W]
+                "energy": torch.tensor([energy], dtype=torch.float32),
+            }
+        # Now apply transforms (e.g., EnsureChannelFirstd, spacing) which act on keys
+        if self.transforms:
+            sample = self.transforms(sample)
+        return sample
 
 class DataLoaderModule:
     """
@@ -35,14 +109,8 @@ class DataLoaderModule:
         Returns:
             CustomDataset: The loaded dataset.
         """
-        dsfull = CustomDataset(
-            data_dir=self.root_dir,
-            section=section,
-            cache_rate=0.0,             # set to 0 to keep RAM consumption low
-            num_workers=0,              # use 0 if multiprocessing causes problems
-            transform=self.transforms,
-        )
-        return dsfull
+        # Pass through full transform pipeline (LoadImaged remains for file loading)
+        return DoseNpyDataset(self.root_dir, section=section, transforms=self.transforms)
     
     def split_dataset(self, ds_full):
         """

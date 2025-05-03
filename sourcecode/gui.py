@@ -45,6 +45,8 @@ class TrainingWorker(QObject):
             self.manager.run_training()
             self.finished.emit()
         except Exception as ex:
+            traceback.print_exc()
+            # Emit error signal instead of showing QMessageBox in worker thread
             self.error.emit(str(ex))
 
 class MainWindow(QMainWindow):
@@ -235,21 +237,13 @@ class MainWindow(QMainWindow):
         inference_layout.addWidget(visualize_dose_button)
 
         #Training folder selection buttons
-        self.input_button = QPushButton("Select Input Cubes Folder for the Training", self)
+        self.input_button = QPushButton("Select Energy Folder for Training", self)
         self.input_button.setToolTip("Select the folder containing input cubes for training")
         self.input_button.clicked.connect(self.select_input_folder)
         training_layout.addWidget(self.input_button)
         # Input path label
         self.input_label = QLabel("No input folder selected", self)
         training_layout.addWidget(self.input_label)
-
-        self.output_button = QPushButton("Select Output Cubes Folder for the Training", self)
-        self.output_button.setToolTip("Select the folder containing output cubes for training")
-        self.output_button.clicked.connect(self.select_output_folder)
-        training_layout.addWidget(self.output_button)
-        # Output path label
-        self.output_label = QLabel("No output folder selected", self)
-        training_layout.addWidget(self.output_label)
 
         self.train_button = QPushButton("Train Model", self)
         self.train_button.setToolTip("Train the model with the selected input and output folders")
@@ -274,6 +268,43 @@ class MainWindow(QMainWindow):
         """
         folder = QFileDialog.getExistingDirectory(self, "Select Input Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
         if folder:
+            # If the user selected an energy folder containing both 'inputcube' and 'outputcube', derive both paths
+            energy_folder = folder
+            # Parse and propagate selected energy value
+            energy_value = float(os.path.basename(energy_folder).replace("_", "."))
+            # Update GUI parameter manager and system manager
+            self.pm.energies = [energy_value]
+            self.system_manager.energies = [energy_value]
+            input_cube_path = os.path.join(energy_folder, "inputcube")
+            output_cube_path = os.path.join(energy_folder, "outputcube")
+            if os.path.isdir(input_cube_path) and os.path.isdir(output_cube_path):
+                # Use the energy-specific subfolders directly
+                self.input_dir = input_cube_path
+                self.input_label.setText(f"Input cube folder: {self.input_dir}")
+                self.output_dir = output_cube_path
+ 
+                # Determine cube size from one of the input .npy files
+                files = glob.glob(os.path.join(self.input_dir, "*.npy"))
+                if files:
+                    arr = np.load(files[0])
+                    self.pm.cube_size = arr.shape
+                    transforms_chain = Compose([
+                        LoadImaged(keys=["input", "target"], reader=NumpyReader),
+                        EnsureChannelFirstd(keys=["input", "target"]),
+                        EnsureTyped(keys=["input", "target"]),
+                        Orientationd(keys=["input", "target"], axcodes="RAS"),
+                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode=("bilinear", "nearest")),
+                        SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
+                        CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
+                        ScaleIntensityRangePercentilesd(keys="input", lower=0, upper=99.5, b_min=0, b_max=1),
+                        ToTensord(keys=["input", "target"])
+                    ])
+                    self.system_manager.cube_size = self.pm.cube_size
+                    self.system_manager.transforms = transforms_chain
+                self.update_train_button_state()
+                return
+
+            # Otherwise treat folder as the direct input-cube directory
             self.input_dir = folder
             self.input_label.setText(f"Input folder: {folder}")
             # determine cube size from first cube file in folder
@@ -293,11 +324,11 @@ class MainWindow(QMainWindow):
                         EnsureChannelFirstd(keys=["input", "target"]),
                         EnsureTyped(keys=["input", "target"]),
                         Orientationd(keys=["input", "target"], axcodes="RAS"),
-                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode= ("bilinear", "nearest")),
+                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode=("bilinear", "nearest")),
                         SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
                         CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
                         ScaleIntensityRangePercentilesd(
-                            keys="input", lower=0, upper=99.5, b_min=0, b_max=1
+                            keys=["input"], lower=0, upper=99.5, b_min=0, b_max=1
                         ),
                         ToTensord(keys=["input", "target"])
                     ])
@@ -308,23 +339,13 @@ class MainWindow(QMainWindow):
                 print(f"Cube size set to: {self.pm.cube_size}")
             self.update_train_button_state()
 
-    def select_output_folder(self):
-        """
-        Opens a directory dialog to select the output cubes folder for training.
-        Enables the Train button if both folders are selected.
-        """
-        folder = QFileDialog.getExistingDirectory(self, "Select Output Cubes Directory", "", QFileDialog.Option.ShowDirsOnly)
-        if folder:
-            self.output_dir = folder
-            self.output_label.setText(f"Output folder: {folder}")
-            self.update_train_button_state()
     
     # Update the state of the Train button based on folder selection
     def update_train_button_state(self):
         """
         Enables the Train button if both input and output directories are selected.
         """
-        if self.input_dir and self.output_dir:
+        if self.input_dir:
             self.train_button.setEnabled(True)
         else:
             self.train_button.setEnabled(False)
@@ -350,8 +371,11 @@ class MainWindow(QMainWindow):
         self.pm.num_epochs = self.epochs_spin.value()
         self.pm.patience = self.patience_spin.value()
         self.pm.learning_rate = self.learning_rate_spin.value()
-        
-        self.system_manager.root_dir = parent_in  # Set the root directory for training
+
+        energy_folder = parent_in
+        # parent of energy_folder is the dataset root containing all energy subfolders
+        dataset_root = os.path.dirname(energy_folder)
+        self.system_manager.root_dir = dataset_root
         #update training parameters from GUI
         self.system_manager.batch_size = self.pm.batch_size
         self.system_manager.num_epochs = self.pm.num_epochs
