@@ -37,11 +37,14 @@ class TrainingWorker(QObject):
     """
     finished = Signal()
     error = Signal(str)
+    progress = Signal(int, int)  # current epoch, total epochs
     def __init__(self, manager):
         super().__init__()
         self.manager = manager
     def run(self):
         try:
+            # connect system manager updates to this worker's progress signal
+            self.manager.progress_callback = self.progress.emit
             self.manager.run_training()
             self.finished.emit()
         except Exception as ex:
@@ -394,15 +397,19 @@ class MainWindow(QMainWindow):
         self.system_manager.learning_rate = self.pm.learning_rate
 
         # run training in background thread to avoid freezing GUI
-        progress = QProgressDialog("Training model...", None, 0, 0, self)
+        progress = QProgressDialog(f"Training model... Epoch 0/{self.pm.num_epochs}", None, 0, self.pm.num_epochs, self)
         progress.setWindowModality(Qt.ApplicationModal)
         progress.setCancelButton(None)
         progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
         progress.show()
         # create worker and thread
         thread = QThread(self)
         worker = TrainingWorker(self.system_manager)
         worker.moveToThread(thread)
+        # update progress dialog when epochs complete
+        worker.progress.connect(self._update_progress)
         thread.started.connect(worker.run)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
@@ -512,7 +519,13 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_train_progress'):
             self._train_progress.close()
         QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")
-    
+    @Slot(int, int)
+    def _update_progress(self, current, total):
+        """Slot to update the progress dialog with current epoch"""
+        if hasattr(self, '_train_progress'):
+            self._train_progress.setValue(current)
+            self._train_progress.setLabelText(f"Training model... Epoch {current}/{total}")
+
     @Slot()
     def show_training_plots(self):
         """Open a window showing the three training plot images together."""

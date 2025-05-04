@@ -57,6 +57,7 @@ class SystemManager:
         self.learning_rate = learning_rate
         self.patience = patience
         self.training_complete = False
+        self.progress_callback = None
         # placeholders for trained models
         self.autoencoder = None
         self.unet = None
@@ -209,6 +210,7 @@ class SystemManager:
                 # trainers and early stopping
                 ae_trainer = AutoencoderTrainer(autoencoder, discriminator, opt_g, opt_d, self.device)
                 stopper = EarlyStopping(patience=self.patience)
+                # autoencoder training loop
                 for epoch in range(self.num_epochs):
                     train_loss, gen_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
                     val_loss = ae_trainer.validate(val_loader)
@@ -217,6 +219,9 @@ class SystemManager:
                     ae_val_losses.append(val_loss)
                     gen_losses.append(gen_loss)
                     disc_losses.append(disc_loss)
+                    # emit autoencoder progress update
+                    if self.progress_callback:
+                        self.progress_callback('Autoencoder', epoch+1, self.num_epochs)
                     if stopper.update(val_loss):
                         print("Early stopping at epoch", epoch+1)
                         break
@@ -224,10 +229,14 @@ class SystemManager:
                 # now diffusion training
                 diff_trainer = DiffusionTrainer(unet, opt_diff, self.device)
                 
+                # diffusion (UNet) training loop
                 for epoch in range(self.num_epochs):
                     diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
                     # record diffusion loss
                     diff_losses.append(diff_loss)
+                    # emit diffusion progress update
+                    if self.progress_callback:
+                        self.progress_callback('Diffusion', epoch+1, self.num_epochs)
 
                 # plot loss curves for this config
                 Visualization.plot_loss_curves(
