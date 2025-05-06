@@ -244,7 +244,7 @@ class MainWindow(QMainWindow):
         inference_layout.addWidget(visualize_dose_button)
 
         #Training folder selection buttons
-        self.input_button = QPushButton("Select Energy Folder for Training", self)
+        self.input_button = QPushButton("Select one Energy Folder for Training", self)
         self.input_button.setToolTip("Select the folder containing input cubes for training")
         self.input_button.clicked.connect(self.select_input_folder)
         training_layout.addWidget(self.input_button)
@@ -284,11 +284,20 @@ class MainWindow(QMainWindow):
         if folder:
             # If the user selected an energy folder containing both 'inputcube' and 'outputcube', derive both paths
             energy_folder = folder
-            # Parse and propagate selected energy value
-            energy_value = float(os.path.basename(energy_folder).replace("_", "."))
-            # Update GUI parameter manager and system manager
-            self.pm.energies = [energy_value]
-            self.system_manager.energies = [energy_value]
+            # Determine dataset root containing all energy subfolders
+            dataset_root = os.path.dirname(energy_folder)
+            # List all energy subfolder names (skip hidden files)
+            energy_names = sorted([
+                d for d in os.listdir(dataset_root)
+                if os.path.isdir(os.path.join(dataset_root, d)) and not d.startswith('.')
+            ])
+            # Parse numeric energy values from folder names
+            energies_list = [float(name.replace("_", ".")) for name in energy_names]
+            # Update GUI and SystemManager energies and root_dir
+            self.pm.energies = energies_list
+            self.system_manager.energies = energies_list
+            self.system_manager.root_dir = dataset_root
+
             input_cube_path = os.path.join(energy_folder, "inputcube")
             output_cube_path = os.path.join(energy_folder, "outputcube")
             if os.path.isdir(input_cube_path) and os.path.isdir(output_cube_path):
@@ -296,7 +305,6 @@ class MainWindow(QMainWindow):
                 self.input_dir = input_cube_path
                 self.input_label.setText(f"Input cube folder: {self.input_dir}")
                 self.output_dir = output_cube_path
- 
                 # Determine cube size from one of the input .npy files
                 files = glob.glob(os.path.join(self.input_dir, "*.npy"))
                 if files:

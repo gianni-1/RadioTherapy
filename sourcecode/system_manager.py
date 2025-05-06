@@ -118,13 +118,16 @@ class SystemManager:
                 disc_losses     = []
                 diff_losses     = []
 
-                # create data module for this combination
+                
                 data_module = DataLoaderModule(
                     root_dir=self.root_dir,
                     transforms=self.transforms
                 )
-                # Load dataset directly from root_dir, which contains energy subfolders
+                # load complete dataset
                 ds_full = data_module.load_dataset(section=None)
+                # sample["energy"] delivers a tensor, so we need to convert it to float
+                ds_full = [s for s in ds_full if float(s["energy"].item()) == energy]
+                
                 train_ds, val_ds = data_module.split_dataset(ds_full)
                 train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
                 val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)

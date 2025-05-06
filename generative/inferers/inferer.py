@@ -409,7 +409,6 @@ class LatentDiffusionInferer(DiffusionInferer):
             new_D, new_H, new_W = (D // factor) * factor, (H // factor) * factor, (W // factor) * factor
             if (new_D, new_H, new_W) != (D, H, W):
                 latent = latent[:, :, :new_D, :new_H, :new_W]
-                print(f"[INFER DEBUG] cropped latent to {tuple(latent.shape)} for factor {factor}")
 
         if self.ldm_latent_shape is not None:
             latent = torch.stack([self.ldm_resizer(i) for i in decollate_batch(latent)], 0)
