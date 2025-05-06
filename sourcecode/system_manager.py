@@ -221,7 +221,7 @@ class SystemManager:
                     disc_losses.append(disc_loss)
                     # emit autoencoder progress update
                     if self.progress_callback:
-                        self.progress_callback('Autoencoder', epoch+1, self.num_epochs)
+                        self.progress_callback(epoch+1, self.num_epochs)
                     if stopper.update(val_loss):
                         print("Early stopping at epoch", epoch+1)
                         break
@@ -236,7 +236,7 @@ class SystemManager:
                     diff_losses.append(diff_loss)
                     # emit diffusion progress update
                     if self.progress_callback:
-                        self.progress_callback('Diffusion', epoch+1, self.num_epochs)
+                        self.progress_callback(epoch+1, self.num_epochs)
 
                 # plot loss curves for this config
                 Visualization.plot_loss_curves(
