@@ -21,6 +21,8 @@ class ParameterManager:
             other_parameters (dict, optional): Any additional parameters to store.
         """
         self.energies = energies
+        self.quad_energies = []
+        self.quad_weights = []
         self.batch_size = batch_size
         self.cube_size = cube_size
         self.resolutions = [cube_size/4, cube_size/2, cube_size]  # Resolution scaling based on cube size
@@ -39,6 +41,7 @@ class ParameterManager:
         params = {
             "resolutions": self.resolutions,
             "energies": self.energies,
+            "quadrature_weights": self.quadrature_weights,
             "batch_size": self.batch_size,
             "cube_size": self.cube_size,
             "learning_rate": self.learning_rate,
@@ -55,8 +58,7 @@ class ParameterManager:
             key (str): The parameter name to update.
             value: The new value for the parameter.
         """
-        if key in ["resolutions", "energies", "batch_size", "cube_size", "learning_rate", "num_epochs"]:
+        if key in ["resolutions", "energies", "quadrature_weights", "batch_size", "cube_size", "learning_rate", "num_epochs"]:
             setattr(self, key, value)
         else:
             self.other_parameters[key] = value
-

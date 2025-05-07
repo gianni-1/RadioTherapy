@@ -16,19 +16,17 @@ class InferenceModule:
       
     Additional parameters (e.g. cube size) are taken into account during preprocessing.
     """
-    def __init__(self, autoencoder, diffusion_model, scheduler, device):
+    def __init__(self, models_by_energy: dict, energies: list, energy_weights: list, device):
         """
-        Initializes the InferenceModule.
-
         Args:
-            autoencoder (torch.nn.Module): The trained autoencoder model.
-            diffusion_model (torch.nn.Module): The trained diffusion model (e.g., a UNet).
-            scheduler (object): The scheduler that manages the diffusion process (e.g., DDPM scheduler).
-            device (torch.device): The device (CPU or GPU) to run inference on.
+            models_by_energy (dict): Mapping from energy value (float) to tuple (autoencoder, diffusion_model, scheduler).
+            energies (list of float): List of quadrature energy levels.
+            energy_weights (list of float): Corresponding quadrature weights.
+            device (torch.device): Device for inference.
         """
-        self.autoencoder = autoencoder
-        self.diffusion_model = diffusion_model
-        self.scheduler = scheduler
+        self.models_by_energy = models_by_energy
+        self.energies = energies
+        self.energy_weights = energy_weights
         self.device = device
     
     def preprocess_ct(self, ct_tensor, target_cube_size=(64, 64, 64)):
@@ -56,36 +54,18 @@ class InferenceModule:
         """
         Runs the complete dose inference on the provided CT scan.
         
-        The process includes:
-         - Preprocessing the CT scan to the target resolution.
-         - Optionally encoding the data via the autoencoder to obtain a latent representation.
-         - Passing the (latent) representation through the diffusion model to compute the dose distribution.
+        The process includes aggregating the dose distributions over the Gaussian quadrature energies and weights.
         
         Args:
             ct_tensor (torch.Tensor): The input CT scan with shape [C, D, H, W].
             target_cube_size (tuple): The target spatial dimensions (D, H, W) for inference.
         
         Returns:
-            torch.Tensor: The predicted dose distribution as a tensor.
+            torch.Tensor: The aggregated predicted dose distribution as a tensor.
         """
-      # Preprocess the CT scan to match the desired cube size.
-        input_data = self.preprocess_ct(ct_tensor, target_cube_size=target_cube_size).to(self.device)
-
-        # Optionally, use the autoencoder to encode (or decode) the input.
-        # For this example, we'll assume that the autoencoder simply passes the data through.
-        latent_representation = self.autoencoder(input_data)
-
-        # Use the diffusion model on the latent representation to compute the dose distribution.
-        # In a full implementation, the scheduler would control the iterative noise removal process.
-        dose_distribution = self.diffusion_model(latent_representation)
-
-        # Optionally, might decode the latent output (if needed):
-        # decoded_dose = self.autoencoder.decode(dose_distribution)
-        # return decoded_dose
-
-        return dose_distribution
+        return self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
     
-    def run_inference_conditioned_on_energy(self, ct_tensor, target_cube_size=(64, 64, 64), energy_value=75):
+    def run_inference_conditioned_on_energy(self, ct_tensor, energy_value, target_cube_size=(64, 64, 64)):
         """
         Runs inference on the given CT scan while conditioning on a specified energy value.
         
@@ -101,6 +81,9 @@ class InferenceModule:
         Returns:
             torch.Tensor: The predicted dose distribution based on the energy-conditioned input.
         """
+        # select the models corresponding to this energy
+        autoencoder, diffusion_model, scheduler = self.models_by_energy[energy_value]
+
         # Preprocess CT scan
         input_data = self.preprocess_ct(ct_tensor, target_cube_size=target_cube_size).to(self.device)
         # Get original shape: expected shape [B, C, D, H, W] (C usually equals 1)
@@ -116,10 +99,10 @@ class InferenceModule:
         conditioned_input = torch.cat((input_data, energy_tensor), dim=1)
         
         # Pass the conditioned input through the autoencoder.
-        latent_representation = self.autoencoder(conditioned_input)
+        latent_representation = autoencoder(conditioned_input)
         
         # Use the diffusion model to compute the dose distribution based on the latent representation.
-        dose_distribution = self.diffusion_model(latent_representation)
+        dose_distribution = diffusion_model(latent_representation)
         
         return dose_distribution
 

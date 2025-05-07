@@ -63,6 +63,10 @@ class SystemManager:
         self.unet = None
         self.scheduler = None
         self.cube_size = cube_size
+        self.quad_energies = []
+        self.quad_weights = []
+        #keep models per energy for quadrature inference
+        self.models_by_energy = {}
 
     def save_models(self, autoencoder, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
         checkpoint_path = f"model_res{self.resolutions}_energy{self.energies}.ckpt"
@@ -251,10 +255,9 @@ class SystemManager:
                 
                 # save checkpoint for this config
                 self.save_models(autoencoder, unet, opt_diff, opt_g, opt_d, epoch)
-                # store trained models for inference
-                self.autoencoder = autoencoder
-                self.unet = unet
-                self.scheduler = scheduler
+                # store each  trained (autoencoder, unet, scheduler) by its energy level
+                self.models_by_energy[energy] = (autoencoder, unet, scheduler)
+   
         # after loops
         self.training_complete = True
         print("All training finished.")
@@ -263,20 +266,26 @@ class SystemManager:
         """
         Load a CT scan and run inference to compute dose distribution.
         """
-        if self.autoencoder is None or self.unet is None:
-            raise RuntimeError("Keine trainierten Modelle gefunden. Bitte zuerst das Training ausführen.")
+        if not self.models_by_energy:
+            raise RuntimeError("No trained models found. Train the models first.")
         # lazy import to avoid circular
         import nibabel as nib
         import numpy as np
         from inference_module import InferenceModule
 
-        # load CT scan, assume single channel
+        # build tensor from CT file
         img = nib.load(ct_file_path)
         arr = np.asarray(img.dataobj)
         ct_tensor = torch.from_numpy(arr).unsqueeze(0).to(self.device)  # shape [1, D, H, W]
 
-        # initialize inference module
-        inf_mod = InferenceModule(self.autoencoder, self.unet, self.scheduler, self.device)
-        # run inference (assumes run_inference returns tensor)
-        dose = inf_mod.run_inference(ct_tensor)
-        return dose
+        # initialize inference module with all energy-conditioned models
+        inf_mod = InferenceModule(
+            models_by_energy=self.models_by_energy,
+            energies=self.quad_energies,
+            weights=self.quad_weights,
+            device=self.device,
+        )
+        # run quadrature-based inference over all energies
+        dose_acc = inf_mod.run_inference(ct_tensor)
+        # dose_acc = inf_mod.run_inference(ct_tensor)
+        return dose_acc.squeeze(0)

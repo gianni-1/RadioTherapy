@@ -467,12 +467,25 @@ class MainWindow(QMainWindow):
         #validate energy range
         if min_e > max_e:
             QMessageBox.warning(self, "Error", "Minimum energy must be less than maximum energy.")
-            return   
-        self.system_manager.energies = [min_e, max_e]  # Update the energy range for inference
+            return
+
+        # compute 8‑point Gauss‑Legendre quadrature on [-1,1]
+        nodes, weights = np.polynomial.legendre.leggauss(8)
+        # map nodes from [-1,1] to [min_e, max_e]
+        quad_energies = 0.5 * (max_e - min_e) * nodes + 0.5 * (max_e + min_e)
+        quad_weights = weights * 0.5 * (max_e - min_e)
+
+        # update both pm and system_manager
+        self.pm.quad_energies = list(quad_energies)
+        self.pm.quad_weights = list(quad_weights)
+        self.system_manager.quad_energies = self.pm.quad_energies
+        self.system_manager.quad_weights = self.pm.quad_weights
 
         try:
             # Run inference
-            self.system_manager.run_inference(self.ct_file)
+            dose_tensor = self.system_manager.run_inference(self.ct_file)
+            dose_np = dose_tensor.cpu().numpy()
+            np.save("dose_distribution.npy", dose_np)  # Save the dose distribution
             QMessageBox.information(self, "Success", "Dose distribution calculated successfully.")
             self.visualize_button.setEnabled(True)  # Enable visualization button
         except Exception as e:
