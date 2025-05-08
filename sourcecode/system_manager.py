@@ -254,30 +254,63 @@ class SystemManager:
                 )
                 
                 # save checkpoint for this config
-                self.save_models(autoencoder, unet, opt_diff, opt_g, opt_d, epoch)
-                # store each  trained (autoencoder, unet, scheduler) by its energy level
-                self.models_by_energy[energy] = (autoencoder, unet, scheduler)
+                self.save_models(autoencoder, unet, scheduler, opt_diff, opt_g, opt_d, epoch)
+
    
         # after loops
         self.training_complete = True
         print("All training finished.")
 
-    def run_inference(self, ct_file_path):
+    def run_inference(self, ct_file_path, model_checkpoint=None):
         """
         Load a CT scan and run inference to compute dose distribution.
         """
-        if not self.models_by_energy:
-            raise RuntimeError("No trained models found. Train the models first.")
+        # determine model sources and load checkpoint dict if needed
+        ckpt = None
+        if model_checkpoint is None:
+            if not self.models_by_energy:
+                raise RuntimeError("No trained models found. Train the models first.")
+        elif isinstance(model_checkpoint, str):
+            import torch as _torch
+            ckpt = _torch.load(model_checkpoint, map_location=self.device)
+        elif isinstance(model_checkpoint, dict) and 'autoencoder' in model_checkpoint and 'unet' in model_checkpoint:
+            ckpt = model_checkpoint
+        else:
+            raise ValueError("Invalid model checkpoint. Provide a path or a dict with 'autoencoder' and 'unet' keys.")
+        # if we have a checkpoint dict, rebuild models from state_dict
+        if ckpt is not None:
+            ae = AutoencoderKL(spatial_dims=3, in_channels=2, out_channels=1,
+                                num_channels=(32, 32, 32), latent_channels=2,
+                                num_res_blocks=1, norm_num_groups=8,
+                                attention_levels=(False, False, True)).to(self.device)
+            ae.load_state_dict(ckpt['autoencoder'])
+            un = DiffusionModelUNet(spatial_dims=3, in_channels=2, out_channels=2,
+                                   with_conditioning=True, cross_attention_dim=2,
+                                   num_res_blocks=1, num_channels=(32, 64, 64),
+                                   attention_levels=(False, True, True),
+                                   num_head_channels=(0, 64, 64)).to(self.device)
+            un.load_state_dict(ckpt['unet'])
+            sched = DDPMScheduler(num_train_timesteps=1000,
+                                  schedule="scaled_linear_beta",
+                                  beta_start=0.0015, beta_end=0.0195)
+            self.models_by_energy = {energy: (ae, un, sched) for energy in self.energies}
+            self.autoencoder, self.unet, self.scheduler = ae, un, sched
+        
         # lazy import to avoid circular
         import nibabel as nib
         import numpy as np
         from inference_module import InferenceModule
 
-        # build tensor from CT file
-        img = nib.load(ct_file_path)
-        arr = np.asarray(img.dataobj)
+        # build tensor from CT file: support both NIfTI (.nii, .nii.gz) and NumPy (.npy)
+        path_lower = ct_file_path.lower()
+        if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
+            nifti_img = nib.load(ct_file_path)
+            arr = np.asarray(nifti_img.dataobj)
+        elif path_lower.endswith('.npy'):
+            arr = np.load(ct_file_path)
+        else:
+            raise ValueError(f"Unsupported CT file format: {ct_file_path}")
         ct_tensor = torch.from_numpy(arr).unsqueeze(0).to(self.device)  # shape [1, D, H, W]
-
         # initialize inference module with all energy-conditioned models
         inf_mod = InferenceModule(
             models_by_energy=self.models_by_energy,
@@ -286,6 +319,26 @@ class SystemManager:
             device=self.device,
         )
         # run quadrature-based inference over all energies
-        dose_acc = inf_mod.run_inference(ct_tensor)
-        # dose_acc = inf_mod.run_inference(ct_tensor)
-        return dose_acc.squeeze(0)
+        print("Running inference...")
+        dose = inf_mod.run_inference(ct_tensor)
+        # convert to numpy and remove batch dim
+        dose_np = dose.detach().cpu().numpy()
+        if dose_np.ndim == 4 and dose_np.shape[0] == 1:
+            dose_np = dose_np[0]
+        # create affine
+        import numpy as _np, nibabel as _nib, json as _json, os as _os
+        affine = _np.eye(4)
+        img = _nib.Nifti1Image(dose_np, affine)
+        # attach cubes.json manifest if available
+        manifest_path = _os.path.join(self.root_dir, 'cubes.json')
+        if _os.path.exists(manifest_path):
+            with open(manifest_path, 'r') as mf:
+                manifest = _json.load(mf)
+            ext = _nib.Nifti1Extension('comment', _json.dumps(manifest))
+            img.header.extensions.append(ext)
+        # save NIfTI file
+        out_path = _os.path.join(self.root_dir, 'inference_with_manifest.nii.gz')
+        _nib.save(img, out_path)
+        # set result path
+        self.dose_result_path = out_path
+        return out_path

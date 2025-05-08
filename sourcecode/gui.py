@@ -72,6 +72,11 @@ class MainWindow(QMainWindow):
 
         self.ct_file = None  # store imported CT file (inference)
 
+        self.model_checkpoint = None  # store imported model file (inference)
+
+        self.model_file_bool = False  # flag to check if model file is loaded
+        self.ct_file_bool = False  # flag to check if CT file is loaded
+
         # prepare parameters and transforms with default values
         # These values will be updated based on user input in the GUI
         self.pm = ParameterManager(
@@ -230,6 +235,12 @@ class MainWindow(QMainWindow):
         upload_button.clicked.connect(self.open_file_dialog)
         inference_layout.addWidget(upload_button)
 
+        # Upload button for model file
+        model_button = QPushButton("Upload Model File", self)
+        model_button.setToolTip("Click to upload a model file (.ckpt)")
+        model_button.clicked.connect(self.open_model_dialog)
+        inference_layout.addWidget(model_button)
+
         # Dose calculation button (disabled until CT file is uploaded)
         self.dose_button = QPushButton("Calculate Dose", self)
         self.dose_button.setToolTip("Calculate dose distribution (requires CT scan)")
@@ -243,7 +254,7 @@ class MainWindow(QMainWindow):
         visualize_dose_button.clicked.connect(self.visualize_inference_results)
         inference_layout.addWidget(visualize_dose_button)
 
-        #Training folder selection buttons
+        # Training folder selection buttons
         self.input_button = QPushButton("Select one Energy Folder for Training", self)
         self.input_button.setToolTip("Select the folder containing input cubes for training")
         self.input_button.clicked.connect(self.select_input_folder)
@@ -437,18 +448,46 @@ class MainWindow(QMainWindow):
         Opens a file dialog for selecting a CT scan file in NIfTI format.
         If a file is selected, its path is stored and the dose calculation button is enabled.
         """
+        # support both NIfTI and NumPy formats
         file_path, _ = QFileDialog.getOpenFileName(
-            self, "Select CT Scan", "", "NIfTI Files (*.nii *.nii.gz)"
+            self, "Select CT Scan", "", "CT Files (*.nii *.nii.gz *.npy)"
         )
         if file_path:
             self.ct_file = file_path  # store the imported CT file
             print(f"Selected file: {file_path}")
             try:
-                # Load the NIfTI file to ensure it's valid
-                img = nib.load(file_path) 
-                data = np.asarray(img)
-                self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
+                # Load file: NIfTI or NumPy
+                fp = file_path.lower()
+                if fp.endswith('.npy'):
+                    data = np.load(file_path)
+                else:
+                    img = nib.load(file_path)
+                    data = np.asarray(img.dataobj)
+                if(self.model_file_bool):
+                    self.dose_button.setEnabled(True)
                 print(f"Image shape: {data.shape}")
+            except Exception as e:
+                print(f"Error loading file: {e}")
+                QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
+    # Open a file dialog to select a model file (inference)
+    def open_model_dialog(self):
+        """
+        Opens a file dialog for selecting a model file in .ckpt format.
+        If a file is selected, its path is stored and the dose calculation button is enabled.
+        """
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select Model File", "", "Model Files (*.ckpt)"
+        )
+        if file_path:
+            self.ct_file = file_path  # store the imported CT file
+            print(f"Selected file: {file_path}")
+            try:
+                # Load the Model file (.ckpt) to ensure it's valid
+                self.model_checkpoint = torch.load(file_path)  # Load the model file
+                if(self.ct_file_bool):
+                    self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
+                else:
+                    self.model_file_bool = True
             except Exception as e:
                 print(f"Error loading file: {e}")
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
@@ -483,10 +522,8 @@ class MainWindow(QMainWindow):
 
         try:
             # Run inference
-            dose_tensor = self.system_manager.run_inference(self.ct_file)
-            dose_np = dose_tensor.cpu().numpy()
-            np.save("dose_distribution.npy", dose_np)  # Save the dose distribution
-            QMessageBox.information(self, "Success", "Dose distribution calculated successfully.")
+            out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+            QMessageBox.information(self, "Success", "Dose distribution calculated successfully.", "Saved to: " + out_path)
             self.visualize_button.setEnabled(True)  # Enable visualization button
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
