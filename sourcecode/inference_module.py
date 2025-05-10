@@ -129,7 +129,11 @@ class InferenceModule:
         for energy in energies:
             print(f"Running inference for energy: {energy} keV")
             # Run inference conditioned on the given energy.
-            dose = self.run_inference_conditioned_on_energy(ct_tensor, target_cube_size, energy_value=energy)
+            dose = self.run_inference_conditioned_on_energy(
+                ct_tensor,
+                energy,
+                target_cube_size
+            )
             dose_list.append(dose)
         
         # Stack the dose outputs along a new dimension (energy dimension).

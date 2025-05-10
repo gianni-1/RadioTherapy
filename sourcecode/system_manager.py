@@ -315,7 +315,7 @@ class SystemManager:
         inf_mod = InferenceModule(
             models_by_energy=self.models_by_energy,
             energies=self.quad_energies,
-            weights=self.quad_weights,
+            energy_weights=self.quad_weights,
             device=self.device,
         )
         # run quadrature-based inference over all energies

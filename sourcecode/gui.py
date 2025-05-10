@@ -465,6 +465,8 @@ class MainWindow(QMainWindow):
                     data = np.asarray(img.dataobj)
                 if(self.model_file_bool):
                     self.dose_button.setEnabled(True)
+                else:
+                    self.ct_file_bool = True
                 print(f"Image shape: {data.shape}")
             except Exception as e:
                 print(f"Error loading file: {e}")
@@ -479,7 +481,6 @@ class MainWindow(QMainWindow):
             self, "Select Model File", "", "Model Files (*.ckpt)"
         )
         if file_path:
-            self.ct_file = file_path  # store the imported CT file
             print(f"Selected file: {file_path}")
             try:
                 # Load the Model file (.ckpt) to ensure it's valid
