@@ -82,7 +82,8 @@ class InferenceModule:
             torch.Tensor: The predicted dose distribution based on the energy-conditioned input.
         """
         # select the models corresponding to this energy
-        autoencoder, diffusion_model, scheduler = self.models_by_energy[energy_value]
+        print(f"Keys in models_by_energy: {self.models_by_energy.keys()}")
+        autoencoder, unet, scheduler = self.models_by_energy[0]
 
         # Preprocess CT scan
         input_data = self.preprocess_ct(ct_tensor, target_cube_size=target_cube_size).to(self.device)
@@ -99,11 +100,25 @@ class InferenceModule:
         conditioned_input = torch.cat((input_data, energy_tensor), dim=1)
         
         # Pass the conditioned input through the autoencoder.
-        latent_representation = autoencoder(conditioned_input)
+        #latent_representation = autoencoder(conditioned_input)
         
         # Use the diffusion model to compute the dose distribution based on the latent representation.
-        dose_distribution = diffusion_model(latent_representation)
-        
+        #dose_distribution = diffusion_model(latent_representation)
+
+        # Obtain latent representation (stage 2 inputs) from autoencoder
+        latent = autoencoder.encode_stage_2_inputs(conditioned_input)
+        # use diffusion inferer to sample dose distribution
+        from generative.inferers import LatentDiffusionInferer
+        inferer = LatentDiffusionInferer(scheduler=scheduler, scale_factor=1.0)
+        # perform sampling (default num steps)
+        dose_distribution = inferer.sample(
+            input_noise=latent,
+            autoencoder_model=autoencoder,
+            diffusion_model=unet,
+            scheduler=scheduler,
+            save_intermediates=False,
+            conditioning=None,
+        )
         return dose_distribution
 
     def run_inference_over_energies(self, ct_tensor, target_cube_size, energies, energy_weights):
