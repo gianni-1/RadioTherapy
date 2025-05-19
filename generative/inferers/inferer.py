@@ -105,6 +105,35 @@ class DiffusionInferer(Inferer):
             verbose: if true, prints the progression bar of the sampling process.
             seg: if diffusion model is instance of SPADEDiffusionModel, segmentation must be provided.
         """
+        # Prepare conditioning for cross-attention: pad/truncate to match key dimension
+        if mode == "crossattn" and conditioning is not None:
+            cond = conditioning
+            if cond.dim() == 1:
+                cond = cond.unsqueeze(0)
+            if cond.dim() == 2:
+                batch, N = cond.shape
+
+                # Debug: which submodules define 'to_k'?
+                modules_with_to_k = [
+                    type(m).__name__ for m in diffusion_model.modules() if hasattr(m, "to_k")
+                ]
+
+                # Find the first nn.Linear that serves as key projection
+                embed_dim = None
+                for m in diffusion_model.modules():
+                    k = getattr(m, "to_k", None)
+                    if isinstance(k, nn.Linear):
+                        embed_dim = k.in_features
+                        break
+                if embed_dim is None:
+                    raise RuntimeError("Cannot find nn.Linear 'to_k' layer for padding")
+
+                # Build padded context tensor with truncation
+                device = cond.device
+                new_ctx = cond.new_zeros((batch, 1, embed_dim))
+                num_copy = min(N, embed_dim)
+                new_ctx[:, 0, :num_copy] = cond[:, :num_copy]
+                conditioning = new_ctx
         if mode not in ["crossattn", "concat"]:
             raise NotImplementedError(f"{mode} condition is not supported")
 

@@ -3,7 +3,7 @@ import os
 import sys
 import traceback
 import glob
-# ensure the project root (parent of sourcecode/) is on the Python path
+ # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
@@ -25,6 +25,18 @@ from monai.transforms import (
     CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
 )
 from monai.data import NumpyReader
+
+# --------- Added imports for visualization ---------
+import matplotlib.pyplot as plt
+import numpy as np
+import plotly.graph_objects as go
+import matplotlib.widgets as widgets
+# --------------------------------------------------
+
+# Use interactive Qt backend for Matplotlib
+import matplotlib
+matplotlib.use('QtAgg')  # switch to interactive Qt backend for Matplotlib
+# --------------------------------------------------
 def handle_exception(exc_type, exc_value, exc_tb):
     # Print full traceback for uncaught exceptions
     traceback.print_exception(exc_type, exc_value, exc_tb)
@@ -101,6 +113,8 @@ class MainWindow(QMainWindow):
         self.system_manager = SystemManager(
             root_dir="", transforms=transforms_chain,
             resolutions=self.pm.resolutions, energies=self.pm.energies,
+            quad_energies=self.pm.quad_energies,
+            quad_weights=self.pm.quad_weights,
             batch_size=self.pm.batch_size, device=device,
             num_epochs=self.pm.num_epochs, learning_rate=self.pm.learning_rate, patience=self.pm.patience,
             cube_size= self.pm.cube_size,
@@ -513,21 +527,91 @@ class MainWindow(QMainWindow):
         nodes, weights = np.polynomial.legendre.leggauss(8)
         # map nodes from [-1,1] to [min_e, max_e]
         quad_energies = 0.5 * (max_e - min_e) * nodes + 0.5 * (max_e + min_e)
-        quad_weights = weights * 0.5 * (max_e - min_e)
+        quad_weights = weights * 0.5 * (max_e - min_e) / 2
 
         # update both pm and system_manager
         self.pm.quad_energies = list(quad_energies)
         self.pm.quad_weights = list(quad_weights)
         self.system_manager.quad_energies = self.pm.quad_energies
-        self.system_manager.quad_weights = self.pm.quad_weights
+        self.system_manager.quad_weights  = self.pm.quad_weights
+        self.system_manager.energies      = self.pm.quad_energies
 
         try:
             # Run inference
             out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
-            QMessageBox.information(self, "Success", "Dose distribution calculated successfully.", "Saved to: " + out_path)
+            QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
             self.visualize_button.setEnabled(True)  # Enable visualization button
+
+            # ---------- Automatic slice viewer ----------
+            # Load the result file based on its extension
+            if out_path.lower().endswith(('.nii', '.nii.gz')):
+                img = nib.load(out_path)
+                cube = np.asarray(img.dataobj)
+            else:
+                cube = np.load(out_path, allow_pickle=True)
+            # Aggregate over energy dimension if present
+            # Remove channel dim then sum energy axis if necessary
+            if cube.ndim == 5 and cube.shape[1] == 1:
+                # shape [energies,1,D,H,W] → [energies,D,H,W]
+                cube = cube.squeeze(1)
+            if cube.ndim == 4:
+                # sum over energies axis → [D,H,W]
+                cube = np.sum(cube, axis=0)
+            # Ensure it's a 3D volume
+            cube = np.squeeze(cube)
+            slice_idx = cube.shape[2] // 2
+            fig, ax = plt.subplots()
+            im = ax.imshow(cube[:, :, slice_idx], cmap="gray")
+            ax.set_title(f"Slice {slice_idx}")
+            ax.axis("off")
+
+            slider_ax = plt.axes([0.2, 0.05, 0.6, 0.03])
+            slider = widgets.Slider(
+                slider_ax, "z-Slice", 0, cube.shape[2] - 1,
+                valinit=slice_idx, valfmt="%0.0f"
+            )
+
+            def update(val):
+                z = int(slider.val)
+                im.set_data(cube[:, :, z])
+                ax.set_title(f"Slice {z}")
+                fig.canvas.draw_idle()
+
+            slider.on_changed(update)
+            plt.show()
+            # ---------- end slice viewer ----------
+
+            # ---------- 3D volume rendering ----------
+            cube_norm = (cube - cube.min()) / (cube.max() - cube.min())
+            p_low, p_high = np.percentile(cube_norm, [1, 99])
+            print(f"Suggested thresholds  p_low={p_low:.4f}  p_high={p_high:.4f}")
+
+            x, y, z = np.mgrid[
+                0:cube.shape[0],
+                0:cube.shape[1],
+                0:cube.shape[2]
+            ]
+
+            fig_vol = go.Figure(
+                data=go.Volume(
+                    x=x.flatten(),
+                    y=y.flatten(),
+                    z=z.flatten(),
+                    value=cube_norm.flatten(),
+                    opacity=0.2,
+                    surface_count=20,
+                    isomin=p_low,
+                    isomax=p_high,
+                    colorscale="Viridis"
+                )
+            )
+            fig_vol.update_layout(scene=dict(aspectmode="data"))
+            fig_vol.show()
+            # ---------- end volume rendering ----------
         except Exception as e:
+            traceback.print_exc()
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
+            
 
     # Visualize the dose distribution from inference results
     def visualize_inference_results(self):

@@ -33,7 +33,7 @@ class SystemManager:
         using early stopping based on validation loss.
       - Sets a training-completion flag for subsequent inference.
     """
-    def __init__(self, root_dir, transforms, resolutions, energies, batch_size, device, num_epochs, learning_rate, patience,cube_size, seed=42):
+    def __init__(self, root_dir, transforms, resolutions, energies, quad_energies, quad_weights, batch_size, device, num_epochs, learning_rate, patience, cube_size, seed=42):
         """
         Initializes the SystemManager with configuration parameters.
 
@@ -63,8 +63,8 @@ class SystemManager:
         self.unet = None
         self.scheduler = None
         self.cube_size = cube_size
-        self.quad_energies = []
-        self.quad_weights = []
+        self.quad_energies = quad_energies
+        self.quad_weights = quad_weights
         #keep models per energy for quadrature inference
         self.models_by_energy = {}
 
@@ -289,11 +289,23 @@ class SystemManager:
                                    num_res_blocks=1, num_channels=(32, 64, 64),
                                    attention_levels=(False, True, True),
                                    num_head_channels=(0, 64, 64)).to(self.device)
-            un.load_state_dict(ckpt['unet'])
+            # Filter checkpoint to only matching shapes before loading
+            pretrained_dict = ckpt['unet']
+            model_dict = un.state_dict()
+            filtered_dict = {
+                k: v for k, v in pretrained_dict.items()
+                if k in model_dict and model_dict[k].shape == v.shape
+            }
+            missing = set(model_dict.keys()) - set(filtered_dict.keys())
+            unexpected = set(pretrained_dict.keys()) - set(filtered_dict.keys())
+            # Load only matching parameters
+            un.load_state_dict(filtered_dict, strict=False)
+            if missing or unexpected:
+                print(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
             sched = DDPMScheduler(num_train_timesteps=1000,
                                   schedule="scaled_linear_beta",
                                   beta_start=0.0015, beta_end=0.0195)
-            self.models_by_energy = {energy: (ae, un, sched) for energy in self.energies}
+            self.models_by_energy = {energy: (ae, un, sched) for energy in self.quad_energies}
             self.autoencoder, self.unet, self.scheduler = ae, un, sched
         
         # lazy import to avoid circular

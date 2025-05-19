@@ -1,6 +1,6 @@
-#inference_module.py
-
+#import torch
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.functional import interpolate
 
@@ -28,6 +28,18 @@ class InferenceModule:
         self.energies = energies
         self.energy_weights = energy_weights
         self.device = device
+        # Build projection for cross-attention context from 2 dims to model’s context dimension
+        example_unet = next(iter(models_by_energy.values()))[1]
+        try:
+            context_dim = example_unet.to_k.in_features
+        except AttributeError:
+            for m in example_unet.modules():
+                if hasattr(m, "to_k"):
+                    context_dim = m.to_k.in_features
+                    break
+            else:
+                raise RuntimeError("Cannot determine context projection dimension")
+        self.context_proj = nn.Linear(2, context_dim).to(self.device)
     
     def preprocess_ct(self, ct_tensor, target_cube_size=(64, 64, 64)):
         """
@@ -83,7 +95,10 @@ class InferenceModule:
         """
         # select the models corresponding to this energy
         print(f"Keys in models_by_energy: {self.models_by_energy.keys()}")
-        autoencoder, unet, scheduler = self.models_by_energy[0]
+        try:
+            autoencoder, unet, scheduler = self.models_by_energy[energy_value]
+        except KeyError:
+            raise KeyError(f"No models loaded for energy {energy_value}. Available energies: {list(self.models_by_energy.keys())}")
 
         # Preprocess CT scan
         input_data = self.preprocess_ct(ct_tensor, target_cube_size=target_cube_size).to(self.device)
@@ -92,33 +107,57 @@ class InferenceModule:
         
         # Normalize the energy value (example normalization: divide by 100)
         normalized_energy = energy_value / 100.0
+        # Build and project cross-attention context from energy and weight
+        idx = self.energies.index(energy_value)
+        energy_weight = self.energy_weights[idx]
+        raw_context = torch.tensor(
+            [[normalized_energy, energy_weight]],
+            dtype=torch.float32,
+            device=self.device
+        )  # shape [1,2]
+        # Projected context for cross-attention: shape [batch, context_dim]
+        energy_context = self.context_proj(raw_context)  # shape [1, context_dim]
+        # Retrieve weight corresponding to this energy and build cross-attention context
+        # idx = self.energies.index(energy_value)
+        # energy_weight = self.energy_weights[idx]
+        # energy_context = torch.tensor(
+        #     [[normalized_energy, energy_weight]],
+        #     dtype=torch.float32,
+        #     device=self.device
+        # )
         # Create an energy conditioning tensor with shape [B, 1, D, H, W]
         energy_tensor = torch.full((B, 1, D, H, W), normalized_energy, device=self.device)
         
         # Concatenate the energy channel to the input data.
         # New input shape becomes [B, C+1, D, H, W] (e.g., from [B, 1, D, H, W] to [B, 2, D, H, W]).
         conditioned_input = torch.cat((input_data, energy_tensor), dim=1)
-        
-        # Pass the conditioned input through the autoencoder.
-        #latent_representation = autoencoder(conditioned_input)
-        
-        # Use the diffusion model to compute the dose distribution based on the latent representation.
-        #dose_distribution = diffusion_model(latent_representation)
 
-        # Obtain latent representation (stage 2 inputs) from autoencoder
-        latent = autoencoder.encode_stage_2_inputs(conditioned_input)
-        # use diffusion inferer to sample dose distribution
+        
+        # Encode the conditioned CT to latent space
+        encoded_output = autoencoder.encode(conditioned_input)
+        # Unpack encode result: if a tuple, assume first element is latent sample; otherwise sample from the distribution
+        if isinstance(encoded_output, tuple):
+            latent = encoded_output[0].to(self.device)
+        else:
+            latent = encoded_output.latent_dist.sample().to(self.device)
+        
+        # Run diffusion sampling in latent space
         from generative.inferers import LatentDiffusionInferer
         inferer = LatentDiffusionInferer(scheduler=scheduler, scale_factor=1.0)
-        # perform sampling (default num steps)
-        dose_distribution = inferer.sample(
+        sampled_latent = inferer.sample(
             input_noise=latent,
             autoencoder_model=autoencoder,
             diffusion_model=unet,
             scheduler=scheduler,
-            save_intermediates=False,
-            conditioning=None,
+            conditioning=energy_context,
+            mode="crossattn"
         )
+        
+        # If inferer returns image-space output (1 channel), use it directly; otherwise decode latent
+        if sampled_latent.dim() == 5 and sampled_latent.shape[1] == 1:
+            dose_distribution = sampled_latent
+        else:
+            dose_distribution = autoencoder.decode(sampled_latent)
         return dose_distribution
 
     def run_inference_over_energies(self, ct_tensor, target_cube_size, energies, energy_weights):

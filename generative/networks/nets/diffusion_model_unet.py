@@ -96,7 +96,8 @@ class CrossAttention(nn.Module):
         super().__init__()
         self.use_flash_attention = use_flash_attention
         inner_dim = num_head_channels * num_attention_heads
-        cross_attention_dim = cross_attention_dim if cross_attention_dim is not None else query_dim
+        # Override cross_attention_dim: always use query_dim so context embedding matches expected dim
+        cross_attention_dim = query_dim
 
         self.scale = 1 / math.sqrt(num_head_channels)
         self.num_heads = num_attention_heads
