@@ -403,8 +403,8 @@ class MainWindow(QMainWindow):
         Calls the training pipeline using the selected input and output folders.
         Expects both folders to be subdirectories of the same parent (root) folder.
         """
-        if not self.input_dir or not self.output_dir:
-            QMessageBox.warning(self, "Error", "Please select both input and output folders.")
+        if not self.input_dir:
+            QMessageBox.warning(self, "Error", "Please select the Energy folder containing input cubes and output cubes.")
             return
         
         #Check that both directories are subdirectories of the same parent (root) folder
