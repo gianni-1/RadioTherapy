@@ -208,3 +208,63 @@ def get_visualization_widget(figure):
         MplCanvas: A Qt widget containing the visualization
     """
     return MplCanvas(figure)
+
+
+def interactive_slice_viewer(cube, title="Interactive Slice Viewer"):
+    """
+    Launches an interactive Matplotlib window with a slider to browse through axial slices of a 3D volume.
+    """
+    if cube.ndim != 3:
+        raise ValueError("Volume must be a 3D array for interactive slice viewing.")
+    # switch to interactive backend
+    import matplotlib
+    matplotlib.use('QtAgg')
+    import matplotlib.pyplot as plt
+    from matplotlib.widgets import Slider
+
+    # initial slice
+    z0 = cube.shape[2] // 2
+    fig, ax = plt.subplots(figsize=(6, 6))
+    im = ax.imshow(cube[:, :, z0], cmap='gray')
+    ax.set_title(f"{title} - Slice {z0}")
+    ax.axis('off')
+
+    # slider axis
+    slider_ax = fig.add_axes([0.2, 0.02, 0.6, 0.03])
+    slider = Slider(slider_ax, 'Slice', 0, cube.shape[2] - 1,
+                    valinit=z0, valstep=1)
+
+    def update(val):
+        z = int(slider.val)
+        im.set_data(cube[:, :, z])
+        ax.set_title(f"{title} - Slice {z}")
+        fig.canvas.draw_idle()
+    slider.on_changed(update)
+    plt.show()
+
+
+def volume_rendering(cube, opacity=0.2, surface_count=20):
+    """
+    Performs a 3D volume rendering of a normalized 3D array using Plotly.
+    """
+    if cube.ndim != 3:
+        raise ValueError("Volume must be a 3D array for volume rendering.")
+    import plotly.graph_objects as go
+    # normalize
+    cube_norm = (cube - np.min(cube)) / (np.max(cube) - np.min(cube) + 1e-8)
+    # thresholds
+    p_low, p_high = np.percentile(cube_norm, [1, 99])
+    # coordinate grid
+    x, y, z = np.mgrid[0:cube.shape[0],
+                       0:cube.shape[1],
+                       0:cube.shape[2]]
+    fig = go.Figure(data=go.Volume(
+        x=x.flatten(), y=y.flatten(), z=z.flatten(),
+        value=cube_norm.flatten(),
+        opacity=opacity,
+        surface_count=surface_count,
+        isomin=p_low, isomax=p_high,
+        colorscale='Viridis'
+    ))
+    fig.update_layout(scene=dict(aspectmode='data'))
+    fig.show()
