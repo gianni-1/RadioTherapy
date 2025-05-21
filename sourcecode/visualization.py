@@ -181,7 +181,7 @@ def visualize_dose(dose, title="Dosisverteilung - Axiale Ansicht"):
     return fig
 
 
-def load_and_visualize(nifti_path, title="Dosisverteilung - Axiale Ansicht"):
+def load_and_visualize(nifti_path, title="Dose distribution - Axial View"):
     """
     Loads a Nifti dose distribution file and visualizes its middle axial slice.
 
@@ -249,15 +249,23 @@ def volume_rendering(cube, opacity=0.2, surface_count=20):
     """
     if cube.ndim != 3:
         raise ValueError("Volume must be a 3D array for volume rendering.")
+    import numpy as _np
     import plotly.graph_objects as go
+
     # normalize
-    cube_norm = (cube - np.min(cube)) / (np.max(cube) - np.min(cube) + 1e-8)
+    cube_norm = (cube - _np.min(cube)) / (_np.max(cube) - _np.min(cube) + 1e-8)
+    # Downsample volume for performance if too large
+    max_points = 200_000  # limit total points to ~200k
+    n_voxels = cube_norm.size
+    if n_voxels > max_points:
+        factor = int(_np.ceil((n_voxels / max_points) ** (1/3)))
+        cube_norm = cube_norm[::factor, ::factor, ::factor]
     # thresholds
-    p_low, p_high = np.percentile(cube_norm, [1, 99])
+    p_low, p_high = _np.percentile(cube_norm, [1, 99])
     # coordinate grid
-    x, y, z = np.mgrid[0:cube.shape[0],
-                       0:cube.shape[1],
-                       0:cube.shape[2]]
+    x, y, z = _np.mgrid[0:cube_norm.shape[0],
+                        0:cube_norm.shape[1],
+                        0:cube_norm.shape[2]]
     fig = go.Figure(data=go.Volume(
         x=x.flatten(), y=y.flatten(), z=z.flatten(),
         value=cube_norm.flatten(),
@@ -267,4 +275,4 @@ def volume_rendering(cube, opacity=0.2, surface_count=20):
         colorscale='Viridis'
     ))
     fig.update_layout(scene=dict(aspectmode='data'))
-    fig.show()
+    fig.show(renderer="browser")

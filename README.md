@@ -91,7 +91,7 @@ The GUI lets you pick an **energy range**; we then compute the 8 quadrature poin
 
 ---
 
-## 📈 Training & Debug
+##  Training & Debug
 
 - **Autoencoder**  
   - Logs “Expected input channels: 2, Actual input channels: 1” if your AE-UNet coupling is misconfigured.
@@ -109,6 +109,6 @@ The GUI lets you pick an **energy range**; we then compute the 8 quadrature poin
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
