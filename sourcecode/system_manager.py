@@ -254,7 +254,7 @@ class SystemManager:
                 )
                 
                 # save checkpoint for this config
-                self.save_models(autoencoder, unet, scheduler, opt_diff, opt_g, opt_d, epoch)
+                self.save_models(autoencoder, unet, opt_diff, opt_g, opt_d, epoch)
 
    
         # after loops
@@ -284,11 +284,27 @@ class SystemManager:
                                 num_res_blocks=1, norm_num_groups=8,
                                 attention_levels=(False, False, True)).to(self.device)
             ae.load_state_dict(ckpt['autoencoder'])
-            un = DiffusionModelUNet(spatial_dims=3, in_channels=2, out_channels=2,
-                                   with_conditioning=True, cross_attention_dim=2,
-                                   num_res_blocks=1, num_channels=(32, 64, 64),
-                                   attention_levels=(False, True, True),
-                                   num_head_channels=(0, 64, 64)).to(self.device)
+            # Determine cross_attention_dim from checkpoint UNet weights
+            unet_state = ckpt['unet']
+            cross_dim = None
+            # Find any to_k.weight where input dim != output dim (identifies cross-attn)
+            for key, tensor in unet_state.items():
+                if 'to_k.weight' in key and tensor.dim() == 2 and tensor.shape[1] != tensor.shape[0]:
+                    # tensor shape is [inner_dim, cross_attention_dim]
+                    cross_dim = tensor.shape[1]
+                    print(f"Detected cross_attention_dim={cross_dim} from key: {key}")
+                    break
+            if cross_dim is None:
+                # Fallback if detection fails
+                print(" Warning: could not determine cross_attention_dim from UNet checkpoint; defaulting to 2")
+                cross_dim = 2
+            un = DiffusionModelUNet(
+                spatial_dims=3, in_channels=2, out_channels=2,
+                with_conditioning=True, cross_attention_dim=cross_dim,
+                num_res_blocks=1, num_channels=(32, 64, 64),
+                attention_levels=(False, True, True),
+                num_head_channels=(0, 64, 64)
+            ).to(self.device)
             # Filter checkpoint to only matching shapes before loading
             pretrained_dict = ckpt['unet']
             model_dict = un.state_dict()
@@ -339,6 +355,7 @@ class SystemManager:
             dose_np = dose_np[0]
         # create affine
         import numpy as _np, nibabel as _nib, json as _json, os as _os
+        from nibabel.nifti1 import Nifti1Extension
         affine = _np.eye(4)
         img = _nib.Nifti1Image(dose_np, affine)
         # attach cubes.json manifest if available
@@ -346,7 +363,7 @@ class SystemManager:
         if _os.path.exists(manifest_path):
             with open(manifest_path, 'r') as mf:
                 manifest = _json.load(mf)
-            ext = _nib.Nifti1Extension('comment', _json.dumps(manifest))
+            ext = Nifti1Extension('comment', _json.dumps(manifest))
             img.header.extensions.append(ext)
         # save NIfTI file
         out_path = _os.path.join(self.root_dir, 'inference_with_manifest.nii.gz')

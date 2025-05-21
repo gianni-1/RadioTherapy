@@ -426,7 +426,6 @@ class LatentDiffusionInferer(DiffusionInferer):
                     # Otherwise, slice to the expected number of channels
                     inputs = inputs[:, :expected_ae_ch, ...]
             latent = autoencode(inputs) * self.scale_factor
-            print("latent shape", latent.shape)
             # Crop latent spatial dims to be divisible by UNet downsampling factor
             down_convs = [
                 m for m in diffusion_model.modules()

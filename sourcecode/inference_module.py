@@ -115,16 +115,6 @@ class InferenceModule:
             dtype=torch.float32,
             device=self.device
         )  # shape [1,2]
-        # Projected context for cross-attention: shape [batch, context_dim]
-        energy_context = self.context_proj(raw_context)  # shape [1, context_dim]
-        # Retrieve weight corresponding to this energy and build cross-attention context
-        # idx = self.energies.index(energy_value)
-        # energy_weight = self.energy_weights[idx]
-        # energy_context = torch.tensor(
-        #     [[normalized_energy, energy_weight]],
-        #     dtype=torch.float32,
-        #     device=self.device
-        # )
         # Create an energy conditioning tensor with shape [B, 1, D, H, W]
         energy_tensor = torch.full((B, 1, D, H, W), normalized_energy, device=self.device)
         
@@ -149,7 +139,7 @@ class InferenceModule:
             autoencoder_model=autoencoder,
             diffusion_model=unet,
             scheduler=scheduler,
-            conditioning=energy_context,
+            conditioning=raw_context.unsqueeze(1),
             mode="crossattn"
         )
         
