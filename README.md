@@ -101,11 +101,11 @@ The GUI lets you pick an **energy range**; we then compute the 8 quadrature poin
 
 ---
 
-[Figure:Main window for selecting energy folders, CT scans, and running training/inference.](graph/gui_example.jpeg)
+![Main window for selecting energy folders, CT scans, and running training/inference.](graph/gui_example.jpeg)
 
 ---
 
-[Figure:Example result dose distribution](graph/dose_example.png)
+![Example result dose distribution](graph/dose_example.png)
 
 ---
 
