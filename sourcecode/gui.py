@@ -110,8 +110,6 @@ class MainWindow(QMainWindow):
             seed=42
         )
 
-        # Create the menu bar and add the File menu
-        self._create_menu_bar()
 
         # Create the central widget with buttons
         self._create_central_widget()
@@ -119,25 +117,6 @@ class MainWindow(QMainWindow):
         self.adjustSize()
         # optionally enforce minimum size to current content
         self.setMinimumSize(self.size())
-
-    def _create_menu_bar(self):
-        """
-        Creates the menu bar with a 'File' menu and adds actions such as 'Open' and 'Exit'.
-        """
-        menubar = self.menuBar()
-        file_menu = menubar.addMenu("File")
-
-        # Create 'Open' action to open a file dialog
-        open_action = QAction("Open", self)
-        open_action.setStatusTip("Open a CT Scan file")
-        open_action.triggered.connect(self.open_file_dialog)
-        file_menu.addAction(open_action)
-
-        # Create 'Exit' action to close the application
-        exit_action = QAction("Exit", self)
-        exit_action.setStatusTip("Exit application")
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
 
     def _create_central_widget(self):
         """
