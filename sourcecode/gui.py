@@ -251,12 +251,6 @@ class MainWindow(QMainWindow):
         self.dose_button.clicked.connect(self.calculate_dose)
         inference_layout.addWidget(self.dose_button)
 
-        # Dummy dose visualization button
-        visualize_dose_button = QPushButton("Visualize Dummy Dose", self)
-        visualize_dose_button.setToolTip("Visualize a dummy dose distribution")
-        visualize_dose_button.clicked.connect(self.visualize_inference_results)
-        inference_layout.addWidget(visualize_dose_button)
-
         # Training folder selection buttons
         self.input_button = QPushButton("Select one Energy Folder for Training", self)
         self.input_button.setToolTip("Select the folder containing input cubes for training")
@@ -412,16 +406,18 @@ class MainWindow(QMainWindow):
         # parent of energy_folder is the dataset root containing all energy subfolders
         dataset_root = os.path.dirname(energy_folder)
         self.system_manager.root_dir = dataset_root
-        #update training parameters from GUI
+        # update training parameters from GUI
         self.system_manager.batch_size = self.pm.batch_size
         self.system_manager.num_epochs = self.pm.num_epochs
         self.system_manager.patience = self.pm.patience
         self.system_manager.learning_rate = self.pm.learning_rate
+        # reset stop_training flag
+        self.system_manager.stop_training = False
 
         # run training in background thread to avoid freezing GUI
         progress = QProgressDialog(f"Training model... Epoch 0/{self.pm.num_epochs}", None, 0, self.pm.num_epochs, self)
         progress.setWindowModality(Qt.ApplicationModal)
-        progress.setCancelButton(None)
+        progress.setCancelButtonText("Cancel")
         progress.setMinimumDuration(0)
         progress.setAutoClose(False)
         progress.setAutoReset(False)
@@ -432,6 +428,10 @@ class MainWindow(QMainWindow):
         worker.moveToThread(thread)
         # update progress dialog when epochs complete
         worker.progress.connect(self._update_progress)
+        # cancel training if user cancels dialog
+        progress.canceled.connect(thread.requestInterruption)
+        # signal SystemManager to stop training loops
+        progress.canceled.connect(lambda: setattr(self.system_manager, 'stop_training', True))
         thread.started.connect(worker.run)
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)

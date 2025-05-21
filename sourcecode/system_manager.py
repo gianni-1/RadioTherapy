@@ -58,6 +58,7 @@ class SystemManager:
         self.patience = patience
         self.training_complete = False
         self.progress_callback = None
+        self.stop_training = False
         # placeholders for trained models
         self.autoencoder = None
         self.unet = None
@@ -96,8 +97,18 @@ class SystemManager:
         
         After all configurations have been processed, a flag is set to indicate that training is complete.
         """
+        # Print hyperparameters for verification
+        print("Starting training with hyperparameters:")
+        print(f"  batch_size={self.batch_size}, num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, patience={self.patience}, cube_size={self.cube_size}")
+        print(f"  resolutions={self.resolutions}, energies={self.energies}")
         for res in self.resolutions:
+            if self.stop_training:
+                print("Training aborted by user.")
+                return
             for energy in self.energies:
+                if self.stop_training:
+                    print("Training aborted by user.")
+                    return
                 print(f"\n--- Training at resolution={res}, energy={energy} eV ---")
                 self.transforms = Compose([
                     LoadImaged(keys=["input", "target"], reader=NumpyReader),
@@ -219,6 +230,9 @@ class SystemManager:
                 stopper = EarlyStopping(patience=self.patience)
                 # autoencoder training loop
                 for epoch in range(self.num_epochs):
+                    if self.stop_training:
+                        print("Early abort of autoencoder training.")
+                        break
                     train_loss, gen_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
                     val_loss = ae_trainer.validate(val_loader)
                     # record losses
@@ -238,6 +252,9 @@ class SystemManager:
                 
                 # diffusion (UNet) training loop
                 for epoch in range(self.num_epochs):
+                    if self.stop_training:
+                        print("Early abort of diffusion training.")
+                        break
                     diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
                     # record diffusion loss
                     diff_losses.append(diff_loss)
