@@ -3,6 +3,9 @@ import os
 import sys
 import traceback
 import glob
+import logging
+import log_config  # initialize logging config
+ 
  # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
@@ -25,6 +28,8 @@ from monai.transforms import (
     CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
 )
 from monai.data import NumpyReader
+
+logger = logging.getLogger(__name__)
 
 def handle_exception(exc_type, exc_value, exc_tb):
     # Print full traceback for uncaught exceptions
@@ -345,7 +350,7 @@ class MainWindow(QMainWindow):
                     self.system_manager.transforms = transforms_chain
                 except Exception as e:
                     QMessageBox.warning(self, "Warning", f"Failed to determine cube size: {e}")
-                print(f"Cube size set to: {self.pm.cube_size}")
+                logger.info(f"Cube size set to: {self.pm.cube_size}")
             self.update_train_button_state()
 
     
@@ -436,7 +441,7 @@ class MainWindow(QMainWindow):
         )
         if file_path:
             self.ct_file = file_path  # store the imported CT file
-            print(f"Selected file: {file_path}")
+            logger.info(f"Selected CT file: {file_path}")
             try:
                 # Load file: NIfTI or NumPy
                 fp = file_path.lower()
@@ -445,13 +450,13 @@ class MainWindow(QMainWindow):
                 else:
                     img = nib.load(file_path)
                     data = np.asarray(img.dataobj)
-                if(self.model_file_bool):
+                if self.model_file_bool:
                     self.dose_button.setEnabled(True)
                 else:
                     self.ct_file_bool = True
-                print(f"Image shape: {data.shape}")
+                logger.info(f"CT image shape: {data.shape}")
             except Exception as e:
-                print(f"Error loading file: {e}")
+                logger.error("Error loading CT file", exc_info=True)
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
     # Open a file dialog to select a model file (inference)
     def open_model_dialog(self):
@@ -463,16 +468,16 @@ class MainWindow(QMainWindow):
             self, "Select Model File", "", "Model Files (*.ckpt)"
         )
         if file_path:
-            print(f"Selected file: {file_path}")
+            logger.info(f"Selected model file: {file_path}")
             try:
                 # Load the Model file (.ckpt) to ensure it's valid
                 self.model_checkpoint = torch.load(file_path)  # Load the model file
-                if(self.ct_file_bool):
+                if self.ct_file_bool:
                     self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
                 else:
                     self.model_file_bool = True
             except Exception as e:
-                print(f"Error loading file: {e}")
+                logger.error("Error loading model file", exc_info=True)
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
 
     # Calculate the dose distribution using the selected CT scan file(inference)
@@ -508,6 +513,7 @@ class MainWindow(QMainWindow):
             # Run inference
             out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
             QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
+            logger.info(f"Success - Dose distribution saved to: {out_path}")
             self.visualize_button.setEnabled(True)  # Enable visualization button
 
             # Visualization of result volume using extracted utilities
@@ -527,7 +533,7 @@ class MainWindow(QMainWindow):
             visualization.interactive_slice_viewer(cube)
             visualization.volume_rendering(cube)
         except Exception as e:
-            traceback.print_exc()
+            logger.error("Dose calculation failed", exc_info=True)
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
             
 
@@ -579,6 +585,7 @@ class MainWindow(QMainWindow):
         """Slot to close progress dialog and show error message on main thread"""
         if hasattr(self, '_train_progress'):
             self._train_progress.close()
+        logger.error(f"Training error: {msg}")
         QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")
     @Slot(int, int)
     def _update_progress(self, current, total):
@@ -586,6 +593,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_train_progress'):
             self._train_progress.setValue(current)
             self._train_progress.setLabelText(f"Training model... Epoch {current}/{total}")
+        logger.info(f"Training progress: epoch {current}/{total}")
 
     @Slot()
     def show_training_plots(self):

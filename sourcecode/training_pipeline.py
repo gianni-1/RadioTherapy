@@ -6,6 +6,9 @@ from torch.nn import L1Loss
 from tqdm import tqdm
 from monai.losses import PatchAdversarialLoss, PerceptualLoss
 import math
+import log_config
+import logging
+logger = logging.getLogger(__name__)
 
 class EarlyStopping:
     """
@@ -102,6 +105,7 @@ class AutoencoderTrainer:
         gen_epoch_loss = 0.0
         disc_epoch_loss = 0.0
 
+        logger.info(f"Starting autoencoder training epoch {epoch}")
         for step, batch in enumerate(tqdm(train_loader, desc=f"Autoencoder Epoch {epoch}")):
             #Move images to device
             images = batch["input"].to(self.device) #Expected shape: [B, 1, D, H, W]
@@ -170,6 +174,9 @@ class AutoencoderTrainer:
         avg_loss = epoch_loss / (step + 1)
         avg_gen_loss = gen_epoch_loss / (step + 1) if self.discriminator is not None else 0
         avg_disc_loss = disc_epoch_loss / (step + 1) if self.discriminator is not None else 0
+        logger.info(
+            f"Epoch {epoch} completed: recon_loss={avg_loss:.4f}, adv_loss={avg_gen_loss:.4f}, disc_loss={avg_disc_loss:.4f}"
+        )
 
         return avg_loss, avg_gen_loss, avg_disc_loss
 
@@ -183,6 +190,7 @@ class AutoencoderTrainer:
         """
         self.autoencoder.eval()
         val_loss = 0.0
+        logger.info("Starting validation")
         with torch.no_grad():
             for batch in val_loader:
                 images = batch["input"].to(self.device)
@@ -205,6 +213,7 @@ class AutoencoderTrainer:
                 loss = self.l1_loss(reconstruction, images)
                 val_loss += loss.item()
         avg_val_loss = val_loss / len(val_loader)
+        logger.info(f"Validation completed: avg_val_loss={avg_val_loss:.4f}")
         return avg_val_loss
 
 class DiffusionTrainer:

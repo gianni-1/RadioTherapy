@@ -10,6 +10,10 @@ import numpy as np
 from torch.utils.data import Dataset
 from monai.transforms import Compose, LoadImaged
 from monai.data import NumpyReader
+import log_config
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DoseNpyDataset(Dataset):
     """
@@ -46,7 +50,7 @@ class DoseNpyDataset(Dataset):
                 out_fp = os.path.join(out_dir, fname)
                 self.samples.append((in_fp, out_fp, energy))
         self.transforms = transforms
-        print(f"Energy levels found: {sorted(set([s[2] for s in self.samples]))}")
+        logger.info(f"Energy levels found: {sorted(set([s[2] for s in self.samples]))}")
 
     def __len__(self):
         return len(self.samples)
@@ -138,7 +142,7 @@ class DataLoaderModule:
         """
         for i, sample in enumerate(batch):
             if "input" not in sample or "target" not in sample:
-                print(f"Warning: Sample {i} is missing required keys 'input' or 'target'.")
+                logger.warning(f"Sample {i} is missing required keys 'input' or 'target'.")
         # Use the default collate function to combine the dictionaries, which will combine
         # any common keys (including 'energy', if present)
         return torch.utils.data.dataloader.default_collate(batch)

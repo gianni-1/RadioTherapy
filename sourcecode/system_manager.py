@@ -3,6 +3,10 @@
 import shutil
 import os
 import torch
+import log_config
+import logging
+logger = logging.getLogger(__name__)
+
 from data_management import DataLoaderModule
 from training_pipeline import AutoencoderTrainer, DiffusionTrainer, EarlyStopping
 from inference_module import InferenceModule
@@ -98,18 +102,18 @@ class SystemManager:
         After all configurations have been processed, a flag is set to indicate that training is complete.
         """
         # Print hyperparameters for verification
-        print("Starting training with hyperparameters:")
-        print(f"  batch_size={self.batch_size}, num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, patience={self.patience}, cube_size={self.cube_size}")
-        print(f"  resolutions={self.resolutions}, energies={self.energies}")
+        logger.info("Starting training with hyperparameters:")
+        logger.info(f"  batch_size={self.batch_size}, num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, patience={self.patience}, cube_size={self.cube_size}")
+        logger.info(f"  resolutions={self.resolutions}, energies={self.energies}")
         for res in self.resolutions:
             if self.stop_training:
-                print("Training aborted by user.")
+                logger.info("Training aborted by user.")
                 return
             for energy in self.energies:
                 if self.stop_training:
-                    print("Training aborted by user.")
+                    logger.info("Training aborted by user.")
                     return
-                print(f"\n--- Training at resolution={res}, energy={energy} eV ---")
+                logger.info(f"--- Training at resolution={res}, energy={energy} eV ---")
                 self.transforms = Compose([
                     LoadImaged(keys=["input", "target"], reader=NumpyReader),
                     EnsureChannelFirstd(keys=["input", "target"]),
@@ -146,7 +150,7 @@ class SystemManager:
                 train_ds, val_ds = data_module.split_dataset(ds_full)
                 train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
                 val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
-                print(f"Found {len(ds_full)} samples for energy={energy}, resolution={res}")
+                logger.info(f"Found {len(ds_full)} samples for energy={energy}, resolution={res}")
                 
                 # instantiate models
                 autoencoder = AutoencoderKL(
@@ -215,7 +219,7 @@ class SystemManager:
                         z = autoencoder.encode_stage_2_inputs(conditioned)
 
 
-                print(f"Scaling factor set to {1/torch.std(z)}")
+                logger.info(f"Scaling factor set to {1/torch.std(z)}")
                 scale_factor = 1 / torch.std(z)
 
                 inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
@@ -227,11 +231,12 @@ class SystemManager:
                 
                 # trainers and early stopping
                 ae_trainer = AutoencoderTrainer(autoencoder, discriminator, opt_g, opt_d, self.device)
+                logger.info(f"Starting autoencoder training for resolution={res}, energy={energy}")
                 stopper = EarlyStopping(patience=self.patience)
                 # autoencoder training loop
                 for epoch in range(self.num_epochs):
                     if self.stop_training:
-                        print("Early abort of autoencoder training.")
+                        logger.info(f"Autoencoder training aborted by user at epoch {epoch} for resolution={res}, energy={energy}")
                         break
                     train_loss, gen_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
                     val_loss = ae_trainer.validate(val_loader)
@@ -244,16 +249,17 @@ class SystemManager:
                     if self.progress_callback:
                         self.progress_callback(epoch+1, self.num_epochs)
                     if stopper.update(val_loss):
-                        print("Early stopping at epoch", epoch+1)
+                        logger.info(f"Early stopping autoencoder at epoch {epoch+1} for resolution={res}, energy={energy}")
                         break
                 
                 # now diffusion training
+                logger.info(f"Starting diffusion training for resolution={res}, energy={energy}")
                 diff_trainer = DiffusionTrainer(unet, opt_diff, self.device)
                 
                 # diffusion (UNet) training loop
                 for epoch in range(self.num_epochs):
                     if self.stop_training:
-                        print("Early abort of diffusion training.")
+                        logger.info(f"Diffusion training aborted by user at epoch {epoch} for resolution={res}, energy={energy}")
                         break
                     diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
                     # record diffusion loss
@@ -276,7 +282,7 @@ class SystemManager:
    
         # after loops
         self.training_complete = True
-        print("All training finished.")
+        logger.info("All training finished for all configurations.")
 
     def run_inference(self, ct_file_path, model_checkpoint=None):
         """
@@ -309,11 +315,11 @@ class SystemManager:
                 if 'to_k.weight' in key and tensor.dim() == 2 and tensor.shape[1] != tensor.shape[0]:
                     # tensor shape is [inner_dim, cross_attention_dim]
                     cross_dim = tensor.shape[1]
-                    print(f"Detected cross_attention_dim={cross_dim} from key: {key}")
+                    logger.info(f"Detected cross_attention_dim={cross_dim} from key: {key}")
                     break
             if cross_dim is None:
                 # Fallback if detection fails
-                print(" Warning: could not determine cross_attention_dim from UNet checkpoint; defaulting to 2")
+                logger.warning("could not determine cross_attention_dim from UNet checkpoint; defaulting to 2")
                 cross_dim = 2
             un = DiffusionModelUNet(
                 spatial_dims=3, in_channels=2, out_channels=2,
@@ -334,7 +340,7 @@ class SystemManager:
             # Load only matching parameters
             un.load_state_dict(filtered_dict, strict=False)
             if missing or unexpected:
-                print(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
+                logger.warning(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
             sched = DDPMScheduler(num_train_timesteps=1000,
                                   schedule="scaled_linear_beta",
                                   beta_start=0.0015, beta_end=0.0195)
@@ -364,7 +370,7 @@ class SystemManager:
             device=self.device,
         )
         # run quadrature-based inference over all energies
-        print("Running inference...")
+        logger.info("Running inference...")
         dose = inf_mod.run_inference(ct_tensor)
         # convert to numpy and remove batch dim
         dose_np = dose.detach().cpu().numpy()

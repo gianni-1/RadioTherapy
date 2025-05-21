@@ -3,6 +3,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.functional import interpolate
+import log_config
+import logging
+logger = logging.getLogger(__name__)
 
 class InferenceModule:
     """
@@ -75,7 +78,10 @@ class InferenceModule:
         Returns:
             torch.Tensor: The aggregated predicted dose distribution as a tensor.
         """
-        return self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+        logger.info("Starting full inference over energies")
+        result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+        logger.info("Completed full inference over energies")
+        return result
     
     def run_inference_conditioned_on_energy(self, ct_tensor, energy_value, target_cube_size=(64, 64, 64)):
         """
@@ -93,8 +99,9 @@ class InferenceModule:
         Returns:
             torch.Tensor: The predicted dose distribution based on the energy-conditioned input.
         """
-        # select the models corresponding to this energy
-        print(f"Keys in models_by_energy: {self.models_by_energy.keys()}")
+        logger.info(f"Starting inference conditioned on energy: {energy_value} keV")
+        # select the models corresponding to this energy; fallback to index if key missing
+        logger.debug(f"Models by energy keys: {list(self.models_by_energy.keys())}")
         try:
             autoencoder, unet, scheduler = self.models_by_energy[energy_value]
         except KeyError:
@@ -148,6 +155,7 @@ class InferenceModule:
             dose_distribution = sampled_latent
         else:
             dose_distribution = autoencoder.decode(sampled_latent)
+        logger.info(f"Completed inference for energy: {energy_value} keV")
         return dose_distribution
 
     def run_inference_over_energies(self, ct_tensor, target_cube_size, energies, energy_weights):
@@ -168,10 +176,11 @@ class InferenceModule:
             torch.Tensor: The aggregated dose distribution computed as:
                           dose_distribution = sum_i (weight_i * N(E_i))
         """
+        logger.info(f"Running inference over energies: {energies}")
         dose_list = []
         # Loop over each energy level.
         for energy in energies:
-            print(f"Running inference for energy: {energy} keV")
+            logger.info(f"Running inference for energy: {energy} keV")
             # Run inference conditioned on the given energy.
             dose = self.run_inference_conditioned_on_energy(
                 ct_tensor,
@@ -188,4 +197,5 @@ class InferenceModule:
         
         # Compute the weighted sum across energy levels.
         aggregated_dose = torch.sum(dose_stack * weights_tensor, dim=0)
+        logger.info("Aggregated dose distribution computed over all energies")
         return aggregated_dose
