@@ -26,17 +26,6 @@ from monai.transforms import (
 )
 from monai.data import NumpyReader
 
-# --------- Added imports for visualization ---------
-import matplotlib.pyplot as plt
-import numpy as np
-import plotly.graph_objects as go
-import matplotlib.widgets as widgets
-# --------------------------------------------------
-
-# Use interactive Qt backend for Matplotlib
-import matplotlib
-matplotlib.use('QtAgg')  # switch to interactive Qt backend for Matplotlib
-# --------------------------------------------------
 def handle_exception(exc_type, exc_value, exc_tb):
     # Print full traceback for uncaught exceptions
     traceback.print_exception(exc_type, exc_value, exc_tb)
@@ -542,72 +531,22 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
             self.visualize_button.setEnabled(True)  # Enable visualization button
 
-            # ---------- Automatic slice viewer ----------
+            # Visualization of result volume using extracted utilities
             # Load the result file based on its extension
             if out_path.lower().endswith(('.nii', '.nii.gz')):
                 img = nib.load(out_path)
                 cube = np.asarray(img.dataobj)
             else:
                 cube = np.load(out_path, allow_pickle=True)
-            # Aggregate over energy dimension if present
-            # Remove channel dim then sum energy axis if necessary
+            # Aggregate over energy dimension and ensure 3D volume
             if cube.ndim == 5 and cube.shape[1] == 1:
-                # shape [energies,1,D,H,W] → [energies,D,H,W]
                 cube = cube.squeeze(1)
             if cube.ndim == 4:
-                # sum over energies axis → [D,H,W]
                 cube = np.sum(cube, axis=0)
-            # Ensure it's a 3D volume
             cube = np.squeeze(cube)
-            slice_idx = cube.shape[2] // 2
-            fig, ax = plt.subplots()
-            im = ax.imshow(cube[:, :, slice_idx], cmap="gray")
-            ax.set_title(f"Slice {slice_idx}")
-            ax.axis("off")
-
-            slider_ax = plt.axes([0.2, 0.05, 0.6, 0.03])
-            slider = widgets.Slider(
-                slider_ax, "z-Slice", 0, cube.shape[2] - 1,
-                valinit=slice_idx, valfmt="%0.0f"
-            )
-
-            def update(val):
-                z = int(slider.val)
-                im.set_data(cube[:, :, z])
-                ax.set_title(f"Slice {z}")
-                fig.canvas.draw_idle()
-
-            slider.on_changed(update)
-            plt.show()
-            # ---------- end slice viewer ----------
-
-            # ---------- 3D volume rendering ----------
-            cube_norm = (cube - cube.min()) / (cube.max() - cube.min())
-            p_low, p_high = np.percentile(cube_norm, [1, 99])
-            print(f"Suggested thresholds  p_low={p_low:.4f}  p_high={p_high:.4f}")
-
-            x, y, z = np.mgrid[
-                0:cube.shape[0],
-                0:cube.shape[1],
-                0:cube.shape[2]
-            ]
-
-            fig_vol = go.Figure(
-                data=go.Volume(
-                    x=x.flatten(),
-                    y=y.flatten(),
-                    z=z.flatten(),
-                    value=cube_norm.flatten(),
-                    opacity=0.2,
-                    surface_count=20,
-                    isomin=p_low,
-                    isomax=p_high,
-                    colorscale="Viridis"
-                )
-            )
-            fig_vol.update_layout(scene=dict(aspectmode="data"))
-            fig_vol.show()
-            # ---------- end volume rendering ----------
+            # Call visualization module for interactive slice viewer and volume rendering
+            visualization.interactive_slice_viewer(cube)
+            visualization.volume_rendering(cube)
         except Exception as e:
             traceback.print_exc()
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
