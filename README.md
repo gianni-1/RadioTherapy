@@ -46,7 +46,7 @@ RadioTherapy/
 
 ##  GUI Workflow
 
-1. **Select a model checkpoint**  
+1. **Select a model checkpoint (only for inference)**  
    - Pretrained autoencoder + UNet `.ckpt` file.  
 2. **Choose an energy folder**  
    - Point to one of the `testdata/<energy_ev>/` directories.  
