@@ -50,7 +50,6 @@ class TrainingWorker(QObject):
     def run(self):
         try:
             # connect system manager updates to this worker's progress signal
-            self.manager.progress_callback = self.progress.emit
             self.manager.run_training()
             self.finished.emit()
         except Exception as ex:
@@ -399,7 +398,11 @@ class MainWindow(QMainWindow):
         self.system_manager.stop_training = False
 
         # run training in background thread to avoid freezing GUI
-        progress = QProgressDialog(f"Training model... Epoch 0/{self.pm.num_epochs}", None, 0, self.pm.num_epochs, self)
+        
+        progress = QProgressDialog(
+            "Training in progress... Please wait.",
+            "Cancel", 0, 0, self
+        )
         progress.setWindowModality(Qt.ApplicationModal)
         progress.setCancelButtonText("Cancel")
         progress.setMinimumDuration(0)
@@ -410,8 +413,6 @@ class MainWindow(QMainWindow):
         thread = QThread(self)
         worker = TrainingWorker(self.system_manager)
         worker.moveToThread(thread)
-        # update progress dialog when epochs complete
-        worker.progress.connect(self._update_progress)
         # cancel training if user cancels dialog
         progress.canceled.connect(thread.requestInterruption)
         # signal SystemManager to stop training loops
@@ -587,13 +588,6 @@ class MainWindow(QMainWindow):
             self._train_progress.close()
         logger.error(f"Training error: {msg}")
         QMessageBox.critical(self, "Error", f"Failed to train the model: {msg}")
-    @Slot(int, int)
-    def _update_progress(self, current, total):
-        """Slot to update the progress dialog with current epoch"""
-        if hasattr(self, '_train_progress'):
-            self._train_progress.setValue(current)
-            self._train_progress.setLabelText(f"Training model... Epoch {current}/{total}")
-        logger.info(f"Training progress: epoch {current}/{total}")
 
     @Slot()
     def show_training_plots(self):
