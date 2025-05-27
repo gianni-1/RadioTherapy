@@ -1,0 +1,140 @@
+2025-05-27 12:21:27,508 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-27 12:21:59,627 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=1)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-27 12:23:06,392 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-27 12:23:06,396 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-27 12:23:07,292 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-27 12:23:07,338 INFO:system_manager: Running inference...
+2025-05-27 12:23:07,339 INFO:inference_module: Starting full inference over energies
+2025-05-27 12:23:07,339 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-27 12:23:07,339 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-27 12:23:07,339 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-27 12:23:50,615 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-27 12:23:50,643 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-27 12:23:50,643 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-27 12:24:25,652 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-27 12:24:25,669 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-27 12:24:25,669 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-27 12:25:00,833 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-27 12:25:00,845 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-27 12:25:00,845 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-27 12:25:36,849 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-27 12:25:36,859 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-27 12:25:36,859 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-27 12:26:12,731 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-27 12:26:12,740 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-27 12:26:12,740 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-27 12:26:47,813 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-27 12:26:47,819 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-27 12:26:47,819 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-27 12:27:23,604 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-27 12:27:23,613 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-27 12:27:23,613 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-27 12:27:58,531 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-27 12:27:58,545 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-27 12:27:58,546 INFO:inference_module: Completed full inference over energies
+2025-05-27 12:31:06,806 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-05-27 12:54:38,516 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-27 12:55:15,945 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=1)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-27 12:55:33,661 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-27 12:55:33,664 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-27 12:55:34,515 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-27 12:55:34,555 INFO:system_manager: Running inference...
+2025-05-27 12:55:34,555 INFO:inference_module: Starting full inference over energies
+2025-05-27 12:55:34,555 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-27 12:55:34,555 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-27 12:55:34,555 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-27 12:56:10,842 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-27 12:56:10,864 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-27 12:56:10,864 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-27 12:56:50,491 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-27 12:56:50,520 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-27 12:56:50,520 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-27 12:57:40,519 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-27 12:57:40,552 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-27 12:57:40,553 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-27 12:58:36,835 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-27 12:58:36,862 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-27 12:58:36,862 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-27 12:59:21,446 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-27 12:59:21,468 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-27 12:59:21,468 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-27 13:00:01,689 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-27 13:00:01,712 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-27 13:00:01,712 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-27 13:00:42,399 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-27 13:00:42,415 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-27 13:00:42,415 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-27 13:01:30,029 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-27 13:01:30,074 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-27 13:01:30,074 INFO:inference_module: Completed full inference over energies
+2025-05-27 13:01:31,604 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-05-27 13:53:16,115 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-27 13:53:25,375 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=1)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-27 13:53:35,902 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-27 13:53:35,905 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-27 13:53:36,685 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-27 13:53:36,725 INFO:system_manager: Running inference...
+2025-05-27 13:53:36,725 INFO:inference_module: Starting full inference over energies
+2025-05-27 13:53:36,725 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-27 13:53:36,725 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-27 13:53:36,725 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-27 13:54:16,258 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-27 13:54:16,288 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-27 13:54:16,288 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-27 13:55:04,037 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-27 13:55:04,068 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-27 13:55:04,068 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-27 13:55:45,500 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-27 13:55:45,521 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-27 13:55:45,521 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-27 13:56:27,153 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-27 13:56:27,179 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-27 13:56:27,179 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-27 13:57:05,600 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-27 13:57:05,615 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-27 13:57:05,615 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-27 13:57:45,316 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-27 13:57:45,334 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-27 13:57:45,334 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-27 13:58:29,377 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-27 13:58:29,407 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-27 13:58:29,407 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-27 13:59:11,492 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-27 13:59:11,523 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-27 13:59:11,524 INFO:inference_module: Completed full inference over energies
+2025-05-27 13:59:51,818 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-05-27 14:04:44,439 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-27 14:04:52,502 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=1)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-27 14:05:08,249 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-27 14:05:08,255 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-27 14:05:08,867 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-27 14:05:08,908 INFO:system_manager: Running inference...
+2025-05-27 14:05:08,908 INFO:inference_module: Starting full inference over energies
+2025-05-27 14:05:08,908 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-27 14:05:08,908 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-27 14:05:08,908 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-27 14:05:52,135 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-27 14:05:52,163 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-27 14:05:52,163 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-27 14:06:35,057 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-27 14:06:35,086 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-27 14:06:35,086 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-27 14:07:21,877 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-27 14:07:21,899 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-27 14:07:21,899 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-27 14:08:07,641 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-27 14:08:07,670 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-27 14:08:07,670 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-27 14:08:53,206 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-27 14:08:53,233 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-27 14:08:53,234 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-27 14:09:34,535 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-27 14:09:34,558 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-27 14:09:34,558 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-27 14:10:33,542 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-27 14:10:33,572 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-27 14:10:33,572 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-27 14:11:23,889 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-27 14:11:23,925 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-27 14:11:23,926 INFO:inference_module: Completed full inference over energies
+2025-05-27 14:11:50,151 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz

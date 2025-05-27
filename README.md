@@ -42,6 +42,13 @@ RadioTherapy/
    python sourcecode/gui.py
    ```
 
+4. **Run Tests**  
+   ```bash
+   cd sourcecode
+   pytest -q
+   ```
+
+
 ---
 
 ##  GUI Workflow
@@ -108,7 +115,3 @@ The GUI lets you pick an **energy range**; we then compute the 8 quadrature poin
 ![Example result dose distribution](graph/dose_example.png)
 
 ---
-
-##  License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

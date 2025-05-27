@@ -3,7 +3,11 @@
 import os
 import torch
 from monai.data import DataLoader
-from monai.apps.datasets import CustomDataset
+try:
+    from monai.apps.datasets import CustomDataset
+except ImportError:
+    # Fallback for newer MONAI versions where CustomDataset moved
+    from monai.data import Dataset as CustomDataset
 from torch.utils.data import random_split
 import glob
 import numpy as np

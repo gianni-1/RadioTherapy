@@ -1,7 +1,6 @@
 # visualization.py
 
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 import nibabel as nib
@@ -210,7 +209,7 @@ def get_visualization_widget(figure):
     return MplCanvas(figure)
 
 
-def interactive_slice_viewer(cube, title="Interactive Slice Viewer"):
+def interactive_slice_viewer(cube, title="Interactive Slice Viewer", show=True):
     """
     Launches an interactive Matplotlib window with a slider to browse through axial slices of a 3D volume.
     """
@@ -240,7 +239,11 @@ def interactive_slice_viewer(cube, title="Interactive Slice Viewer"):
         ax.set_title(f"{title} - Slice {z}")
         fig.canvas.draw_idle()
     slider.on_changed(update)
-    plt.show()
+    # Return objects for testing when show=False
+    if not show:
+        return fig, slider, im
+    if show:
+        plt.show()
 
 
 def volume_rendering(cube, opacity=0.2, surface_count=20):
