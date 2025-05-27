@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
         # Visualization button for inference results
         self.visualize_button = QPushButton("Visualize Dose Distribution", self)
         self.visualize_button.setToolTip("Visualize the calculated dose distribution")
-        self.visualize_button.setEnabled(False)  # Disabled until inference is complete
+        self.visualize_button.setEnabled(True)  # Disabled until inference is complete
         self.visualize_button.clicked.connect(self.visualize_inference_results)
         inference_layout.addWidget(self.visualize_button)
 
@@ -451,6 +451,8 @@ class MainWindow(QMainWindow):
                 else:
                     img = nib.load(file_path)
                     data = np.asarray(img.dataobj)
+                # store CT volume for overlay
+                self.ct_volume = data
                 if self.model_file_bool:
                     self.dose_button.setEnabled(True)
                 else:
@@ -513,26 +515,14 @@ class MainWindow(QMainWindow):
         try:
             # Run inference
             out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+            # save result path for later visualization
+            self.dose_result_path = out_path
             QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
             logger.info(f"Success - Dose distribution saved to: {out_path}")
-            self.visualize_button.setEnabled(True)  # Enable visualization button
 
             # Visualization of result volume using extracted utilities
             # Load the result file based on its extension
-            if out_path.lower().endswith(('.nii', '.nii.gz')):
-                img = nib.load(out_path)
-                cube = np.asarray(img.dataobj)
-            else:
-                cube = np.load(out_path, allow_pickle=True)
-            # Aggregate over energy dimension and ensure 3D volume
-            if cube.ndim == 5 and cube.shape[1] == 1:
-                cube = cube.squeeze(1)
-            if cube.ndim == 4:
-                cube = np.sum(cube, axis=0)
-            cube = np.squeeze(cube)
-            # Call visualization module for interactive slice viewer and volume rendering
-            visualization.interactive_slice_viewer(cube)
-            visualization.volume_rendering(cube)
+            visualization.load_and_visualize(out_path, self.ct_volume)
         except Exception as e:
             logger.error("Dose calculation failed", exc_info=True)
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
@@ -544,28 +534,16 @@ class MainWindow(QMainWindow):
         Visualizes the calculated dose distribution from inference results and embeds it in the GUI window.
         """
         try:
-            # TODO: Impelement variable for dose_result_path
-            if not hasattr(self, 'dose_result_path') or not self.dose_result_path:
-                QMessageBox.warning(self, "Error", "No dose calculation results available. Please calculate dose first.")
+            # prompt user to select a NIfTI/NumPy file for inference results
+            file_path, _ = QFileDialog.getOpenFileName(
+                self, "Select Dose Result File", "", "Dose Files (*.nii *.nii.gz *.npy)"
+            )
+            if not file_path:
                 return
-                
+            self.dose_result_path = file_path
+
             # Load the dose distribution from the result file
-            fig = visualization.load_and_visualize(self.dose_result_path, title="Calculated Dose Distribution")
-            
-            # Create a Qt widget from the matplotlib figure
-            canvas = visualization.get_visualization_widget(fig)
-            
-            # Create a new window to display the visualization
-            visualization_window = QWidget()
-            layout = QVBoxLayout()
-            layout.addWidget(canvas)
-            visualization_window.setLayout(layout)
-            visualization_window.setWindowTitle("Dose Visualization")
-            visualization_window.setMinimumSize(600, 500)
-            visualization_window.show()
-            
-            # Store a reference to prevent garbage collection
-            self._visualization_window = visualization_window
+            fig = visualization.load_and_visualize(self.dose_result_path, self.ct_volume, title="Calculated Dose Distribution")
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")

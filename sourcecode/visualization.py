@@ -156,31 +156,7 @@ class MplCanvas(FigureCanvasQTAgg):
         super().__init__(fig)
         self.setMinimumSize(400, 300)
 
-
-def visualize_dose(dose, title="Dosisverteilung - Axiale Ansicht"):
-    """
-    Visualizes the middle axial slice of a 3D dose distribution.
-
-    Args:
-        dose: 3D numpy array containing the dose distribution
-        title: Title for the visualization
-
-    Returns:
-        matplotlib.figure.Figure: A figure object that can be displayed
-    """
-    if dose.ndim != 3:
-        raise ValueError("Dose distribution must be a 3D array.")
-
-    mid_slice = dose[dose.shape[0] // 2]
-    fig = plt.figure(figsize=(8, 6))
-    plt.imshow(mid_slice, cmap="hot")
-    plt.title(title)
-    plt.colorbar()
-
-    return fig
-
-
-def load_and_visualize(nifti_path, title="Dose distribution - Axial View"):
+def load_and_visualize(nifti_path, ct_scan=None, title="Dose distribution - Axial View"):
     """
     Loads a Nifti dose distribution file and visualizes its middle axial slice.
 
@@ -191,9 +167,20 @@ def load_and_visualize(nifti_path, title="Dose distribution - Axial View"):
     Returns:
         matplotlib.figure.Figure: A figure object that can be displayed
     """
-    img = nib.load(nifti_path)
-    dose = img.get_fdata()
-    return visualize_dose(dose, title)
+    if nifti_path.lower().endswith(('.nii', '.nii.gz')):
+        img = nib.load(nifti_path)
+        cube = np.asarray(img.dataobj)
+    else:
+        cube = np.load(nifti_path, allow_pickle=True)
+            # Aggregate over energy dimension and ensure 3D volume
+    if cube.ndim == 5 and cube.shape[1] == 1:
+        cube = cube.squeeze(1)
+    if cube.ndim == 4:
+        cube = np.sum(cube, axis=0)
+    cube = np.squeeze(cube)
+            # Call visualization module for interactive slice viewer and volume rendering
+    interactive_slice_viewer(cube, ct_volume=ct_scan)
+    volume_rendering(cube)
 
 
 def get_visualization_widget(figure):
@@ -209,41 +196,104 @@ def get_visualization_widget(figure):
     return MplCanvas(figure)
 
 
-def interactive_slice_viewer(cube, title="Interactive Slice Viewer", show=True):
+def interactive_slice_viewer(cube, ct_volume=None, title="Interactive Slice Viewer", show=True):
     """
     Launches an interactive Matplotlib window with a slider to browse through axial slices of a 3D volume.
     """
     if cube.ndim != 3:
         raise ValueError("Volume must be a 3D array for interactive slice viewing.")
-    # switch to interactive backend
+    
+    # Ensure interactive backend is set properly
     import matplotlib
     matplotlib.use('QtAgg')
     import matplotlib.pyplot as plt
     from matplotlib.widgets import Slider
-
-    # initial slice
+    
+    # Clear any existing figures to prevent conflicts
+    plt.close('all')
+    plt.ion()
+    
+    # Initial slice
     z0 = cube.shape[2] // 2
-    fig, ax = plt.subplots(figsize=(6, 6))
-    im = ax.imshow(cube[:, :, z0], cmap='gray')
+    fig, ax = plt.subplots(figsize=(8, 7))
+    
+    # Adjust layout for sliders
+    if ct_volume is not None:
+        fig.subplots_adjust(bottom=0.25)
+    else:
+        fig.subplots_adjust(bottom=0.15)
+    
+    # Initialize images
+    if ct_volume is not None:
+        base_im = ax.imshow(ct_volume[:, :, z0], cmap='gray')
+        overlay_im = ax.imshow(cube[:, :, z0], cmap='jet', alpha=0.5)
+    else:
+        overlay_im = ax.imshow(cube[:, :, z0], cmap='gray')
+    
     ax.set_title(f"{title} - Slice {z0}")
     ax.axis('off')
 
-    # slider axis
-    slider_ax = fig.add_axes([0.2, 0.02, 0.6, 0.03])
-    slider = Slider(slider_ax, 'Slice', 0, cube.shape[2] - 1,
-                    valinit=z0, valstep=1)
+    # Create slice slider
+    slider_ax = fig.add_axes([0.15, 0.02, 0.7, 0.03])
+    slider = Slider(slider_ax, 'Slice', 0, cube.shape[2] - 1, valinit=z0, valstep=1)
+    
+    # Create alpha slider if CT volume is provided
+    alpha_slider = None
+    if ct_volume is not None:
+        alpha_ax = fig.add_axes([0.15, 0.10, 0.7, 0.03])
+        alpha_slider = Slider(alpha_ax, 'Alpha', 0.0, 1.0, valinit=0.5, valstep=0.01)
 
-    def update(val):
-        z = int(slider.val)
-        im.set_data(cube[:, :, z])
-        ax.set_title(f"{title} - Slice {z}")
-        fig.canvas.draw_idle()
-    slider.on_changed(update)
+    # Keep references to prevent garbage collection
+    slider._fig = fig
+    if alpha_slider is not None:
+        alpha_slider._fig = fig
+
+    # Define callback functions with error handling
+    def update_slice(val):
+        try:
+            z = int(slider.val)
+            if z < 0 or z >= cube.shape[2]:
+                return
+            
+            if ct_volume is not None:
+                base_im.set_data(ct_volume[:, :, z])
+                overlay_im.set_data(cube[:, :, z])
+            else:
+                overlay_im.set_data(cube[:, :, z])
+            ax.set_title(f"{title} - Slice {z}")
+            fig.canvas.draw_idle()
+        except Exception as e:
+            print(f"Error in update_slice: {e}")
+
+    def update_alpha(val):
+        try:
+            if ct_volume is not None and alpha_slider is not None:
+                alpha_val = float(alpha_slider.val)
+                if 0.0 <= alpha_val <= 1.0:
+                    overlay_im.set_alpha(alpha_val)
+                    fig.canvas.draw_idle()
+        except Exception as e:
+            print(f"Error in update_alpha: {e}")
+    
+    # Connect callbacks
+    slider.on_changed(update_slice)
+    if alpha_slider is not None:
+        alpha_slider.on_changed(update_alpha)
+    
+    # Ensure widgets are properly initialized
+    fig.canvas.draw()
+    
     # Return objects for testing when show=False
     if not show:
-        return fig, slider, im
+        if ct_volume is not None:
+            return fig, slider, alpha_slider, overlay_im
+        return fig, slider, overlay_im
+    
     if show:
-        plt.show()
+        try:
+            plt.show(block=True)
+        except KeyboardInterrupt:
+            plt.close(fig)
 
 
 def volume_rendering(cube, opacity=0.2, surface_count=20):
