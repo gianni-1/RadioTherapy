@@ -61,7 +61,6 @@ class SystemManager:
         self.learning_rate = learning_rate
         self.patience = patience
         self.training_complete = False
-        self.progress_callback = None
         self.stop_training = False
         # placeholders for trained models
         self.autoencoder = None
@@ -245,9 +244,6 @@ class SystemManager:
                     ae_val_losses.append(val_loss)
                     gen_losses.append(gen_loss)
                     disc_losses.append(disc_loss)
-                    # emit autoencoder progress update
-                    if self.progress_callback:
-                        self.progress_callback(epoch+1, self.num_epochs)
                     if stopper.update(val_loss):
                         logger.info(f"Early stopping autoencoder at epoch {epoch+1} for resolution={res}, energy={energy}")
                         break
@@ -264,9 +260,6 @@ class SystemManager:
                     diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
                     # record diffusion loss
                     diff_losses.append(diff_loss)
-                    # emit diffusion progress update
-                    if self.progress_callback:
-                        self.progress_callback(epoch+1, self.num_epochs)
 
                 # plot loss curves for this config
                 Visualization.plot_loss_curves(
