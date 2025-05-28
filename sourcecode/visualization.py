@@ -130,6 +130,8 @@ class Visualization:
             resolution (tuple): Spatial resolution used for this run.
             energy   (float): Energy level used for this run.
         """
+        import matplotlib.pyplot as plt
+        plt.switch_backend('Agg')
         plt.figure(figsize=(10, 6))
         plt.plot(ae_train, marker='o', label='AE Train')
         plt.plot(ae_val,   marker='o', label='AE Val')
@@ -212,7 +214,7 @@ def interactive_slice_viewer(cube, ct_volume=None, title="Interactive Slice View
     # Clear any existing figures to prevent conflicts
     plt.close('all')
     plt.ion()
-    
+    plt.switch_backend('QtAgg')
     # Initial slice
     z0 = cube.shape[2] // 2
     fig, ax = plt.subplots(figsize=(8, 7))

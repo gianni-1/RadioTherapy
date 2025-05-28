@@ -379,7 +379,8 @@ class SystemManager:
         if _os.path.exists(manifest_path):
             with open(manifest_path, 'r') as mf:
                 manifest = _json.load(mf)
-            ext = Nifti1Extension('comment', _json.dumps(manifest))
+            # Encode manifest JSON to bytes for NIfTI extension
+            ext = Nifti1Extension('comment', _json.dumps(manifest).encode('utf-8'))
             img.header.extensions.append(ext)
         # save NIfTI file
         out_path = _os.path.join(self.root_dir, 'inference_with_manifest.nii.gz')

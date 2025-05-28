@@ -138,3 +138,362 @@
 2025-05-27 14:11:23,925 INFO:inference_module: Aggregated dose distribution computed over all energies
 2025-05-27 14:11:23,926 INFO:inference_module: Completed full inference over energies
 2025-05-27 14:11:50,151 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-05-27 18:48:58,244 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-27 18:49:19,396 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=1)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-27 18:50:41,248 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-27 18:50:41,255 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-27 18:50:43,649 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-27 18:50:43,705 INFO:system_manager: Running inference...
+2025-05-27 18:50:43,705 INFO:inference_module: Starting full inference over energies
+2025-05-27 18:50:43,705 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-27 18:50:43,705 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-27 18:50:43,705 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-27 18:51:58,975 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-27 18:51:59,008 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-27 18:51:59,008 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-27 18:53:04,240 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-27 18:53:04,267 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-27 18:53:04,267 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-27 18:54:06,882 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-27 18:54:06,908 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-27 18:54:06,908 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-27 18:55:02,024 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-27 18:55:02,048 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-27 18:55:02,048 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-27 18:55:40,941 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-27 18:55:40,947 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-27 18:55:40,947 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-27 18:56:20,505 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-27 18:56:20,512 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-27 18:56:20,512 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-27 18:57:00,855 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-27 18:57:00,867 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-27 18:57:00,867 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-27 18:57:42,006 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-27 18:57:42,027 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-27 18:57:42,029 INFO:inference_module: Completed full inference over energies
+2025-05-27 19:01:45,474 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-05-27 21:50:52,619 INFO:system_manager: Starting training with hyperparameters:
+2025-05-27 21:50:52,621 INFO:system_manager:   batch_size=2, num_epochs=4, learning_rate=0.0001, patience=3, cube_size=(100, 100, 100)
+2025-05-27 21:50:52,621 INFO:system_manager:   resolutions=[16.0, 32.0, 64], energies=[11.5, 15.75, 34.25]
+2025-05-27 21:50:52,621 INFO:system_manager: --- Training at resolution=16.0, energy=11.5 eV ---
+2025-05-27 21:50:52,625 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-27 21:50:53,579 INFO:system_manager: Found 10 samples for energy=11.5, resolution=16.0
+2025-05-27 21:51:02,758 INFO:system_manager: Scaling factor set to 1.1216174364089966
+2025-05-27 21:51:02,791 INFO:system_manager: Starting autoencoder training for resolution=16.0, energy=11.5
+2025-05-27 21:51:02,791 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-27 22:04:44,808 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.3761, adv_loss=0.0000, disc_loss=0.0000
+2025-05-27 22:04:44,878 INFO:training_pipeline: Starting validation
+2025-05-27 22:06:10,536 INFO:training_pipeline: Validation completed: avg_val_loss=0.2014
+2025-05-27 22:06:10,546 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-27 22:28:24,478 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.1485, adv_loss=0.0000, disc_loss=0.0000
+2025-05-27 22:28:24,533 INFO:training_pipeline: Starting validation
+2025-05-27 22:30:31,227 INFO:training_pipeline: Validation completed: avg_val_loss=0.1140
+2025-05-27 22:30:31,382 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-27 22:54:22,026 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.0965, adv_loss=0.0000, disc_loss=0.0000
+2025-05-27 22:54:22,160 INFO:training_pipeline: Starting validation
+2025-05-27 22:55:50,338 INFO:training_pipeline: Validation completed: avg_val_loss=0.0701
+2025-05-27 22:55:50,353 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-27 23:17:47,708 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.0720, adv_loss=0.9291, disc_loss=2.4617
+2025-05-27 23:17:47,736 INFO:training_pipeline: Starting validation
+2025-05-27 23:19:14,705 INFO:training_pipeline: Validation completed: avg_val_loss=0.0609
+2025-05-27 23:19:14,718 INFO:system_manager: Starting diffusion training for resolution=16.0, energy=11.5
+2025-05-28 00:21:15,143 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-28 00:21:35,350 INFO:system_manager: Starting training with hyperparameters:
+2025-05-28 00:21:35,350 INFO:system_manager:   batch_size=2, num_epochs=4, learning_rate=0.0001, patience=3, cube_size=(100, 100, 100)
+2025-05-28 00:21:35,350 INFO:system_manager:   resolutions=[16.0, 32.0, 64], energies=[11.5, 15.75, 34.25]
+2025-05-28 00:21:35,350 INFO:system_manager: --- Training at resolution=16.0, energy=11.5 eV ---
+2025-05-28 00:21:35,352 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 00:21:36,371 INFO:system_manager: Found 10 samples for energy=11.5, resolution=16.0
+2025-05-28 00:21:45,399 INFO:system_manager: Scaling factor set to 0.9590438604354858
+2025-05-28 00:21:45,432 INFO:system_manager: Starting autoencoder training for resolution=16.0, energy=11.5
+2025-05-28 00:21:45,432 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 00:39:00,139 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6895, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 00:39:00,199 INFO:training_pipeline: Starting validation
+2025-05-28 00:40:16,001 INFO:training_pipeline: Validation completed: avg_val_loss=0.4528
+2025-05-28 00:40:16,015 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 01:03:58,416 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3548, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 01:03:58,484 INFO:training_pipeline: Starting validation
+2025-05-28 01:06:33,768 INFO:training_pipeline: Validation completed: avg_val_loss=0.2587
+2025-05-28 01:06:33,786 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 02:17:25,403 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2136, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 02:17:25,451 INFO:training_pipeline: Starting validation
+2025-05-28 02:19:42,969 INFO:training_pipeline: Validation completed: avg_val_loss=0.1670
+2025-05-28 02:19:42,987 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 02:50:49,192 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1397, adv_loss=1.2377, disc_loss=2.3481
+2025-05-28 02:50:49,207 INFO:training_pipeline: Starting validation
+2025-05-28 02:52:13,276 INFO:training_pipeline: Validation completed: avg_val_loss=0.1177
+2025-05-28 02:52:13,289 INFO:system_manager: Starting diffusion training for resolution=16.0, energy=11.5
+2025-05-28 03:13:25,795 INFO:system_manager: --- Training at resolution=16.0, energy=15.75 eV ---
+2025-05-28 03:13:25,849 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 03:13:38,339 INFO:system_manager: Found 10 samples for energy=15.75, resolution=16.0
+2025-05-28 03:14:23,344 INFO:system_manager: Scaling factor set to 0.9597018361091614
+2025-05-28 03:14:23,493 INFO:system_manager: Starting autoencoder training for resolution=16.0, energy=15.75
+2025-05-28 03:14:23,497 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 03:37:29,105 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6895, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 03:37:29,129 INFO:training_pipeline: Starting validation
+2025-05-28 03:38:54,706 INFO:training_pipeline: Validation completed: avg_val_loss=0.4539
+2025-05-28 03:38:54,722 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 05:50:47,533 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3552, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 05:50:47,556 INFO:training_pipeline: Starting validation
+2025-05-28 05:52:15,700 INFO:training_pipeline: Validation completed: avg_val_loss=0.2656
+2025-05-28 05:52:15,709 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 06:15:10,308 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2181, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 06:15:10,324 INFO:training_pipeline: Starting validation
+2025-05-28 06:16:48,008 INFO:training_pipeline: Validation completed: avg_val_loss=0.1704
+2025-05-28 06:16:48,020 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 06:39:53,583 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1426, adv_loss=1.2350, disc_loss=2.3366
+2025-05-28 06:39:53,628 INFO:training_pipeline: Starting validation
+2025-05-28 06:42:01,328 INFO:training_pipeline: Validation completed: avg_val_loss=0.1208
+2025-05-28 06:42:01,340 INFO:system_manager: Starting diffusion training for resolution=16.0, energy=15.75
+2025-05-28 07:13:01,112 INFO:system_manager: --- Training at resolution=16.0, energy=34.25 eV ---
+2025-05-28 07:13:01,127 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 07:13:01,989 INFO:system_manager: Found 10 samples for energy=34.25, resolution=16.0
+2025-05-28 07:13:08,892 INFO:system_manager: Scaling factor set to 0.9543935656547546
+2025-05-28 07:13:08,935 INFO:system_manager: Starting autoencoder training for resolution=16.0, energy=34.25
+2025-05-28 07:13:08,935 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 07:16:27,071 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6903, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:16:27,079 INFO:training_pipeline: Starting validation
+2025-05-28 07:16:34,634 INFO:training_pipeline: Validation completed: avg_val_loss=0.4551
+2025-05-28 07:16:34,636 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 07:19:49,099 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3557, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:19:49,105 INFO:training_pipeline: Starting validation
+2025-05-28 07:19:56,756 INFO:training_pipeline: Validation completed: avg_val_loss=0.2724
+2025-05-28 07:19:56,757 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 07:23:08,945 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2243, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:23:08,951 INFO:training_pipeline: Starting validation
+2025-05-28 07:23:16,426 INFO:training_pipeline: Validation completed: avg_val_loss=0.1707
+2025-05-28 07:23:16,428 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 07:26:31,901 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1433, adv_loss=1.2409, disc_loss=2.3451
+2025-05-28 07:26:31,908 INFO:training_pipeline: Starting validation
+2025-05-28 07:26:39,463 INFO:training_pipeline: Validation completed: avg_val_loss=0.1201
+2025-05-28 07:26:39,466 INFO:system_manager: Starting diffusion training for resolution=16.0, energy=34.25
+2025-05-28 07:28:26,347 INFO:system_manager: --- Training at resolution=32.0, energy=11.5 eV ---
+2025-05-28 07:28:26,364 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 07:28:27,135 INFO:system_manager: Found 10 samples for energy=11.5, resolution=32.0
+2025-05-28 07:28:31,462 INFO:system_manager: Scaling factor set to 0.9601394534111023
+2025-05-28 07:28:31,496 INFO:system_manager: Starting autoencoder training for resolution=32.0, energy=11.5
+2025-05-28 07:28:31,497 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 07:31:54,360 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6894, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:31:54,367 INFO:training_pipeline: Starting validation
+2025-05-28 07:32:02,206 INFO:training_pipeline: Validation completed: avg_val_loss=0.4524
+2025-05-28 07:32:02,209 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 07:35:13,129 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3548, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:35:13,136 INFO:training_pipeline: Starting validation
+2025-05-28 07:35:20,620 INFO:training_pipeline: Validation completed: avg_val_loss=0.2577
+2025-05-28 07:35:20,621 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 07:38:29,519 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2130, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 07:38:29,528 INFO:training_pipeline: Starting validation
+2025-05-28 07:38:37,034 INFO:training_pipeline: Validation completed: avg_val_loss=0.1663
+2025-05-28 07:38:37,035 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 08:32:51,220 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1392, adv_loss=1.2368, disc_loss=2.3197
+2025-05-28 08:32:51,248 INFO:training_pipeline: Starting validation
+2025-05-28 08:50:39,012 INFO:training_pipeline: Validation completed: avg_val_loss=0.1170
+2025-05-28 08:50:39,019 INFO:system_manager: Starting diffusion training for resolution=32.0, energy=11.5
+2025-05-28 09:29:11,592 INFO:system_manager: --- Training at resolution=32.0, energy=15.75 eV ---
+2025-05-28 09:29:11,614 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 09:29:23,062 INFO:system_manager: Found 10 samples for energy=15.75, resolution=32.0
+2025-05-28 09:30:07,830 INFO:system_manager: Scaling factor set to 0.960119366645813
+2025-05-28 09:30:08,013 INFO:system_manager: Starting autoencoder training for resolution=32.0, energy=15.75
+2025-05-28 09:30:08,016 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 09:55:33,836 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6895, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 09:55:33,918 INFO:training_pipeline: Starting validation
+2025-05-28 09:56:53,401 INFO:training_pipeline: Validation completed: avg_val_loss=0.4536
+2025-05-28 09:56:53,410 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 10:18:07,004 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3552, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 10:18:07,050 INFO:training_pipeline: Starting validation
+2025-05-28 10:19:57,597 INFO:training_pipeline: Validation completed: avg_val_loss=0.2650
+2025-05-28 10:19:57,619 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 10:39:21,219 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2177, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 10:39:21,252 INFO:training_pipeline: Starting validation
+2025-05-28 10:40:43,145 INFO:training_pipeline: Validation completed: avg_val_loss=0.1700
+2025-05-28 10:40:43,168 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 11:05:07,796 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1423, adv_loss=1.2351, disc_loss=2.3206
+2025-05-28 11:05:07,904 INFO:training_pipeline: Starting validation
+2025-05-28 11:06:58,483 INFO:training_pipeline: Validation completed: avg_val_loss=0.1204
+2025-05-28 11:06:58,545 INFO:system_manager: Starting diffusion training for resolution=32.0, energy=15.75
+2025-05-28 11:26:57,169 INFO:system_manager: --- Training at resolution=32.0, energy=34.25 eV ---
+2025-05-28 11:26:57,270 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 11:27:04,131 INFO:system_manager: Found 10 samples for energy=34.25, resolution=32.0
+2025-05-28 11:27:49,938 INFO:system_manager: Scaling factor set to 0.9548580050468445
+2025-05-28 11:27:50,088 INFO:system_manager: Starting autoencoder training for resolution=32.0, energy=34.25
+2025-05-28 11:27:50,095 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 11:46:23,508 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6902, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 11:46:23,547 INFO:training_pipeline: Starting validation
+2025-05-28 11:47:24,598 INFO:training_pipeline: Validation completed: avg_val_loss=0.4548
+2025-05-28 11:47:24,626 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 12:12:22,711 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3553, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 12:12:22,853 INFO:training_pipeline: Starting validation
+2025-05-28 12:14:20,971 INFO:training_pipeline: Validation completed: avg_val_loss=0.2710
+2025-05-28 12:14:20,978 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 12:47:20,301 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2229, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 12:47:20,340 INFO:training_pipeline: Starting validation
+2025-05-28 12:48:42,415 INFO:training_pipeline: Validation completed: avg_val_loss=0.1696
+2025-05-28 12:48:42,438 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 13:11:31,397 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1425, adv_loss=1.2442, disc_loss=2.3183
+2025-05-28 13:11:31,477 INFO:training_pipeline: Starting validation
+2025-05-28 13:12:56,402 INFO:training_pipeline: Validation completed: avg_val_loss=0.1195
+2025-05-28 13:12:56,420 INFO:system_manager: Starting diffusion training for resolution=32.0, energy=34.25
+2025-05-28 13:42:30,382 INFO:system_manager: --- Training at resolution=64, energy=11.5 eV ---
+2025-05-28 13:42:31,122 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 13:42:42,818 INFO:system_manager: Found 10 samples for energy=11.5, resolution=64
+2025-05-28 13:43:26,457 INFO:system_manager: Scaling factor set to 0.9601851105690002
+2025-05-28 13:43:26,639 INFO:system_manager: Starting autoencoder training for resolution=64, energy=11.5
+2025-05-28 13:43:26,642 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 14:06:01,311 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6894, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 14:06:01,338 INFO:training_pipeline: Starting validation
+2025-05-28 14:07:26,719 INFO:training_pipeline: Validation completed: avg_val_loss=0.4523
+2025-05-28 14:07:26,739 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 14:29:55,506 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3547, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 14:29:55,534 INFO:training_pipeline: Starting validation
+2025-05-28 14:31:22,596 INFO:training_pipeline: Validation completed: avg_val_loss=0.2578
+2025-05-28 14:31:22,611 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 14:59:52,474 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2130, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 14:59:52,504 INFO:training_pipeline: Starting validation
+2025-05-28 15:02:59,497 INFO:training_pipeline: Validation completed: avg_val_loss=0.1664
+2025-05-28 15:02:59,519 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 15:38:35,310 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1392, adv_loss=1.2370, disc_loss=2.3167
+2025-05-28 15:38:35,334 INFO:training_pipeline: Starting validation
+2025-05-28 15:41:10,041 INFO:training_pipeline: Validation completed: avg_val_loss=0.1171
+2025-05-28 15:41:10,063 INFO:system_manager: Starting diffusion training for resolution=64, energy=11.5
+2025-05-28 16:05:24,945 INFO:system_manager: --- Training at resolution=64, energy=15.75 eV ---
+2025-05-28 16:05:25,567 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 16:05:45,134 INFO:system_manager: Found 10 samples for energy=15.75, resolution=64
+2025-05-28 16:06:44,438 INFO:system_manager: Scaling factor set to 0.9601224660873413
+2025-05-28 16:06:44,646 INFO:system_manager: Starting autoencoder training for resolution=64, energy=15.75
+2025-05-28 16:06:44,649 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 16:31:49,459 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6895, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 16:31:49,517 INFO:training_pipeline: Starting validation
+2025-05-28 16:33:45,853 INFO:training_pipeline: Validation completed: avg_val_loss=0.4535
+2025-05-28 16:33:45,868 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 16:56:11,078 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3552, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 16:56:11,106 INFO:training_pipeline: Starting validation
+2025-05-28 16:57:49,430 INFO:training_pipeline: Validation completed: avg_val_loss=0.2650
+2025-05-28 16:57:49,505 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 17:55:30,332 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2176, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 17:55:30,412 INFO:training_pipeline: Starting validation
+2025-05-28 17:57:06,536 INFO:training_pipeline: Validation completed: avg_val_loss=0.1700
+2025-05-28 17:57:06,550 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 18:19:15,993 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1422, adv_loss=1.2336, disc_loss=2.3110
+2025-05-28 18:19:16,011 INFO:training_pipeline: Starting validation
+2025-05-28 18:20:44,655 INFO:training_pipeline: Validation completed: avg_val_loss=0.1204
+2025-05-28 18:20:44,731 INFO:system_manager: Starting diffusion training for resolution=64, energy=15.75
+2025-05-28 18:41:51,745 INFO:system_manager: --- Training at resolution=64, energy=34.25 eV ---
+2025-05-28 18:41:51,798 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-05-28 18:42:05,662 INFO:system_manager: Found 10 samples for energy=34.25, resolution=64
+2025-05-28 18:42:36,915 INFO:system_manager: Scaling factor set to 0.9547933340072632
+2025-05-28 18:42:37,100 INFO:system_manager: Starting autoencoder training for resolution=64, energy=34.25
+2025-05-28 18:42:37,103 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-05-28 19:04:52,408 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.6902, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 19:04:52,455 INFO:training_pipeline: Starting validation
+2025-05-28 19:06:13,755 INFO:training_pipeline: Validation completed: avg_val_loss=0.4548
+2025-05-28 19:06:13,773 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-05-28 19:30:48,769 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.3553, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 19:30:48,789 INFO:training_pipeline: Starting validation
+2025-05-28 19:32:13,684 INFO:training_pipeline: Validation completed: avg_val_loss=0.2711
+2025-05-28 19:32:13,704 INFO:training_pipeline: Starting autoencoder training epoch 2
+2025-05-28 19:55:22,652 INFO:training_pipeline: Epoch 2 completed: recon_loss=0.2230, adv_loss=0.0000, disc_loss=0.0000
+2025-05-28 19:55:22,710 INFO:training_pipeline: Starting validation
+2025-05-28 19:57:01,444 INFO:training_pipeline: Validation completed: avg_val_loss=0.1696
+2025-05-28 19:57:01,463 INFO:training_pipeline: Starting autoencoder training epoch 3
+2025-05-28 20:21:48,807 INFO:training_pipeline: Epoch 3 completed: recon_loss=0.1425, adv_loss=1.2436, disc_loss=2.3154
+2025-05-28 20:21:48,839 INFO:training_pipeline: Starting validation
+2025-05-28 20:23:25,247 INFO:training_pipeline: Validation completed: avg_val_loss=0.1195
+2025-05-28 20:23:25,263 INFO:system_manager: Starting diffusion training for resolution=64, energy=34.25
+2025-05-28 20:43:39,440 INFO:system_manager: All training finished for all configurations.
+2025-05-28 20:51:11,304 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=4)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-28 20:51:23,716 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-28 20:51:23,721 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-28 20:51:24,587 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-28 20:51:24,625 INFO:system_manager: Running inference...
+2025-05-28 20:51:24,625 INFO:inference_module: Starting full inference over energies
+2025-05-28 20:51:24,626 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-28 20:51:24,626 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-28 20:51:24,626 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-28 20:52:11,857 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-28 20:52:11,883 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-28 20:52:11,884 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-28 20:52:51,050 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-28 20:52:51,066 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-28 20:52:51,066 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-28 20:53:28,315 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-28 20:53:28,321 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-28 20:53:28,322 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-28 20:54:09,567 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-28 20:54:09,574 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-28 20:54:09,574 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-28 20:54:46,419 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-28 20:54:46,431 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-28 20:54:46,431 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-28 20:55:23,296 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-28 20:55:23,302 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-28 20:55:23,302 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-28 20:56:00,326 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-28 20:56:00,331 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-28 20:56:00,331 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-28 20:56:36,834 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-28 20:56:36,854 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-28 20:56:36,856 INFO:inference_module: Completed full inference over energies
+2025-05-28 20:56:36,876 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 517, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 386, in run_inference
+    _nib.save(img, out_path)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/loadsave.py", line 164, in save
+    img.to_filename(filename, **kwargs)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/filebasedimages.py", line 308, in to_filename
+    self.to_file_map(**kwargs)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/nifti1.py", line 2377, in to_file_map
+    super().to_file_map(file_map, dtype)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/analyze.py", line 1049, in to_file_map
+    hdr.write_to(hdrf)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/nifti1.py", line 902, in write_to
+    self.extensions.write_to(fileobj, byteswap)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/nifti1.py", line 730, in write_to
+    e.write_to(fileobj, byteswap)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/nifti1.py", line 495, in write_to
+    fileobj.write(self._raw)
+  File "/opt/anaconda3/lib/python3.12/site-packages/nibabel/openers.py", line 231, in write
+    return self.fobj.write(b)
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/gzip.py", line 300, in write
+    return self._buffer.write(data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: a bytes-like object is required, not 'str'
+2025-05-28 21:47:44,924 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-05-28 21:47:52,350 INFO:__main__: Selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/(Epoch=4)model_res[16.0, 32.0, 64]_energy[11.5, 15.75, 34.25].ckpt
+2025-05-28 21:48:13,426 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-05-28 21:48:13,428 INFO:__main__: CT image shape: (100, 100, 100)
+2025-05-28 21:48:14,146 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-05-28 21:48:14,189 INFO:system_manager: Running inference...
+2025-05-28 21:48:14,189 INFO:inference_module: Starting full inference over energies
+2025-05-28 21:48:14,189 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-05-28 21:48:14,189 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-05-28 21:48:14,189 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-05-28 21:48:57,027 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-05-28 21:48:57,057 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-05-28 21:48:57,057 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-05-28 21:49:40,158 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-05-28 21:49:40,187 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-05-28 21:49:40,187 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-05-28 21:50:21,758 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-05-28 21:50:21,785 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-05-28 21:50:21,785 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-05-28 21:51:06,731 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-05-28 21:51:06,758 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-05-28 21:51:06,759 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-05-28 21:51:51,320 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-05-28 21:51:51,340 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-05-28 21:51:51,340 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-05-28 21:52:36,943 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-05-28 21:52:36,960 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-05-28 21:52:36,960 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-05-28 21:53:21,641 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-05-28 21:53:21,658 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-05-28 21:53:21,658 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-05-28 21:54:04,653 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-05-28 21:54:04,687 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-05-28 21:54:04,688 INFO:inference_module: Completed full inference over energies
+2025-05-28 21:55:43,696 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz

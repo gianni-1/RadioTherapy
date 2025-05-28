@@ -56,7 +56,7 @@ RadioTherapy/
 1. **Select a model checkpoint (only for inference)**  
    - Pretrained autoencoder + UNet `.ckpt` file.  
 2. **Choose an energy folder**  
-   - Point to one of the `testdata/<energy_ev>/` directories.  
+   - Point to one of the `traindata/<energy_ev>/` directories.  
 3. **Train or infer**  
    - **Train** runs AE + diffusion training for that energy, logging “Expected input channels” and “UNet-Forward” debug info.  
    - **Calculate Dose** loads CT `.npy`, picks Gaussian quadrature points/weights from your GUI input, then runs inference over all energies and aggregates results.  
