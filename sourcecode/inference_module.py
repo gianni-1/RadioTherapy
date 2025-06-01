@@ -113,7 +113,9 @@ class InferenceModule:
         B, C, D, H, W = input_data.shape
         
         # Normalize the energy value (example normalization: divide by 100)
-        normalized_energy = energy_value / 100.0
+        # FIXED: Use named constant instead of hardcoded value
+        ENERGY_NORMALIZATION_FACTOR = 100.0  # keV
+        normalized_energy = energy_value / ENERGY_NORMALIZATION_FACTOR
         # Build and project cross-attention context from energy and weight
         idx = self.energies.index(energy_value)
         energy_weight = self.energy_weights[idx]

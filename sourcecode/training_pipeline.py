@@ -8,6 +8,10 @@ from monai.losses import PatchAdversarialLoss, PerceptualLoss
 import math
 import log_config
 import logging
+
+# Constants
+ENERGY_NORMALIZATION_FACTOR = 100.0  # keV normalization factor for energy conditioning
+
 logger = logging.getLogger(__name__)
 
 class EarlyStopping:
@@ -152,8 +156,7 @@ class AutoencoderTrainer:
 
             # Add adversarial loss if past warm-up phase and discriminator is used.
             if epoch > self.warm_up_epochs and self.discriminator is not None:
-                gen_epoch_loss += adv.item()
-
+                gen_epoch_loss += adv.item()            
             loss_g.backward()
             self.optimizer_g.step()
 
@@ -164,7 +167,7 @@ class AutoencoderTrainer:
                 logits_real = self.discriminator(images.contiguous().detach())[-1]
                 loss_d_real = F.mse_loss(logits_real, torch.ones_like(logits_real))
                 discrimator_loss = (loss_d_fake + loss_d_real) / 2
-                loss_d = self.adv_weight * discrimator_loss
+                loss_d = discrimator_loss
                 loss_d.backward()
                 self.optimizer_d.step()
                 disc_epoch_loss += discrimator_loss.item()

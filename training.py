@@ -36,6 +36,9 @@ import multiprocessing
 # Setzt die Startmethode auf 'spawn', was auf macOS und Windows notwendig ist
 multiprocessing.set_start_method("spawn", force=True)
 
+# Constants
+ENERGY_NORMALIZATION_FACTOR = 100.0  # keV normalization factor for energy conditioning
+
 # Definiere eine globale Funktion anstelle einer Lambda-Funktion
 def select_channel(image, channel=0):
     return image[channel, :, :, :]
@@ -269,11 +272,10 @@ if __name__ == '__main__':
                         )
                         logits_real = discriminator(images.contiguous().detach())[-1]
                         loss_d_real = adv_loss(
-                            logits_real, target_is_real=True, for_discriminator=True
-                        )
+                            logits_real, target_is_real=True, for_discriminator=True                        )
                         discriminator_loss = (loss_d_fake + loss_d_real) * 0.5
 
-                        loss_d = adv_weight * discriminator_loss
+                        loss_d = discriminator_loss
 
                         loss_d.backward()
                         optimizer_d.step()
