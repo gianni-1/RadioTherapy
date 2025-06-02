@@ -315,6 +315,9 @@ class DiffusionTrainer:
             #  generates random Timesteps
             timesteps = torch.randint(0, inferer.scheduler.num_train_timesteps, (images.shape[0],), device=self.device).long()
 
+            # Add noise to the latents to create x_t
+            noisy_latents = inferer.scheduler.add_noise(latents, noise, timesteps)
+
             # Build context vector by pooling latent representation of CT
             with torch.no_grad():
                 # Use the same conditioned_input (CT + energy) as for the autoencoder encoding
@@ -328,14 +331,14 @@ class DiffusionTrainer:
             context_tensor = latent_ct.mean(dim=(2, 3, 4))
             # add sequence dimension for cross-attention: [B, 1, latent_channels]
             context_tensor = context_tensor.unsqueeze(1)
-            noise_pred = inferer(
-                inputs=latents,
-                autoencoder_model=autoencoder,
-                diffusion_model=self.diffusion_model,
-                noise=noise,
-                timesteps=timesteps,
-                condition=context_tensor,
+
+            # Predict the noise component
+            noise_pred = self.diffusion_model(
+                noisy_latents, 
+                timesteps=timesteps, 
+                context=context_tensor # Assuming 'context' is the expected kwarg for conditioning
             )
+            
             # Crop original noise to match predicted noise spatial dimensions
             if noise.ndim == noise_pred.ndim and noise.shape[2:] != noise_pred.shape[2:]:
                 noise = noise[:, :, :noise_pred.shape[2], :noise_pred.shape[3], :noise_pred.shape[4]]
