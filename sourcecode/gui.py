@@ -474,7 +474,8 @@ class MainWindow(QMainWindow):
             logger.info(f"Selected model file: {file_path}")
             try:
                 # Load the Model file (.ckpt) to ensure it's valid
-                self.model_checkpoint = torch.load(file_path)  # Load the model file
+                device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                self.model_checkpoint = torch.load(file_path, map_location=device)  # Load the model file
                 if self.ct_file_bool:
                     self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
                 else:
