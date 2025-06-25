@@ -1,0 +1,14 @@
+2025-06-24 14:01:04,506 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-06-24 14:01:21,286 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-06-24 14:02:24,166 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-06-24 14:02:37,006 INFO:system_manager: Starting training with hyperparameters:
+2025-06-24 14:02:37,006 INFO:system_manager:   batch_size=2, num_epochs=5, learning_rate=0.0001, patience=3, cube_size=(100, 100, 100)
+2025-06-24 14:02:37,006 INFO:system_manager:   resolutions=[16.0, 32.0, 64], energies=[11.5, 15.75, 34.25]
+2025-06-24 14:02:37,006 INFO:system_manager: --- Training at resolution=16.0, energy=11.5 eV ---
+2025-06-24 14:02:37,008 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-06-25 11:24:50,927 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-06-25 11:25:12,291 INFO:system_manager: Starting training with hyperparameters:
+2025-06-25 11:25:12,292 INFO:system_manager:   batch_size=2, num_epochs=5, learning_rate=0.0001, patience=3, cube_size=(100, 100, 100)
+2025-06-25 11:25:12,292 INFO:system_manager:   resolutions=[16.0, 32.0, 64], energies=[11.5, 15.75, 34.25]
+2025-06-25 11:25:12,292 INFO:system_manager: --- Training at resolution=16.0, energy=11.5 eV ---
+2025-06-25 11:25:12,294 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]

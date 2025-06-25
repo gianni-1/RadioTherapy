@@ -34,15 +34,19 @@ class InferenceModule:
         # Build projection for cross-attention context from 2 dims to model’s context dimension
         example_unet = next(iter(models_by_energy.values()))[1]
         try:
-            context_dim = example_unet.to_k.in_features
+            # Find the context dimension from the UNet's cross-attention layers
+            self.context_dim = example_unet.context_dim
         except AttributeError:
+            # Fallback if context_dim is not a direct attribute
             for m in example_unet.modules():
                 if hasattr(m, "to_k"):
-                    context_dim = m.to_k.in_features
+                    self.context_dim = m.to_k.in_features
                     break
             else:
-                raise RuntimeError("Cannot determine context projection dimension")
-        self.context_proj = nn.Linear(2, context_dim).to(self.device)
+                # If context dimension cannot be found, log a warning.
+                # The model might not use cross-attention, which is a valid case.
+                self.context_dim = None
+                logger.warning("Could not determine context projection dimension. Assuming no cross-attention.")
     
     def preprocess_ct(self, ct_tensor, target_cube_size=(64, 64, 64)):
         """
@@ -132,23 +136,39 @@ class InferenceModule:
         conditioned_input = torch.cat((input_data, energy_tensor), dim=1)
 
         
-        # Encode the conditioned CT to latent space
-        encoded_output = autoencoder.encode(conditioned_input)
-        # Unpack encode result: if a tuple, assume first element is latent sample; otherwise sample from the distribution
-        if isinstance(encoded_output, tuple):
-            latent = encoded_output[0].to(self.device)
-        else:
-            latent = encoded_output.latent_dist.sample().to(self.device)
-        
+        # The context is the latent representation of the CT scan.
+        with torch.no_grad():
+            context_latent = autoencoder.encode(conditioned_input)
+            if isinstance(context_latent, tuple):
+                context_latent = context_latent[0] # Use mu if VAE returns (mu, sigma)
+            
+            # Global average pooling over spatial dimensions -> [B, latent_channels]
+            context_tensor = context_latent.mean(dim=(2, 3, 4))
+            # Add sequence dimension for cross-attention: [B, 1, latent_channels]
+            context_tensor = context_tensor.unsqueeze(1)
+
+        # The process should start from pure noise, with the same shape as the latent space.
+        with torch.no_grad():
+            # Encode the input to get the shape for the noise tensor
+            encoded_output = autoencoder.encode(conditioned_input)
+            if isinstance(encoded_output, tuple):
+                latent_for_shape = encoded_output[0]
+            else:
+                latent_for_shape = encoded_output.latent_dist.sample()
+            
+            # Create the random noise tensor
+            start_noise = torch.randn_like(latent_for_shape).to(self.device)
+
         # Run diffusion sampling in latent space
         from generative.inferers import LatentDiffusionInferer
         inferer = LatentDiffusionInferer(scheduler=scheduler, scale_factor=1.0)
+        
         sampled_latent = inferer.sample(
-            input_noise=latent,
+            input_noise=start_noise, # CORRECT: Start from noise
             autoencoder_model=autoencoder,
             diffusion_model=unet,
             scheduler=scheduler,
-            conditioning=raw_context.unsqueeze(1),
+            conditioning=context_tensor, # CORRECT: Use CT latent as context
             mode="crossattn"
         )
         

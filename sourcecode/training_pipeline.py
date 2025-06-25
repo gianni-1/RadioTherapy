@@ -259,7 +259,17 @@ class DiffusionTrainer:
         epoch_loss = 0.0
 
         for step, batch in enumerate(tqdm(train_loader, desc=f"Diffusion Epoch {epoch}")):
-            images = batch["input"].to(self.device)
+            images = batch["input"].to(self.device) # This is the DOSE distribution
+            print("KEYYYSSS:",batch.keys())
+            # --- START OF CORRECTION ---
+            # The conditioning context must be derived from the CT scan, not the dose distribution.
+            # I am assuming the CT scan is available in the batch under the key 'ct'.
+            # If this key is incorrect, please adjust it to the correct one.
+            if "ct" not in batch:
+                raise ValueError("Batch from data loader must contain a 'ct' key for conditioning.")
+            ct_scans = batch["ct"].to(self.device)
+            # --- END OF CORRECTION ---
+
             # Build conditioned input for autoencoder with energy channel if available
             if "energy" in batch:
                 energies = batch["energy"].to(self.device)
@@ -318,25 +328,42 @@ class DiffusionTrainer:
             # Add noise to the latents to create x_t
             noisy_latents = inferer.scheduler.add_noise(latents, noise, timesteps)
 
-            # Build context vector by pooling latent representation of CT
+            # --- START OF CORRECTION ---
+            # Build context vector by pooling latent representation of the CT scan
             with torch.no_grad():
-                # Use the same conditioned_input (CT + energy) as for the autoencoder encoding
-                encoded_ct = autoencoder.encode(conditioned_input)
-                # if encode returns (mu, sigma), take mu
+                # Build the conditioned input for the CT scan
+                if "energy" in batch:
+                    # Re-use energy tensor, but ensure it matches CT's spatial dimensions
+                    energies = batch["energy"].to(self.device)
+                    normalized_energy = energies.float() / 100.0
+                    B, C, D, H, W = ct_scans.shape
+                    energy_tensor_ct = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                    conditioned_ct = torch.cat([ct_scans, energy_tensor_ct], dim=1)
+                else:
+                    conditioned_ct = ct_scans
+
+                # Use the same autoencoder to encode the CT into a latent representation for context
+                # This must be consistent with the inference logic.
+                encoded_ct = autoencoder.encode(conditioned_ct)
+                
                 if isinstance(encoded_ct, tuple):
-                    latent_ct = encoded_ct[0]
+                    latent_ct = encoded_ct[0] # if encode returns (mu, sigma), take mu
+                elif hasattr(encoded_ct, "latent_dist"):
+                    latent_ct = encoded_ct.latent_dist.sample()
                 else:
                     latent_ct = encoded_ct
-            # global average pooling over spatial dimensions -> [B, latent_channels]
-            context_tensor = latent_ct.mean(dim=(2, 3, 4))
-            # add sequence dimension for cross-attention: [B, 1, latent_channels]
-            context_tensor = context_tensor.unsqueeze(1)
+                    
+                # global average pooling over spatial dimensions -> [B, latent_channels]
+                context_tensor = latent_ct.mean(dim=(2, 3, 4))
+                # add sequence dimension for cross-attention: [B, 1, latent_channels]
+                context_tensor = context_tensor.unsqueeze(1)
+            # --- END OF CORRECTION ---
 
             # Predict the noise component
             noise_pred = self.diffusion_model(
                 noisy_latents, 
                 timesteps=timesteps, 
-                context=context_tensor # Assuming 'context' is the expected kwarg for conditioning
+                context=context_tensor # CORRECT: Now conditioned on the CT scan
             )
             
             # Crop original noise to match predicted noise spatial dimensions
