@@ -127,46 +127,71 @@ class InferenceModule:
 
         # Build context from the conditioned CT scan (this matches training logic)
         with torch.no_grad():
-            # Encode the conditioned CT scan to get context for dose generation
-            encoded_ct = autoencoder.encode(conditioned_ct)
-            if isinstance(encoded_ct, tuple):
-                latent_ct = encoded_ct[0]  # Use mu if VAE returns (mu, sigma)
-            elif hasattr(encoded_ct, "latent_dist"):
-                latent_ct = encoded_ct.latent_dist.sample()
-            else:
-                latent_ct = encoded_ct
-            
-            # Global average pooling over spatial dimensions -> [B, latent_channels]
-            context_tensor = latent_ct.mean(dim=(2, 3, 4))
-            # Add sequence dimension for cross-attention: [B, 1, latent_channels]
-            context_tensor = context_tensor.unsqueeze(1)
+            try:
+                # CORRECTED: Use direct spatial pooling instead of autoencoder for CT conditioning
+                # This matches the corrected training approach where we don't use the autoencoder
+                # (which was trained on dose data) to encode CT data.
+                
+                logger.info(f"Creating context from CT with shape: {conditioned_ct.shape}")
+                
+                # Method 1: Use spatial average pooling of CT+energy directly (matching training)
+                # Global average pooling over spatial dimensions -> [B, channels]
+                context_tensor = conditioned_ct.mean(dim=(2, 3, 4))
+                # Add sequence dimension for cross-attention: [B, 1, channels]
+                context_tensor = context_tensor.unsqueeze(1)
+                
+                logger.info(f"Context tensor shape: {context_tensor.shape}")
+                
+            except Exception as e:
+                logger.error(f"Error creating context from CT: {e}")
+                raise
 
-        # CORRECTED: Create a random dose sample to get the right latent space shape
-        # We need to know what shape the dose latents should have 
+        # CORRECTED: Create noise in the proper dose latent space
+        # We need to determine the correct latent space dimensions for dose generation
         with torch.no_grad():
-            # Create a dummy dose tensor with the same spatial dimensions as CT
+            # The autoencoder expects 2 channels (dose + energy), so we need to create
+            # a dummy input that matches this expectation to get the latent shape
             dummy_dose = torch.zeros_like(ct_data[:, :1])  # Single channel for dose
-            # Add energy conditioning to dummy dose (matching training procedure)
-            dummy_conditioned_dose = torch.cat((dummy_dose, energy_tensor), dim=1)
+            dummy_conditioned_dose = torch.cat((dummy_dose, energy_tensor), dim=1)  # 2 channels total
             
             # Encode the dummy dose to get the correct latent space shape for dose generation
-            encoded_dummy = autoencoder.encode(dummy_conditioned_dose)
-            if isinstance(encoded_dummy, tuple):
-                dummy_latent = encoded_dummy[0]
-            elif hasattr(encoded_dummy, "latent_dist"):
-                dummy_latent = encoded_dummy.latent_dist.sample()
-            else:
-                dummy_latent = encoded_dummy
-            
-            # Now create noise in the correct dose latent space shape
-            start_noise = torch.randn_like(dummy_latent).to(self.device)
+            try:
+                encoded_dummy = autoencoder.encode(dummy_conditioned_dose)
+                if isinstance(encoded_dummy, tuple):
+                    dummy_latent = encoded_dummy[0]
+                elif hasattr(encoded_dummy, "latent_dist"):
+                    dummy_latent = encoded_dummy.latent_dist.sample()
+                else:
+                    dummy_latent = encoded_dummy
+                
+                # Now create noise in the correct dose latent space shape
+                start_noise = torch.randn_like(dummy_latent).to(self.device)
+                logger.info(f"Created noise tensor with shape: {start_noise.shape}")
+                
+            except Exception as e:
+                logger.error(f"Error creating dummy latent: {e}")
+                # Fallback: create noise with a reasonable shape for dose latents
+                # Use the same spatial dimensions as CT but with latent channels
+                B, C, D, H, W = ct_data.shape
+                # Typical latent channel count is 2 (from autoencoder config)
+                latent_channels = 2
+                # Downsample spatial dimensions (typical for autoencoders) 
+                spatial_factor = 8  # common downsampling factor
+                latent_d, latent_h, latent_w = D//spatial_factor, H//spatial_factor, W//spatial_factor
+                start_noise = torch.randn(B, latent_channels, latent_d, latent_h, latent_w).to(self.device)
+                logger.warning(f"Using fallback noise generation with shape: {start_noise.shape}")
 
         # Run diffusion sampling in latent space to generate dose distribution
         from generative.inferers import LatentDiffusionInferer
         inferer = LatentDiffusionInferer(scheduler=scheduler, scale_factor=1.0)
         
+        # Debug: Let's check if the model is properly conditioned
+        logger.info(f"Context tensor for conditioning: {context_tensor.shape}, mean: {context_tensor.mean():.4f}, std: {context_tensor.std():.4f}")
+        logger.info(f"Start noise shape: {start_noise.shape}, mean: {start_noise.mean():.4f}, std: {start_noise.std():.4f}")
+        
         # Sample dose distribution conditioned on CT scan
-        sampled_latent = inferer.sample(
+        # Note: LatentDiffusionInferer.sample() handles both diffusion sampling AND decoding internally
+        dose_distribution = inferer.sample(
             input_noise=start_noise,  # Start from noise in dose latent space
             autoencoder_model=autoencoder,
             diffusion_model=unet,
@@ -175,10 +200,7 @@ class InferenceModule:
             mode="crossattn"
         )
         
-        # Decode the sampled latent to get the dose distribution
-        with torch.no_grad():
-            dose_distribution = autoencoder.decode(sampled_latent)
-            
+        logger.info(f"Output dose distribution shape: {dose_distribution.shape}, mean: {dose_distribution.mean():.4f}, std: {dose_distribution.std():.4f}")
         logger.info(f"Completed inference for energy: {energy_value} keV")
         return dose_distribution
 

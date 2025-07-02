@@ -332,23 +332,20 @@ class DiffusionTrainer:
             # Add noise to the latents to create x_t
             noisy_latents = inferer.scheduler.add_noise(latents, noise, timesteps)
 
-            # CORRECT: Build context vector from CT scan (the conditioning input)
+            # CORRECTED: Build context vector from CT scan (the conditioning input)
             with torch.no_grad():
-                # Use the same autoencoder to encode the CT into a latent representation for context
-                # This must be consistent with the inference logic.
-                encoded_ct = autoencoder.encode(conditioned_ct)
+                # Instead of using the autoencoder to encode CT (which was trained on dose data),
+                # we should use a simpler approach for CT conditioning.
+                # The CT scan + energy provides the conditioning context.
                 
-                if isinstance(encoded_ct, tuple):
-                    latent_ct = encoded_ct[0] # if encode returns (mu, sigma), take mu
-                elif hasattr(encoded_ct, "latent_dist"):
-                    latent_ct = encoded_ct.latent_dist.sample()
-                else:
-                    latent_ct = encoded_ct
-                    
-                # global average pooling over spatial dimensions -> [B, latent_channels]
-                context_tensor = latent_ct.mean(dim=(2, 3, 4))
-                # add sequence dimension for cross-attention: [B, 1, latent_channels]
+                # Method 1: Use spatial average pooling of CT+energy directly
+                # Global average pooling over spatial dimensions -> [B, channels]
+                context_tensor = conditioned_ct.mean(dim=(2, 3, 4))
+                # Add sequence dimension for cross-attention: [B, 1, channels]  
                 context_tensor = context_tensor.unsqueeze(1)
+                
+                # Note: This creates a context with 2 dimensions (CT + energy)
+                # which should be consistent with how inference works
 
             # Predict the noise component
             noise_pred = self.diffusion_model(
