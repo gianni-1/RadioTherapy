@@ -338,13 +338,27 @@ class DiffusionTrainer:
                 # we should use a simpler approach for CT conditioning.
                 # The CT scan + energy provides the conditioning context.
                 
-                # Method 1: Use spatial average pooling of CT+energy directly
-                # Global average pooling over spatial dimensions -> [B, channels]
-                context_tensor = conditioned_ct.mean(dim=(2, 3, 4))
-                # Add sequence dimension for cross-attention: [B, 1, channels]  
-                context_tensor = context_tensor.unsqueeze(1)
+                # Encode the CT scan using the autoencoder's encoder to get a rich spatial context
+                encoded_ct = autoencoder.encode(conditioned_ct)
+                if hasattr(encoded_ct, "latent_dist"):
+                    ct_latent = encoded_ct.latent_dist.sample()
+                elif isinstance(encoded_ct, tuple):
+                    ct_latent = encoded_ct[0]
+                else:
+                    ct_latent = encoded_ct
                 
-                # Note: This creates a context with 2 dimensions (CT + energy)
+                # CRITICAL FIX: Transform latent to proper context format for cross-attention
+                # UNet expects context with shape [batch, sequence_length, cross_attention_dim]
+                # Current ct_latent has shape [B, C, D, H, W]
+                
+                # Method 1: Global pooling to get [B, C] then add sequence dimension
+                B, C, D, H, W = ct_latent.shape
+                # Global average pooling over spatial dimensions
+                pooled_context = ct_latent.mean(dim=(2, 3, 4))  # [B, C]
+                # Add sequence dimension: [B, 1, C] for cross-attention
+                context_tensor = pooled_context.unsqueeze(1)  # [B, 1, C]
+                
+                # Note: This creates a context with proper dimensions for cross-attention
                 # which should be consistent with how inference works
 
             # Predict the noise component
