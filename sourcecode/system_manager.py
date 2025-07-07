@@ -388,3 +388,222 @@ class SystemManager:
         # set result path
         self.dose_result_path = out_path
         return out_path
+
+    def run_energy_conditioned_training(self):
+        """
+        Executes energy-conditioned training pipeline - trains a SINGLE model with ALL energies.
+        
+        This is the new approach that trains one model with energy conditioning,
+        instead of separate models for each energy.
+        
+        Steps:
+          1. Load dataset with ALL energies (no filtering by energy)
+          2. Create DataLoaders for training and validation
+          3. Initialize models with 2-channel input (CT + Energy)
+          4. Train autoencoder with energy conditioning
+          5. Train diffusion model with energy conditioning
+          6. Save the unified model
+        """
+        logger.info("=== STARTING ENERGY-CONDITIONED TRAINING ===")
+        logger.info("Training a SINGLE model with ALL energies instead of separate models")
+        logger.info("Starting training with hyperparameters:")
+        logger.info(f"  batch_size={self.batch_size}, num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, patience={self.patience}, cube_size={self.cube_size}")
+        logger.info(f"  resolutions={self.resolutions}, energies={self.energies}")
+        
+        # For simplicity, use first resolution only (can be extended later)
+        res = self.resolutions[0]
+        logger.info(f"--- Training unified model at resolution={res} with energies={self.energies} ---")
+        
+        # Setup transforms
+        self.transforms = Compose([
+            LoadImaged(keys=["input", "target"], reader=NumpyReader),
+            EnsureChannelFirstd(keys=["input", "target"]),
+            EnsureTyped(keys=["input", "target"]),
+            Orientationd(keys=["input", "target"], axcodes="RAS"),
+            Spacingd(keys=["input", "target"], pixdim=res, mode=("bilinear", "nearest")),
+            SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
+            CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
+            ScaleIntensityRangePercentilesd(
+                keys="input", lower=0, upper=99.5, b_min=0, b_max=1
+            ),
+            ToTensord(keys=["input", "target"]),
+            EnsureTyped(keys=["energy"]),
+            ToTensord(keys=["energy"])
+        ])
+        
+        # Initialize history lists for plotting
+        ae_train_losses = []
+        ae_val_losses = []
+        gen_losses = []
+        disc_losses = []
+        diff_losses = []
+        
+        # Load dataset WITHOUT filtering by energy (this is the key change!)
+        data_module = DataLoaderModule(
+            root_dir=self.root_dir,
+            transforms=self.transforms
+        )
+        # Load complete dataset with ALL energies
+        ds_full = data_module.load_dataset(section=None)
+        # NO FILTERING BY ENERGY! - This is the crucial difference
+        logger.info(f"Loaded {len(ds_full)} samples with ALL energies: {set([float(s['energy'].item()) for s in ds_full])}")
+        
+        train_ds, val_ds = data_module.split_dataset(ds_full)
+        train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
+        val_loader = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
+        
+        logger.info(f"Training set: {len(train_ds)} samples")
+        logger.info(f"Validation set: {len(val_ds)} samples")
+        
+        # Instantiate models with 2-channel input for energy conditioning
+        autoencoder = AutoencoderKL(
+            spatial_dims=3,
+            in_channels=2,  # CT + Energy channel
+            out_channels=1,
+            num_channels=(32, 32, 32),
+            latent_channels=2,
+            num_res_blocks=1,
+            norm_num_groups=8,
+            attention_levels=(False, False, True),
+        ).to(self.device)
+        
+        discriminator = PatchDiscriminator(
+            spatial_dims=3,
+            num_layers_d=3,
+            num_channels=32,
+            in_channels=1,  # Output is still 1 channel
+            out_channels=1
+        ).to(self.device)
+        
+        unet = DiffusionModelUNet(
+            spatial_dims=3,
+            in_channels=2,  # Latent space is 2 channels
+            out_channels=2,
+            with_conditioning=True,
+            cross_attention_dim=2,
+            num_res_blocks=1,
+            num_channels=(32, 64, 64),
+            attention_levels=(False, True, True),
+            num_head_channels=(0, 32, 32),
+        ).to(self.device)
+        
+        scheduler = DDPMScheduler(num_train_timesteps=1000, beta_start=0.0015, beta_end=0.0195)
+        
+        # Calculate latent scaling factor
+        with torch.no_grad():
+            # Take a sample from training data to compute scaling factor
+            sample_batch = first(train_loader)
+            sample_input = sample_batch["input"].to(self.device)
+            sample_energy = sample_batch["energy"].to(self.device)
+            
+            # Apply energy conditioning for scaling factor calculation
+            B, C, D, H, W = sample_input.shape
+            normalized_energy = sample_energy.float() / 100.0
+            energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+            conditioned_input = torch.cat([sample_input, energy_tensor], dim=1)
+            
+            encoded = autoencoder.encode(conditioned_input)
+            if isinstance(encoded, tuple):
+                z = encoded[0]
+            else:
+                z = encoded.latent_dist.sample()
+            scale_factor = 1 / torch.std(z)
+            
+        logger.info(f"Scaling factor set to {scale_factor}")
+        
+        # Train Autoencoder with energy conditioning
+        logger.info(f"Starting autoencoder training for unified model")
+        
+        # Create optimizers
+        optimizer_g = torch.optim.Adam(autoencoder.parameters(), lr=self.learning_rate)
+        optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=self.learning_rate)
+        
+        ae_trainer = AutoencoderTrainer(
+            autoencoder=autoencoder,
+            discriminator=discriminator,
+            optimizer_g=optimizer_g,
+            optimizer_d=optimizer_d,
+            device=self.device
+        )
+        
+        early_stopping = EarlyStopping(patience=self.patience)
+        
+        for epoch in range(self.num_epochs):
+            if self.stop_training:
+                logger.info("Training aborted by user.")
+                return
+                
+            recon_loss, adv_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
+            ae_train_losses.append(recon_loss)
+            gen_losses.append(adv_loss)
+            disc_losses.append(disc_loss)
+            
+            val_loss = ae_trainer.validate(val_loader)
+            ae_val_losses.append(val_loss)
+            
+            early_stop = early_stopping.update(val_loss)
+            if early_stop:
+                logger.info(f"Early stopping triggered at epoch {epoch}")
+                break
+        
+        # Train Diffusion Model with energy conditioning
+        logger.info(f"Starting diffusion training for unified model")
+        
+        # Create optimizer for diffusion model
+        optimizer_diff = torch.optim.Adam(unet.parameters(), lr=self.learning_rate)
+        
+        diff_trainer = DiffusionTrainer(
+            diffusion_model=unet,
+            optimizer_diff=optimizer_diff,
+            device=self.device
+        )
+        
+        # Train diffusion for fewer epochs (typically 10-20)
+        from generative.inferers import LatentDiffusionInferer
+        inferer = LatentDiffusionInferer(scheduler=scheduler, scale_factor=scale_factor)
+        
+        diff_epochs = max(10, self.num_epochs // 2)
+        for epoch in range(diff_epochs):
+            if self.stop_training:
+                logger.info("Training aborted by user.")
+                return
+                
+            diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer=inferer, autoencoder=autoencoder)
+            diff_losses.append(diff_loss)
+        
+        # Save the unified model
+        model_filename = f"unified_energy_conditioned_model_res{res}_energies{len(self.energies)}.ckpt"
+        model_path = os.path.join(os.getcwd(), model_filename)
+        
+        torch.save({
+            'autoencoder': autoencoder.state_dict(),
+            'unet': unet.state_dict(),
+            'scheduler': scheduler.state_dict(),
+            'scale_factor': scale_factor,
+            'resolutions': [res],
+            'energies': self.energies,
+            'training_config': {
+                'batch_size': self.batch_size,
+                'num_epochs': self.num_epochs,
+                'learning_rate': self.learning_rate,
+                'cube_size': self.cube_size
+            }
+        }, model_path)
+        
+        logger.info(f"✅ Unified energy-conditioned model saved to: {model_path}")
+        logger.info("=== ENERGY-CONDITIONED TRAINING COMPLETED ===")
+        
+        return {
+            'model_path': model_path,
+            'autoencoder': autoencoder,
+            'unet': unet,
+            'scheduler': scheduler,
+            'scale_factor': scale_factor,
+            'losses': {
+                'ae_train': ae_train_losses,
+                'ae_val': ae_val_losses,
+                'gen': gen_losses,
+                'disc': disc_losses,
+                'diff': diff_losses
+            }
+        }

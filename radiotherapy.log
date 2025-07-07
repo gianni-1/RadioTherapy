@@ -1,0 +1,68 @@
+2025-07-07 18:06:14,378 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-07 18:06:14,378 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-07 18:06:14,378 INFO:system_manager: Starting training with hyperparameters:
+2025-07-07 18:06:14,378 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=2, cube_size=(32, 32, 32)
+2025-07-07 18:06:14,378 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75]
+2025-07-07 18:06:14,378 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75] ---
+2025-07-07 18:06:14,380 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-07 18:06:14,956 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-07 18:06:14,958 INFO:system_manager: Training set: 24 samples
+2025-07-07 18:06:14,958 INFO:system_manager: Validation set: 6 samples
+2025-07-07 18:06:15,136 INFO:system_manager: Scaling factor set to 2.072709798812866
+2025-07-07 18:06:15,136 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-07 18:07:51,146 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-07 18:07:51,147 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-07 18:07:51,147 INFO:system_manager: Starting training with hyperparameters:
+2025-07-07 18:07:51,147 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=2, cube_size=(32, 32, 32)
+2025-07-07 18:07:51,147 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75]
+2025-07-07 18:07:51,147 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75] ---
+2025-07-07 18:07:51,149 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-07 18:07:51,782 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-07 18:07:51,784 INFO:system_manager: Training set: 24 samples
+2025-07-07 18:07:51,784 INFO:system_manager: Validation set: 6 samples
+2025-07-07 18:07:51,984 INFO:system_manager: Scaling factor set to 1.8960522413253784
+2025-07-07 18:07:51,985 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-07 18:08:33,152 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-07 18:08:33,152 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-07 18:08:33,152 INFO:system_manager: Starting training with hyperparameters:
+2025-07-07 18:08:33,152 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=2, cube_size=(32, 32, 32)
+2025-07-07 18:08:33,152 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75]
+2025-07-07 18:08:33,152 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75] ---
+2025-07-07 18:08:33,153 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-07 18:08:33,727 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-07 18:08:33,727 INFO:system_manager: Training set: 24 samples
+2025-07-07 18:08:33,727 INFO:system_manager: Validation set: 6 samples
+2025-07-07 18:08:33,906 INFO:system_manager: Scaling factor set to 3.6449882984161377
+2025-07-07 18:08:33,906 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-07 18:08:33,937 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-07-07 18:08:47,265 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.1817, adv_loss=0.0000, disc_loss=0.0000
+2025-07-07 18:08:47,266 INFO:training_pipeline: Starting validation
+2025-07-07 18:08:48,352 INFO:training_pipeline: Validation completed: avg_val_loss=0.0538
+2025-07-07 18:08:48,353 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-07-07 18:08:59,618 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.0437, adv_loss=0.0000, disc_loss=0.0000
+2025-07-07 18:08:59,620 INFO:training_pipeline: Starting validation
+2025-07-07 18:09:00,750 INFO:training_pipeline: Validation completed: avg_val_loss=0.0470
+2025-07-07 18:09:00,751 INFO:system_manager: Starting diffusion training for unified model
+2025-07-07 18:10:16,567 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-07 18:10:16,567 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-07 18:10:16,567 INFO:system_manager: Starting training with hyperparameters:
+2025-07-07 18:10:16,567 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=2, cube_size=(32, 32, 32)
+2025-07-07 18:10:16,567 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75]
+2025-07-07 18:10:16,567 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75] ---
+2025-07-07 18:10:16,569 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-07 18:10:17,110 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-07 18:10:17,111 INFO:system_manager: Training set: 24 samples
+2025-07-07 18:10:17,111 INFO:system_manager: Validation set: 6 samples
+2025-07-07 18:10:17,299 INFO:system_manager: Scaling factor set to 2.1419341564178467
+2025-07-07 18:10:17,299 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-07 18:10:17,331 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-07-07 18:10:28,549 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.1507, adv_loss=0.0000, disc_loss=0.0000
+2025-07-07 18:10:28,550 INFO:training_pipeline: Starting validation
+2025-07-07 18:10:29,613 INFO:training_pipeline: Validation completed: avg_val_loss=0.0574
+2025-07-07 18:10:29,614 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-07-07 18:10:41,298 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.0462, adv_loss=0.0000, disc_loss=0.0000
+2025-07-07 18:10:41,299 INFO:training_pipeline: Starting validation
+2025-07-07 18:10:42,456 INFO:training_pipeline: Validation completed: avg_val_loss=0.0646
+2025-07-07 18:10:42,457 INFO:system_manager: Starting diffusion training for unified model
+2025-07-07 18:11:39,404 INFO:system_manager: ✅ Unified energy-conditioned model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 18:11:39,404 INFO:system_manager: === ENERGY-CONDITIONED TRAINING COMPLETED ===

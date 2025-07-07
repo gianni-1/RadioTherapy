@@ -497,3 +497,724 @@ TypeError: a bytes-like object is required, not 'str'
 2025-05-28 21:54:04,687 INFO:inference_module: Aggregated dose distribution computed over all energies
 2025-05-28 21:54:04,688 INFO:inference_module: Completed full inference over energies
 2025-05-28 21:55:43,696 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 15:54:19,089 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 15:54:29,841 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 15:54:44,170 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-07-07 15:54:44,174 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 15:54:45,709 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 15:54:45,747 INFO:system_manager: Running inference...
+2025-07-07 15:54:45,747 INFO:inference_module: Starting full inference over energies
+2025-07-07 15:54:45,747 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 15:54:45,747 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 15:54:45,747 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 15:55:22,575 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 15:55:22,590 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 15:55:22,590 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 15:56:02,139 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 15:56:02,157 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 15:56:02,157 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 15:56:50,902 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 15:56:50,933 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 15:56:50,934 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 15:57:29,214 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 15:57:29,231 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 15:57:29,231 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 15:58:03,978 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-07-07 15:58:03,984 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 15:58:03,984 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 15:58:39,786 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-07-07 15:58:39,794 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 15:58:39,794 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 15:59:19,496 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-07-07 15:59:19,504 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 15:59:19,504 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 16:00:03,511 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-07-07 16:00:03,538 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 16:00:03,539 INFO:inference_module: Completed full inference over energies
+2025-07-07 16:00:05,537 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 16:50:19,684 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 16:51:04,527 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 16:51:18,311 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-07-07 16:51:18,314 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 16:51:19,502 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 16:51:19,537 INFO:system_manager: Running inference...
+2025-07-07 16:51:19,537 INFO:inference_module: Starting full inference over energies
+2025-07-07 16:51:19,537 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 16:51:19,537 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 16:51:19,537 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 16:51:20,244 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 518, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 367, in run_inference
+    dose = inf_mod.run_inference(ct_tensor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 84, in run_inference
+    result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 188, in run_inference_over_energies
+    dose = self.run_inference_conditioned_on_energy(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 150, in run_inference_conditioned_on_energy
+    sampled_latent = inferer.sample(
+                     ^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: LatentDiffusionInferer.sample() got an unexpected keyword argument 'shape'
+2025-07-07 16:52:56,815 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 16:53:04,884 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 16:53:11,043 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_0.npy
+2025-07-07 16:53:11,045 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 16:53:12,328 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 16:53:12,364 INFO:system_manager: Running inference...
+2025-07-07 16:53:12,364 INFO:inference_module: Starting full inference over energies
+2025-07-07 16:53:12,364 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 16:53:12,364 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 16:53:12,364 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 16:53:49,152 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 518, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 367, in run_inference
+    dose = inf_mod.run_inference(ct_tensor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 84, in run_inference
+    result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 188, in run_inference_over_energies
+    dose = self.run_inference_conditioned_on_energy(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 160, in run_inference_conditioned_on_energy
+    dose_distribution = autoencoder.decode(sampled_latent)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/generative/networks/nets/autoencoderkl.py", line 779, in decode
+    z = self.post_quant_conv(z)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 725, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 720, in _conv_forward
+    return F.conv3d(
+           ^^^^^^^^^
+RuntimeError: Given groups=1, weight of size [2, 2, 1, 1, 1], expected input[1, 1, 64, 64, 64] to have 2 channels, but got 1 channels instead
+2025-07-07 16:55:42,457 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 16:55:50,462 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 16:55:57,722 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 16:55:57,725 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 16:55:58,676 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 16:55:58,712 INFO:system_manager: Running inference...
+2025-07-07 16:55:58,712 INFO:inference_module: Starting full inference over energies
+2025-07-07 16:55:58,712 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 16:55:58,712 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 16:55:58,713 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 16:55:59,389 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 518, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 367, in run_inference
+    dose = inf_mod.run_inference(ct_tensor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 84, in run_inference
+    result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 187, in run_inference_over_energies
+    dose = self.run_inference_conditioned_on_energy(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 151, in run_inference_conditioned_on_energy
+    sampled_latent = inferer.sample(
+                     ^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: LatentDiffusionInferer.sample() missing 1 required positional argument: 'autoencoder_model'
+2025-07-07 16:57:45,678 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 16:57:54,798 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 16:58:00,951 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 16:58:00,955 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 16:58:01,740 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 16:58:01,770 INFO:system_manager: Running inference...
+2025-07-07 16:58:01,770 INFO:inference_module: Starting full inference over energies
+2025-07-07 16:58:01,771 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 16:58:01,771 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 16:58:01,771 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 16:58:02,461 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 518, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 367, in run_inference
+    dose = inf_mod.run_inference(ct_tensor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 84, in run_inference
+    result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 189, in run_inference_over_energies
+    dose = self.run_inference_conditioned_on_energy(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 151, in run_inference_conditioned_on_energy
+    sampled_latent = inferer.sample(
+                     ^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: LatentDiffusionInferer.sample() got an unexpected keyword argument 'return_latents'
+2025-07-07 16:59:21,964 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 16:59:29,968 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 16:59:35,492 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 16:59:35,494 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 16:59:36,306 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 16:59:36,341 INFO:system_manager: Running inference...
+2025-07-07 16:59:36,342 INFO:inference_module: Starting full inference over energies
+2025-07-07 16:59:36,342 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 16:59:36,342 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 16:59:36,342 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:00:10,743 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 17:00:10,752 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:00:10,752 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:00:44,537 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 17:00:44,546 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:00:44,547 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:01:20,338 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 17:01:20,348 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:01:20,348 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:01:54,052 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 17:01:54,057 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:01:54,057 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:02:31,386 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-07-07 17:02:31,397 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:02:31,398 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:03:06,047 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-07-07 17:03:06,053 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:03:06,053 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:03:39,901 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-07-07 17:03:39,906 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:03:39,906 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:04:12,933 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-07-07 17:04:12,943 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:04:12,944 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:04:14,201 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 17:09:47,316 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:09:56,917 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:10:04,027 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:10:04,031 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:10:04,732 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:10:04,774 INFO:system_manager: Running inference...
+2025-07-07 17:10:04,774 INFO:inference_module: Starting full inference over energies
+2025-07-07 17:10:04,775 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 17:10:04,775 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:10:04,775 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:10:50,294 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 17:10:50,317 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:10:50,318 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:11:26,674 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 17:11:26,687 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:11:26,687 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:12:01,411 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 17:12:01,417 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:12:01,417 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:12:36,168 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 17:12:36,174 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:12:36,174 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:13:10,741 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-07-07 17:13:10,747 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:13:10,747 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:13:46,105 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-07-07 17:13:46,111 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:13:46,111 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:14:20,334 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-07-07 17:14:20,339 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:14:20,339 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:14:54,840 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-07-07 17:14:54,854 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:14:54,855 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:14:57,081 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 17:21:17,187 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:21:26,120 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:21:32,420 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:21:32,422 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:21:33,398 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:21:33,433 INFO:system_manager: Running inference...
+2025-07-07 17:21:33,433 INFO:inference_module: Starting full inference over energies (direct mode: True)
+2025-07-07 17:21:33,433 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406] (direct mode: True)
+2025-07-07 17:21:33,433 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:21:33,434 INFO:inference_module: Starting DIRECT inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:21:35,163 INFO:inference_module: Completed DIRECT inference for energy: 0.9927535875615945 keV
+2025-07-07 17:21:35,164 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:21:35,164 INFO:inference_module: Starting DIRECT inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:21:36,617 INFO:inference_module: Completed DIRECT inference for energy: 5.083338064659333 keV
+2025-07-07 17:21:36,617 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:21:36,617 INFO:inference_module: Starting DIRECT inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:21:38,038 INFO:inference_module: Completed DIRECT inference for energy: 11.861689752091776 keV
+2025-07-07 17:21:38,038 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:21:38,038 INFO:inference_module: Starting DIRECT inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:21:39,437 INFO:inference_module: Completed DIRECT inference for energy: 20.414133937608753 keV
+2025-07-07 17:21:39,438 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:21:39,438 INFO:inference_module: Starting DIRECT inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:21:40,863 INFO:inference_module: Completed DIRECT inference for energy: 29.585866062391247 keV
+2025-07-07 17:21:40,863 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:21:40,863 INFO:inference_module: Starting DIRECT inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:21:42,276 INFO:inference_module: Completed DIRECT inference for energy: 38.13831024790822 keV
+2025-07-07 17:21:42,277 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:21:42,277 INFO:inference_module: Starting DIRECT inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:21:43,673 INFO:inference_module: Completed DIRECT inference for energy: 44.91666193534067 keV
+2025-07-07 17:21:43,674 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:21:43,674 INFO:inference_module: Starting DIRECT inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:21:45,058 INFO:inference_module: Completed DIRECT inference for energy: 49.007246412438406 keV
+2025-07-07 17:21:45,063 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:21:45,064 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:21:47,972 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 17:22:31,797 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:22:31,842 INFO:system_manager: Running inference...
+2025-07-07 17:22:31,842 INFO:inference_module: Starting full inference over energies (direct mode: True)
+2025-07-07 17:22:31,842 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406] (direct mode: True)
+2025-07-07 17:22:31,842 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:22:31,842 INFO:inference_module: Starting DIRECT inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:22:33,487 INFO:inference_module: Completed DIRECT inference for energy: 0.9927535875615945 keV
+2025-07-07 17:22:33,487 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:22:33,487 INFO:inference_module: Starting DIRECT inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:22:34,957 INFO:inference_module: Completed DIRECT inference for energy: 5.083338064659333 keV
+2025-07-07 17:22:34,957 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:22:34,957 INFO:inference_module: Starting DIRECT inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:22:36,375 INFO:inference_module: Completed DIRECT inference for energy: 11.861689752091776 keV
+2025-07-07 17:22:36,375 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:22:36,375 INFO:inference_module: Starting DIRECT inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:22:37,872 INFO:inference_module: Completed DIRECT inference for energy: 20.414133937608753 keV
+2025-07-07 17:22:37,872 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:22:37,872 INFO:inference_module: Starting DIRECT inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:22:39,291 INFO:inference_module: Completed DIRECT inference for energy: 29.585866062391247 keV
+2025-07-07 17:22:39,292 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:22:39,292 INFO:inference_module: Starting DIRECT inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:22:40,690 INFO:inference_module: Completed DIRECT inference for energy: 38.13831024790822 keV
+2025-07-07 17:22:40,691 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:22:40,691 INFO:inference_module: Starting DIRECT inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:22:42,106 INFO:inference_module: Completed DIRECT inference for energy: 44.91666193534067 keV
+2025-07-07 17:22:42,106 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:22:42,106 INFO:inference_module: Starting DIRECT inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:22:43,493 INFO:inference_module: Completed DIRECT inference for energy: 49.007246412438406 keV
+2025-07-07 17:22:43,498 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:22:43,498 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:22:45,893 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 17:23:50,696 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:24:00,067 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:24:06,432 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:24:06,436 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:24:07,067 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:24:07,102 INFO:system_manager: Running inference...
+2025-07-07 17:24:07,102 INFO:inference_module: Starting full inference over energies
+2025-07-07 17:24:07,102 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 17:24:07,102 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:24:07,102 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:29:53,950 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:30:03,196 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:30:08,122 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:30:08,125 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:30:09,074 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:30:09,110 INFO:system_manager: Running inference...
+2025-07-07 17:30:09,110 INFO:inference_module: Starting full inference over energies
+2025-07-07 17:30:09,110 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 17:30:09,110 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:30:09,110 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:30:09,111 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:30:09,111 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:30:09,112 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:30:09,913 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:30:09,914 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:30:45,508 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:30:45,510 INFO:inference_module: Sampled output min/max: 0.3576/1.0645
+2025-07-07 17:30:45,510 INFO:inference_module: Sampled output appears to be in latent space, decoding...
+2025-07-07 17:30:45,514 ERROR:__main__: Dose calculation failed
+Traceback (most recent call last):
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/gui.py", line 518, in calculate_dose
+    out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/system_manager.py", line 367, in run_inference
+    dose = inf_mod.run_inference(ct_tensor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 84, in run_inference
+    result = self.run_inference_over_energies(ct_tensor, target_cube_size, self.energies, self.energy_weights)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 211, in run_inference_over_energies
+    dose = self.run_inference_conditioned_on_energy(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/sourcecode/inference_module.py", line 174, in run_inference_conditioned_on_energy
+    decoded_output = autoencoder.decode(sampled_output)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/giannigagliardi/Documents/Git/RadioTherapy/generative/networks/nets/autoencoderkl.py", line 779, in decode
+    z = self.post_quant_conv(z)
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/container.py", line 250, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 725, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/anaconda3/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 720, in _conv_forward
+    return F.conv3d(
+           ^^^^^^^^^
+RuntimeError: Given groups=1, weight of size [2, 2, 1, 1, 1], expected input[1, 1, 64, 64, 64] to have 2 channels, but got 1 channels instead
+2025-07-07 17:32:36,091 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:32:44,352 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:32:49,981 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:32:49,983 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:32:50,843 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:32:50,883 INFO:system_manager: Running inference...
+2025-07-07 17:32:50,883 INFO:inference_module: Starting full inference over energies
+2025-07-07 17:32:50,883 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 17:32:50,883 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:32:50,883 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:32:50,885 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:32:50,888 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:32:50,889 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:32:51,696 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:32:51,696 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:33:25,432 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:33:25,433 INFO:inference_module: Sampled output min/max: 0.3595/1.0657
+2025-07-07 17:33:25,434 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:33:25,434 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 17:33:25,455 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:33:25,455 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:33:25,457 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:33:25,457 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:33:25,457 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:33:25,996 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:33:25,997 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:33:59,244 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:33:59,246 INFO:inference_module: Sampled output min/max: 0.3589/1.0652
+2025-07-07 17:33:59,246 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:33:59,246 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 17:33:59,263 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:33:59,263 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:33:59,263 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:33:59,263 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:33:59,264 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:33:59,792 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:33:59,792 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:34:34,178 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:34:34,179 INFO:inference_module: Sampled output min/max: 0.3604/1.0660
+2025-07-07 17:34:34,179 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:34:34,179 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 17:34:34,201 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:34:34,201 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:34:34,201 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:34:34,202 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:34:34,202 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:34:34,746 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:34:34,746 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:35:07,883 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:35:07,884 INFO:inference_module: Sampled output min/max: 0.3587/1.0649
+2025-07-07 17:35:07,885 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:35:07,885 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 17:35:07,892 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:35:07,892 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:35:07,893 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:35:07,893 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:35:07,893 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:35:08,428 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:35:08,429 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:35:41,877 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:35:41,877 INFO:inference_module: Sampled output min/max: 0.3589/1.0660
+2025-07-07 17:35:41,878 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:35:41,878 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-07-07 17:35:41,885 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:35:41,885 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:35:41,885 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:35:41,885 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:35:41,886 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:35:42,428 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:35:42,429 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:36:14,974 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:36:14,975 INFO:inference_module: Sampled output min/max: 0.3577/1.0642
+2025-07-07 17:36:14,975 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:36:14,975 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-07-07 17:36:14,982 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:36:14,982 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:36:14,983 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:36:14,983 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:36:14,983 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:36:15,510 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:36:15,510 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:36:53,423 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:36:53,424 INFO:inference_module: Sampled output min/max: 0.3575/1.0645
+2025-07-07 17:36:53,424 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:36:53,424 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-07-07 17:36:53,435 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:36:53,435 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:36:53,437 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:36:53,437 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:36:53,438 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:36:54,029 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:36:54,029 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:37:27,899 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:37:27,901 INFO:inference_module: Sampled output min/max: 0.3569/1.0636
+2025-07-07 17:37:27,901 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:37:27,901 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-07-07 17:37:27,921 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:37:27,921 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:37:28,991 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 17:41:24,120 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 17:41:32,586 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 17:41:38,366 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 17:41:38,369 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 17:41:39,442 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 17:41:39,479 INFO:system_manager: Running inference...
+2025-07-07 17:41:39,479 INFO:inference_module: Starting full inference over energies
+2025-07-07 17:41:39,479 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 17:41:39,479 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 17:41:39,479 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 17:41:39,480 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:41:39,480 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:41:39,480 INFO:inference_module: Original energy_value: 0.9927535875615945 keV
+2025-07-07 17:41:39,480 INFO:inference_module: Normalized energy: 0.009927535875615946
+2025-07-07 17:41:39,480 INFO:inference_module: Energy weight: 1.2653567036297046
+2025-07-07 17:41:39,489 INFO:inference_module: Raw context tensor: tensor([[0.0099, 1.2654]])
+2025-07-07 17:41:39,489 INFO:inference_module: Energy tensor constant value: 0.009927535875615946
+2025-07-07 17:41:39,492 INFO:inference_module: Energy tensor unique values: [0.00992754]
+2025-07-07 17:41:39,492 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:41:40,296 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:41:40,297 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:42:14,909 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:42:14,911 INFO:inference_module: Sampled output min/max: 0.3591/1.0657
+2025-07-07 17:42:14,911 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:42:14,911 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 17:42:14,929 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 17:42:14,929 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 17:42:14,931 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:42:14,931 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:42:14,931 INFO:inference_module: Original energy_value: 5.083338064659333 keV
+2025-07-07 17:42:14,931 INFO:inference_module: Normalized energy: 0.05083338064659333
+2025-07-07 17:42:14,931 INFO:inference_module: Energy weight: 2.7797629306671774
+2025-07-07 17:42:14,932 INFO:inference_module: Raw context tensor: tensor([[0.0508, 2.7798]])
+2025-07-07 17:42:14,932 INFO:inference_module: Energy tensor constant value: 0.05083338064659333
+2025-07-07 17:42:14,934 INFO:inference_module: Energy tensor unique values: [0.05083338]
+2025-07-07 17:42:14,934 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:42:15,487 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:42:15,487 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:42:49,805 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:42:49,806 INFO:inference_module: Sampled output min/max: 0.3572/1.0634
+2025-07-07 17:42:49,807 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:42:49,807 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 17:42:49,824 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 17:42:49,824 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 17:42:49,824 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:42:49,824 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:42:49,824 INFO:inference_module: Original energy_value: 11.861689752091776 keV
+2025-07-07 17:42:49,824 INFO:inference_module: Normalized energy: 0.11861689752091775
+2025-07-07 17:42:49,824 INFO:inference_module: Energy weight: 3.921333073473593
+2025-07-07 17:42:49,825 INFO:inference_module: Raw context tensor: tensor([[0.1186, 3.9213]])
+2025-07-07 17:42:49,825 INFO:inference_module: Energy tensor constant value: 0.11861689752091775
+2025-07-07 17:42:49,826 INFO:inference_module: Energy tensor unique values: [0.11861689]
+2025-07-07 17:42:49,827 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:42:50,373 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:42:50,373 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:43:23,902 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:43:23,903 INFO:inference_module: Sampled output min/max: 0.3588/1.0650
+2025-07-07 17:43:23,903 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:43:23,903 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 17:43:23,912 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 17:43:23,912 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 17:43:23,913 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:43:23,913 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:43:23,913 INFO:inference_module: Original energy_value: 20.414133937608753 keV
+2025-07-07 17:43:23,913 INFO:inference_module: Normalized energy: 0.20414133937608753
+2025-07-07 17:43:23,913 INFO:inference_module: Energy weight: 4.5335472922295255
+2025-07-07 17:43:23,913 INFO:inference_module: Raw context tensor: tensor([[0.2041, 4.5335]])
+2025-07-07 17:43:23,913 INFO:inference_module: Energy tensor constant value: 0.20414133937608753
+2025-07-07 17:43:23,915 INFO:inference_module: Energy tensor unique values: [0.20414133]
+2025-07-07 17:43:23,915 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:43:24,449 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:43:24,449 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:43:58,609 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:43:58,610 INFO:inference_module: Sampled output min/max: 0.3580/1.0649
+2025-07-07 17:43:58,610 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:43:58,610 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 17:43:58,618 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 17:43:58,618 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 17:43:58,618 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:43:58,618 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:43:58,618 INFO:inference_module: Original energy_value: 29.585866062391247 keV
+2025-07-07 17:43:58,618 INFO:inference_module: Normalized energy: 0.2958586606239125
+2025-07-07 17:43:58,618 INFO:inference_module: Energy weight: 4.5335472922295255
+2025-07-07 17:43:58,618 INFO:inference_module: Raw context tensor: tensor([[0.2959, 4.5335]])
+2025-07-07 17:43:58,618 INFO:inference_module: Energy tensor constant value: 0.2958586606239125
+2025-07-07 17:43:58,619 INFO:inference_module: Energy tensor unique values: [0.29585865]
+2025-07-07 17:43:58,620 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:43:59,163 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:43:59,163 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:44:32,944 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:44:32,945 INFO:inference_module: Sampled output min/max: 0.3581/1.0642
+2025-07-07 17:44:32,945 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:44:32,945 INFO:inference_module: Completed inference for energy: 29.585866062391247 keV
+2025-07-07 17:44:32,950 INFO:inference_module: Running inference for energy: 38.13831024790822 keV
+2025-07-07 17:44:32,950 INFO:inference_module: Starting inference conditioned on energy: 38.13831024790822 keV
+2025-07-07 17:44:32,951 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:44:32,951 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:44:32,951 INFO:inference_module: Original energy_value: 38.13831024790822 keV
+2025-07-07 17:44:32,951 INFO:inference_module: Normalized energy: 0.38138310247908225
+2025-07-07 17:44:32,951 INFO:inference_module: Energy weight: 3.921333073473593
+2025-07-07 17:44:32,951 INFO:inference_module: Raw context tensor: tensor([[0.3814, 3.9213]])
+2025-07-07 17:44:32,951 INFO:inference_module: Energy tensor constant value: 0.38138310247908225
+2025-07-07 17:44:32,953 INFO:inference_module: Energy tensor unique values: [0.3813831]
+2025-07-07 17:44:32,953 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:44:33,473 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:44:33,473 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:45:06,718 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:45:06,719 INFO:inference_module: Sampled output min/max: 0.3570/1.0634
+2025-07-07 17:45:06,719 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:45:06,719 INFO:inference_module: Completed inference for energy: 38.13831024790822 keV
+2025-07-07 17:45:06,723 INFO:inference_module: Running inference for energy: 44.91666193534067 keV
+2025-07-07 17:45:06,724 INFO:inference_module: Starting inference conditioned on energy: 44.91666193534067 keV
+2025-07-07 17:45:06,724 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:45:06,724 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:45:06,724 INFO:inference_module: Original energy_value: 44.91666193534067 keV
+2025-07-07 17:45:06,724 INFO:inference_module: Normalized energy: 0.4491666193534067
+2025-07-07 17:45:06,724 INFO:inference_module: Energy weight: 2.7797629306671774
+2025-07-07 17:45:06,724 INFO:inference_module: Raw context tensor: tensor([[0.4492, 2.7798]])
+2025-07-07 17:45:06,724 INFO:inference_module: Energy tensor constant value: 0.4491666193534067
+2025-07-07 17:45:06,725 INFO:inference_module: Energy tensor unique values: [0.44916663]
+2025-07-07 17:45:06,725 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:45:07,270 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:45:07,270 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:45:41,585 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:45:41,586 INFO:inference_module: Sampled output min/max: 0.3577/1.0641
+2025-07-07 17:45:41,587 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:45:41,587 INFO:inference_module: Completed inference for energy: 44.91666193534067 keV
+2025-07-07 17:45:41,591 INFO:inference_module: Running inference for energy: 49.007246412438406 keV
+2025-07-07 17:45:41,591 INFO:inference_module: Starting inference conditioned on energy: 49.007246412438406 keV
+2025-07-07 17:45:41,591 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:45:41,591 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 17:45:41,591 INFO:inference_module: Original energy_value: 49.007246412438406 keV
+2025-07-07 17:45:41,591 INFO:inference_module: Normalized energy: 0.49007246412438404
+2025-07-07 17:45:41,591 INFO:inference_module: Energy weight: 1.2653567036297046
+2025-07-07 17:45:41,592 INFO:inference_module: Raw context tensor: tensor([[0.4901, 1.2654]])
+2025-07-07 17:45:41,592 INFO:inference_module: Energy tensor constant value: 0.49007246412438404
+2025-07-07 17:45:41,593 INFO:inference_module: Energy tensor unique values: [0.49007246]
+2025-07-07 17:45:41,593 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 17:45:42,133 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 17:45:42,133 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 17:46:16,126 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 17:46:16,128 INFO:inference_module: Sampled output min/max: 0.3575/1.0650
+2025-07-07 17:46:16,128 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 17:46:16,128 INFO:inference_module: Completed inference for energy: 49.007246412438406 keV
+2025-07-07 17:46:16,137 INFO:inference_module: Aggregated dose distribution computed over all energies
+2025-07-07 17:46:16,138 INFO:inference_module: Completed full inference over energies
+2025-07-07 17:46:17,401 INFO:__main__: Success - Dose distribution saved to: inference_with_manifest.nii.gz
+2025-07-07 18:17:46,422 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 18:17:55,532 INFO:__main__: Selected model file: /Users/giannigagliardi/Downloads/model_res[100, 50.0, 25.0]_energy[11.5, 15.75, 34.25].ckpt
+2025-07-07 18:18:01,139 INFO:__main__: Selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 18:18:01,142 INFO:__main__: CT image shape: (100, 100, 100)
+2025-07-07 18:18:01,894 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 18:18:01,932 INFO:system_manager: Running inference...
+2025-07-07 18:18:01,932 INFO:inference_module: Starting full inference over energies
+2025-07-07 18:18:01,932 INFO:inference_module: Running inference over energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 18:18:01,932 INFO:inference_module: Running inference for energy: 0.9927535875615945 keV
+2025-07-07 18:18:01,932 INFO:inference_module: Starting inference conditioned on energy: 0.9927535875615945 keV
+2025-07-07 18:18:01,934 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:18:01,936 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 18:18:01,936 INFO:inference_module: Original energy_value: 0.9927535875615945 keV
+2025-07-07 18:18:01,936 INFO:inference_module: Normalized energy: 0.009927535875615946
+2025-07-07 18:18:01,936 INFO:inference_module: Energy weight: 1.2653567036297046
+2025-07-07 18:18:01,948 INFO:inference_module: Raw context tensor: tensor([[0.0099, 1.2654]])
+2025-07-07 18:18:01,949 INFO:inference_module: Energy tensor constant value: 0.009927535875615946
+2025-07-07 18:18:01,952 INFO:inference_module: Energy tensor unique values: [0.00992754]
+2025-07-07 18:18:01,953 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 18:18:02,559 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 18:18:02,559 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 18:18:40,617 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:18:40,617 INFO:inference_module: Sampled output min/max: 0.3571/1.0640
+2025-07-07 18:18:40,617 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 18:18:40,617 INFO:inference_module: Completed inference for energy: 0.9927535875615945 keV
+2025-07-07 18:18:40,632 INFO:inference_module: Running inference for energy: 5.083338064659333 keV
+2025-07-07 18:18:40,632 INFO:inference_module: Starting inference conditioned on energy: 5.083338064659333 keV
+2025-07-07 18:18:40,634 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:18:40,634 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 18:18:40,634 INFO:inference_module: Original energy_value: 5.083338064659333 keV
+2025-07-07 18:18:40,634 INFO:inference_module: Normalized energy: 0.05083338064659333
+2025-07-07 18:18:40,634 INFO:inference_module: Energy weight: 2.7797629306671774
+2025-07-07 18:18:40,635 INFO:inference_module: Raw context tensor: tensor([[0.0508, 2.7798]])
+2025-07-07 18:18:40,635 INFO:inference_module: Energy tensor constant value: 0.05083338064659333
+2025-07-07 18:18:40,637 INFO:inference_module: Energy tensor unique values: [0.05083338]
+2025-07-07 18:18:40,638 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 18:18:41,216 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 18:18:41,217 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 18:19:15,827 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:19:15,827 INFO:inference_module: Sampled output min/max: 0.3575/1.0648
+2025-07-07 18:19:15,827 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 18:19:15,827 INFO:inference_module: Completed inference for energy: 5.083338064659333 keV
+2025-07-07 18:19:15,831 INFO:inference_module: Running inference for energy: 11.861689752091776 keV
+2025-07-07 18:19:15,831 INFO:inference_module: Starting inference conditioned on energy: 11.861689752091776 keV
+2025-07-07 18:19:15,832 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:19:15,832 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 18:19:15,832 INFO:inference_module: Original energy_value: 11.861689752091776 keV
+2025-07-07 18:19:15,832 INFO:inference_module: Normalized energy: 0.11861689752091775
+2025-07-07 18:19:15,832 INFO:inference_module: Energy weight: 3.921333073473593
+2025-07-07 18:19:15,833 INFO:inference_module: Raw context tensor: tensor([[0.1186, 3.9213]])
+2025-07-07 18:19:15,833 INFO:inference_module: Energy tensor constant value: 0.11861689752091775
+2025-07-07 18:19:15,834 INFO:inference_module: Energy tensor unique values: [0.11861689]
+2025-07-07 18:19:15,834 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 18:19:16,358 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 18:19:16,358 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 18:19:51,885 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:19:51,885 INFO:inference_module: Sampled output min/max: 0.3587/1.0659
+2025-07-07 18:19:51,885 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 18:19:51,885 INFO:inference_module: Completed inference for energy: 11.861689752091776 keV
+2025-07-07 18:19:51,889 INFO:inference_module: Running inference for energy: 20.414133937608753 keV
+2025-07-07 18:19:51,889 INFO:inference_module: Starting inference conditioned on energy: 20.414133937608753 keV
+2025-07-07 18:19:51,890 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:19:51,890 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 18:19:51,890 INFO:inference_module: Original energy_value: 20.414133937608753 keV
+2025-07-07 18:19:51,890 INFO:inference_module: Normalized energy: 0.20414133937608753
+2025-07-07 18:19:51,890 INFO:inference_module: Energy weight: 4.5335472922295255
+2025-07-07 18:19:51,890 INFO:inference_module: Raw context tensor: tensor([[0.2041, 4.5335]])
+2025-07-07 18:19:51,890 INFO:inference_module: Energy tensor constant value: 0.20414133937608753
+2025-07-07 18:19:51,892 INFO:inference_module: Energy tensor unique values: [0.20414133]
+2025-07-07 18:19:51,892 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 18:19:52,479 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 18:19:52,479 INFO:inference_module: Latent min/max: -0.1371/0.1200
+2025-07-07 18:20:27,736 INFO:inference_module: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:20:27,736 INFO:inference_module: Sampled output min/max: 0.3564/1.0640
+2025-07-07 18:20:27,736 INFO:inference_module: Sampled output is already in image space (spatial dimensions match)
+2025-07-07 18:20:27,736 INFO:inference_module: Completed inference for energy: 20.414133937608753 keV
+2025-07-07 18:20:27,740 INFO:inference_module: Running inference for energy: 29.585866062391247 keV
+2025-07-07 18:20:27,740 INFO:inference_module: Starting inference conditioned on energy: 29.585866062391247 keV
+2025-07-07 18:20:27,741 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 18:20:27,741 INFO:inference_module: Input data min/max: -1000.0000/1088.6160
+2025-07-07 18:20:27,741 INFO:inference_module: Original energy_value: 29.585866062391247 keV
+2025-07-07 18:20:27,741 INFO:inference_module: Normalized energy: 0.2958586606239125
+2025-07-07 18:20:27,741 INFO:inference_module: Energy weight: 4.5335472922295255
+2025-07-07 18:20:27,741 INFO:inference_module: Raw context tensor: tensor([[0.2959, 4.5335]])
+2025-07-07 18:20:27,741 INFO:inference_module: Energy tensor constant value: 0.2958586606239125
+2025-07-07 18:20:27,742 INFO:inference_module: Energy tensor unique values: [0.29585865]
+2025-07-07 18:20:27,742 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 18:20:28,280 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 18:20:28,280 INFO:inference_module: Latent min/max: -0.1371/0.1200
