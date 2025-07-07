@@ -349,8 +349,11 @@ class SystemManager:
 
         # build tensor from CT file: support both NIfTI (.nii, .nii.gz) and NumPy (.npy)
         path_lower = ct_file_path.lower()
+        original_nifti_img = None  # Store original NIfTI image to preserve spatial info
+        
         if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
             nifti_img = nib.load(ct_file_path)
+            original_nifti_img = nifti_img  # Store for later use
             arr = np.asarray(nifti_img.dataobj)
         elif path_lower.endswith('.npy'):
             arr = np.load(ct_file_path)
@@ -371,11 +374,27 @@ class SystemManager:
         dose_np = dose.detach().cpu().numpy()
         if dose_np.ndim == 4 and dose_np.shape[0] == 1:
             dose_np = dose_np[0]
-        # create affine
+        
+        # create affine and header - preserve original CT spatial information if available
         import numpy as _np, nibabel as _nib, json as _json, os as _os
         from nibabel.nifti1 import Nifti1Extension
-        affine = _np.eye(4)
-        img = _nib.Nifti1Image(dose_np, affine)
+        
+        if original_nifti_img is not None:
+            # Use original CT scan's affine and header to preserve spatial information
+            affine = original_nifti_img.affine.copy()
+            header = original_nifti_img.header.copy()
+            logger.info(f"Using original CT spatial information: affine shape {affine.shape}, header shape {header.get_data_shape()}")
+        else:
+            # Fallback to identity affine for numpy files
+            affine = _np.eye(4)
+            header = None
+            logger.info("Using identity affine for numpy input")
+        
+        # Create NIfTI image with preserved spatial information
+        if header is not None:
+            img = _nib.Nifti1Image(dose_np, affine, header=header)
+        else:
+            img = _nib.Nifti1Image(dose_np, affine)
         # attach cubes.json manifest if available
         manifest_path = _os.path.join(self.root_dir, 'cubes.json')
         if _os.path.exists(manifest_path):
@@ -384,9 +403,16 @@ class SystemManager:
             # Encode manifest JSON to bytes for NIfTI extension
             ext = Nifti1Extension('comment', _json.dumps(manifest).encode('utf-8'))
             img.header.extensions.append(ext)
-        # save NIfTI file
-        out_path = _os.path.join(self.root_dir, 'inference_with_manifest.nii.gz')
+        
+        # save NIfTI file with descriptive name
+        base_name = _os.path.splitext(_os.path.basename(ct_file_path))[0]
+        if base_name.endswith('.nii'):
+            base_name = base_name[:-4]  # Remove .nii from .nii.gz files
+        out_path = _os.path.join(self.root_dir, f'dose_inference_{base_name}.nii.gz')
         _nib.save(img, out_path)
+        logger.info(f"Dose distribution saved to: {out_path}")
+        logger.info(f"Dose shape: {dose_np.shape}, min: {dose_np.min():.6f}, max: {dose_np.max():.6f}")
+        
         # set result path
         self.dose_result_path = out_path
         return out_path

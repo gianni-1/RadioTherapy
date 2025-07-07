@@ -76,6 +76,7 @@ class MainWindow(QMainWindow):
         self.output_dir = None # store the output directory for training outputs
 
         self.ct_file = None  # store imported CT file (inference)
+        self.ct_volume = None  # store CT volume data for visualization overlay
 
         self.model_checkpoint = None  # store imported model file (inference)
 
@@ -522,8 +523,10 @@ class MainWindow(QMainWindow):
             logger.info(f"Success - Dose distribution saved to: {out_path}")
 
             # Visualization of result volume using extracted utilities
+            # Use CT volume if available, otherwise None for overlay
+            ct_volume = getattr(self, 'ct_volume', None)
             # Load the result file based on its extension
-            visualization.load_and_visualize(out_path, self.ct_volume)
+            visualization.load_and_visualize(out_path, ct_volume)
         except Exception as e:
             logger.error("Dose calculation failed", exc_info=True)
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
@@ -543,8 +546,11 @@ class MainWindow(QMainWindow):
                 return
             self.dose_result_path = file_path
 
+            # Use CT volume if available, otherwise None for overlay (same as in calculate_dose)
+            ct_volume = getattr(self, 'ct_volume', None)
+            
             # Load the dose distribution from the result file
-            fig = visualization.load_and_visualize(self.dose_result_path, self.ct_volume, title="Calculated Dose Distribution")
+            visualization.load_and_visualize(self.dose_result_path, ct_volume, title="Calculated Dose Distribution")
             
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to visualize dose distribution: {e}")
