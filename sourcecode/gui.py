@@ -4,14 +4,36 @@ import sys
 import traceback
 import glob
 import logging
-import log_config  # initialize logging config
+
+# Import log_config first to set up the base logging configuration
+import log_config
+
+# Get the logger for this module
+logger = logging.getLogger(__name__)
+
+# Ensure logging is properly configured for GUI
+# Don't add additional handlers if they already exist
+root_logger = logging.getLogger()
+
+# Only add console handler if GUI is being run directly (not through another script)
+if __name__ == '__main__':
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s:%(name)s: %(message)s')
+    console_handler.setFormatter(formatter)
+    
+    # Only add console handler if not already present
+    if not any(isinstance(h, logging.StreamHandler) for h in root_logger.handlers):
+        root_logger.addHandler(console_handler)
+
+logger.info("GUI module loaded with logging configured")
  
  # ensure the project root (parent of sourcecode/) is on the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog,
-    QMessageBox, QGroupBox, QToolButton,
+    QMessageBox, QGroupBox, QToolButton, QRadioButton,
     QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
 )
 from PySide6.QtCore import Qt, QObject, Signal, QThread, Slot
@@ -29,8 +51,6 @@ from monai.transforms import (
 )
 from monai.data import NumpyReader
 
-logger = logging.getLogger(__name__)
-
 def handle_exception(exc_type, exc_value, exc_tb):
     # Print full traceback for uncaught exceptions
     traceback.print_exception(exc_type, exc_value, exc_tb)
@@ -44,15 +64,25 @@ class TrainingWorker(QObject):
     finished = Signal()
     error = Signal(str)
     progress = Signal(int, int)  # current epoch, total epochs
-    def __init__(self, manager):
+    
+    def __init__(self, manager, use_corrected_training=False):
         super().__init__()
         self.manager = manager
+        self.use_corrected_training = use_corrected_training
+        
     def run(self):
         try:
-            # connect system manager updates to this worker's progress signal
-            self.manager.run_training()
+            # Use corrected training or old training based on flag
+            if self.use_corrected_training:
+                logger.info("Using corrected energy-conditioned training")
+                self.manager.run_energy_conditioned_training()
+            else:
+                logger.info("Using legacy training method")
+                self.manager.run_training()
             self.finished.emit()
         except Exception as ex:
+            logger.error(f"Training failed: {ex}")
+            logger.error("Training traceback:", exc_info=True)
             traceback.print_exc()
             # Emit error signal instead of showing QMessageBox in worker thread
             self.error.emit(str(ex))
@@ -77,7 +107,7 @@ class MainWindow(QMainWindow):
 
         self.ct_file = None  # store imported CT file (inference)
 
-        self.model_checkpoint = None  # store imported model file (inference)
+        self.model_checkpoint = None  # store imported model file path (inference)
 
         self.model_file_bool = False  # flag to check if model file is loaded
         self.ct_file_bool = False  # flag to check if CT file is loaded
@@ -243,6 +273,29 @@ class MainWindow(QMainWindow):
         self.input_label = QLabel("No input folder selected", self)
         training_layout.addWidget(self.input_label)
 
+        # Training method selection
+        training_method_group = QGroupBox("Training Method", self)
+        training_method_layout = QVBoxLayout()
+        training_method_group.setLayout(training_method_layout)
+        training_layout.addWidget(training_method_group)
+        
+        # Radio buttons for training method
+        self.legacy_training_radio = QRadioButton("Legacy Training (separate model per energy)", self)
+        self.corrected_training_radio = QRadioButton("Energy-Conditioned Training (unified model)", self)
+        self.corrected_training_radio.setChecked(True)  # Default to corrected training
+        
+        training_method_layout.addWidget(self.legacy_training_radio)
+        training_method_layout.addWidget(self.corrected_training_radio)
+        
+        # Add explanation labels
+        legacy_help = QLabel("• Trains separate models for each energy (old method)", self)
+        legacy_help.setStyleSheet("color: gray; font-size: 10px;")
+        corrected_help = QLabel("• Trains one unified model with energy conditioning (recommended)", self)
+        corrected_help.setStyleSheet("color: gray; font-size: 10px;")
+        
+        training_method_layout.addWidget(legacy_help)
+        training_method_layout.addWidget(corrected_help)
+
         self.train_button = QPushButton("Train Model", self)
         self.train_button.setToolTip("Train the model with the selected input and output folders")
         self.train_button.setEnabled(False)  # Initially disabled
@@ -369,7 +422,12 @@ class MainWindow(QMainWindow):
         Calls the training pipeline using the selected input and output folders.
         Expects both folders to be subdirectories of the same parent (root) folder.
         """
+        logger.info("=" * 60)
+        logger.info("TRAINING STARTED VIA GUI")
+        logger.info("=" * 60)
+        
         if not self.input_dir:
+            logger.error("No input directory selected for training")
             QMessageBox.warning(self, "Error", "Please select the Energy folder containing input cubes and output cubes.")
             return
         
@@ -377,30 +435,79 @@ class MainWindow(QMainWindow):
         parent_in = os.path.dirname(self.input_dir)
         parent_out = os.path.dirname(self.output_dir)
         if parent_in != parent_out:
+            logger.error(f"Input and output directories not in same parent: {parent_in} vs {parent_out}")
             QMessageBox.warning(self, "Error", "Input and output folders must be subdirectories of the same parent folder.")
             return
 
+        # Get training parameters from GUI
         self.pm.batch_size = self.batch_spin.value()
         self.pm.num_epochs = self.epochs_spin.value()
         self.pm.patience = self.patience_spin.value()
         self.pm.learning_rate = self.learning_rate_spin.value()
+        
+        logger.info(f"Training parameters from GUI:")
+        logger.info(f"  batch_size={self.pm.batch_size}")
+        logger.info(f"  num_epochs={self.pm.num_epochs}")
+        logger.info(f"  patience={self.pm.patience}")
+        logger.info(f"  learning_rate={self.pm.learning_rate}")
 
         energy_folder = parent_in
         # parent of energy_folder is the dataset root containing all energy subfolders
         dataset_root = os.path.dirname(energy_folder)
         self.system_manager.root_dir = dataset_root
+        
         # update training parameters from GUI
         self.system_manager.batch_size = self.pm.batch_size
         self.system_manager.num_epochs = self.pm.num_epochs
         self.system_manager.patience = self.pm.patience
         self.system_manager.learning_rate = self.pm.learning_rate
+        
+        # For energy-conditioned training, use all available energies
+        use_corrected_training = self.corrected_training_radio.isChecked()
+        logger.info(f"Training method: {'Energy-Conditioned' if use_corrected_training else 'Legacy'}")
+        
+        if use_corrected_training:
+            # For corrected training, we need to set up energies properly
+            # Detect available energies from the dataset structure
+            available_energies = []
+            try:
+                for item in os.listdir(dataset_root):
+                    item_path = os.path.join(dataset_root, item)
+                    if os.path.isdir(item_path) and item.replace('_', '.').replace('-', '.').replace(',', '.').split('.')[0].isdigit():
+                        try:
+                            energy = float(item.replace('_', '.'))
+                            available_energies.append(energy)
+                        except ValueError:
+                            continue
+                
+                if available_energies:
+                    available_energies.sort()
+                    logger.info(f"Detected available energies: {available_energies}")
+                    self.system_manager.energies = available_energies
+                    self.system_manager.quad_energies = available_energies
+                    # Set equal weights for all energies
+                    num_energies = len(available_energies)
+                    self.system_manager.quad_weights = [1.0/num_energies] * num_energies
+                    logger.info(f"Set energies: {self.system_manager.energies}")
+                    logger.info(f"Set quad weights: {self.system_manager.quad_weights}")
+                else:
+                    logger.warning("No energies detected, using default")
+                    self.system_manager.energies = [11.5, 15.75, 34.25]
+                    self.system_manager.quad_energies = [11.5, 15.75, 34.25]
+                    self.system_manager.quad_weights = [0.33, 0.33, 0.34]
+                    
+            except Exception as e:
+                logger.warning(f"Error detecting energies: {e}, using defaults")
+                self.system_manager.energies = [11.5, 15.75, 34.25]
+                self.system_manager.quad_energies = [11.5, 15.75, 34.25]
+                self.system_manager.quad_weights = [0.33, 0.33, 0.34]
+        
         # reset stop_training flag
         self.system_manager.stop_training = False
 
         # run training in background thread to avoid freezing GUI
-        
         progress = QProgressDialog(
-            "Training in progress... Please wait.",
+            f"{'Energy-Conditioned' if use_corrected_training else 'Legacy'} Training in progress... Please wait.",
             "Cancel", 0, 0, self
         )
         progress.setWindowModality(Qt.ApplicationModal)
@@ -409,10 +516,12 @@ class MainWindow(QMainWindow):
         progress.setAutoClose(False)
         progress.setAutoReset(False)
         progress.show()
+        
         # create worker and thread
         thread = QThread(self)
-        worker = TrainingWorker(self.system_manager)
+        worker = TrainingWorker(self.system_manager, use_corrected_training=use_corrected_training)
         worker.moveToThread(thread)
+        
         # cancel training if user cancels dialog
         progress.canceled.connect(thread.requestInterruption)
         # signal SystemManager to stop training loops
@@ -429,6 +538,8 @@ class MainWindow(QMainWindow):
         self._train_worker = worker
         self._train_progress = progress
         thread.start()
+        
+        logger.info("Training thread started")
 
     # Open a file dialog to select a CT scan file (inference)
     def open_file_dialog(self):
@@ -436,75 +547,124 @@ class MainWindow(QMainWindow):
         Opens a file dialog for selecting a CT scan file in NIfTI format.
         If a file is selected, its path is stored and the dose calculation button is enabled.
         """
+        logger.info("Opening CT file selection dialog...")
+        
         # support both NIfTI and NumPy formats
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Select CT Scan", "", "CT Files (*.nii *.nii.gz *.npy)"
         )
         if file_path:
+            logger.info(f"User selected CT file: {file_path}")
             self.ct_file = file_path  # store the imported CT file
-            logger.info(f"Selected CT file: {file_path}")
+            
             try:
                 # Load file: NIfTI or NumPy
                 fp = file_path.lower()
                 if fp.endswith('.npy'):
+                    logger.info("Loading NumPy file...")
                     data = np.load(file_path)
                 else:
+                    logger.info("Loading NIfTI file...")
                     img = nib.load(file_path)
                     data = np.asarray(img.dataobj)
+                
                 # store CT volume for overlay
                 self.ct_volume = data
+                logger.info(f"✓ CT file loaded successfully: shape={data.shape}, dtype={data.dtype}")
+                logger.info(f"✓ CT data range: [{data.min():.3f}, {data.max():.3f}]")
+                
                 if self.model_file_bool:
                     self.dose_button.setEnabled(True)
+                    logger.info("✓ Dose calculation button enabled (model already loaded)")
                 else:
                     self.ct_file_bool = True
-                logger.info(f"CT image shape: {data.shape}")
+                    logger.info("✓ CT file loaded, waiting for model file")
+                    
             except Exception as e:
-                logger.error("Error loading CT file", exc_info=True)
+                logger.error(f"Failed to load CT file: {e}")
+                logger.error("CT file loading traceback:", exc_info=True)
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
+        else:
+            logger.info("CT file selection cancelled by user")
     # Open a file dialog to select a model file (inference)
     def open_model_dialog(self):
         """
         Opens a file dialog for selecting a model file in .ckpt format.
         If a file is selected, its path is stored and the dose calculation button is enabled.
         """
+        logger.info("Opening model file selection dialog...")
+        
         file_path, _ = QFileDialog.getOpenFileName(
             self, "Select Model File", "", "Model Files (*.ckpt)"
         )
         if file_path:
-            logger.info(f"Selected model file: {file_path}")
+            logger.info(f"User selected model file: {file_path}")
+            
             try:
-                # Load the Model file (.ckpt) to ensure it's valid
+                # Validate that the Model file (.ckpt) can be loaded
+                logger.info("Validating model checkpoint...")
                 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-                self.model_checkpoint = torch.load(file_path, map_location=device)  # Load the model file
+                test_checkpoint = torch.load(file_path, map_location=device, weights_only=False)  # Test load to validate
+                logger.info(f"✓ Model checkpoint validated successfully")
+                logger.info(f"✓ Checkpoint keys: {list(test_checkpoint.keys())}")
+                
+                # Store the file path, not the loaded checkpoint
+                self.model_checkpoint = file_path
+                
                 if self.ct_file_bool:
                     self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
+                    logger.info("✓ Dose calculation button enabled (CT file already loaded)")
                 else:
                     self.model_file_bool = True
+                    logger.info("✓ Model file loaded, waiting for CT file")
+                    
+                logger.info("✓ Model file successfully selected and validated")
+                
             except Exception as e:
-                logger.error("Error loading model file", exc_info=True)
+                logger.error(f"Failed to load model file: {e}")
+                logger.error("Model file loading traceback:", exc_info=True)
                 QMessageBox.critical(self, "Error", f"Failed to load the selected file: {e}")
+        else:
+            logger.info("Model file selection cancelled by user")
 
     # Calculate the dose distribution using the selected CT scan file(inference)
     def calculate_dose(self):
         """
         Placeholder for dose calculation logic. Requires a CT file to be uploaded first.
         """
+        logger.info("=" * 60)
+        logger.info("DOSE CALCULATION STARTED VIA GUI")
+        logger.info("=" * 60)
+        
         if not self.ct_file:
+            logger.error("No CT file selected for dose calculation")
             QMessageBox.warning(self, "Error", "Please upload a CT scan first.")
+            return
+
+        if not self.model_checkpoint:
+            logger.error("No model checkpoint selected for dose calculation")
+            QMessageBox.warning(self, "Error", "Please upload a model file first.")
             return
 
         min_e = self.energy_min_spin.value()
         max_e = self.energy_max_spin.value()
+        logger.info(f"Energy range: {min_e} to {max_e} eV")
+        
         #validate energy range
         if min_e > max_e:
+            logger.error(f"Invalid energy range: min_e={min_e} > max_e={max_e}")
             QMessageBox.warning(self, "Error", "Minimum energy must be less than maximum energy.")
             return
 
         # compute 8‑point Gauss‑Legendre quadrature on [-1,1]
+        logger.info("Computing 8-point Gauss-Legendre quadrature...")
         nodes, weights = np.polynomial.legendre.leggauss(8)
         # map nodes from [-1,1] to [min_e, max_e]
         quad_energies = 0.5 * (max_e - min_e) * nodes + 0.5 * (max_e + min_e)
         quad_weights = weights * 0.5 * (max_e - min_e) / 2
+
+        logger.info(f"Quadrature energies: {quad_energies}")
+        logger.info(f"Quadrature weights: {quad_weights}")
 
         # update both pm and system_manager
         self.pm.quad_energies = list(quad_energies)
@@ -513,21 +673,38 @@ class MainWindow(QMainWindow):
         self.system_manager.quad_weights  = self.pm.quad_weights
         self.system_manager.energies      = self.pm.quad_energies
 
+        logger.info(f"CT file: {self.ct_file}")
+        logger.info(f"Model checkpoint: {self.model_checkpoint}")
+
         try:
             # Run inference
+            logger.info("Starting inference via SystemManager...")
             out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
             # save result path for later visualization
             self.dose_result_path = out_path
+            logger.info(f"✓ Dose calculation completed successfully")
+            logger.info(f"✓ Output saved to: {out_path}")
+            
             QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
-            logger.info(f"Success - Dose distribution saved to: {out_path}")
 
             # Visualization of result volume using extracted utilities
             # Load the result file based on its extension
+            logger.info("Starting visualization...")
             visualization.load_and_visualize(out_path, self.ct_volume)
+            logger.info("✓ Visualization completed")
+            
         except Exception as e:
-            logger.error("Dose calculation failed", exc_info=True)
+            logger.error("=" * 60)
+            logger.error("DOSE CALCULATION FAILED")
+            logger.error("=" * 60)
+            logger.error(f"Error: {e}")
+            logger.error("Dose calculation traceback:", exc_info=True)
             QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
             
+        finally:
+            logger.info("=" * 60)
+            logger.info("DOSE CALCULATION PROCESS COMPLETED")
+            logger.info("=" * 60)
 
     # Visualize the dose distribution from inference results
     def visualize_inference_results(self):

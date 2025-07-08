@@ -66,3 +66,766 @@
 2025-07-07 18:10:42,457 INFO:system_manager: Starting diffusion training for unified model
 2025-07-07 18:11:39,404 INFO:system_manager: ✅ Unified energy-conditioned model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
 2025-07-07 18:11:39,404 INFO:system_manager: === ENERGY-CONDITIONED TRAINING COMPLETED ===
+2025-07-07 22:29:50,948 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:29:51,011 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:29:51,023 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:29:51,024 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:29:51,059 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:29:51,059 INFO:system_manager: Running corrected inference...
+2025-07-07 22:29:51,059 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:29:51,059 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:29:51,059 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:29:51,059 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:29:51,059 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:29:51,065 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:29:51,065 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:29:51,067 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:29:51,067 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:29:51,067 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:29:51,824 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:29:51,825 INFO:corrected_inference: Latent range: -2.2900 to 0.2644
+2025-07-07 22:29:51,825 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:29:51,835 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:29:51,835 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:29:51,836 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:29:51,836 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:30:35,271 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:30:35,273 INFO:corrected_inference: Sampled output range: 0.4691 to 1.2910
+2025-07-07 22:30:35,273 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:30:35,273 INFO:corrected_inference: Final dose range: 0.469126 to 1.291021
+2025-07-07 22:30:35,273 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:30:35,274 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:30:35,274 INFO:corrected_inference: Final output range: 0.469126 to 1.267658
+2025-07-07 22:30:35,274 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:30:35,275 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:35:00,298 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:35:00,330 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:35:00,342 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:35:00,343 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:35:00,374 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:35:00,374 INFO:system_manager: Running corrected inference...
+2025-07-07 22:35:00,374 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:35:00,374 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:35:00,374 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:35:00,374 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:35:00,374 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:35:00,380 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:35:00,380 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:35:00,382 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:35:00,382 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:35:00,382 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:35:01,114 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:35:01,115 INFO:corrected_inference: Latent range: -2.4347 to 0.2058
+2025-07-07 22:35:01,115 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:35:01,127 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:35:01,127 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:35:01,128 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:35:01,128 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:35:38,917 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:35:38,919 INFO:corrected_inference: Sampled output range: 0.4669 to 1.2874
+2025-07-07 22:35:38,919 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:35:38,919 INFO:corrected_inference: Final dose range: 0.466899 to 1.287424
+2025-07-07 22:35:38,919 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:35:38,920 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:35:38,921 INFO:corrected_inference: Final output range: 0.466899 to 1.264229
+2025-07-07 22:35:38,921 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:35:38,921 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:36:49,622 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:36:49,647 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:36:49,658 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:36:49,658 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:36:49,687 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:36:49,687 INFO:system_manager: Running corrected inference...
+2025-07-07 22:36:49,687 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:36:49,687 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:36:49,687 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:36:49,687 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:36:49,687 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:36:49,688 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:36:49,688 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:36:49,689 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:36:49,689 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:36:49,689 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:36:50,400 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:36:50,401 INFO:corrected_inference: Latent range: -2.4347 to 0.2058
+2025-07-07 22:36:50,401 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:36:50,407 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:36:50,407 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:36:50,407 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:36:50,407 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:37:29,636 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:37:29,637 INFO:corrected_inference: Sampled output range: 0.4660 to 1.2839
+2025-07-07 22:37:29,637 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:37:29,637 INFO:corrected_inference: Final dose range: 0.466044 to 1.283879
+2025-07-07 22:37:29,637 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:37:29,639 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:37:29,639 INFO:corrected_inference: Final output range: 0.466044 to 1.261657
+2025-07-07 22:37:29,640 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:37:29,640 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:38:36,280 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:38:36,307 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:38:36,318 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:38:36,318 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:38:36,347 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:38:36,347 INFO:system_manager: Running corrected inference...
+2025-07-07 22:38:36,347 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:38:36,347 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:38:36,347 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:38:36,347 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:38:36,347 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:38:36,348 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:38:36,348 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:38:36,348 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:38:36,348 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:38:36,348 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:38:37,079 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:38:37,080 INFO:corrected_inference: Latent range: -2.4347 to 0.2058
+2025-07-07 22:38:37,080 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:38:37,085 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:38:37,085 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:38:37,085 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:38:37,086 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:39:17,040 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:39:17,041 INFO:corrected_inference: Sampled output range: 0.4675 to 1.2933
+2025-07-07 22:39:17,041 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:39:17,041 INFO:corrected_inference: Final dose range: 0.467513 to 1.293335
+2025-07-07 22:39:17,041 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:39:17,043 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:39:17,043 INFO:corrected_inference: Final output range: 0.467513 to 1.267842
+2025-07-07 22:39:17,043 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:39:17,044 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:42:08,691 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:42:08,728 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:42:08,740 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:42:08,741 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:42:08,822 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:42:08,823 INFO:system_manager: Running corrected inference...
+2025-07-07 22:42:08,823 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:42:08,823 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:42:08,823 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:42:08,823 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:42:08,823 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:42:08,829 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:42:08,829 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:42:08,832 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:42:08,832 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:42:08,832 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:42:09,556 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:42:09,558 INFO:corrected_inference: Latent range: -2.4347 to 0.2058
+2025-07-07 22:42:09,558 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:42:09,568 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:42:09,568 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:42:09,569 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:42:09,569 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:42:49,795 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:42:49,795 INFO:corrected_inference: Sampled output range: 0.4667 to 1.2878
+2025-07-07 22:42:49,795 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:42:49,796 INFO:corrected_inference: Final dose range: 0.466696 to 1.287763
+2025-07-07 22:42:49,796 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:42:49,797 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:42:49,797 INFO:corrected_inference: Final output range: 0.466696 to 1.268863
+2025-07-07 22:42:49,797 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:42:49,798 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:43:06,576 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:43:06,601 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:43:06,611 INFO:corrected_inference: Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:43:06,611 INFO:corrected_inference: Scale factor: 2.9683499336242676
+2025-07-07 22:43:06,640 INFO:corrected_inference: Models loaded successfully
+2025-07-07 22:43:06,640 INFO:system_manager: Running corrected inference...
+2025-07-07 22:43:06,640 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE WITH QUADRATURE ===
+2025-07-07 22:43:06,640 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:43:06,640 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:43:06,640 INFO:corrected_inference: Processing energy: 11.5 keV with weight: 1.0
+2025-07-07 22:43:06,640 INFO:corrected_inference: === RUNNING CORRECTED INFERENCE ===
+2025-07-07 22:43:06,641 INFO:corrected_inference: Input shape after preprocessing: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:43:06,641 INFO:corrected_inference: Using energy: 11.5 keV
+2025-07-07 22:43:06,642 INFO:corrected_inference: Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:43:06,642 INFO:corrected_inference: Energy value: 11.5, normalized: 0.115
+2025-07-07 22:43:06,642 INFO:corrected_inference: Encoding with autoencoder...
+2025-07-07 22:43:07,431 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:43:07,431 INFO:corrected_inference: Latent range: -2.4347 to 0.2058
+2025-07-07 22:43:07,431 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:43:07,437 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:43:07,437 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:43:07,438 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:43:07,438 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:43:51,551 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:43:51,552 INFO:corrected_inference: Sampled output range: 0.4653 to 1.2845
+2025-07-07 22:43:51,552 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:43:51,552 INFO:corrected_inference: Final dose range: 0.465253 to 1.284472
+2025-07-07 22:43:51,552 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:43:51,553 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:43:51,554 INFO:corrected_inference: Final output range: 0.465253 to 1.263029
+2025-07-07 22:43:51,554 INFO:corrected_inference: === INFERENCE COMPLETED ===
+2025-07-07 22:43:51,555 INFO:corrected_inference: Quadrature integration completed
+2025-07-07 22:52:34,584 INFO:__main__: ============================================================
+2025-07-07 22:52:34,584 INFO:__main__: TESTING SYSTEM MANAGER WITH CORRECTED INFERENCE
+2025-07-07 22:52:34,584 INFO:__main__: ============================================================
+2025-07-07 22:52:34,584 INFO:__main__: Creating test CT data...
+2025-07-07 22:52:34,592 INFO:__main__: ✓ Test CT saved to: test_ct.npy
+2025-07-07 22:52:34,592 INFO:__main__: Test CT shape: (100, 100, 100)
+2025-07-07 22:52:34,593 INFO:__main__: Test CT range: 0.000000 to 0.999999
+2025-07-07 22:52:34,593 INFO:__main__: Creating SystemManager...
+2025-07-07 22:52:34,593 INFO:__main__: ✓ SystemManager created successfully
+2025-07-07 22:52:34,593 INFO:__main__: Starting inference test...
+2025-07-07 22:52:34,593 INFO:system_manager: ============================================================
+2025-07-07 22:52:34,593 INFO:system_manager: STARTING INFERENCE WORKFLOW
+2025-07-07 22:52:34,593 INFO:system_manager: ============================================================
+2025-07-07 22:52:34,593 INFO:system_manager: CT file path: test_ct.npy
+2025-07-07 22:52:34,593 INFO:system_manager: Model checkpoint: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:52:34,593 INFO:system_manager: Device: cpu
+2025-07-07 22:52:34,593 INFO:system_manager: Loading checkpoint from file: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:52:34,628 INFO:system_manager: ✓ Checkpoint loaded successfully
+2025-07-07 22:52:34,628 INFO:system_manager: Rebuilding models from checkpoint state_dict...
+2025-07-07 22:52:34,644 INFO:system_manager: ✓ Autoencoder loaded from checkpoint
+2025-07-07 22:52:34,644 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 22:52:34,685 INFO:system_manager: ✓ UNet loaded from checkpoint (all keys matched)
+2025-07-07 22:52:34,693 INFO:system_manager: ✓ Scheduler created and models assigned
+2025-07-07 22:52:34,696 INFO:system_manager: Loading CT data...
+2025-07-07 22:52:34,697 INFO:system_manager: CT file path: test_ct.npy
+2025-07-07 22:52:34,697 INFO:system_manager: Loading NumPy file...
+2025-07-07 22:52:34,698 INFO:system_manager: ✓ NumPy loaded: shape=(100, 100, 100), dtype=float32
+2025-07-07 22:52:34,698 INFO:system_manager: CT data range: 0.000000 to 0.999999
+2025-07-07 22:52:34,700 INFO:system_manager: CT tensor shape: torch.Size([1, 100, 100, 100])
+2025-07-07 22:52:34,700 INFO:system_manager: Setting up corrected inference module...
+2025-07-07 22:52:34,700 INFO:system_manager: Creating CorrectedInferenceModule with checkpoint: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:52:34,700 INFO:corrected_inference: ============================================================
+2025-07-07 22:52:34,700 INFO:corrected_inference: CORRECTED INFERENCE MODULE INITIALIZATION
+2025-07-07 22:52:34,700 INFO:corrected_inference: ============================================================
+2025-07-07 22:52:34,700 INFO:corrected_inference: Loading model from: unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-07 22:52:34,700 INFO:corrected_inference: Device: cpu
+2025-07-07 22:52:34,700 INFO:corrected_inference: Attempting to load checkpoint...
+2025-07-07 22:52:34,717 INFO:corrected_inference: ✓ Checkpoint loaded successfully via direct path
+2025-07-07 22:52:34,717 INFO:corrected_inference: ✓ Model energies: [11.5, 15.75, 34.25]
+2025-07-07 22:52:34,719 INFO:corrected_inference: ✓ Scale factor: 2.9683499336242676
+2025-07-07 22:52:34,719 INFO:corrected_inference: ✓ Checkpoint keys: ['autoencoder', 'unet', 'scheduler', 'scale_factor', 'resolutions', 'energies', 'training_config']
+2025-07-07 22:52:34,719 INFO:corrected_inference: Loading model components...
+2025-07-07 22:52:34,719 INFO:corrected_inference:   Loading required modules...
+2025-07-07 22:52:34,719 INFO:corrected_inference:   ✓ Modules imported successfully
+2025-07-07 22:52:34,719 INFO:corrected_inference:   Creating autoencoder...
+2025-07-07 22:52:34,724 INFO:corrected_inference:   ✓ Autoencoder created (in_channels=2, out_channels=1)
+2025-07-07 22:52:34,724 INFO:corrected_inference:   Creating UNet...
+2025-07-07 22:52:34,744 INFO:corrected_inference:   ✓ UNet created (in_channels=2, out_channels=2, cross_attention_dim=2)
+2025-07-07 22:52:34,744 INFO:corrected_inference:   Creating scheduler...
+2025-07-07 22:52:34,744 INFO:corrected_inference:   ✓ DDPM Scheduler created (timesteps=1000)
+2025-07-07 22:52:34,744 INFO:corrected_inference:   Loading model weights...
+2025-07-07 22:52:34,744 INFO:corrected_inference:   Autoencoder checkpoint keys: 146 parameters
+2025-07-07 22:52:34,745 INFO:corrected_inference:   ✓ Autoencoder weights loaded
+2025-07-07 22:52:34,745 INFO:corrected_inference:   UNet checkpoint keys: 324 parameters
+2025-07-07 22:52:34,752 INFO:corrected_inference:   ✓ UNet weights loaded
+2025-07-07 22:52:34,753 INFO:corrected_inference:   ✓ Models set to evaluation mode
+2025-07-07 22:52:34,753 INFO:corrected_inference:   Creating inferer...
+2025-07-07 22:52:34,753 INFO:corrected_inference:   ✓ LatentDiffusionInferer created (scale_factor=2.9683499336242676)
+2025-07-07 22:52:34,753 INFO:corrected_inference:   ✓ All models loaded successfully
+2025-07-07 22:52:34,753 INFO:corrected_inference: ✓ Corrected inference module initialized successfully
+2025-07-07 22:52:34,753 INFO:system_manager: ✓ CorrectedInferenceModule created successfully
+2025-07-07 22:52:34,753 INFO:system_manager: Running corrected inference...
+2025-07-07 22:52:34,753 INFO:system_manager: Quadrature energies: [11.5]
+2025-07-07 22:52:34,753 INFO:system_manager: Quadrature weights: [1.0]
+2025-07-07 22:52:34,753 INFO:corrected_inference: ============================================================
+2025-07-07 22:52:34,753 INFO:corrected_inference: RUNNING CORRECTED INFERENCE WITH QUADRATURE
+2025-07-07 22:52:34,753 INFO:corrected_inference: ============================================================
+2025-07-07 22:52:34,753 INFO:corrected_inference: Quadrature energies: [11.5]
+2025-07-07 22:52:34,753 INFO:corrected_inference: Quadrature weights: [1.0]
+2025-07-07 22:52:34,753 INFO:corrected_inference: Number of quadrature points: 1
+2025-07-07 22:52:34,753 INFO:corrected_inference: Processing quadrature point 1/1: energy=11.500 keV, weight=1.000000
+2025-07-07 22:52:34,754 INFO:corrected_inference: ----------------------------------------
+2025-07-07 22:52:34,754 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 22:52:34,754 INFO:corrected_inference: ----------------------------------------
+2025-07-07 22:52:34,754 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 22:52:34,761 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:52:34,761 INFO:corrected_inference: Using specified energy: 11.5 keV
+2025-07-07 22:52:34,764 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 22:52:34,764 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:52:34,764 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:52:34,764 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 22:52:34,764 INFO:corrected_inference:   - Raw energy: 11.5, normalized: 0.115000
+2025-07-07 22:52:34,765 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 22:52:35,554 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:52:35,555 INFO:corrected_inference: Latent range: -2.2898 to 0.2644
+2025-07-07 22:52:35,555 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 22:52:35,567 INFO:corrected_inference: Context values: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:52:35,567 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 22:52:35,568 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 22:52:35,569 INFO:corrected_inference: Using context: tensor([[[0.1150, 1.0000]]])
+2025-07-07 22:53:19,264 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:53:19,265 INFO:corrected_inference: Sampled output range: 0.4686 to 1.2895
+2025-07-07 22:53:19,265 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 22:53:19,265 INFO:corrected_inference: Final dose range: 0.468639 to 1.289499
+2025-07-07 22:53:19,265 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 22:53:19,267 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 22:53:19,267 INFO:corrected_inference: Final output range: 0.468639 to 1.266248
+2025-07-07 22:53:19,267 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 22:53:19,267 INFO:corrected_inference: ----------------------------------------
+2025-07-07 22:53:19,268 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.468639, 1.266248]
+2025-07-07 22:53:19,268 INFO:corrected_inference:   ✓ Initialized total dose (weighted by 1.000000)
+2025-07-07 22:53:19,268 INFO:corrected_inference: ============================================================
+2025-07-07 22:53:19,268 INFO:corrected_inference: QUADRATURE INTEGRATION COMPLETED SUCCESSFULLY
+2025-07-07 22:53:19,269 INFO:corrected_inference: Final dose: shape=torch.Size([100, 100, 100]), range=[0.468639, 1.266248]
+2025-07-07 22:53:19,269 INFO:corrected_inference: ============================================================
+2025-07-07 22:53:19,269 INFO:system_manager: ✓ Corrected inference completed successfully
+2025-07-07 22:53:19,269 INFO:system_manager: Dose tensor shape: torch.Size([100, 100, 100])
+2025-07-07 22:53:19,270 INFO:system_manager: Dose range: 0.468639 to 1.266248
+2025-07-07 22:53:19,270 INFO:system_manager: Converting output to NumPy and preparing NIfTI...
+2025-07-07 22:53:19,270 INFO:system_manager: Final dose shape: (100, 100, 100)
+2025-07-07 22:53:19,270 INFO:system_manager: Final dose range: 0.468639 to 1.266248
+2025-07-07 22:53:19,276 INFO:system_manager: ✓ NIfTI image created
+2025-07-07 22:53:19,276 INFO:system_manager: No cubes.json manifest found, skipping manifest attachment
+2025-07-07 22:53:19,276 INFO:system_manager: Saving inference result to: ./inference_with_manifest.nii.gz
+2025-07-07 22:53:19,354 INFO:system_manager: ✓ NIfTI file saved successfully
+2025-07-07 22:53:19,354 INFO:system_manager: ============================================================
+2025-07-07 22:53:19,354 INFO:system_manager: INFERENCE WORKFLOW COMPLETED SUCCESSFULLY
+2025-07-07 22:53:19,354 INFO:system_manager: Output file: ./inference_with_manifest.nii.gz
+2025-07-07 22:53:19,354 INFO:system_manager: ============================================================
+2025-07-07 22:53:19,357 INFO:__main__: ✓ Inference completed successfully!
+2025-07-07 22:53:19,357 INFO:__main__: Output saved to: ./inference_with_manifest.nii.gz
+2025-07-07 22:53:19,357 INFO:__main__: ✓ Output file created successfully
+2025-07-07 22:53:19,383 INFO:__main__: Output shape: (100, 100, 100)
+2025-07-07 22:53:19,384 INFO:__main__: Output range: 0.468639 to 1.266248
+2025-07-07 22:53:19,384 INFO:__main__: ✓ Output file loaded and validated successfully
+2025-07-07 22:53:19,384 INFO:__main__: Cleaning up test files...
+2025-07-07 22:53:19,384 INFO:__main__: ✓ Removed test file: test_ct.npy
+2025-07-07 22:53:19,384 INFO:__main__: ============================================================
+2025-07-07 22:53:19,384 INFO:__main__: SYSTEM MANAGER INFERENCE TEST COMPLETED
+2025-07-07 22:53:19,384 INFO:__main__: ============================================================
+2025-07-07 23:07:58,997 INFO:__main__: GUI module loaded with logging configured
+2025-07-07 23:08:00,849 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-07 23:08:05,868 INFO:__main__: Opening model file selection dialog...
+2025-07-07 23:08:12,112 INFO:__main__: User selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:12,112 INFO:__main__: Validating model checkpoint...
+2025-07-07 23:08:12,145 INFO:__main__: ✓ Model checkpoint validated successfully
+2025-07-07 23:08:12,146 INFO:__main__: ✓ Checkpoint keys: ['autoencoder', 'unet', 'scheduler', 'scale_factor', 'resolutions', 'energies', 'training_config']
+2025-07-07 23:08:12,146 INFO:__main__: ✓ Model file loaded, waiting for CT file
+2025-07-07 23:08:12,146 INFO:__main__: ✓ Model file successfully selected and validated
+2025-07-07 23:08:17,570 INFO:__main__: Opening CT file selection dialog...
+2025-07-07 23:08:23,426 INFO:__main__: User selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 23:08:23,426 INFO:__main__: Loading NumPy file...
+2025-07-07 23:08:23,428 INFO:__main__: ✓ CT file loaded successfully: shape=(100, 100, 100), dtype=float32
+2025-07-07 23:08:23,429 INFO:__main__: ✓ CT data range: [-1000.000, 1147.503]
+2025-07-07 23:08:23,429 INFO:__main__: ✓ Dose calculation button enabled (model already loaded)
+2025-07-07 23:08:24,130 INFO:__main__: ============================================================
+2025-07-07 23:08:24,130 INFO:__main__: DOSE CALCULATION STARTED VIA GUI
+2025-07-07 23:08:24,130 INFO:__main__: ============================================================
+2025-07-07 23:08:24,130 INFO:__main__: Energy range: 0.0 to 50.0 eV
+2025-07-07 23:08:24,130 INFO:__main__: Computing 8-point Gauss-Legendre quadrature...
+2025-07-07 23:08:24,134 INFO:__main__: Quadrature energies: [ 0.99275359  5.08333806 11.86168975 20.41413394 29.58586606 38.13831025
+ 44.91666194 49.00724641]
+2025-07-07 23:08:24,134 INFO:__main__: Quadrature weights: [1.2653567  2.77976293 3.92133307 4.53354729 4.53354729 3.92133307
+ 2.77976293 1.2653567 ]
+2025-07-07 23:08:24,134 INFO:__main__: CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 23:08:24,134 INFO:__main__: Model checkpoint: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:24,134 INFO:__main__: Starting inference via SystemManager...
+2025-07-07 23:08:24,134 INFO:system_manager: ============================================================
+2025-07-07 23:08:24,134 INFO:system_manager: STARTING INFERENCE WORKFLOW
+2025-07-07 23:08:24,135 INFO:system_manager: ============================================================
+2025-07-07 23:08:24,135 INFO:system_manager: CT file path: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 23:08:24,135 INFO:system_manager: Model checkpoint: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:24,135 INFO:system_manager: Device: cpu
+2025-07-07 23:08:24,135 INFO:system_manager: Loading checkpoint from file: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:24,165 INFO:system_manager: ✓ Checkpoint loaded successfully
+2025-07-07 23:08:24,166 INFO:system_manager: Rebuilding models from checkpoint state_dict...
+2025-07-07 23:08:24,184 INFO:system_manager: ✓ Autoencoder loaded from checkpoint
+2025-07-07 23:08:24,184 INFO:system_manager: Detected cross_attention_dim=2 from key: down_blocks.1.attentions.0.transformer_blocks.0.attn2.to_k.weight
+2025-07-07 23:08:24,209 INFO:system_manager: ✓ UNet loaded from checkpoint (all keys matched)
+2025-07-07 23:08:24,216 INFO:system_manager: ✓ Scheduler created and models assigned
+2025-07-07 23:08:24,218 INFO:system_manager: Loading CT data...
+2025-07-07 23:08:24,218 INFO:system_manager: CT file path: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11_5/inputcube/235101017859661465075472232303048949736_10.npy
+2025-07-07 23:08:24,218 INFO:system_manager: Loading NumPy file...
+2025-07-07 23:08:24,219 INFO:system_manager: ✓ NumPy loaded: shape=(100, 100, 100), dtype=float32
+2025-07-07 23:08:24,219 INFO:system_manager: CT data range: -1000.000000 to 1147.502930
+2025-07-07 23:08:24,221 INFO:system_manager: CT tensor shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:08:24,221 INFO:system_manager: Setting up corrected inference module...
+2025-07-07 23:08:24,221 INFO:system_manager: Creating CorrectedInferenceModule with checkpoint: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:24,221 INFO:corrected_inference: ============================================================
+2025-07-07 23:08:24,221 INFO:corrected_inference: CORRECTED INFERENCE MODULE INITIALIZATION
+2025-07-07 23:08:24,221 INFO:corrected_inference: ============================================================
+2025-07-07 23:08:24,221 INFO:corrected_inference: Loading model from: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies2.ckpt
+2025-07-07 23:08:24,221 INFO:corrected_inference: Device: cpu
+2025-07-07 23:08:24,221 INFO:corrected_inference: Attempting to load checkpoint...
+2025-07-07 23:08:24,234 INFO:corrected_inference: ✓ Checkpoint loaded successfully via direct path
+2025-07-07 23:08:24,234 INFO:corrected_inference: ✓ Model energies: [11.5, 15.75]
+2025-07-07 23:08:24,234 INFO:corrected_inference: ✓ Scale factor: 2.1419341564178467
+2025-07-07 23:08:24,234 INFO:corrected_inference: ✓ Checkpoint keys: ['autoencoder', 'unet', 'scheduler', 'scale_factor', 'resolutions', 'energies', 'training_config']
+2025-07-07 23:08:24,234 INFO:corrected_inference: Loading model components...
+2025-07-07 23:08:24,234 INFO:corrected_inference:   Loading required modules...
+2025-07-07 23:08:24,234 INFO:corrected_inference:   ✓ Modules imported successfully
+2025-07-07 23:08:24,234 INFO:corrected_inference:   Creating autoencoder...
+2025-07-07 23:08:24,240 INFO:corrected_inference:   ✓ Autoencoder created (in_channels=2, out_channels=1)
+2025-07-07 23:08:24,240 INFO:corrected_inference:   Creating UNet...
+2025-07-07 23:08:24,259 INFO:corrected_inference:   ✓ UNet created (in_channels=2, out_channels=2, cross_attention_dim=2)
+2025-07-07 23:08:24,259 INFO:corrected_inference:   Creating scheduler...
+2025-07-07 23:08:24,260 INFO:corrected_inference:   ✓ DDPM Scheduler created (timesteps=1000)
+2025-07-07 23:08:24,260 INFO:corrected_inference:   Loading model weights...
+2025-07-07 23:08:24,260 INFO:corrected_inference:   Autoencoder checkpoint keys: 146 parameters
+2025-07-07 23:08:24,261 INFO:corrected_inference:   ✓ Autoencoder weights loaded
+2025-07-07 23:08:24,261 INFO:corrected_inference:   UNet checkpoint keys: 324 parameters
+2025-07-07 23:08:24,266 INFO:corrected_inference:   ✓ UNet weights loaded
+2025-07-07 23:08:24,267 INFO:corrected_inference:   ✓ Models set to evaluation mode
+2025-07-07 23:08:24,267 INFO:corrected_inference:   Creating inferer...
+2025-07-07 23:08:24,267 INFO:corrected_inference:   ✓ LatentDiffusionInferer created (scale_factor=2.1419341564178467)
+2025-07-07 23:08:24,267 INFO:corrected_inference:   ✓ All models loaded successfully
+2025-07-07 23:08:24,267 INFO:corrected_inference: ✓ Corrected inference module initialized successfully
+2025-07-07 23:08:24,267 INFO:system_manager: ✓ CorrectedInferenceModule created successfully
+2025-07-07 23:08:24,267 INFO:system_manager: Running corrected inference...
+2025-07-07 23:08:24,267 INFO:system_manager: Quadrature energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 23:08:24,267 INFO:system_manager: Quadrature weights: [1.2653567036297046, 2.7797629306671774, 3.921333073473593, 4.5335472922295255, 4.5335472922295255, 3.921333073473593, 2.7797629306671774, 1.2653567036297046]
+2025-07-07 23:08:24,267 INFO:corrected_inference: ============================================================
+2025-07-07 23:08:24,267 INFO:corrected_inference: RUNNING CORRECTED INFERENCE WITH QUADRATURE
+2025-07-07 23:08:24,267 INFO:corrected_inference: ============================================================
+2025-07-07 23:08:24,267 INFO:corrected_inference: Quadrature energies: [0.9927535875615945, 5.083338064659333, 11.861689752091776, 20.414133937608753, 29.585866062391247, 38.13831024790822, 44.91666193534067, 49.007246412438406]
+2025-07-07 23:08:24,267 INFO:corrected_inference: Quadrature weights: [1.2653567036297046, 2.7797629306671774, 3.921333073473593, 4.5335472922295255, 4.5335472922295255, 3.921333073473593, 2.7797629306671774, 1.2653567036297046]
+2025-07-07 23:08:24,267 INFO:corrected_inference: Number of quadrature points: 8
+2025-07-07 23:08:24,267 INFO:corrected_inference: Processing quadrature point 1/8: energy=0.993 keV, weight=1.265357
+2025-07-07 23:08:24,267 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:08:24,267 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:08:24,267 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:08:24,267 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:08:24,272 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:08:24,272 INFO:corrected_inference: Using specified energy: 0.9927535875615945 keV
+2025-07-07 23:08:24,274 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:08:24,274 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:08:24,274 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:08:24,274 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:08:24,275 INFO:corrected_inference:   - Raw energy: 0.9927535875615945, normalized: 0.009928
+2025-07-07 23:08:24,275 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:08:24,960 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:08:24,961 INFO:corrected_inference: Latent range: -3.1150 to 0.1714
+2025-07-07 23:08:24,961 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:08:24,974 INFO:corrected_inference: Context values: tensor([[[0.0099, 1.0000]]])
+2025-07-07 23:08:24,974 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:08:24,975 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:08:24,975 INFO:corrected_inference: Using context: tensor([[[0.0099, 1.0000]]])
+2025-07-07 23:09:03,756 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:03,756 INFO:corrected_inference: Sampled output range: 0.3364 to 1.2057
+2025-07-07 23:09:03,756 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:03,757 INFO:corrected_inference: Final dose range: 0.336392 to 1.205673
+2025-07-07 23:09:03,757 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:09:03,758 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:09:03,758 INFO:corrected_inference: Final output range: 0.336392 to 1.187084
+2025-07-07 23:09:03,758 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:09:03,758 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:03,759 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.336392, 1.187084]
+2025-07-07 23:09:03,759 INFO:corrected_inference:   ✓ Initialized total dose (weighted by 1.265357)
+2025-07-07 23:09:03,759 INFO:corrected_inference: Processing quadrature point 2/8: energy=5.083 keV, weight=2.779763
+2025-07-07 23:09:03,759 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:03,759 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:09:03,759 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:03,759 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:09:03,760 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:03,760 INFO:corrected_inference: Using specified energy: 5.083338064659333 keV
+2025-07-07 23:09:03,760 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:09:03,760 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:03,760 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:03,760 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:09:03,760 INFO:corrected_inference:   - Raw energy: 5.083338064659333, normalized: 0.050833
+2025-07-07 23:09:03,760 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:09:04,292 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:09:04,292 INFO:corrected_inference: Latent range: -3.0265 to 0.1664
+2025-07-07 23:09:04,292 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:09:04,293 INFO:corrected_inference: Context values: tensor([[[0.0508, 1.0000]]])
+2025-07-07 23:09:04,293 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:09:04,293 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:09:04,293 INFO:corrected_inference: Using context: tensor([[[0.0508, 1.0000]]])
+2025-07-07 23:09:44,446 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:44,447 INFO:corrected_inference: Sampled output range: 0.3370 to 1.2122
+2025-07-07 23:09:44,447 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:44,448 INFO:corrected_inference: Final dose range: 0.337030 to 1.212216
+2025-07-07 23:09:44,448 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:09:44,451 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:09:44,453 INFO:corrected_inference: Final output range: 0.337030 to 1.191680
+2025-07-07 23:09:44,453 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:09:44,453 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:44,455 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.337030, 1.191680]
+2025-07-07 23:09:44,457 INFO:corrected_inference:   ✓ Added to total dose (weighted by 2.779763)
+2025-07-07 23:09:44,458 INFO:corrected_inference: Processing quadrature point 3/8: energy=11.862 keV, weight=3.921333
+2025-07-07 23:09:44,458 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:44,458 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:09:44,458 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:09:44,458 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:09:44,462 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:44,462 INFO:corrected_inference: Using specified energy: 11.861689752091776 keV
+2025-07-07 23:09:44,462 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:09:44,462 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:44,462 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:09:44,462 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:09:44,462 INFO:corrected_inference:   - Raw energy: 11.861689752091776, normalized: 0.118617
+2025-07-07 23:09:44,462 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:09:45,039 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:09:45,039 INFO:corrected_inference: Latent range: -2.9674 to 0.1638
+2025-07-07 23:09:45,039 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:09:45,039 INFO:corrected_inference: Context values: tensor([[[0.1186, 1.0000]]])
+2025-07-07 23:09:45,039 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:09:45,040 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:09:45,040 INFO:corrected_inference: Using context: tensor([[[0.1186, 1.0000]]])
+2025-07-07 23:10:24,111 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:10:24,113 INFO:corrected_inference: Sampled output range: 0.3351 to 1.2189
+2025-07-07 23:10:24,113 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:10:24,113 INFO:corrected_inference: Final dose range: 0.335086 to 1.218948
+2025-07-07 23:10:24,113 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:10:24,114 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:10:24,114 INFO:corrected_inference: Final output range: 0.335086 to 1.199782
+2025-07-07 23:10:24,114 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:10:24,114 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:10:24,115 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.335086, 1.199782]
+2025-07-07 23:10:24,115 INFO:corrected_inference:   ✓ Added to total dose (weighted by 3.921333)
+2025-07-07 23:10:24,115 INFO:corrected_inference: Processing quadrature point 4/8: energy=20.414 keV, weight=4.533547
+2025-07-07 23:10:24,115 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:10:24,115 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:10:24,115 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:10:24,115 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:10:24,115 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:10:24,115 INFO:corrected_inference: Using specified energy: 20.414133937608753 keV
+2025-07-07 23:10:24,115 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:10:24,115 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:10:24,115 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:10:24,115 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:10:24,115 INFO:corrected_inference:   - Raw energy: 20.414133937608753, normalized: 0.204141
+2025-07-07 23:10:24,116 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:10:24,684 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:10:24,684 INFO:corrected_inference: Latent range: -2.9037 to 0.1661
+2025-07-07 23:10:24,684 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:10:24,685 INFO:corrected_inference: Context values: tensor([[[0.2041, 1.0000]]])
+2025-07-07 23:10:24,685 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:10:24,685 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:10:24,685 INFO:corrected_inference: Using context: tensor([[[0.2041, 1.0000]]])
+2025-07-07 23:11:01,316 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:01,317 INFO:corrected_inference: Sampled output range: 0.3339 to 1.2147
+2025-07-07 23:11:01,317 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:01,317 INFO:corrected_inference: Final dose range: 0.333920 to 1.214722
+2025-07-07 23:11:01,317 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:11:01,318 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:11:01,318 INFO:corrected_inference: Final output range: 0.333920 to 1.193503
+2025-07-07 23:11:01,318 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:11:01,318 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:01,319 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.333920, 1.193503]
+2025-07-07 23:11:01,319 INFO:corrected_inference:   ✓ Added to total dose (weighted by 4.533547)
+2025-07-07 23:11:01,319 INFO:corrected_inference: Processing quadrature point 5/8: energy=29.586 keV, weight=4.533547
+2025-07-07 23:11:01,319 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:01,319 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:11:01,319 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:01,319 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:11:01,320 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:01,320 INFO:corrected_inference: Using specified energy: 29.585866062391247 keV
+2025-07-07 23:11:01,320 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:11:01,320 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:01,320 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:01,320 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:11:01,320 INFO:corrected_inference:   - Raw energy: 29.585866062391247, normalized: 0.295859
+2025-07-07 23:11:01,320 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:11:01,874 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:11:01,874 INFO:corrected_inference: Latent range: -2.8414 to 0.1656
+2025-07-07 23:11:01,874 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:11:01,874 INFO:corrected_inference: Context values: tensor([[[0.2959, 1.0000]]])
+2025-07-07 23:11:01,874 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:11:01,875 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:11:01,875 INFO:corrected_inference: Using context: tensor([[[0.2959, 1.0000]]])
+2025-07-07 23:11:37,630 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:37,631 INFO:corrected_inference: Sampled output range: 0.3384 to 1.2214
+2025-07-07 23:11:37,631 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:37,631 INFO:corrected_inference: Final dose range: 0.338352 to 1.221402
+2025-07-07 23:11:37,631 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:11:37,632 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:11:37,632 INFO:corrected_inference: Final output range: 0.338352 to 1.202227
+2025-07-07 23:11:37,632 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:11:37,632 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:37,633 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.338352, 1.202227]
+2025-07-07 23:11:37,633 INFO:corrected_inference:   ✓ Added to total dose (weighted by 4.533547)
+2025-07-07 23:11:37,633 INFO:corrected_inference: Processing quadrature point 6/8: energy=38.138 keV, weight=3.921333
+2025-07-07 23:11:37,633 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:37,633 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:11:37,633 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:11:37,633 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:11:37,634 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:37,634 INFO:corrected_inference: Using specified energy: 38.13831024790822 keV
+2025-07-07 23:11:37,634 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:11:37,634 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:37,634 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:11:37,634 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:11:37,634 INFO:corrected_inference:   - Raw energy: 38.13831024790822, normalized: 0.381383
+2025-07-07 23:11:37,634 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:11:38,170 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:11:38,170 INFO:corrected_inference: Latent range: -2.7818 to 0.1613
+2025-07-07 23:11:38,170 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:11:38,170 INFO:corrected_inference: Context values: tensor([[[0.3814, 1.0000]]])
+2025-07-07 23:11:38,170 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:11:38,170 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:11:38,170 INFO:corrected_inference: Using context: tensor([[[0.3814, 1.0000]]])
+2025-07-07 23:12:14,138 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:14,139 INFO:corrected_inference: Sampled output range: 0.3347 to 1.2277
+2025-07-07 23:12:14,139 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:14,139 INFO:corrected_inference: Final dose range: 0.334698 to 1.227749
+2025-07-07 23:12:14,139 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:12:14,140 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:12:14,140 INFO:corrected_inference: Final output range: 0.334698 to 1.205774
+2025-07-07 23:12:14,140 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:12:14,140 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:14,141 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.334698, 1.205774]
+2025-07-07 23:12:14,141 INFO:corrected_inference:   ✓ Added to total dose (weighted by 3.921333)
+2025-07-07 23:12:14,141 INFO:corrected_inference: Processing quadrature point 7/8: energy=44.917 keV, weight=2.779763
+2025-07-07 23:12:14,141 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:14,141 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:12:14,141 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:14,141 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:12:14,142 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:14,142 INFO:corrected_inference: Using specified energy: 44.91666193534067 keV
+2025-07-07 23:12:14,142 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:12:14,142 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:14,142 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:14,142 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:12:14,142 INFO:corrected_inference:   - Raw energy: 44.91666193534067, normalized: 0.449167
+2025-07-07 23:12:14,142 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:12:14,691 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:12:14,691 INFO:corrected_inference: Latent range: -2.7428 to 0.1584
+2025-07-07 23:12:14,692 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:12:14,692 INFO:corrected_inference: Context values: tensor([[[0.4492, 1.0000]]])
+2025-07-07 23:12:14,692 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:12:14,692 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:12:14,692 INFO:corrected_inference: Using context: tensor([[[0.4492, 1.0000]]])
+2025-07-07 23:12:49,800 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:49,800 INFO:corrected_inference: Sampled output range: 0.3366 to 1.2159
+2025-07-07 23:12:49,800 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:49,801 INFO:corrected_inference: Final dose range: 0.336566 to 1.215891
+2025-07-07 23:12:49,801 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:12:49,801 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:12:49,802 INFO:corrected_inference: Final output range: 0.336566 to 1.196606
+2025-07-07 23:12:49,802 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:12:49,802 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:49,802 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.336566, 1.196606]
+2025-07-07 23:12:49,803 INFO:corrected_inference:   ✓ Added to total dose (weighted by 2.779763)
+2025-07-07 23:12:49,803 INFO:corrected_inference: Processing quadrature point 8/8: energy=49.007 keV, weight=1.265357
+2025-07-07 23:12:49,803 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:49,803 INFO:corrected_inference: SINGLE ENERGY INFERENCE STARTED
+2025-07-07 23:12:49,803 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:12:49,803 INFO:corrected_inference: Original CT shape: torch.Size([1, 100, 100, 100])
+2025-07-07 23:12:49,803 INFO:corrected_inference: ✓ Input preprocessed: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:49,803 INFO:corrected_inference: Using specified energy: 49.007246412438406 keV
+2025-07-07 23:12:49,803 INFO:corrected_inference: ✓ Energy conditioning added:
+2025-07-07 23:12:49,803 INFO:corrected_inference:   - Input shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:49,803 INFO:corrected_inference:   - Energy tensor shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:12:49,803 INFO:corrected_inference:   - Conditioned input shape: torch.Size([1, 2, 64, 64, 64])
+2025-07-07 23:12:49,803 INFO:corrected_inference:   - Raw energy: 49.007246412438406, normalized: 0.490072
+2025-07-07 23:12:49,803 INFO:corrected_inference: Step 1: Encoding with autoencoder...
+2025-07-07 23:12:50,342 INFO:corrected_inference: Latent shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:12:50,342 INFO:corrected_inference: Latent range: -2.7312 to 0.1578
+2025-07-07 23:12:50,342 INFO:corrected_inference: Context shape: torch.Size([1, 1, 2])
+2025-07-07 23:12:50,343 INFO:corrected_inference: Context values: tensor([[[0.4901, 1.0000]]])
+2025-07-07 23:12:50,343 INFO:corrected_inference: Running diffusion sampling...
+2025-07-07 23:12:50,343 INFO:corrected_inference: Noise shape: torch.Size([1, 2, 16, 16, 16])
+2025-07-07 23:12:50,343 INFO:corrected_inference: Using context: tensor([[[0.4901, 1.0000]]])
+2025-07-07 23:13:26,221 INFO:corrected_inference: Sampled output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:13:26,221 INFO:corrected_inference: Sampled output range: 0.3355 to 1.2134
+2025-07-07 23:13:26,221 INFO:corrected_inference: Final dose output shape: torch.Size([1, 1, 64, 64, 64])
+2025-07-07 23:13:26,221 INFO:corrected_inference: Final dose range: 0.335494 to 1.213443
+2025-07-07 23:13:26,221 INFO:corrected_inference: Resizing from torch.Size([64, 64, 64]) to torch.Size([100, 100, 100])
+2025-07-07 23:13:26,222 INFO:corrected_inference: Final output shape: torch.Size([100, 100, 100])
+2025-07-07 23:13:26,222 INFO:corrected_inference: Final output range: 0.335494 to 1.194300
+2025-07-07 23:13:26,222 INFO:corrected_inference: ✓ SINGLE ENERGY INFERENCE COMPLETED SUCCESSFULLY
+2025-07-07 23:13:26,222 INFO:corrected_inference: ----------------------------------------
+2025-07-07 23:13:26,223 INFO:corrected_inference:   ✓ Dose computed: shape=torch.Size([100, 100, 100]), range=[0.335494, 1.194300]
+2025-07-07 23:13:26,223 INFO:corrected_inference:   ✓ Added to total dose (weighted by 1.265357)
+2025-07-07 23:13:26,223 INFO:corrected_inference: ============================================================
+2025-07-07 23:13:26,223 INFO:corrected_inference: QUADRATURE INTEGRATION COMPLETED SUCCESSFULLY
+2025-07-07 23:13:26,224 INFO:corrected_inference: Final dose: shape=torch.Size([100, 100, 100]), range=[8.396833, 29.946312]
+2025-07-07 23:13:26,224 INFO:corrected_inference: ============================================================
+2025-07-07 23:13:26,224 INFO:system_manager: ✓ Corrected inference completed successfully
+2025-07-07 23:13:26,224 INFO:system_manager: Dose tensor shape: torch.Size([100, 100, 100])
+2025-07-07 23:13:26,224 INFO:system_manager: Dose range: 8.396833 to 29.946312
+2025-07-07 23:13:26,224 INFO:system_manager: Converting output to NumPy and preparing NIfTI...
+2025-07-07 23:13:26,224 INFO:system_manager: Final dose shape: (100, 100, 100)
+2025-07-07 23:13:26,224 INFO:system_manager: Final dose range: 8.396833 to 29.946312
+2025-07-07 23:13:26,229 INFO:system_manager: ✓ NIfTI image created
+2025-07-07 23:13:26,229 INFO:system_manager: No cubes.json manifest found, skipping manifest attachment
+2025-07-07 23:13:26,229 INFO:system_manager: Saving inference result to: inference_with_manifest.nii.gz
+2025-07-07 23:13:26,303 INFO:system_manager: ✓ NIfTI file saved successfully
+2025-07-07 23:13:26,303 INFO:system_manager: ============================================================
+2025-07-07 23:13:26,303 INFO:system_manager: INFERENCE WORKFLOW COMPLETED SUCCESSFULLY
+2025-07-07 23:13:26,303 INFO:system_manager: Output file: inference_with_manifest.nii.gz
+2025-07-07 23:13:26,303 INFO:system_manager: ============================================================
+2025-07-07 23:13:26,307 INFO:__main__: ✓ Dose calculation completed successfully
+2025-07-07 23:13:26,307 INFO:__main__: ✓ Output saved to: inference_with_manifest.nii.gz
+2025-07-07 23:13:27,963 INFO:__main__: Starting visualization...
+2025-07-07 23:13:29,127 INFO:__main__: ✓ Visualization completed
+2025-07-07 23:13:29,127 INFO:__main__: ============================================================
+2025-07-07 23:13:29,127 INFO:__main__: DOSE CALCULATION PROCESS COMPLETED
+2025-07-07 23:13:29,127 INFO:__main__: ============================================================
+2025-07-08 15:08:04,088 INFO:__main__: ============================================================
+2025-07-08 15:08:04,090 INFO:__main__: TESTING GUI TRAINING LOGIC
+2025-07-08 15:08:04,090 INFO:__main__: ============================================================
+2025-07-08 15:08:04,090 INFO:__main__: Creating SystemManager for GUI training test...
+2025-07-08 15:08:04,090 INFO:__main__: ✓ SystemManager created
+2025-07-08 15:08:04,090 INFO:__main__: Training with energies: [11.5, 15.75, 34.25]
+2025-07-08 15:08:04,090 INFO:__main__: Testing energy-conditioned training...
+2025-07-08 15:08:04,090 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-08 15:08:04,090 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-08 15:08:04,090 INFO:system_manager: Starting training with hyperparameters:
+2025-07-08 15:08:04,090 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=3, cube_size=32
+2025-07-08 15:08:04,090 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75, 34.25]
+2025-07-08 15:08:04,090 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75, 34.25] ---
+2025-07-08 15:08:04,092 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-08 15:08:04,721 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-08 15:08:04,724 INFO:system_manager: Training set: 24 samples
+2025-07-08 15:08:04,724 INFO:system_manager: Validation set: 6 samples
+2025-07-08 15:08:04,919 INFO:system_manager: Scaling factor set to 4.735265254974365
+2025-07-08 15:08:04,919 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-08 15:08:04,950 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-07-08 15:08:17,204 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.1789, adv_loss=0.0000, disc_loss=0.0000
+2025-07-08 15:08:17,206 INFO:training_pipeline: Starting validation
+2025-07-08 15:08:18,393 INFO:training_pipeline: Validation completed: avg_val_loss=0.0803
+2025-07-08 15:08:18,393 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-07-08 15:08:30,688 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.0621, adv_loss=0.0000, disc_loss=0.0000
+2025-07-08 15:08:30,690 INFO:training_pipeline: Starting validation
+2025-07-08 15:08:31,830 INFO:training_pipeline: Validation completed: avg_val_loss=0.0531
+2025-07-08 15:08:31,830 INFO:system_manager: Starting diffusion training for unified model
+2025-07-08 15:09:35,572 INFO:system_manager: ✅ Unified energy-conditioned model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-08 15:09:35,573 INFO:system_manager: === ENERGY-CONDITIONED TRAINING COMPLETED ===
+2025-07-08 15:09:35,576 INFO:__main__: ✓ Energy-conditioned training completed successfully!
+2025-07-08 15:09:35,576 INFO:__main__: Model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-08 15:09:35,576 INFO:__main__: ============================================================
+2025-07-08 15:09:35,576 INFO:__main__: GUI TRAINING TEST COMPLETED SUCCESSFULLY
+2025-07-08 15:09:35,576 INFO:__main__: ============================================================
+2025-07-08 15:11:49,212 INFO:__main__: GUI module loaded with logging configured
+2025-07-08 15:11:51,055 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-07-08 15:12:33,693 INFO:__main__: ============================================================
+2025-07-08 15:12:33,693 INFO:__main__: TESTING GUI TRAINING LOGIC
+2025-07-08 15:12:33,693 INFO:__main__: ============================================================
+2025-07-08 15:12:33,694 INFO:__main__: Creating SystemManager for GUI training test...
+2025-07-08 15:12:33,694 INFO:__main__: ✓ SystemManager created
+2025-07-08 15:12:33,694 INFO:__main__: Training with energies: [11.5, 15.75, 34.25]
+2025-07-08 15:12:33,694 INFO:__main__: Testing energy-conditioned training...
+2025-07-08 15:12:33,694 INFO:system_manager: === STARTING ENERGY-CONDITIONED TRAINING ===
+2025-07-08 15:12:33,694 INFO:system_manager: Training a SINGLE model with ALL energies instead of separate models
+2025-07-08 15:12:33,694 INFO:system_manager: Starting training with hyperparameters:
+2025-07-08 15:12:33,694 INFO:system_manager:   batch_size=1, num_epochs=2, learning_rate=0.0001, patience=3, cube_size=32
+2025-07-08 15:12:33,694 INFO:system_manager:   resolutions=[16.0], energies=[11.5, 15.75, 34.25]
+2025-07-08 15:12:33,694 INFO:system_manager: --- Training unified model at resolution=16.0 with energies=[11.5, 15.75, 34.25] ---
+2025-07-08 15:12:33,696 INFO:data_management: Energy levels found: [11.5, 15.75, 34.25]
+2025-07-08 15:12:34,321 INFO:system_manager: Loaded 30 samples with ALL energies: {34.25, 11.5, 15.75}
+2025-07-08 15:12:34,324 INFO:system_manager: Training set: 24 samples
+2025-07-08 15:12:34,324 INFO:system_manager: Validation set: 6 samples
+2025-07-08 15:12:34,522 INFO:system_manager: Scaling factor set to 2.0292506217956543
+2025-07-08 15:12:34,522 INFO:system_manager: Starting autoencoder training for unified model
+2025-07-08 15:12:34,551 INFO:training_pipeline: Starting autoencoder training epoch 0
+2025-07-08 15:12:46,785 INFO:training_pipeline: Epoch 0 completed: recon_loss=0.1818, adv_loss=0.0000, disc_loss=0.0000
+2025-07-08 15:12:46,786 INFO:training_pipeline: Starting validation
+2025-07-08 15:12:48,045 INFO:training_pipeline: Validation completed: avg_val_loss=0.0733
+2025-07-08 15:12:48,046 INFO:training_pipeline: Starting autoencoder training epoch 1
+2025-07-08 15:13:00,568 INFO:training_pipeline: Epoch 1 completed: recon_loss=0.0578, adv_loss=0.0000, disc_loss=0.0000
+2025-07-08 15:13:00,570 INFO:training_pipeline: Starting validation
+2025-07-08 15:13:01,965 INFO:training_pipeline: Validation completed: avg_val_loss=0.0434
+2025-07-08 15:13:01,965 INFO:system_manager: Starting diffusion training for unified model
+2025-07-08 15:14:08,863 INFO:system_manager: ✅ Unified energy-conditioned model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-08 15:14:08,864 INFO:system_manager: === ENERGY-CONDITIONED TRAINING COMPLETED ===
+2025-07-08 15:14:08,868 INFO:__main__: ✓ Energy-conditioned training completed successfully!
+2025-07-08 15:14:08,868 INFO:__main__: Model saved to: /Users/giannigagliardi/Documents/Git/RadioTherapy/unified_energy_conditioned_model_res16.0_energies3.ckpt
+2025-07-08 15:14:08,868 INFO:__main__: ============================================================
+2025-07-08 15:14:08,868 INFO:__main__: GUI TRAINING TEST COMPLETED SUCCESSFULLY
+2025-07-08 15:14:08,868 INFO:__main__: ============================================================
+2025-07-08 15:15:10,766 INFO:__main__: === Testing GUI Energy-Conditioned Training Capability ===
+2025-07-08 15:15:10,883 ERROR:__main__: GUI import failed: No module named 'sourcecode.GUI'
+2025-07-08 15:15:21,739 INFO:__main__: === Testing GUI Energy-Conditioned Training Capability ===
+2025-07-08 15:15:21,805 ERROR:__main__: GUI import failed: No module named 'GUI'
+2025-07-08 15:15:31,754 INFO:__main__: === Testing GUI Energy-Conditioned Training Capability ===
+2025-07-08 15:15:31,754 ERROR:__main__: GUI import failed: No module named 'GUI'
+2025-07-08 15:15:53,154 INFO:__main__: === Testing GUI Energy-Conditioned Training Capability ===
+2025-07-08 15:15:53,160 INFO:gui: GUI module loaded with logging configured
+2025-07-08 15:15:56,458 INFO:__main__: ✅ GUI energy-conditioned training capability verified

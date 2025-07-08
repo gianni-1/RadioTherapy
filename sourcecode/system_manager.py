@@ -281,25 +281,48 @@ class SystemManager:
         """
         Load a CT scan and run inference to compute dose distribution.
         """
+        logger.info("=" * 60)
+        logger.info("STARTING INFERENCE WORKFLOW")
+        logger.info("=" * 60)
+        logger.info(f"CT file path: {ct_file_path}")
+        logger.info(f"Model checkpoint: {model_checkpoint}")
+        logger.info(f"Device: {self.device}")
+        
         # determine model sources and load checkpoint dict if needed
         ckpt = None
         if model_checkpoint is None:
             if not self.models_by_energy:
+                logger.error("No trained models found and no checkpoint provided")
                 raise RuntimeError("No trained models found. Train the models first.")
+            logger.info("Using pre-trained models from training session")
         elif isinstance(model_checkpoint, str):
+            logger.info(f"Loading checkpoint from file: {model_checkpoint}")
             import torch as _torch
-            ckpt = _torch.load(model_checkpoint, map_location=self.device)
+            try:
+                ckpt = _torch.load(model_checkpoint, map_location=self.device, weights_only=False)
+                logger.info("✓ Checkpoint loaded successfully")
+            except Exception as e:
+                logger.warning(f"Direct load failed: {e}")
+                logger.info("Attempting to load via file handle...")
+                with open(model_checkpoint, 'rb') as f:
+                    ckpt = _torch.load(f, map_location=self.device, weights_only=False)
+                logger.info("✓ Checkpoint loaded via file handle")
         elif isinstance(model_checkpoint, dict) and 'autoencoder' in model_checkpoint and 'unet' in model_checkpoint:
+            logger.info("Using provided checkpoint dictionary")
             ckpt = model_checkpoint
         else:
+            logger.error("Invalid model checkpoint provided")
             raise ValueError("Invalid model checkpoint. Provide a path or a dict with 'autoencoder' and 'unet' keys.")
         # if we have a checkpoint dict, rebuild models from state_dict
         if ckpt is not None:
+            logger.info("Rebuilding models from checkpoint state_dict...")
             ae = AutoencoderKL(spatial_dims=3, in_channels=2, out_channels=1,
                                 num_channels=(32, 32, 32), latent_channels=2,
                                 num_res_blocks=1, norm_num_groups=8,
                                 attention_levels=(False, False, True)).to(self.device)
             ae.load_state_dict(ckpt['autoencoder'])
+            logger.info("✓ Autoencoder loaded from checkpoint")
+            
             # Determine cross_attention_dim from checkpoint UNet weights
             unet_state = ckpt['unet']
             cross_dim = None
@@ -314,6 +337,7 @@ class SystemManager:
                 # Fallback if detection fails
                 logger.warning("could not determine cross_attention_dim from UNet checkpoint; defaulting to 2")
                 cross_dim = 2
+            
             un = DiffusionModelUNet(
                 spatial_dims=3, in_channels=2, out_channels=2,
                 with_conditioning=True, cross_attention_dim=cross_dim,
@@ -321,6 +345,7 @@ class SystemManager:
                 attention_levels=(False, True, True),
                 num_head_channels=(0, 64, 64)
             ).to(self.device)
+            
             # Filter checkpoint to only matching shapes before loading
             pretrained_dict = ckpt['unet']
             model_dict = un.state_dict()
@@ -334,57 +359,118 @@ class SystemManager:
             un.load_state_dict(filtered_dict, strict=False)
             if missing or unexpected:
                 logger.warning(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
+            else:
+                logger.info("✓ UNet loaded from checkpoint (all keys matched)")
+            
             sched = DDPMScheduler(num_train_timesteps=1000,
                                   schedule="scaled_linear_beta",
                                   beta_start=0.0015, beta_end=0.0195)
             self.models_by_energy = {energy: (ae, un, sched) for energy in self.quad_energies}
             self.autoencoder, self.unet, self.scheduler = ae, un, sched
+            logger.info("✓ Scheduler created and models assigned")
         
         # lazy import to avoid circular
         import nibabel as nib
         import numpy as np
-        from inference_module import InferenceModule
+        from corrected_inference import CorrectedInferenceModule
 
         # build tensor from CT file: support both NIfTI (.nii, .nii.gz) and NumPy (.npy)
+        logger.info("Loading CT data...")
+        logger.info(f"CT file path: {ct_file_path}")
+        
         path_lower = ct_file_path.lower()
         if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
+            logger.info("Loading NIfTI file...")
             nifti_img = nib.load(ct_file_path)
             arr = np.asarray(nifti_img.dataobj)
+            logger.info(f"✓ NIfTI loaded: shape={arr.shape}, dtype={arr.dtype}")
         elif path_lower.endswith('.npy'):
+            logger.info("Loading NumPy file...")
             arr = np.load(ct_file_path)
+            logger.info(f"✓ NumPy loaded: shape={arr.shape}, dtype={arr.dtype}")
         else:
+            logger.error(f"Unsupported CT file format: {ct_file_path}")
             raise ValueError(f"Unsupported CT file format: {ct_file_path}")
+        
+        logger.info(f"CT data range: {arr.min():.6f} to {arr.max():.6f}")
         ct_tensor = torch.from_numpy(arr).unsqueeze(0).to(self.device)  # shape [1, D, H, W]
-        # initialize inference module with all energy-conditioned models
-        inf_mod = InferenceModule(
-            models_by_energy=self.models_by_energy,
-            energies=self.quad_energies,
-            energy_weights=self.quad_weights,
-            device=self.device,
-        )
+        logger.info(f"CT tensor shape: {ct_tensor.shape}")
+        
+        # Use corrected inference module
+        logger.info("Setting up corrected inference module...")
+        try:
+            if model_checkpoint:
+                logger.info(f"Creating CorrectedInferenceModule with checkpoint: {model_checkpoint}")
+                inf_mod = CorrectedInferenceModule(
+                    model_path=model_checkpoint,
+                    device=self.device
+                )
+            else:
+                # Use the most recent checkpoint
+                model_path = "unified_energy_conditioned_model_res16.0_energies3.ckpt"
+                logger.info(f"Creating CorrectedInferenceModule with default checkpoint: {model_path}")
+                inf_mod = CorrectedInferenceModule(
+                    model_path=model_path,
+                    device=self.device
+                )
+            logger.info("✓ CorrectedInferenceModule created successfully")
+        except Exception as e:
+            logger.error(f"Failed to create CorrectedInferenceModule: {e}")
+            logger.error("CorrectedInferenceModule creation traceback:", exc_info=True)
+            raise e
+        
         # run quadrature-based inference over all energies
-        logger.info("Running inference...")
-        dose = inf_mod.run_inference(ct_tensor)
+        logger.info("Running corrected inference...")
+        logger.info(f"Quadrature energies: {self.quad_energies}")
+        logger.info(f"Quadrature weights: {self.quad_weights}")
+        
+        try:
+            dose = inf_mod.run_inference(ct_tensor, self.quad_energies, self.quad_weights)
+            logger.info("✓ Corrected inference completed successfully")
+            logger.info(f"Dose tensor shape: {dose.shape}")
+            logger.info(f"Dose range: {dose.min():.6f} to {dose.max():.6f}")
+        except Exception as e:
+            logger.error(f"Corrected inference failed: {e}")
+            logger.error("Corrected inference traceback:", exc_info=True)
+            raise e
         # convert to numpy and remove batch dim
+        logger.info("Converting output to NumPy and preparing NIfTI...")
         dose_np = dose.detach().cpu().numpy()
         if dose_np.ndim == 4 and dose_np.shape[0] == 1:
             dose_np = dose_np[0]
+        logger.info(f"Final dose shape: {dose_np.shape}")
+        logger.info(f"Final dose range: {dose_np.min():.6f} to {dose_np.max():.6f}")
+        
         # create affine
         import numpy as _np, nibabel as _nib, json as _json, os as _os
         from nibabel.nifti1 import Nifti1Extension
         affine = _np.eye(4)
         img = _nib.Nifti1Image(dose_np, affine)
+        logger.info("✓ NIfTI image created")
+        
         # attach cubes.json manifest if available
         manifest_path = _os.path.join(self.root_dir, 'cubes.json')
         if _os.path.exists(manifest_path):
+            logger.info(f"Loading manifest from: {manifest_path}")
             with open(manifest_path, 'r') as mf:
                 manifest = _json.load(mf)
             # Encode manifest JSON to bytes for NIfTI extension
             ext = Nifti1Extension('comment', _json.dumps(manifest).encode('utf-8'))
             img.header.extensions.append(ext)
+            logger.info("✓ Manifest attached to NIfTI header")
+        else:
+            logger.info("No cubes.json manifest found, skipping manifest attachment")
+        
         # save NIfTI file
         out_path = _os.path.join(self.root_dir, 'inference_with_manifest.nii.gz')
+        logger.info(f"Saving inference result to: {out_path}")
         _nib.save(img, out_path)
+        logger.info("✓ NIfTI file saved successfully")
+        
+        logger.info("=" * 60)
+        logger.info("INFERENCE WORKFLOW COMPLETED SUCCESSFULLY")
+        logger.info(f"Output file: {out_path}")
+        logger.info("=" * 60)
         # set result path
         self.dose_result_path = out_path
         return out_path
