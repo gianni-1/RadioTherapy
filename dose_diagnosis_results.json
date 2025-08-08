@@ -1,0 +1,151 @@
+{
+  "raw_dose_statistics": {
+    "global_min": 0.0,
+    "global_max": 70.0,
+    "total_files_analyzed": 50,
+    "energy_statistics": {
+      "34_25": {
+        "file_count": 10,
+        "min": 8.581937034168772e-09,
+        "max": 39.285484313964844,
+        "mean": 0.04393650027839226,
+        "std": 0.11251305446129298,
+        "median": 0.0002394605180102798,
+        "percentile_95": 0.20368866696953772,
+        "percentile_99": 0.4223211312294002,
+        "shape": [
+          100,
+          100,
+          100
+        ]
+      },
+      "3_47": {
+        "file_count": 10,
+        "min": 0.0,
+        "max": 15.355803489685059,
+        "mean": 0.008899282664060593,
+        "std": 0.034103792160749435,
+        "median": 2.3111798586050725e-10,
+        "percentile_95": 0.04724983181804417,
+        "percentile_99": 0.13465210989117618,
+        "shape": [
+          100,
+          100,
+          100
+        ]
+      },
+      "15_75": {
+        "file_count": 10,
+        "min": 3.403981578700545e-13,
+        "max": 34.891815185546875,
+        "mean": 0.020204376040546413,
+        "std": 0.07796649053759798,
+        "median": 2.4909951260584922e-05,
+        "percentile_95": 0.11980102360248562,
+        "percentile_99": 0.3022104501724243,
+        "shape": [
+          100,
+          100,
+          100
+        ]
+      },
+      "11_5": {
+        "file_count": 10,
+        "min": 9.598499175689225e-17,
+        "max": 21.789043426513672,
+        "mean": 0.01180422124266486,
+        "std": 0.05224822374677889,
+        "median": 5.51162154723956e-06,
+        "percentile_95": 0.0721747517585754,
+        "percentile_99": 0.2002737689018249,
+        "shape": [
+          100,
+          100,
+          100
+        ]
+      },
+      "46_53": {
+        "file_count": 10,
+        "min": 4.700011049862951e-05,
+        "max": 70.0,
+        "mean": 0.11933247745037079,
+        "std": 0.17887666821479797,
+        "median": 0.06843598932027817,
+        "percentile_95": 0.3509084716439244,
+        "percentile_99": 0.6788400739431374,
+        "shape": [
+          100,
+          100,
+          100
+        ]
+      }
+    }
+  },
+  "training_normalization_params": {
+    "source_file": "sourcecode/training_pipeline.py",
+    "normalization_patterns": {
+      "clip_max": 32,
+      "clip_min": 36,
+      "dose_normalization": 1
+    },
+    "clip_max_values": [
+      "1.0",
+      ".6",
+      ".6",
+      ".6"
+    ],
+    "clip_min_values": [
+      "0.0",
+      ".6",
+      ".6",
+      ".6",
+      ".6"
+    ]
+  },
+  "checkpoint_normalization_params": {},
+  "inference_parameters": {
+    "has_denormalize_dose": false,
+    "references_clip_max": true,
+    "normalization_term_counts": {
+      "normalize": 9,
+      "denormalize": 0,
+      "clip_min": 23,
+      "clip_max": 22,
+      "scale_factor": 10
+    }
+  },
+  "medical_plausibility": {},
+  "data_flow_analysis": {
+    "raw_energies": [
+      "15_75",
+      "34_25",
+      "3_47",
+      "46_53",
+      "11_5"
+    ],
+    "checkpoint_energies": [],
+    "missing_energies": [
+      "46_53",
+      "15_75",
+      "34_25",
+      "11_5",
+      "3_47"
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "issue": "Missing dose normalization parameters in checkpoint",
+      "description": "Checkpoint does not contain dose_normalization_params",
+      "solution": "Regenerate checkpoint with proper dose normalization parameters",
+      "implementation": "Retrain model with corrected dose normalization pipeline"
+    },
+    {
+      "priority": "MEDIUM",
+      "issue": "Missing denormalize_dose method in InferenceModule",
+      "description": "InferenceModule may not properly denormalize dose outputs",
+      "solution": "Add proper dose denormalization logic to InferenceModule",
+      "implementation": "Implement denormalize_dose() method with energy-specific parameters"
+    }
+  ]
+}

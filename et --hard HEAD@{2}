@@ -1,0 +1,33 @@
+[33m18bb2d6[m[33m ([m[1;36mHEAD -> [m[1;32mexecutableSTATE[m[33m)[m HEAD@{0}: reset: moving to HEAD
+[33m18bb2d6[m[33m ([m[1;36mHEAD -> [m[1;32mexecutableSTATE[m[33m)[m HEAD@{1}: reset: moving to HEAD~2
+[33m7b9dde5[m HEAD@{2}: reset: moving to 7b9dde534a37cbeacbe8dcdbeaa4ec3210835821
+[33mfa95879[m HEAD@{3}: reset: moving to fa95879
+[33mfa95879[m HEAD@{4}: reset: moving to HEAD^
+[33mc4014b4[m HEAD@{5}: reset: moving to c4014b4
+[33ma5fa172[m[33m ([m[1;31morigin/executableSTATE[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{6}: reset: moving to origin/executableSTATE
+[33m97764ec[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{7}: reset: moving to origin/main
+[33mfa95879[m HEAD@{8}: reset: moving to HEAD^
+[33mc4014b4[m HEAD@{9}: commit: Delete Chekcpoints
+[33mfa95879[m HEAD@{10}: commit (merge): Merge branch 'executableSTATE' of https://github.com/gianni-1/RadioTherapy into executableSTATE
+[33m7b9dde5[m HEAD@{11}: commit: test
+[33m0ab26f8[m HEAD@{12}: checkout: moving from max-br to executableSTATE
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{13}: checkout: moving from executableSTATE to max-br
+[33m0ab26f8[m HEAD@{14}: checkout: moving from max-br to executableSTATE
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{15}: reset: moving to HEAD
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{16}: checkout: moving from executableSTATE to max-br
+[33m0ab26f8[m HEAD@{17}: reset: moving to HEAD
+[33m0ab26f8[m HEAD@{18}: checkout: moving from max-br to executableSTATE
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{19}: checkout: moving from executableSTATE to max-br
+[33m0ab26f8[m HEAD@{20}: reset: moving to HEAD
+[33m0ab26f8[m HEAD@{21}: pull: Fast-forward
+[33m18bb2d6[m[33m ([m[1;36mHEAD -> [m[1;32mexecutableSTATE[m[33m)[m HEAD@{22}: checkout: moving from max-br to executableSTATE
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{23}: checkout: moving from executableSTATE to max-br
+[33m18bb2d6[m[33m ([m[1;36mHEAD -> [m[1;32mexecutableSTATE[m[33m)[m HEAD@{24}: pull: Fast-forward
+[33mebfcc1f[m HEAD@{25}: checkout: moving from max-br to executableSTATE
+[33m934cdaf[m[33m ([m[1;31morigin/max-br[m[33m, [m[1;32mmax-br[m[33m)[m HEAD@{26}: pull: Fast-forward
+[33me0643c6[m HEAD@{27}: pull: Fast-forward
+[33m97cdfcc[m HEAD@{28}: pull: Fast-forward
+[33m818685d[m HEAD@{29}: pull --tags origin max-br: Fast-forward
+[33m5ab95ef[m HEAD@{30}: checkout: moving from executableSTATE to max-br
+[33mebfcc1f[m HEAD@{31}: pull --tags origin executableSTATE: Fast-forward
+[33md3e86a6[m HEAD@{32}: clone: from https://github.com/gianni-1/RadioTherapy.git

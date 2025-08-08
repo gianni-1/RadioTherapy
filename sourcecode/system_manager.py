@@ -5,9 +5,12 @@ import os
 import torch
 import log_config
 import logging
+import glob
+import json
+import numpy as np
 logger = logging.getLogger(__name__)
 
-from data_management import DataLoaderModule
+from data_management import DataLoaderModule, HotspotPatchDataset
 from training_pipeline import AutoencoderTrainer, DiffusionTrainer, EarlyStopping
 from inference_module import InferenceModule
 from monai.transforms import Compose, LoadImaged, EnsureChannelFirstd, ToTensord
@@ -21,7 +24,7 @@ from torch.amp import autocast
 from generative.networks.schedulers.ddpm import DDPMScheduler
 from monai.transforms import (
     Compose, LoadImaged, EnsureChannelFirstd, Lambdad,
-    EnsureTyped, Orientationd, Spacingd, SpatialPadd,
+    EnsureTyped, Orientationd, Resized, SpatialPadd,
     CenterSpatialCropd, ScaleIntensityRangePercentilesd, ToTensord,
 )
 from monai.data import NumpyReader
@@ -37,7 +40,7 @@ class SystemManager:
         using early stopping based on validation loss.
       - Sets a training-completion flag for subsequent inference.
     """
-    def __init__(self, root_dir, transforms, resolutions, energies, quad_energies, quad_weights, batch_size, device, num_epochs, learning_rate, patience, cube_size, seed=42):
+    def __init__(self, root_dir, transforms, resolutions, energies, energy_min, energy_max, quad_energies, quad_weights, batch_size, device, num_epochs, learning_rate, patience, cube_size, seed=42):
         """
         Initializes the SystemManager with configuration parameters.
 
@@ -54,6 +57,8 @@ class SystemManager:
         self.transforms = transforms
         self.resolutions = resolutions
         self.energies = energies
+        self.energy_min = energy_min
+        self.energy_max = energy_max
         self.batch_size = batch_size
         self.device = device
         self.seed = seed
@@ -71,20 +76,72 @@ class SystemManager:
         self.quad_weights = quad_weights
         #keep models per energy for quadrature inference
         self.models_by_energy = {}
+        # track individual checkpoints in memory
+        self.saved_ckpts = {}
 
-    def save_models(self, autoencoder, unet, optimizer_diff, optimizer_g, optimizer_d, epoch):
-        checkpoint_path = f"model_res{self.resolutions}_energy{self.energies}.ckpt"
-        torch.save(
-            {
-                "autoencoder": autoencoder.state_dict(),
-                "unet": unet.state_dict(),
-                "optimizer_diff": optimizer_diff.state_dict(),
-                "optimizer_g": optimizer_g.state_dict(),
-                "optimizer_d": optimizer_d.state_dict(),
-                "epoch": epoch,
-            },
-            checkpoint_path,
-        )
+    def save_models(self, autoencoder, unet, optimizer_diff, optimizer_g,
+                    optimizer_d, epoch, res, energy,
+                    dose_mean=None, dose_std=None,
+                    scale_factor=None, clip_min=0.0, clip_max=None,
+                    smoothing_kernel=0):
+        # build checkpoint dict in memory (no file I/O)
+        ckpt = {
+            "autoencoder": autoencoder.state_dict(),
+            "unet": unet.state_dict(),
+            "optimizer_diff": optimizer_diff.state_dict(),
+            "optimizer_g": optimizer_g.state_dict(),
+            "optimizer_d": optimizer_d.state_dict(),
+            "epoch": epoch,
+            "scale_factor": scale_factor,
+            "clip_min": clip_min,
+            "clip_max": clip_max,
+            "smoothing_kernel": smoothing_kernel,
+            "dose_mean": dose_mean,
+            "dose_std": dose_std,
+            "resolution": res,
+            "energy": energy,
+            "learning_rate": self.learning_rate,
+            "batch_size": self.batch_size,
+            "cube_size": self.cube_size,
+        }
+        # build a resolution string for the key
+        if isinstance(res, (tuple, list)):
+            res_str = "x".join(str(r) for r in res)
+        else:
+            res_str = str(res)
+        key = f"res{res_str}_e{energy:.2f}"
+        self.saved_ckpts[key] = ckpt
+
+    def save_combined_checkpoint(self, output_filename="combined_models.ckpt"):
+        """
+        Save all in-memory checkpoints into a single combined file.
+        """
+        # Extract dose normalization parameters for each energy/resolution combination
+        dose_normalization_params = {}
+        
+        for key, ckpt in self.saved_ckpts.items():
+            # Extract energy and resolution from key (e.g., "res25_e46.53")
+            if 'clip_min' in ckpt and 'clip_max' in ckpt and 'energy' in ckpt:
+                dose_normalization_params[key] = {
+                    'clip_min': ckpt['clip_min'],
+                    'clip_max': ckpt['clip_max'],
+                    'energy': ckpt['energy'],
+                    'resolution': ckpt.get('resolution', None),
+                    'scale_factor': ckpt.get('scale_factor', 1.0),
+                    'dose_mean': ckpt.get('dose_mean', None),
+                    'dose_std': ckpt.get('dose_std', None)
+                }
+                logger.info(f"✓ Dose params for {key}: clip_min={ckpt['clip_min']:.6f}, clip_max={ckpt['clip_max']:.6f}")
+        
+        combined = {
+            "models_by_energy": self.saved_ckpts,
+            "dose_normalization_params": dose_normalization_params
+        }
+        output_path = os.path.join(self.root_dir, output_filename)
+        torch.save(combined, output_path)
+        logger.info(f"✓ Combined checkpoint saved to {output_path}")
+        logger.info(f"✓ Saved dose normalization parameters for {len(dose_normalization_params)} energy/resolution combinations")
+        return output_path
 
     def run_training(self):
         """
@@ -101,179 +158,264 @@ class SystemManager:
         After all configurations have been processed, a flag is set to indicate that training is complete.
         """
         # Print hyperparameters for verification
-        logger.info("Starting training with hyperparameters:")
+        logger.info("Starting CORRECTED training with hyperparameters:")
         logger.info(f"  batch_size={self.batch_size}, num_epochs={self.num_epochs}, learning_rate={self.learning_rate}, patience={self.patience}, cube_size={self.cube_size}")
         logger.info(f"  resolutions={self.resolutions}, energies={self.energies}")
-        for res in self.resolutions:
+        
+        # CORRECTED TRAINING STRATEGY: Use single resolution (64x64x64) for all energies
+        target_resolution = (64, 64, 64)  # Fixed single resolution for stability
+        logger.info(f"🔧 CORRECTED: Using SINGLE resolution {target_resolution} for ALL energies (instead of multi-resolution)")
+        logger.info(f"🔧 CORRECTED: Energy Loop -> Resolution Loop (proper architecture)")
+        
+        # instantiate models - before the loop to avoid re-instantiation
+        autoencoder = AutoencoderKL(
+            spatial_dims=3,
+            in_channels=2,
+            out_channels=1,
+            num_channels=(32, 32, 32),
+            latent_channels=2,
+            num_res_blocks=1,
+            norm_num_groups=8,
+            attention_levels=(False, False, True),
+        ).to(self.device)
+        discriminator = PatchDiscriminator(
+            spatial_dims=3,
+            num_layers_d=3, 
+            num_channels=32, 
+            in_channels=1, 
+            out_channels=1
+        ).to(self.device)
+        unet = DiffusionModelUNet(
+            spatial_dims=3,
+            in_channels=2,
+            out_channels=2,
+            with_conditioning=False,  # Disabled cross-attention conditioning
+            num_res_blocks=1,
+            num_channels=(32, 64, 64),
+            attention_levels=(False, True, True),
+            num_head_channels=(0, 64, 64),
+        ).to(self.device)
+
+        # initialize history lists for plotting
+        ae_train_losses = []
+        ae_val_losses   = []
+        gen_losses      = []
+        disc_losses     = []
+        diff_losses     = []
+        
+        # CORRECTED TRAINING LOOP: Energy as Outer Loop, Single Resolution
+        for energy in self.energies:
             if self.stop_training:
                 logger.info("Training aborted by user.")
                 return
-            for energy in self.energies:
-                if self.stop_training:
-                    logger.info("Training aborted by user.")
-                    return
-                logger.info(f"--- Training at resolution={res}, energy={energy} eV ---")
-                self.transforms = Compose([
-                    LoadImaged(keys=["input", "target"], reader=NumpyReader),
-                    EnsureChannelFirstd(keys=["input", "target"]),
-                    EnsureTyped(keys=["input", "target"]),
-                    Orientationd(keys=["input", "target"], axcodes="RAS"),
-                    Spacingd(keys=["input", "target"], pixdim=res, mode= ("bilinear", "nearest")),
-                    SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
-                    CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
-                    ScaleIntensityRangePercentilesd(
-                        keys="input", lower=0, upper=99.5, b_min=0, b_max=1
-                    ),
-                    ToTensord(keys=["input", "target"]),
-                    EnsureTyped(keys=["energy"]),
-                    ToTensord  (keys=["energy"])
-                    ])
+            logger.info(f"🔧 --- CORRECTED: Training energy={energy} eV at resolution={target_resolution} ---")
+            logger.info(f"🔧 CORRECTED: Pipeline uses consistent resolution: {target_resolution}")
+            # Separate transforms for patch-based training and validation
+            patch_transforms = Compose([
+                EnsureTyped(keys=["input", "target"]),
+                Orientationd(keys=["input", "target"], axcodes="RAS"),
+                Resized(keys=["input", "target"], spatial_size=target_resolution, mode=("bilinear", "nearest")),
+                ScaleIntensityRangePercentilesd(keys="input", lower=0, upper=99.5, b_min=0, b_max=1),
+                ToTensord(keys=["input", "target"]),
+                EnsureTyped(keys=["energy"]),
+                ToTensord(keys=["energy"])
+            ])
+            val_transforms = Compose([
+                LoadImaged(keys=["input", "target"], reader=NumpyReader),
+                EnsureChannelFirstd(keys=["input", "target"]),
+                EnsureTyped(keys=["input", "target"]),
+                Orientationd(keys=["input", "target"], axcodes="RAS"),
+                Resized(keys=["input", "target"], spatial_size=target_resolution, mode=("bilinear", "nearest")),
+                ScaleIntensityRangePercentilesd(keys="input", lower=0, upper=99.5, b_min=0, b_max=1),
+                ToTensord(keys=["input", "target"]),
+                EnsureTyped(keys=["energy"]),
+                ToTensord(keys=["energy"])
+            ])
                 
-                # initialize history lists for plotting
-                ae_train_losses = []
-                ae_val_losses   = []
-                gen_losses      = []
-                disc_losses     = []
-                diff_losses     = []
 
-                
-                data_module = DataLoaderModule(
-                    root_dir=self.root_dir,
-                    transforms=self.transforms
-                )
-                # load complete dataset
-                ds_full = data_module.load_dataset(section=None)
-                # sample["energy"] delivers a tensor, so we need to convert it to float
-                ds_full = [s for s in ds_full if float(s["energy"].item()) == energy]
-                
-                train_ds, val_ds = data_module.split_dataset(ds_full)
-                train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
-                val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
-                logger.info(f"Found {len(ds_full)} samples for energy={energy}, resolution={res}")
-                
-                # instantiate models
-                autoencoder = AutoencoderKL(
-                    spatial_dims=3,
-                    in_channels=2,
-                    out_channels=1,
-                    num_channels=(32, 32, 32),
-                    latent_channels=2,
-                    num_res_blocks=1,
-                    norm_num_groups=8,
-                    attention_levels=(False, False, True),
-                ).to(self.device)
-                discriminator = PatchDiscriminator(
-                    spatial_dims=3,
-                    num_layers_d=3, 
-                    num_channels=32, 
-                    in_channels=1, 
-                    out_channels=1
-                ).to(self.device)
-                unet = DiffusionModelUNet(
-                    spatial_dims=3,
-                    in_channels=2,
-                    out_channels=2,
-                    with_conditioning=True,
-                    cross_attention_dim=2,
-                    num_res_blocks=1,
-                    num_channels=(32, 64, 64),
-                    attention_levels=(False, True, True),
-                    num_head_channels=(0, 64, 64),
-                ).to(self.device)
+            # Use HotspotPatchDataset for patch-based training
+            logger.info("Using HotspotPatchDataset for patch-based training.")
+            train_ds = HotspotPatchDataset(
+                root_dir=self.root_dir,
+                section=None,
+                patch_size=(32, 32, 32),
+                min_hotspot_voxels=1000,
+                dose_threshold=0.5,
+                max_patches=6,
+                random_patches=0,
+                transforms=patch_transforms,
+                energy=energy,
+                max_patches_per_energy=80 if energy <= 40.0 else 60  # Less patches for high energy
+            )
+            # Für Validation jetzt auch HotspotPatchDataset verwenden (ohne random_patches)
+            val_ds = HotspotPatchDataset(
+                root_dir=self.root_dir,
+                section=None,
+                patch_size=(32, 32, 32),
+                min_hotspot_voxels=1000,
+                dose_threshold=0.5,
+                max_patches=2,
+                random_patches=0,
+                transforms=patch_transforms,
+                energy=energy,
+                max_patches_per_energy=20 if energy <= 40.0 else 15  # Less patches for high energy validation
+            )
+            # DataLoader wie gehabt
+            from data_management import DataLoaderModule
+            data_module = DataLoaderModule(
+                root_dir=self.root_dir,
+                transforms=patch_transforms
+            )
+            train_loader = data_module.create_data_loader(train_ds, self.batch_size, shuffle=True)
+            val_loader   = data_module.create_data_loader(val_ds, self.batch_size, shuffle=False)
+            logger.info(f"Found {len(val_ds)} validation patches for energy={energy}, resolution={target_resolution}")
 
+            scheduler = DDPMScheduler(
+                num_train_timesteps=1000,
+                schedule="scaled_linear_beta",
+                beta_start=0.0015,
+                beta_end=0.0195,
+            )
+        
+            # ### Scaling factor
+            #
+            # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. 
+            # For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
+            #
+            # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
+            #
 
-                scheduler = DDPMScheduler(
-                    num_train_timesteps=1000,
-                    schedule="scaled_linear_beta",
-                    beta_start=0.0015,
-                    beta_end=0.0195,
-                )
+            # +
+            with torch.no_grad():
+                with autocast('cuda', enabled=True):
+                    first_batch = first(train_loader)
+                    # Build conditioned input for autoencoder with energy channel if available
+                    images = first_batch["input"].to(self.device)
+                    energies = first_batch.get("energy", None)
+                    if energies is not None:
+                        energies = energies.to(self.device)
+                        normalized_energy = energies.float() / 100.0  # match training normalization
+                        B, C, D, H, W = images.shape
+                        energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
+                        conditioned = torch.cat([images, energy_tensor], dim=1)
+                    else:
+                        conditioned = images
+                    # Encode to latents using conditioned input
+                    z = autoencoder.encode_stage_2_inputs(conditioned)
+
+            # **CRITICAL FIX: Handle NaN in scale factor calculation**
+            z_std = torch.std(z)
+            logger.info(f"Latent std: {z_std.item():.6f}")
             
-                                
-                    
-                # ### Scaling factor
-                #
-                # As mentioned in Rombach et al. [1] Section 4.3.2 and D.1, the signal-to-noise ratio (induced by the scale of the latent space) can affect the results obtained with the LDM, if the standard deviation of the latent space distribution drifts too much from that of a Gaussian. 
-                # For this reason, it is best practice to use a scaling factor to adapt this standard deviation.
-                #
-                # _Note: In case where the latent space is close to a Gaussian distribution, the scaling factor will be close to one, and the results will not differ from those obtained when it is not used._
-                #
+            if torch.isnan(z_std) or torch.isinf(z_std) or z_std.item() < 1e-8:
+                logger.warning(f"Invalid latent std ({z_std.item()}), using fallback scale_factor=1.0")
+                scale_factor = 1.0
+            else:
+                scale_factor = 1 / z_std.item()
+                # Clamp scale factor to reasonable range
+                scale_factor = max(min(scale_factor, 10.0), 0.1)
+            
+            logger.info(f"Scaling factor set to {scale_factor}")
+            
+            # **Additional validation**
+            if not np.isfinite(scale_factor):
+                logger.error(f"Scale factor is not finite: {scale_factor}")
+                scale_factor = 1.0
 
-                # +
-                with torch.no_grad():
-                    with autocast('cuda', enabled=True):
-                        first_batch = first(train_loader)
-                        # Build conditioned input for autoencoder with energy channel if available
-                        images = first_batch["input"].to(self.device)
-                        energies = first_batch.get("energy", None)
-                        if energies is not None:
-                            energies = energies.to(self.device)
-                            normalized_energy = energies.float() / 100.0  # match training normalization
-                            B, C, D, H, W = images.shape
-                            energy_tensor = normalized_energy.view(B, 1, 1, 1, 1).expand(B, 1, D, H, W)
-                            conditioned = torch.cat([images, energy_tensor], dim=1)
-                        else:
-                            conditioned = images
-                        # Encode to latents using conditioned input
-                        z = autoencoder.encode_stage_2_inputs(conditioned)
+            inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
 
+            # 🔧 AGGRESSIVE learning rate for faster convergence (problems identified)
+            # Current signal ratios 0.03-0.08 too low, need stronger learning
+            aggressive_lr = self.learning_rate * 1.0  # Use full original LR (1e-5)
+            logger.info(f"Using AGGRESSIVE learning rate: {aggressive_lr} (original: {self.learning_rate}) for faster convergence")
+            
+            opt_g = Adam(autoencoder.parameters(), lr=aggressive_lr, weight_decay=1e-5)  # Reduced weight decay
+            opt_d = Adam(discriminator.parameters(), lr=aggressive_lr, weight_decay=1e-5)
+            opt_diff = Adam(unet.parameters(), lr=aggressive_lr, weight_decay=1e-5)
+            
+            # trainers and early stopping
+            ae_trainer = AutoencoderTrainer(autoencoder, discriminator, opt_g, opt_d, self.energy_min, self.energy_max, self.device)
+            
+            # **CRITICAL FIX: Calculate dose normalization parameters before training**
+            logger.info("Calculating dose normalization parameters from training data...")
+            try:
+                ae_trainer.calculate_dose_normalization_params(train_loader, energy=energy)
+            except Exception as e:
+                logger.error(f"Failed to calculate dose normalization parameters: {e}")
+                logger.error("This usually indicates problems with the training data.")
+                raise
+            
+            # Validate that normalization parameters are reasonable
+            if ae_trainer.clip_min is None or ae_trainer.clip_max is None:
+                raise RuntimeError("clip_min or clip_max is None after calculation")
+            
+            if ae_trainer.clip_max <= ae_trainer.clip_min:
+                raise RuntimeError(f"Invalid dose range: clip_max ({ae_trainer.clip_max}) <= clip_min ({ae_trainer.clip_min})")
+            
+            # Initialize loss functions after normalization parameters are set
+            ae_trainer.setup_loss_functions()
+            
+            logger.info(f"Starting autoencoder training for resolution={target_resolution}, energy={energy}")
+            stopper = EarlyStopping(patience=self.patience)
+            # autoencoder training loop
+            for epoch in range(self.num_epochs):
+                if self.stop_training:
+                    logger.info(f"Autoencoder training aborted by user at epoch {epoch} for resolution={target_resolution}, energy={energy}")
+                    break
+                train_loss, gen_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
+                val_loss = ae_trainer.validate(val_loader)
+                # record losses
+                ae_train_losses.append(train_loss)
+                ae_val_losses.append(val_loss)
+                gen_losses.append(gen_loss)
+                disc_losses.append(disc_loss)
+                if stopper.update(val_loss):
+                    logger.info(f"Early stopping autoencoder at epoch {epoch+1} for resolution={target_resolution}, energy={energy}")
+                    break
+            
+            # now diffusion training
+            logger.info(f"Starting diffusion training for resolution={target_resolution}, energy={energy}")
+            diff_trainer = DiffusionTrainer(unet, opt_diff, self.energy_min, self.energy_max, self.device)
+            
+            # diffusion (UNet) training loop
+            for epoch in range(self.num_epochs):
+                if self.stop_training:
+                    logger.info(f"Diffusion training aborted by user at epoch {epoch} for resolution={target_resolution}, energy={energy}")
+                    break
+                diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
+                # record diffusion loss
+                diff_losses.append(diff_loss)
 
-                logger.info(f"Scaling factor set to {1/torch.std(z)}")
-                scale_factor = 1 / torch.std(z)
+            # plot loss curves for this config
+            Visualization.plot_loss_curves(
+                ae_train_losses, ae_val_losses,
+                gen_losses, disc_losses,
+                diff_losses,
+                resolution=target_resolution, energy=energy
+            )
+            
+            # **THIS IS THE CRUCIAL ADDITION:**
+            # Save individual model checkpoint to memory after training each configuration
+            self.save_models(
+                autoencoder=autoencoder,
+                unet=unet,
+                optimizer_diff=opt_diff,
+                optimizer_g=opt_g,
+                optimizer_d=opt_d,
+                epoch=epoch,  # last epoch
+                res=target_resolution,
+                energy=energy,
+                dose_mean=getattr(ae_trainer, 'dose_mean', None),
+                dose_std=getattr(ae_trainer, 'dose_std', None),
+                scale_factor=scale_factor,
+                clip_min=getattr(ae_trainer, 'clip_min', 0.0),  # FIX: Get from trainer
+                clip_max=getattr(ae_trainer, 'clip_max', None),  # FIX: Get from trainer
+                smoothing_kernel=0,
+            )
+            logger.info(f"✓ Model checkpoint saved to memory for resolution={target_resolution}, energy={energy}")
 
-                inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
-
-                # optimizers
-                opt_g = Adam(autoencoder.parameters(), lr=self.learning_rate)
-                opt_d = Adam(discriminator.parameters(), lr=self.learning_rate)
-                opt_diff = Adam(unet.parameters(), lr=self.learning_rate)
-                
-                # trainers and early stopping
-                ae_trainer = AutoencoderTrainer(autoencoder, discriminator, opt_g, opt_d, self.device)
-                logger.info(f"Starting autoencoder training for resolution={res}, energy={energy}")
-                stopper = EarlyStopping(patience=self.patience)
-                # autoencoder training loop
-                for epoch in range(self.num_epochs):
-                    if self.stop_training:
-                        logger.info(f"Autoencoder training aborted by user at epoch {epoch} for resolution={res}, energy={energy}")
-                        break
-                    train_loss, gen_loss, disc_loss = ae_trainer.train_one_epoch(train_loader, epoch)
-                    val_loss = ae_trainer.validate(val_loader)
-                    # record losses
-                    ae_train_losses.append(train_loss)
-                    ae_val_losses.append(val_loss)
-                    gen_losses.append(gen_loss)
-                    disc_losses.append(disc_loss)
-                    if stopper.update(val_loss):
-                        logger.info(f"Early stopping autoencoder at epoch {epoch+1} for resolution={res}, energy={energy}")
-                        break
-                
-                # now diffusion training
-                logger.info(f"Starting diffusion training for resolution={res}, energy={energy}")
-                diff_trainer = DiffusionTrainer(unet, opt_diff, self.device)
-                
-                # diffusion (UNet) training loop
-                for epoch in range(self.num_epochs):
-                    if self.stop_training:
-                        logger.info(f"Diffusion training aborted by user at epoch {epoch} for resolution={res}, energy={energy}")
-                        break
-                    diff_loss = diff_trainer.train_one_epoch(train_loader, epoch, inferer, autoencoder)
-                    # record diffusion loss
-                    diff_losses.append(diff_loss)
-
-                # plot loss curves for this config
-                Visualization.plot_loss_curves(
-                    ae_train_losses, ae_val_losses,
-                    gen_losses, disc_losses,
-                    diff_losses,
-                    resolution=res, energy=energy
-                )
-                
-                # save checkpoint for this config
-                self.save_models(autoencoder, unet, opt_diff, opt_g, opt_d, epoch)
-
-   
-        # after loops
+        # after all individual trainings, save a single combined checkpoint
+        self.save_combined_checkpoint()
         self.training_complete = True
         logger.info("All training finished for all configurations.")
 
@@ -315,59 +457,201 @@ class SystemManager:
             raise ValueError("Invalid model checkpoint. Provide a path or a dict with 'autoencoder' and 'unet' keys.")
         # if we have a checkpoint dict, rebuild models from state_dict
         if ckpt is not None:
-            logger.info("Rebuilding models from checkpoint state_dict...")
-            ae = AutoencoderKL(spatial_dims=3, in_channels=2, out_channels=1,
-                                num_channels=(32, 32, 32), latent_channels=2,
-                                num_res_blocks=1, norm_num_groups=8,
-                                attention_levels=(False, False, True)).to(self.device)
-            ae.load_state_dict(ckpt['autoencoder'])
-            logger.info("✓ Autoencoder loaded from checkpoint")
-            
-            # Determine cross_attention_dim from checkpoint UNet weights
-            unet_state = ckpt['unet']
-            cross_dim = None
-            # Find any to_k.weight where input dim != output dim (identifies cross-attn)
-            for key, tensor in unet_state.items():
-                if 'to_k.weight' in key and tensor.dim() == 2 and tensor.shape[1] != tensor.shape[0]:
-                    # tensor shape is [inner_dim, cross_attention_dim]
-                    cross_dim = tensor.shape[1]
-                    logger.info(f"Detected cross_attention_dim={cross_dim} from key: {key}")
-                    break
-            if cross_dim is None:
-                # Fallback if detection fails
-                logger.warning("could not determine cross_attention_dim from UNet checkpoint; defaulting to 2")
-                cross_dim = 2
-            
-            un = DiffusionModelUNet(
-                spatial_dims=3, in_channels=2, out_channels=2,
-                with_conditioning=True, cross_attention_dim=cross_dim,
-                num_res_blocks=1, num_channels=(32, 64, 64),
-                attention_levels=(False, True, True),
-                num_head_channels=(0, 64, 64)
-            ).to(self.device)
-            
-            # Filter checkpoint to only matching shapes before loading
-            pretrained_dict = ckpt['unet']
-            model_dict = un.state_dict()
-            filtered_dict = {
-                k: v for k, v in pretrained_dict.items()
-                if k in model_dict and model_dict[k].shape == v.shape
-            }
-            missing = set(model_dict.keys()) - set(filtered_dict.keys())
-            unexpected = set(pretrained_dict.keys()) - set(filtered_dict.keys())
-            # Load only matching parameters
-            un.load_state_dict(filtered_dict, strict=False)
-            if missing or unexpected:
-                logger.warning(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
+            # --- Combined checkpoint support ---
+            models_by_energy_ckpt = ckpt.get("models_by_energy", None)
+            if models_by_energy_ckpt is not None:
+                logger.info("Detected combined checkpoint with per-energy models, loading all energies")
+                self.models_by_energy.clear()
+                for energy_str, model_dict in models_by_energy_ckpt.items():
+                    # Extract energy from key format like "res16x16x16_e46.53" or "res16_e46.53"
+                    if "_e" in energy_str:
+                        energy_val = float(energy_str.split("_e")[1])
+                    else:
+                        # Fallback: try to convert the whole string (for backward compatibility)
+                        energy_val = float(energy_str)
+                        logger.warning(f"Using fallback energy extraction for key: {energy_str}")
+                    # instantiate autoencoder
+                    ae = AutoencoderKL(
+                        spatial_dims=3,
+                        in_channels=2,
+                        out_channels=1,
+                        num_channels=(32, 32, 32),
+                        latent_channels=2,
+                        num_res_blocks=1,
+                        norm_num_groups=8,
+                        attention_levels=(False, False, True),
+                    ).to(self.device)
+                    ae.load_state_dict(model_dict["autoencoder"])
+                
+                    # instantiate unet
+                    un = DiffusionModelUNet(
+                        spatial_dims=3,
+                        in_channels=2,
+                        out_channels=2,
+                        with_conditioning=False,  # Disabled cross-attention conditioning
+                        num_res_blocks=1,
+                        num_channels=(32, 64, 64),
+                        attention_levels=(False, True, True),
+                        num_head_channels=(0, 64, 64),
+                    ).to(self.device)
+                    un.load_state_dict(model_dict["unet"], strict=False)
+                    # scheduler
+                    sched = DDPMScheduler(
+                        num_train_timesteps=1000,
+                        schedule="scaled_linear_beta",
+                        beta_start=0.0015,
+                        beta_end=0.0195,
+                    )
+                    self.models_by_energy[energy_val] = (ae, un, sched)
+                logger.info("✓ Loaded combined models for all energies")
+                
+                # Update quad_energies and quad_weights based on available models
+                available_energies = sorted(self.models_by_energy.keys())
+                logger.info(f"Available energies in checkpoint: {available_energies}")
+                
+                # Validate that all required quad_energies are available in the checkpoint
+                missing_energies = []
+                for energy in self.quad_energies:
+                    if energy not in available_energies:
+                        missing_energies.append(energy)
+                
+                if missing_energies:
+                    logger.warning(f"Missing energies in checkpoint: {missing_energies}")
+                    logger.warning(f"Available energies: {available_energies}")
+                    logger.warning(f"Requested energies: {self.quad_energies}")
+                    # Filter out missing energies and adjust weights
+                    original_energies = self.quad_energies.copy()
+                    original_weights = self.quad_weights.copy()
+                    
+                    filtered_energies = []
+                    filtered_weights = []
+                    for i, energy in enumerate(original_energies):
+                        if energy in available_energies:
+                            filtered_energies.append(energy)
+                            filtered_weights.append(original_weights[i])
+                    
+                    if filtered_energies:
+                        # Renormalize weights
+                        total_weight = sum(filtered_weights)
+                        self.quad_energies = filtered_energies
+                        self.quad_weights = [w/total_weight for w in filtered_weights]
+                        logger.info(f"Filtered quad_energies: {self.quad_energies}")
+                        logger.info(f"Renormalized quad_weights: {self.quad_weights}")
+                    else:
+                        raise ValueError(f"No quadrature energies available in checkpoint! Available: {available_energies}, Requested: {original_energies}")
+                else:
+                    logger.info("✓ All quadrature energies are available in checkpoint")
+                    logger.info(f"Using quad_energies: {self.quad_energies}")
+                    logger.info(f"Using quad_weights: {self.quad_weights}")
+                
+                
+                # Load common parameters by averaging over all energy checkpoints
+                if models_by_energy_ckpt:
+                    scale_factors = []
+                    dose_means = []
+                    dose_stds = []
+                    clip_mins = []
+                    clip_maxs = []
+                    smoothing_kernels = []
+                    
+                    for energy_key, model_dict in models_by_energy_ckpt.items():
+                        # Only exclude None values, but include 0.0 and other numeric values
+                        sf = model_dict.get("scale_factor")
+                        if sf is not None:
+                            scale_factors.append(sf)
+                        
+                        dm = model_dict.get("dose_mean")
+                        if dm is not None:
+                            dose_means.append(dm)
+                        
+                        ds = model_dict.get("dose_std")
+                        if ds is not None:
+                            dose_stds.append(ds)
+                        
+                        cm = model_dict.get("clip_min")
+                        if cm is not None:
+                            clip_mins.append(cm)
+                        
+                        # clip_max can legitimately be None
+                        clip_maxs.append(model_dict.get("clip_max"))
+                        
+                        sk = model_dict.get("smoothing_kernel")
+                        if sk is not None:
+                            smoothing_kernels.append(sk)
+                    
+                    # Calculate averages with fallback defaults if no valid values found
+                    self.scale_factor = sum(scale_factors) / len(scale_factors) if scale_factors else 1.0
+                    self.dose_mean = sum(dose_means) / len(dose_means) if dose_means else 0.0
+                    self.dose_std = sum(dose_stds) / len(dose_stds) if dose_stds else 1.0
+                    self.clip_min = sum(clip_mins) / len(clip_mins) if clip_mins else 0.0
+                    self.smoothing_kernel = sum(smoothing_kernels) / len(smoothing_kernels) if smoothing_kernels else 0
+                    
+                    # For clip_max, use the average of non-None values, or None if all are None
+                    valid_clip_maxs = [x for x in clip_maxs if x is not None]
+                    self.clip_max = sum(valid_clip_maxs) / len(valid_clip_maxs) if valid_clip_maxs else None
+                    
+                    logger.info(f"Loaded averaged parameters from {len(models_by_energy_ckpt)} energy models:")
+                    logger.info(f"  scale_factor={self.scale_factor:.6f} (from {len(scale_factors)} values)")
+                    logger.info(f"  dose_mean={self.dose_mean:.6f} (from {len(dose_means)} values)")
+                    logger.info(f"  dose_std={self.dose_std:.6f} (from {len(dose_stds)} values)")
+                    logger.info(f"  clip_min={self.clip_min:.6f} (from {len(clip_mins)} values)")
+                    logger.info(f"  clip_max={self.clip_max} (from {len(valid_clip_maxs)} values)")
+                    logger.info(f"  smoothing_kernel={self.smoothing_kernel:.1f} (from {len(smoothing_kernels)} values)")
+                
+                # switch to in-memory inference path
+                model_checkpoint = None
             else:
-                logger.info("✓ UNet loaded from checkpoint (all keys matched)")
-            
-            sched = DDPMScheduler(num_train_timesteps=1000,
-                                  schedule="scaled_linear_beta",
-                                  beta_start=0.0015, beta_end=0.0195)
-            self.models_by_energy = {energy: (ae, un, sched) for energy in self.quad_energies}
-            self.autoencoder, self.unet, self.scheduler = ae, un, sched
-            logger.info("✓ Scheduler created and models assigned")
+                # --- End combined checkpoint support ---
+
+                logger.info("Rebuilding models from checkpoint state_dict...")
+                ae = AutoencoderKL(spatial_dims=3, in_channels=2, out_channels=1,
+                                    num_channels=(32, 32, 32), latent_channels=2,
+                                    num_res_blocks=1, norm_num_groups=8,
+                                    attention_levels=(False, False, True)).to(self.device)
+                ae.load_state_dict(ckpt['autoencoder'])
+                logger.info("✓ Autoencoder loaded from checkpoint")
+
+                unet_state = ckpt['unet']
+
+                un = DiffusionModelUNet(
+                    spatial_dims=3, in_channels=2, out_channels=2,
+                    with_conditioning=False,  # Disabled cross-attention conditioning
+                    num_res_blocks=1, num_channels=(32, 64, 64),
+                    attention_levels=(False, True, True),
+                    num_head_channels=(0, 64, 64)
+                ).to(self.device)
+
+                # Filter checkpoint to only matching shapes before loading
+                pretrained_dict = ckpt['unet']
+                model_dict = un.state_dict()
+                filtered_dict = {
+                    k: v for k, v in pretrained_dict.items()
+                    if k in model_dict and model_dict[k].shape == v.shape
+                }
+                missing = set(model_dict.keys()) - set(filtered_dict.keys())
+                unexpected = set(pretrained_dict.keys()) - set(filtered_dict.keys())
+                # Load only matching parameters
+                un.load_state_dict(filtered_dict, strict=False)
+                if missing or unexpected:
+                    logger.warning(f"UNet checkpoint loaded with missing keys: {sorted(missing)} and unexpected keys: {sorted(unexpected)}. Mismatched shapes filtered out.")
+                else:
+                    logger.info("✓ UNet loaded from checkpoint (all keys matched)")
+
+                sched = DDPMScheduler(num_train_timesteps=1000,
+                                      schedule="scaled_linear_beta",
+                                      beta_start=0.0015, beta_end=0.0195)
+                self.models_by_energy = {energy: (ae, un, sched) for energy in self.quad_energies}
+                self.autoencoder, self.unet, self.scheduler = ae, un, sched
+                logger.info("✓ Scheduler created and models assigned")
+
+                # Retrieve dataset‑wide dose statistics for de‑normalisation
+                self.dose_mean = ckpt.get("dose_mean", 0.0)
+                self.dose_std  = ckpt.get("dose_std",  1.0)
+                logger.info(f"Dose scaling loaded from checkpoint: mean={self.dose_mean}, std={self.dose_std}")
+                self.scale_factor     = ckpt.get("scale_factor", 1.0)
+                self.clip_min         = ckpt.get("clip_min", 0.0)
+                self.clip_max         = ckpt.get("clip_max", None)
+                self.smoothing_kernel = ckpt.get("smoothing_kernel", 0)
         
         # lazy import to avoid circular
         import nibabel as nib
@@ -399,19 +683,41 @@ class SystemManager:
         # Use corrected inference module
         logger.info("Setting up corrected inference module...")
         try:
-            if model_checkpoint:
-                logger.info(f"Creating CorrectedInferenceModule with checkpoint: {model_checkpoint}")
+            if ckpt is not None and "models_by_energy" in ckpt:
+                # Use already loaded models from combined checkpoint
+                logger.info("Using already loaded models from combined checkpoint")
                 inf_mod = CorrectedInferenceModule(
-                    model_path=model_checkpoint,
-                    device=self.device
+                    models_by_energy=self.models_by_energy,
+                    device=self.device,
+                    energies=self.quad_energies,
+                    scale_factor=self.scale_factor,
+                    dose_mean=self.dose_mean,
+                    dose_std=self.dose_std,
+                    clip_min=self.clip_min,
+                    clip_max=self.clip_max,
+                    smoothing_kernel=self.smoothing_kernel
+                )
+            elif model_checkpoint is not None:
+                # Load from checkpoint path
+                logger.info("Loading models from checkpoint path")
+                inf_mod = CorrectedInferenceModule(
+                    checkpoint_path=model_checkpoint,
+                    device=self.device,
+                    energies=self.quad_energies
                 )
             else:
-                # Use the most recent checkpoint
-                model_path = "unified_energy_conditioned_model_res16.0_energies3.ckpt"
-                logger.info(f"Creating CorrectedInferenceModule with default checkpoint: {model_path}")
+                # Use pre-trained models from training session
+                logger.info("Using pre-trained models from training session")
                 inf_mod = CorrectedInferenceModule(
-                    model_path=model_path,
-                    device=self.device
+                    models_by_energy=self.models_by_energy,
+                    device=self.device,
+                    energies=self.quad_energies,
+                    scale_factor=getattr(self, 'scale_factor', 1.0),
+                    dose_mean=getattr(self, 'dose_mean', 0.0),
+                    dose_std=getattr(self, 'dose_std', 1.0),
+                    clip_min=getattr(self, 'clip_min', 0.0),
+                    clip_max=getattr(self, 'clip_max', None),
+                    smoothing_kernel=getattr(self, 'smoothing_kernel', 0)
                 )
             logger.info("✓ CorrectedInferenceModule created successfully")
         except Exception as e:
@@ -501,14 +807,17 @@ class SystemManager:
         logger.info(f"--- Training unified model at resolution={res} with energies={self.energies} ---")
         
         # Setup transforms
+        logger.info(f"🔧 CORRECTED: Pipeline uses consistent resolution: {res}")
         self.transforms = Compose([
             LoadImaged(keys=["input", "target"], reader=NumpyReader),
             EnsureChannelFirstd(keys=["input", "target"]),
             EnsureTyped(keys=["input", "target"]),
             Orientationd(keys=["input", "target"], axcodes="RAS"),
-            Spacingd(keys=["input", "target"], pixdim=res, mode=("bilinear", "nearest")),
-            SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
-            CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
+            # 🔥 CRITICAL FIX: Use Resized instead of Spacingd for array dimensions
+            Resized(keys=["input", "target"], spatial_size=res, mode=("bilinear", "nearest")),
+            # 🔧 REMOVED: SpatialPadd and CenterSpatialCropd that destroyed the target resolution
+            # SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
+            # CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
             ScaleIntensityRangePercentilesd(
                 keys="input", lower=0, upper=99.5, b_min=0, b_max=1
             ),
@@ -563,14 +872,13 @@ class SystemManager:
         
         unet = DiffusionModelUNet(
             spatial_dims=3,
-            in_channels=2,  # Latent space is 2 channels
+            in_channels=2,   # Latent space is 2 channels
             out_channels=2,
-            with_conditioning=True,
-            cross_attention_dim=2,
+            with_conditioning=False,  # Disabled cross-attention conditioning
             num_res_blocks=1,
             num_channels=(32, 64, 64),
             attention_levels=(False, True, True),
-            num_head_channels=(0, 32, 32),
+            num_head_channels=(0, 64, 64),
         ).to(self.device)
         
         scheduler = DDPMScheduler(num_train_timesteps=1000, beta_start=0.0015, beta_end=0.0195)
@@ -600,9 +908,9 @@ class SystemManager:
         # Train Autoencoder with energy conditioning
         logger.info(f"Starting autoencoder training for unified model")
         
-        # Create optimizers
-        optimizer_g = torch.optim.Adam(autoencoder.parameters(), lr=self.learning_rate)
-        optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=self.learning_rate)
+        # Create optimizers with weight decay for stability
+        optimizer_g = torch.optim.Adam(autoencoder.parameters(), lr=self.learning_rate, weight_decay=1e-5)
+        optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=self.learning_rate, weight_decay=1e-5)
         
         ae_trainer = AutoencoderTrainer(
             autoencoder=autoencoder,
