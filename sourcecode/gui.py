@@ -34,7 +34,7 @@ from monai.data.image_reader import NibabelReader
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog,
     QMessageBox, QGroupBox, QToolButton, QRadioButton,
-    QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog
+    QLabel, QSpinBox, QDoubleSpinBox, QProgressDialog, QScrollArea
 )
 from PySide6.QtCore import Qt, QObject, Signal, QThread, Slot
 from PySide6.QtGui import QAction, QPixmap, QGuiApplication
@@ -97,6 +97,10 @@ class MainWindow(QMainWindow):
     MainWindow is the primary GUI window for the RadioTherapy project.
     It provides a menu bar with file actions and a central widget containing buttons for CT upload, dose calculation, and visualization.
     """
+    # Define constants for dictionary keys to avoid magic strings
+    KEY_INPUT = "input"
+    KEY_TARGET = "target"
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("RadioTherapy Project")
@@ -104,11 +108,8 @@ class MainWindow(QMainWindow):
 
         self.input_dir = None  # store the input directory for training inputs
         self.output_dir = None # store the output directory for training outputs
-
         self.ct_file = None  # store imported CT file (inference)
-
         self.model_checkpoint = None  # store imported model file path (inference)
-
         self.model_file_bool = False  # flag to check if model file is loaded
         self.ct_file_bool = False  # flag to check if CT file is loaded
 
@@ -118,19 +119,7 @@ class MainWindow(QMainWindow):
             energies=[0], batch_size=2, cube_size=64,                  
             num_epochs=5, learning_rate=1e-4, patience=3
         )
-        transforms_chain = Compose([
-            LoadImaged(keys=["input", "target"], reader=NumpyReader),
-            EnsureChannelFirstd(keys=["input", "target"]),
-            EnsureTyped(keys=["input", "target"]),
-            Orientationd(keys=["input", "target"], axcodes="RAS"),
-            Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode= ("bilinear", "nearest")[1]),
-            SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
-            CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
-            ScaleIntensityRangePercentilesd(
-                keys="input", lower=0, upper=99.5, b_min=0, b_max=1
-            ),
-            ToTensord(keys=["input", "target"])
-        ])
+        transforms_chain = self._create_transforms(self.pm.cube_size)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # instantiate SystemManager here – no main.py needed
         self.system_manager = SystemManager(
@@ -148,18 +137,40 @@ class MainWindow(QMainWindow):
         # Create the central widget with buttons
         self._create_central_widget()
         # adjust window size to fit expanded widgets
-        self.adjustSize()
+        # self.adjustSize()
         # optionally enforce minimum size to current content
-        self.setMinimumSize(self.size())
+        # self.setMinimumSize(self.size())
+
+    def _create_transforms(self, cube_size):
+        """Creates the MONAI transforms pipeline."""
+        return Compose([
+            LoadImaged(keys=[self.KEY_INPUT, self.KEY_TARGET], reader=NumpyReader),
+            EnsureChannelFirstd(keys=[self.KEY_INPUT, self.KEY_TARGET]),
+            EnsureTyped(keys=[self.KEY_INPUT, self.KEY_TARGET]),
+            Orientationd(keys=[self.KEY_INPUT, self.KEY_TARGET], axcodes="RAS"),
+            Spacingd(keys=[self.KEY_INPUT, self.KEY_TARGET], pixdim=(2.4, 2.4, 2.4), mode=("bilinear", "nearest")),
+            SpatialPadd(keys=[self.KEY_INPUT, self.KEY_TARGET], spatial_size=cube_size, method="symmetric"),
+            CenterSpatialCropd(keys=[self.KEY_INPUT, self.KEY_TARGET], roi_size=cube_size),
+            ScaleIntensityRangePercentilesd(
+                keys=self.KEY_INPUT, lower=0, upper=99.5, b_min=0, b_max=1
+            ),
+            ToTensord(keys=[self.KEY_INPUT, self.KEY_TARGET])
+        ])
 
     def _create_central_widget(self):
         """
         Sets up the central widget with a vertical layout and adds buttons for CT upload, dose calculation, and visualization.
         """
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
+        # Create a scroll area
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        self.setCentralWidget(scroll_area)
 
-        layout = QVBoxLayout()
+        # Create a container widget for the layout
+        central_widget = QWidget()
+        scroll_area.setWidget(central_widget)
+
+        layout = QVBoxLayout(central_widget)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # Training section
@@ -216,8 +227,8 @@ class MainWindow(QMainWindow):
         advanced_group.toggled.connect(
             lambda chk: (
                 [adv_layout.itemAt(i).widget().setVisible(chk)
-                 for i in range(adv_layout.count())],
-                self.adjustSize()
+                 for i in range(adv_layout.count())]
+                # self.adjustSize() # Removed to allow scrolling
             )
         )
 
@@ -354,20 +365,9 @@ class MainWindow(QMainWindow):
                 if files:
                     arr = np.load(files[0])
                     self.pm.cube_size = arr.shape
-                    transforms_chain = Compose([
-                        LoadImaged(keys=["input", "target"], reader=NumpyReader),
-                        EnsureChannelFirstd(keys=["input", "target"]),
-                        EnsureTyped(keys=["input", "target"]),
-                        Orientationd(keys=["input", "target"], axcodes="RAS"),
-                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode=("bilinear", "nearest")),
-                        SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
-                        CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
-                        ScaleIntensityRangePercentilesd(keys="input", lower=0, upper=99.5, b_min=0, b_max=1),
-                        ToTensord(keys=["input", "target"])
-                    ])
                     self.system_manager.cube_size = self.pm.cube_size
-                    self.system_manager.transforms = transforms_chain
-                self.update_train_button_state()
+                    self.system_manager.transforms = self._create_transforms(self.pm.cube_size)
+                self._update_ui_state()
                 return
 
             # Otherwise treat folder as the direct input-cube directory
@@ -385,36 +385,21 @@ class MainWindow(QMainWindow):
                     size = arr.shape
                     self.pm.cube_size = size
                     # update transforms in system_manager
-                    transforms_chain = Compose([
-                        LoadImaged(keys=["input", "target"], reader=NumpyReader),
-                        EnsureChannelFirstd(keys=["input", "target"]),
-                        EnsureTyped(keys=["input", "target"]),
-                        Orientationd(keys=["input", "target"], axcodes="RAS"),
-                        Spacingd(keys=["input", "target"], pixdim=(2.4, 2.4, 2.4), mode=("bilinear", "nearest")),
-                        SpatialPadd(keys=["input", "target"], spatial_size=self.pm.cube_size, method="symmetric"),
-                        CenterSpatialCropd(keys=["input", "target"], roi_size=self.pm.cube_size),
-                        ScaleIntensityRangePercentilesd(
-                            keys=["input"], lower=0, upper=99.5, b_min=0, b_max=1
-                        ),
-                        ToTensord(keys=["input", "target"])
-                    ])
                     self.system_manager.cube_size = self.pm.cube_size
-                    self.system_manager.transforms = transforms_chain
+                    self.system_manager.transforms = self._create_transforms(self.pm.cube_size)
                 except Exception as e:
                     QMessageBox.warning(self, "Warning", f"Failed to determine cube size: {e}")
                 logger.info(f"Cube size set to: {self.pm.cube_size}")
-            self.update_train_button_state()
+            self._update_ui_state()
 
     
-    # Update the state of the Train button based on folder selection
-    def update_train_button_state(self):
-        """
-        Enables the Train button if both input and output directories are selected.
-        """
-        if self.input_dir:
-            self.train_button.setEnabled(True)
-        else:
-            self.train_button.setEnabled(False)
+    def _update_ui_state(self):
+        """Centralized method to update the state of UI elements."""
+        # Enable dose calculation if both CT and model files are loaded
+        self.dose_button.setEnabled(self.ct_file_bool and self.model_file_bool)
+        
+        # Enable training if input and output directories are selected
+        self.train_button.setEnabled(bool(self.input_dir and self.output_dir))
     
     # Train the model using the selected input and output folders
     def train_model(self):
@@ -573,12 +558,9 @@ class MainWindow(QMainWindow):
                 logger.info(f"✓ CT file loaded successfully: shape={data.shape}, dtype={data.dtype}")
                 logger.info(f"✓ CT data range: [{data.min():.3f}, {data.max():.3f}]")
                 
-                if self.model_file_bool:
-                    self.dose_button.setEnabled(True)
-                    logger.info("✓ Dose calculation button enabled (model already loaded)")
-                else:
-                    self.ct_file_bool = True
-                    logger.info("✓ CT file loaded, waiting for model file")
+                self.ct_file_bool = True
+                self._update_ui_state()
+                logger.info("✓ CT file loaded, UI state updated.")
                     
             except Exception as e:
                 logger.error(f"Failed to load CT file: {e}")
@@ -610,15 +592,9 @@ class MainWindow(QMainWindow):
                 
                 # Store the file path, not the loaded checkpoint
                 self.model_checkpoint = file_path
-                
-                if self.ct_file_bool:
-                    self.dose_button.setEnabled(True)  # enable dose calculation button, after successful load
-                    logger.info("✓ Dose calculation button enabled (CT file already loaded)")
-                else:
-                    self.model_file_bool = True
-                    logger.info("✓ Model file loaded, waiting for CT file")
-                    
-                logger.info("✓ Model file successfully selected and validated")
+                self.model_file_bool = True
+                self._update_ui_state()
+                logger.info("✓ Model file successfully selected and validated, UI state updated.")
                 
             except Exception as e:
                 logger.error(f"Failed to load model file: {e}")
