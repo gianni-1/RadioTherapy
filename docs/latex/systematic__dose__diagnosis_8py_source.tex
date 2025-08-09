@@ -1,0 +1,600 @@
+\doxysection{systematic\+\_\+dose\+\_\+diagnosis.\+py}
+\hypertarget{systematic__dose__diagnosis_8py_source}{}\label{systematic__dose__diagnosis_8py_source}\index{tests/systematic\_dose\_diagnosis.py@{tests/systematic\_dose\_diagnosis.py}}
+\mbox{\hyperlink{systematic__dose__diagnosis_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00001}\mbox{\hyperlink{namespacesystematic__dose__diagnosis}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00003}00003\ \textcolor{stringliteral}{Systematic\ Dose\ Normalization\ Diagnosis\ Script}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00004}00004\ \textcolor{stringliteral}{Phase\ 1:\ Root\ Cause\ Investigation}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00005}00005\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00006}00006\ \textcolor{stringliteral}{This\ script\ performs\ comprehensive\ analysis\ of\ the\ training\ data\ pipeline}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00007}00007\ \textcolor{stringliteral}{to\ identify\ the\ exact\ source\ of\ the\ 21x\ dose\ scaling\ discrepancy.}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00008}00008\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00010}00010\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00011}00011\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00012}00012\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00013}00013\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00014}00014\ \textcolor{keyword}{import}\ json}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00015}00015\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00016}00016\ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00017}00017\ \textcolor{keyword}{from}\ collections\ \textcolor{keyword}{import}\ defaultdict}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00019}00019\ \textcolor{comment}{\#\ Setup\ logging}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00020}\mbox{\hyperlink{namespacesystematic__dose__diagnosis_a04b8f6c463ee390399c8d4d13952264f}{00020}}\ logging.basicConfig(level=logging.INFO,\ format=\textcolor{stringliteral}{'\%(asctime)s\ -\/\ \%(levelname)s\ -\/\ \%(message)s'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00021}\mbox{\hyperlink{namespacesystematic__dose__diagnosis_a8c1912e0fbe0db39e68f052f1dd82dda}{00021}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00023}00023\ \textcolor{comment}{\#\ Add\ sourcecode\ to\ path}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00024}00024\ sys.path.append(\textcolor{stringliteral}{'sourcecode'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00026}00026\ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00027}00027\ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00028}\mbox{\hyperlink{namespacesystematic__dose__diagnosis_ad9ecce08bc356f948c13287f9515602b}{00028}}\ \ \ \ \ has\_nibabel\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00029}00029\ \textcolor{keywordflow}{except}\ ImportError:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00030}00030\ \ \ \ \ has\_nibabel\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00033}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic}{00033}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic}{DoseNormalizationDiagnostic}}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00034}00034\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Comprehensive\ diagnosis\ of\ dose\ normalization\ pipeline."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00035}00035\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00036}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a49da68772ac3c5cad5a8d7cc9a59faab}{00036}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a49da68772ac3c5cad5a8d7cc9a59faab}{\_\_init\_\_}}(self,\ traindata\_dir="{}traindata"{},\ checkpoint\_path=None):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00037}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{00037}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{traindata\_dir}}\ =\ Path(traindata\_dir)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00038}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{00038}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}}\ =\ checkpoint\_path}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00039}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{00039}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'raw\_dose\_statistics'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'training\_normalization\_params'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'checkpoint\_normalization\_params'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'inference\_parameters'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'medical\_plausibility'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'data\_flow\_analysis'}:\ \{\},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'recommendations'}:\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00048}00048\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00049}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed}{00049}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed}{analyze\_raw\_dose\_data}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.1:\ Analyze\ raw\ dose\ data\ in\ traindata\ directory."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.1:\ RAW\ DOSE\ DATA\ ANALYSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{traindata\_dir}}.exists():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Training\ data\ directory\ not\ found:\ \{self.traindata\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ energy\_stats\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ global\_min,\ global\_max\ =\ float(\textcolor{stringliteral}{'inf'}),\ float(\textcolor{stringliteral}{'-\/inf'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ total\_files\ =\ 0}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Search\ all\ energy\ subdirectories}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_dir\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{traindata\_dir}}.iterdir():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ energy\_dir.is\_dir():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ outputcube\_dir\ =\ energy\_dir\ /\ \textcolor{stringliteral}{"{}outputcube"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ outputcube\_dir.exists():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}No\ outputcube\ directory\ in\ \{energy\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nAnalyzing\ energy\ directory:\ \{energy\_dir.name\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_files\ =\ list(outputcube\_dir.glob(\textcolor{stringliteral}{"{}*.npy"{}}))\ +\ list(outputcube\_dir.glob(\textcolor{stringliteral}{"{}*.nii*"{}}))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ dose\_files:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}No\ dose\ files\ found\ in\ \{outputcube\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_doses\ =\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ dose\_file\ \textcolor{keywordflow}{in}\ dose\_files[:10]:\ \ \textcolor{comment}{\#\ Sample\ first\ 10\ files\ for\ speed}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_file.suffix.lower()\ \textcolor{keywordflow}{in}\ [\textcolor{stringliteral}{'.nii'},\ \textcolor{stringliteral}{'.gz'}]:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ has\_nibabel:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_data\ =\ nib.load(str(dose\_file)).get\_fdata()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Cannot\ load\ \{dose\_file\}\ -\/\ nibabel\ not\ available"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_data\ =\ np.load(str(dose\_file))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Handle\ different\ array\ shapes}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_data.ndim\ >\ 3:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_data\ =\ dose\_data.squeeze()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_doses.append(dose\_data)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ global\_min\ =\ min(global\_min,\ dose\_data.min())}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ global\_max\ =\ max(global\_max,\ dose\_data.max())}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_files\ +=\ 1}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Failed\ to\ load\ \{dose\_file\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\_doses:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_values\ =\ np.concatenate([d.flatten()\ \textcolor{keywordflow}{for}\ d\ \textcolor{keywordflow}{in}\ energy\_doses])}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_stats[energy\_dir.name]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'file\_count'}:\ len(energy\_doses),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'min'}:\ float(all\_values.min()),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'max'}:\ float(all\_values.max()),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'mean'}:\ float(all\_values.mean()),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'std'}:\ float(all\_values.std()),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'median'}:\ float(np.median(all\_values)),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'percentile\_95'}:\ float(np.percentile(all\_values,\ 95)),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'percentile\_99'}:\ float(np.percentile(all\_values,\ 99)),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'shape'}:\ energy\_doses[0].shape}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Files\ analyzed:\ \{len(energy\_doses)\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Value\ range:\ \{all\_values.min():.6f\}\ to\ \{all\_values.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Mean:\ \{all\_values.mean():.6f\},\ Std:\ \{all\_values.std():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ 95th\ percentile:\ \{np.percentile(all\_values,\ 95):.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ 99th\ percentile:\ \{np.percentile(all\_values,\ 99):.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'raw\_dose\_statistics'}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'global\_min'}:\ float(global\_min)\ \textcolor{keywordflow}{if}\ global\_min\ !=\ float(\textcolor{stringliteral}{'inf'})\ \textcolor{keywordflow}{else}\ \textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'global\_max'}:\ float(global\_max)\ \textcolor{keywordflow}{if}\ global\_max\ !=\ float(\textcolor{stringliteral}{'-\/inf'})\ \textcolor{keywordflow}{else}\ \textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'total\_files\_analyzed'}:\ total\_files,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energy\_statistics'}:\ energy\_stats}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Medical\ plausibility\ check}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ global\_max\ !=\ float(\textcolor{stringliteral}{'-\/inf'}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)n\ MEDICAL\ PLAUSIBILITY\ CHECK:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Global\ maximum\ dose:\ \{global\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ global\_max\ <\ 10:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}\ \ Maximum\ dose\ <\ 10\ -\/\ suspiciously\ low\ for\ radiotherapy!"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ global\_max\ >\ 100:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}\ \ Maximum\ dose\ >\ 100\ -\/\ suspiciously\ high!"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Dose\ range\ appears\ medically\ plausible"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00143}00143\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00144}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd}{00144}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd}{analyze\_training\_normalization}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.2:\ Analyze\ training\ normalization\ logic."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.2:\ TRAINING\ NORMALIZATION\ ANALYSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ to\ import\ training\ pipeline\ to\ understand\ normalization}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ training\ pipeline\ files\ exist}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ training\_files\ =\ [\textcolor{stringliteral}{'training\_pipeline.py'},\ \textcolor{stringliteral}{'sourcecode/training\_pipeline.py'},\ \textcolor{stringliteral}{'system\_manager.py'}]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ found\_file\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ tf\ \textcolor{keywordflow}{in}\ training\_files:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ Path(tf).exists():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ found\_file\ =\ tf}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ found\_file:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ training\ configuration\ in:\ \{found\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Read\ the\ file\ to\ analyze\ normalization\ logic}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(found\_file,\ \textcolor{stringliteral}{'r'})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ content\ =\ f.read()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Look\ for\ dose\ normalization\ patterns}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ norm\_patterns\ =\ [\textcolor{stringliteral}{'clip\_max'},\ \textcolor{stringliteral}{'clip\_min'},\ \textcolor{stringliteral}{'dose\_normalization'},\ \textcolor{stringliteral}{'ScaleIntensityRanged'},\ \textcolor{stringliteral}{'NormalizeIntensityd'}]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ found\_patterns\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ pattern\ \textcolor{keywordflow}{in}\ norm\_patterns:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ occurrences\ =\ content.count(pattern)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ occurrences\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ found\_patterns[pattern]\ =\ occurrences}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Found\ '\{pattern\}':\ \{occurrences\}\ occurrences"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Look\ for\ specific\ normalization\ values}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ re}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\_matches\ =\ re.findall(\textcolor{stringliteral}{r'clip\_max["{}\(\backslash\)s]*[=:]["{}\(\backslash\)s]*([0-\/9.]+)'},\ content)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min\_matches\ =\ re.findall(\textcolor{stringliteral}{r'clip\_min["{}\(\backslash\)s]*[=:]["{}\(\backslash\)s]*([0-\/9.]+)'},\ content)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ clip\_max\_matches:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Found\ clip\_max\ values:\ \{clip\_max\_matches\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ clip\_min\_matches:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Found\ clip\_min\ values:\ \{clip\_min\_matches\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'training\_normalization\_params'}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'source\_file'}:\ found\_file,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'normalization\_patterns'}:\ found\_patterns,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_max\_values'}:\ clip\_max\_matches,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_min\_values'}:\ clip\_min\_matches}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ training\ pipeline\ files\ found"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'training\_normalization\_params'}]\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Error\ analyzing\ training\ normalization:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'training\_normalization\_params'}]\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00201}00201\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00202}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328}{00202}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328}{analyze\_checkpoint\_parameters}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.3:\ Analyze\ checkpoint\ normalization\ parameters."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.3:\ CHECKPOINT\ PARAMETER\ ANALYSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}}\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ Path(self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}}).exists():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ checkpoint\ path\ provided\ or\ file\ not\ found"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ checkpoint\ =\ torch.load(self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}},\ map\_location=\textcolor{stringliteral}{'cpu'},\ weights\_only=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ dose\ normalization\ parameters}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ checkpoint.get(\textcolor{stringliteral}{"{}dose\_normalization\_params"{}},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy\ =\ checkpoint.get(\textcolor{stringliteral}{"{}models\_by\_energy"{}},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Checkpoint\ contains\ \{len(models\_by\_energy)\}\ energy-\/specific\ models"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Available\ model\ keys:\ \{list(models\_by\_energy.keys())\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nDose\ normalization\ parameters\ in\ checkpoint:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ params\ \textcolor{keywordflow}{in}\ dose\_params.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min\ =\ params.get(\textcolor{stringliteral}{'clip\_min'},\ \textcolor{stringliteral}{'N/A'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\ =\ params.get(\textcolor{stringliteral}{'clip\_max'},\ \textcolor{stringliteral}{'N/A'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{key\}:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ \ clip\_min:\ \{clip\_min\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ \ clip\_max:\ \{clip\_max\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Medical\ plausibility\ check\ for\ clip\_max}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(clip\_max,\ (int,\ float))\ \textcolor{keywordflow}{and}\ clip\_max\ <\ 10:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ \ ⚠️\ \ clip\_max=\{clip\_max\}\ is\ suspiciously\ low\ for\ radiotherapy!"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ dose\_normalization\_params\ found\ in\ checkpoint!"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ individual\ model\ parameters}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ model\_params\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_key,\ model\_dict\ \textcolor{keywordflow}{in}\ models\_by\_energy.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(model\_dict,\ dict):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ model\_params[energy\_key]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_min'}:\ model\_dict.get(\textcolor{stringliteral}{'clip\_min'}),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_max'}:\ model\_dict.get(\textcolor{stringliteral}{'clip\_max'}),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scale\_factor'}:\ model\_dict.get(\textcolor{stringliteral}{'scale\_factor'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nIndividual\ model\ parameters:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_key,\ params\ \textcolor{keywordflow}{in}\ model\_params.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{energy\_key\}:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ param,\ value\ \textcolor{keywordflow}{in}\ params.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ \ \{param\}:\ \{value\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'checkpoint\_normalization\_params'}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'dose\_normalization\_params'}:\ dose\_params,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'model\_parameters'}:\ model\_params,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'available\_energies'}:\ list(models\_by\_energy.keys())}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ analyze\ checkpoint:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00264}00264\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00265}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805}{00265}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805}{analyze\_inference\_flow}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.4:\ Analyze\ inference\ denormalization\ flow."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.4:\ INFERENCE\ FLOW\ ANALYSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ inference\_module\ \textcolor{keyword}{import}\ InferenceModule}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Analyze\ InferenceModule's\ denormalization\ logic}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Analyzing\ InferenceModule\ denormalization\ logic..."{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ source\ code\ for\ denormalization\ methods}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ inspect}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Get\ source\ of\ InferenceModule}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ source\ =\ inspect.getsource(InferenceModule)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Look\ for\ denormalization-\/related\ methods}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'denormalize\_dose'}\ \textcolor{keywordflow}{in}\ source:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Found\ denormalize\_dose\ method\ in\ InferenceModule"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}\ \ No\ denormalize\_dose\ method\ found\ in\ InferenceModule"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'clip\_max'}\ \textcolor{keywordflow}{in}\ source:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ InferenceModule\ references\ clip\_max\ parameters"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}\ \ InferenceModule\ doesn't\ reference\ clip\_max\ parameters"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Count\ occurrences\ of\ normalization-\/related\ terms}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \ \ \ \ norm\_terms\ =\ [\textcolor{stringliteral}{'normalize'},\ \textcolor{stringliteral}{'denormalize'},\ \textcolor{stringliteral}{'clip\_min'},\ \textcolor{stringliteral}{'clip\_max'},\ \textcolor{stringliteral}{'scale\_factor'}]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00296}00296\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ term\ \textcolor{keywordflow}{in}\ norm\_terms:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ count\ =\ source.count(term)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ '\{term\}'\ appears\ \{count\}\ times\ in\ InferenceModule"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00300}00300\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'inference\_parameters'}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'has\_denormalize\_dose'}:\ \textcolor{stringliteral}{'denormalize\_dose'}\ \textcolor{keywordflow}{in}\ source,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'references\_clip\_max'}:\ \textcolor{stringliteral}{'clip\_max'}\ \textcolor{keywordflow}{in}\ source,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'normalization\_term\_counts'}:\ \{term:\ source.count(term)\ \textcolor{keywordflow}{for}\ term\ \textcolor{keywordflow}{in}\ norm\_terms\}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ analyze\ inference\ module:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'inference\_parameters'}]\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00309}00309\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00310}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901}{00310}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901}{perform\_data\_flow\_analysis}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.5:\ Comprehensive\ data\ flow\ analysis."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00312}00312\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.5:\ DATA\ FLOW\ ANALYSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00315}00315\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Compare\ raw\ data\ statistics\ with\ checkpoint\ parameters}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ raw\_stats\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'raw\_dose\_statistics'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ checkpoint\_params\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'checkpoint\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ raw\_stats.get(\textcolor{stringliteral}{'global\_max'})\ \textcolor{keywordflow}{and}\ checkpoint\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ raw\_max\ =\ raw\_stats[\textcolor{stringliteral}{'global\_max'}]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Compare\ with\ checkpoint\ clip\_max\ values}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00324}00324\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ checkpoint\_params.get(\textcolor{stringliteral}{'dose\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Comparing\ raw\ data\ with\ checkpoint\ normalization:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ params\ \textcolor{keywordflow}{in}\ dose\_params.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\ =\ params.get(\textcolor{stringliteral}{'clip\_max'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(clip\_max,\ (int,\ float)):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ratio\ =\ raw\_max\ /\ clip\_max}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{key\}:\ raw\_max=\{raw\_max:.6f\},\ clip\_max=\{clip\_max:.6f\},\ ratio=\{ratio:.2f\}x"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ratio\ >\ 15:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ \ \ Raw\ data\ is\ \{ratio:.1f\}x\ larger\ than\ clip\_max\ -\/\ major\ discrepancy!"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'recommendations'}].append(}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00336}00336\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}CRITICAL:\ \{key\}\ clip\_max=\{clip\_max:.6f\}\ is\ \{ratio:.1f\}x\ too\ small.\ "{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Should\ be\ close\ to\ \{raw\_max:.6f\}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Analyze\ training\ vs\ inference\ energy\ coverage}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ raw\_energies\ =\ set(self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'raw\_dose\_statistics'}].get(\textcolor{stringliteral}{'energy\_statistics'},\ \{\}).keys())}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ checkpoint\_energies\ =\ set()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ checkpoint\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies\ =\ checkpoint\_params.get(\textcolor{stringliteral}{'available\_energies'},\ [])}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00346}00346\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_key\ \textcolor{keywordflow}{in}\ available\_energies:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ energy\ value\ from\ key\ like\ "{}res64x64x64\_e11.5"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'\_e'}\ \textcolor{keywordflow}{in}\ energy\_key:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_val\ =\ energy\_key.split(\textcolor{stringliteral}{'\_e'})[1]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ checkpoint\_energies.add(f\textcolor{stringliteral}{"{}energy\_\{energy\_val\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00351}00351\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00352}00352\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Raw\ data\ energies:\ \{raw\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Checkpoint\ energies:\ \{checkpoint\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00355}00355\ \ \ \ \ \ \ \ \ missing\_in\_checkpoint\ =\ raw\_energies\ -\/\ checkpoint\_energies}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ missing\_in\_checkpoint:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Energies\ in\ raw\ data\ but\ missing\ in\ checkpoint:\ \{missing\_in\_checkpoint\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'data\_flow\_analysis'}]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'raw\_energies'}:\ list(raw\_energies),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'checkpoint\_energies'}:\ list(checkpoint\_energies),}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'missing\_energies'}:\ list(missing\_in\_checkpoint)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00364}00364\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00365}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385}{00365}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385}{generate\_recommendations}}(self):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00366}00366\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Phase\ 1.6:\ Generate\ specific\ recommendations."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}PHASE\ 1.6:\ RECOMMENDATIONS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00371}00371\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Analyze\ all\ findings\ and\ generate\ actionable\ recommendations}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ recommendations\ =\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00373}00373\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ raw\_stats\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'raw\_dose\_statistics'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ checkpoint\_params\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'checkpoint\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ for\ major\ dose\ scaling\ issues}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ raw\_stats.get(\textcolor{stringliteral}{'global\_max'}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ raw\_max\ =\ raw\_stats[\textcolor{stringliteral}{'global\_max'}]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ checkpoint\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ checkpoint\_params.get(\textcolor{stringliteral}{'dose\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_params:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_clip\_max\ =\ max([p.get(\textcolor{stringliteral}{'clip\_max'},\ 0)\ \textcolor{keywordflow}{for}\ p\ \textcolor{keywordflow}{in}\ dose\_params.values()\ \textcolor{keywordflow}{if}\ isinstance(p.get(\textcolor{stringliteral}{'clip\_max'}),\ (int,\ float))])}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ max\_clip\_max\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00386}00386\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ratio\ =\ raw\_max\ /\ max\_clip\_max}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00387}00387\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ratio\ >\ 10:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00388}00388\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recommendations.append(\{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00389}00389\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'priority'}:\ \textcolor{stringliteral}{'CRITICAL'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00390}00390\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'issue'}:\ \textcolor{stringliteral}{'Dose\ normalization\ parameters\ severely\ wrong'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00391}00391\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'description'}:\ f\textcolor{stringliteral}{'Raw\ dose\ maximum\ (\{raw\_max:.6f\})\ is\ \{ratio:.1f\}x\ larger\ than\ largest\ clip\_max\ (\{max\_clip\_max:.6f\})'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00392}00392\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'solution'}:\ \textcolor{stringliteral}{'Recalculate\ dose\ normalization\ parameters\ from\ raw\ training\ data'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00393}00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'implementation'}:\ \textcolor{stringliteral}{'Run\ fix\_dose\_normalization\_parameters()\ function'}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00395}00395\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00396}00396\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ for\ missing\ normalization\ parameters}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00397}00397\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ checkpoint\_params\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ checkpoint\_params.get(\textcolor{stringliteral}{'dose\_normalization\_params'}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00398}00398\ \ \ \ \ \ \ \ \ \ \ \ \ recommendations.append(\{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'priority'}:\ \textcolor{stringliteral}{'HIGH'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00400}00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'issue'}:\ \textcolor{stringliteral}{'Missing\ dose\ normalization\ parameters\ in\ checkpoint'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00401}00401\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'description'}:\ \textcolor{stringliteral}{'Checkpoint\ does\ not\ contain\ dose\_normalization\_params'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00402}00402\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'solution'}:\ \textcolor{stringliteral}{'Regenerate\ checkpoint\ with\ proper\ dose\ normalization\ parameters'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00403}00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'implementation'}:\ \textcolor{stringliteral}{'Retrain\ model\ with\ corrected\ dose\ normalization\ pipeline'}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00404}00404\ \ \ \ \ \ \ \ \ \ \ \ \ \})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00405}00405\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00406}00406\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ for\ inference\ module\ issues}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00407}00407\ \ \ \ \ \ \ \ \ inference\_params\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'inference\_parameters'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00408}00408\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ inference\_params\ \textcolor{keywordflow}{and}\ \textcolor{keywordflow}{not}\ inference\_params.get(\textcolor{stringliteral}{'has\_denormalize\_dose'}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00409}00409\ \ \ \ \ \ \ \ \ \ \ \ \ recommendations.append(\{}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00410}00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'priority'}:\ \textcolor{stringliteral}{'MEDIUM'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00411}00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'issue'}:\ \textcolor{stringliteral}{'Missing\ denormalize\_dose\ method\ in\ InferenceModule'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'description'}:\ \textcolor{stringliteral}{'InferenceModule\ may\ not\ properly\ denormalize\ dose\ outputs'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'solution'}:\ \textcolor{stringliteral}{'Add\ proper\ dose\ denormalization\ logic\ to\ InferenceModule'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00414}00414\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'implementation'}:\ \textcolor{stringliteral}{'Implement\ denormalize\_dose()\ method\ with\ energy-\/specific\ parameters'}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00415}00415\ \ \ \ \ \ \ \ \ \ \ \ \ \})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00416}00416\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00417}00417\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}[\textcolor{stringliteral}{'recommendations'}].extend(recommendations)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00419}00419\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Print\ all\ recommendations}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00420}00420\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ rec\ \textcolor{keywordflow}{in}\ enumerate(recommendations,\ 1):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00421}00421\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)n\ RECOMMENDATION\ \{i\}\ [\{rec['priority']\}]:"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00422}00422\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Issue:\ \{rec['issue']\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Description:\ \{rec['description']\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Solution:\ \{rec['solution']\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00425}00425\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Implementation:\ \{rec['implementation']\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00426}00426\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00427}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af}{00427}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af}{save\_results}}(self,\ output\_path="{}dose\_diagnosis\_results.json"{}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00428}00428\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Save\ all\ analysis\ results\ to\ JSON\ file."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00429}00429\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nSaving\ diagnosis\ results\ to\ \{output\_path\}..."{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00430}00430\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00431}00431\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(output\_path,\ \textcolor{stringliteral}{'w'})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00432}00432\ \ \ \ \ \ \ \ \ \ \ \ \ json.dump(self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}},\ f,\ indent=2,\ ensure\_ascii=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00433}00433\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00434}00434\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Results\ saved"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00435}00435\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00436}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0}{00436}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0}{create\_visualization}}(self,\ output\_path="{}dose\_diagnosis\_visualization.png"{}):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00437}00437\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Create\ visualization\ of\ key\ findings."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00438}00438\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nCreating\ diagnosis\ visualization..."{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00439}00439\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00440}00440\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ fig,\ axes\ =\ plt.subplots(2,\ 2,\ figsize=(15,\ 10))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ fig.suptitle(\textcolor{stringliteral}{'Dose\ Normalization\ Diagnosis\ Results'},\ fontsize=16)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Plot\ 1:\ Raw\ dose\ statistics\ by\ energy}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ raw\_stats\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'raw\_dose\_statistics'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_stats\ =\ raw\_stats.get(\textcolor{stringliteral}{'energy\_statistics'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\_stats:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00449}00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ list(energy\_stats.keys())}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00450}00450\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_values\ =\ [stats[\textcolor{stringliteral}{'max'}]\ \textcolor{keywordflow}{for}\ stats\ \textcolor{keywordflow}{in}\ energy\_stats.values()]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mean\_values\ =\ [stats[\textcolor{stringliteral}{'mean'}]\ \textcolor{keywordflow}{for}\ stats\ \textcolor{keywordflow}{in}\ energy\_stats.values()]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00452}00452\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].bar(range(len(energies)),\ max\_values,\ alpha=0.7,\ label=\textcolor{stringliteral}{'Maximum'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].bar(range(len(energies)),\ mean\_values,\ alpha=0.7,\ label=\textcolor{stringliteral}{'Mean'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_xlabel(\textcolor{stringliteral}{'Energy'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_ylabel(\textcolor{stringliteral}{'Dose\ Value'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00457}00457\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_title(\textcolor{stringliteral}{'Raw\ Dose\ Statistics\ by\ Energy'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00458}00458\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_xticks(range(len(energies)))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_xticklabels(energies,\ rotation=45)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].legend()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00461}00461\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00462}00462\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Plot\ 2:\ Checkpoint\ clip\_max\ vs\ raw\ data}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ checkpoint\_params\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'checkpoint\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00464}00464\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ checkpoint\_params.get(\textcolor{stringliteral}{'dose\_normalization\_params'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_params\ \textcolor{keywordflow}{and}\ energy\_stats:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_maxes\ =\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ raw\_maxes\ =\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ labels\ =\ []}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ params\ \textcolor{keywordflow}{in}\ dose\_params.items():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00472}00472\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\ =\ params.get(\textcolor{stringliteral}{'clip\_max'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00473}00473\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(clip\_max,\ (int,\ float)):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00474}00474\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_maxes.append(clip\_max)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00475}00475\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ to\ match\ with\ raw\ data}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ raw\_max\ =\ raw\_stats.get(\textcolor{stringliteral}{'global\_max'},\ 0)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ raw\_maxes.append(raw\_max)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ labels.append(key.split(\textcolor{stringliteral}{'\_'})[-\/1]\ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'\_'}\ \textcolor{keywordflow}{in}\ key\ \textcolor{keywordflow}{else}\ key)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ clip\_maxes:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x\ =\ np.arange(len(labels))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ width\ =\ 0.35}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].bar(x\ -\/\ width/2,\ clip\_maxes,\ width,\ label=\textcolor{stringliteral}{'Checkpoint\ clip\_max'},\ alpha=0.7)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].bar(x\ +\ width/2,\ raw\_maxes,\ width,\ label=\textcolor{stringliteral}{'Raw\ data\ max'},\ alpha=0.7)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00486}00486\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_xlabel(\textcolor{stringliteral}{'Energy/Resolution'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00487}00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_ylabel(\textcolor{stringliteral}{'Dose\ Value'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00488}00488\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_title(\textcolor{stringliteral}{'Checkpoint\ vs\ Raw\ Data\ Comparison'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_xticks(x)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00490}00490\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_xticklabels(labels,\ rotation=45)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].legend()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_yscale(\textcolor{stringliteral}{'log'})\ \ \textcolor{comment}{\#\ Log\ scale\ to\ show\ differences}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Plot\ 3:\ Recommendations\ priority}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ recommendations\ =\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}.get(\textcolor{stringliteral}{'recommendations'},\ [])}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00496}00496\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ recommendations:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ priorities\ =\ [rec[\textcolor{stringliteral}{'priority'}]\ \textcolor{keywordflow}{for}\ rec\ \textcolor{keywordflow}{in}\ recommendations]}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00498}00498\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ priority\_counts\ =\ \{p:\ priorities.count(p)\ \textcolor{keywordflow}{for}\ p\ \textcolor{keywordflow}{in}\ set(priorities)\}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00499}00499\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00500}00500\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].pie(priority\_counts.values(),\ labels=priority\_counts.keys(),\ autopct=\textcolor{stringliteral}{'\%1.1f\%\%'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00501}00501\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].set\_title(\textcolor{stringliteral}{'Recommendations\ by\ Priority'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00502}00502\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00503}00503\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Plot\ 4:\ Summary\ statistics}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00504}00504\ \ \ \ \ \ \ \ \ \ \ \ \ summary\_text\ =\ f\textcolor{stringliteral}{"{}"{}"{}Diagnosis\ Summary:}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00505}00505\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00506}00506\ \textcolor{stringliteral}{Raw\ Data:}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00507}00507\ \textcolor{stringliteral}{•\ Total\ files\ analyzed:\ \{raw\_stats.get('total\_files\_analyzed',\ 'N/A')\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00508}00508\ \textcolor{stringliteral}{•\ Global\ max\ dose:\ \{raw\_stats.get('global\_max',\ 'N/A'):.6f\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00509}00509\ \textcolor{stringliteral}{•\ Energy\ directories:\ \{len(energy\_stats)\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00510}00510\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00511}00511\ \textcolor{stringliteral}{Checkpoint:}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00512}00512\ \textcolor{stringliteral}{•\ Available\ models:\ \{len(checkpoint\_params.get('available\_energies',\ []))\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00513}00513\ \textcolor{stringliteral}{•\ Has\ dose\ params:\ \{'Yes'\ if\ dose\_params\ else\ 'No'\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00514}00514\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00515}00515\ \textcolor{stringliteral}{Critical\ Issues\ Found:\ \{len([r\ for\ r\ in\ recommendations\ if\ r.get('priority')\ ==\ 'CRITICAL'])\}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00516}00516\ \textcolor{stringliteral}{Total\ Recommendations:\ \{len(recommendations)\}"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].text(0.1,\ 0.5,\ summary\_text,\ fontsize=10,\ verticalalignment=\textcolor{stringliteral}{'center'},}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00519}00519\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bbox=dict(boxstyle=\textcolor{stringliteral}{'round'},\ facecolor=\textcolor{stringliteral}{'lightblue'},\ alpha=0.8))}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].set\_xlim(0,\ 1)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].set\_ylim(0,\ 1)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].set\_title(\textcolor{stringliteral}{'Diagnosis\ Summary'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00524}00524\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00525}00525\ \ \ \ \ \ \ \ \ \ \ \ \ plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ plt.savefig(output\_path,\ dpi=150,\ bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00527}00527\ \ \ \ \ \ \ \ \ \ \ \ \ plt.close()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00528}00528\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00529}00529\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Visualization\ saved:\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00530}00530\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00531}00531\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00532}00532\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Failed\ to\ create\ visualization:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00533}00533\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00534}\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_ab30534dd1285b36c6434f7f66d7842a5}{00534}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_ab30534dd1285b36c6434f7f66d7842a5}{run\_full\_diagnosis}}(self,\ checkpoint\_path=None):}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00535}00535\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Run\ complete\ diagnosis\ pipeline."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00536}00536\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔍\ STARTING\ SYSTEMATIC\ DOSE\ NORMALIZATION\ DIAGNOSIS"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00537}00537\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 80)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00538}00538\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00539}00539\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ checkpoint\_path:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00540}00540\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}}\ =\ checkpoint\_path}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00541}00541\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00542}00542\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Execute\ all\ analysis\ phases}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00543}00543\ \ \ \ \ \ \ \ \ success\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00544}00544\ \ \ \ \ \ \ \ \ success\ \&=\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed}{analyze\_raw\_dose\_data}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00545}00545\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd}{analyze\_training\_normalization}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00546}00546\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\_path}}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00547}00547\ \ \ \ \ \ \ \ \ \ \ \ \ success\ \&=\ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328}{analyze\_checkpoint\_parameters}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00548}00548\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805}{analyze\_inference\_flow}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00549}00549\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901}{perform\_data\_flow\_analysis}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00550}00550\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385}{generate\_recommendations}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00551}00551\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00552}00552\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Save\ results\ and\ create\ visualization}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00553}00553\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af}{save\_results}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00554}00554\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0}{create\_visualization}}()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00555}00555\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00556}00556\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 80)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00557}00557\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ DIAGNOSIS\ COMPLETE"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00558}00558\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 80)}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00559}00559\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00560}00560\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ success}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00561}00561\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00562}00562\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00563}\mbox{\hyperlink{namespacesystematic__dose__diagnosis_a769793321852f89994521a5e90d1c06b}{00563}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacesystematic__dose__diagnosis_a769793321852f89994521a5e90d1c06b}{main}}():}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00564}00564\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Main\ function\ for\ running\ systematic\ diagnosis."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00565}00565\ \ \ \ \ \textcolor{keyword}{import}\ argparse}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00566}00566\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00567}00567\ \ \ \ \ parser\ =\ argparse.ArgumentParser(description=\textcolor{stringliteral}{"{}Systematic\ Dose\ Normalization\ Diagnosis"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00568}00568\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/traindata-\/dir'},\ default=\textcolor{stringliteral}{'traindata'},\ help=\textcolor{stringliteral}{'Training\ data\ directory'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00569}00569\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/checkpoint'},\ help=\textcolor{stringliteral}{'Path\ to\ model\ checkpoint\ for\ analysis'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00570}00570\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/output-\/dir'},\ default=\textcolor{stringliteral}{'.'},\ help=\textcolor{stringliteral}{'Output\ directory\ for\ results'})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00571}00571\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00572}00572\ \ \ \ \ args\ =\ parser.parse\_args()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00573}00573\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00574}00574\ \ \ \ \ \textcolor{comment}{\#\ Create\ diagnostic\ instance}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00575}00575\ \ \ \ \ diagnostic\ =\ \mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic}{DoseNormalizationDiagnostic}}(}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00576}00576\ \ \ \ \ \ \ \ \ traindata\_dir=args.traindata\_dir,}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00577}00577\ \ \ \ \ \ \ \ \ checkpoint\_path=args.checkpoint}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00578}00578\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00579}00579\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00580}00580\ \ \ \ \ \textcolor{comment}{\#\ Run\ full\ diagnosis}}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00581}00581\ \ \ \ \ success\ =\ diagnostic.run\_full\_diagnosis()}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00582}00582\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00583}00583\ \ \ \ \ \textcolor{keywordflow}{if}\ success:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00584}00584\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Diagnosis\ completed\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00585}00585\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Check\ dose\_diagnosis\_results.json\ for\ detailed\ findings"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00586}00586\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Check\ dose\_diagnosis\_visualization.png\ for\ visual\ summary"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00587}00587\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00588}00588\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00589}00589\ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}\ Diagnosis\ failed\ or\ incomplete"{}})}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00590}00590\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00591}00591\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00592}00592\ }
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00593}00593\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{systematic__dose__diagnosis_8py_source_l00594}00594\ \ \ \ \ exit(\mbox{\hyperlink{namespacesystematic__dose__diagnosis_a769793321852f89994521a5e90d1c06b}{main}}())}
+
+\end{DoxyCode}

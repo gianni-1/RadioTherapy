@@ -1,0 +1,176 @@
+\doxysection{data\+\_\+management.\+Data\+Loader\+Module Class Reference}
+\hypertarget{classdata__management_1_1_data_loader_module}{}\label{classdata__management_1_1_data_loader_module}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ac16842b9a65c120f106f459ec8559c2f}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}{root\+\_\+dir}}, \mbox{\hyperlink{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}{transforms}}, \mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}{train\+\_\+ratio}}=0.\+8, \mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}{seed}}=42)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a02e0f4054d862c802aa4a960a19386d0}{load\+\_\+dataset}} (self, section="{}training"{})
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a535f8b04fced3b878cfa7e1bdd2a1780}{split\+\_\+dataset}} (self, ds\+\_\+full)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a0e68fbdbc7c76abbb79581ca41d9c05d}{custom\+\_\+collate}} (self, batch)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1657963e4f7847ae195eea9e80c51513}{create\+\_\+data\+\_\+loader}} (self, dataset, batch\+\_\+size, shuffle, num\+\_\+workers=0)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}{root\+\_\+dir}} = root\+\_\+dir
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}{transforms}} = transforms
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}{train\+\_\+ratio}} = train\+\_\+ratio
+\item 
+\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}{seed}} = seed
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}This module takes care of loading, splitting and creating DataLoaders
+for training and validation data from a CustomDataset.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00297}{297}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classdata__management_1_1_data_loader_module_ac16842b9a65c120f106f459ec8559c2f}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_ac16842b9a65c120f106f459ec8559c2f} 
+data\+\_\+management.\+Data\+Loader\+Module.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{root\+\_\+dir}{, }\item[{}]{transforms}{, }\item[{}]{train\+\_\+ratio}{ = {\ttfamily 0.8}, }\item[{}]{seed}{ = {\ttfamily 42}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    root_dir (str): The root directory where the data is located.
+    transforms (monai.transforms.Compose): Transforms that are applied to the data.
+    energy (optional, int or float): Filter to load only samples of a certain energy.
+    train_ratio (float): Ratio of the data used for training.
+    seed (int): Seed for the reproducibility of the split.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00302}{302}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classdata__management_1_1_data_loader_module_a1657963e4f7847ae195eea9e80c51513}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!create\_data\_loader@{create\_data\_loader}}
+\index{create\_data\_loader@{create\_data\_loader}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{create\_data\_loader()}{create\_data\_loader()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a1657963e4f7847ae195eea9e80c51513} 
+data\+\_\+management.\+Data\+Loader\+Module.\+create\+\_\+data\+\_\+loader (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{dataset}{, }\item[{}]{batch\+\_\+size}{, }\item[{}]{shuffle}{, }\item[{}]{num\+\_\+workers}{ = {\ttfamily 0}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb} Creates a DataLoader from the given dataset.
+
+Args:
+    dataset (Dataset): The dataset from which data is to be loaded.
+    batch_size (int): Number of samples per batch.
+    shuffle (bool): Whether the data should be shuffled before each run.
+    num_workers (int): Number of parallel processes for loading the data.
+
+Returns:
+    DataLoader: The DataLoader created.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00361}{361}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_a0e68fbdbc7c76abbb79581ca41d9c05d}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!custom\_collate@{custom\_collate}}
+\index{custom\_collate@{custom\_collate}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{custom\_collate()}{custom\_collate()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a0e68fbdbc7c76abbb79581ca41d9c05d} 
+data\+\_\+management.\+Data\+Loader\+Module.\+custom\+\_\+collate (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{batch}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Custom collate function that checks and collates 'input', 'target', and 'energy' if available.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00349}{349}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_a02e0f4054d862c802aa4a960a19386d0}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!load\_dataset@{load\_dataset}}
+\index{load\_dataset@{load\_dataset}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{load\_dataset()}{load\_dataset()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a02e0f4054d862c802aa4a960a19386d0} 
+data\+\_\+management.\+Data\+Loader\+Module.\+load\+\_\+dataset (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{section}{ = {\ttfamily "{}training"{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Loads the complete dataset as a CustomDataset.
+
+Args:
+    section (str): Specifies which part of the dataset is to be loaded (e.g. “training”).
+
+Returns:
+    CustomDataset: The loaded dataset.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00316}{316}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_a535f8b04fced3b878cfa7e1bdd2a1780}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!split\_dataset@{split\_dataset}}
+\index{split\_dataset@{split\_dataset}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{split\_dataset()}{split\_dataset()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a535f8b04fced3b878cfa7e1bdd2a1780} 
+data\+\_\+management.\+Data\+Loader\+Module.\+split\+\_\+dataset (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ds\+\_\+full}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Splits the complete dataset into training and validation sets.
+
+Args:
+    ds_full (Dataset): The complete dataset.
+
+Returns:
+    tuple: (train_ds, val_ds)
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00329}{329}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!root\_dir@{root\_dir}}
+\index{root\_dir@{root\_dir}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{root\_dir}{root\_dir}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba} 
+data\+\_\+management.\+Data\+Loader\+Module.\+root\+\_\+dir = root\+\_\+dir}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00311}{311}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!seed@{seed}}
+\index{seed@{seed}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{seed}{seed}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316} 
+data\+\_\+management.\+Data\+Loader\+Module.\+seed = seed}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00314}{314}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!train\_ratio@{train\_ratio}}
+\index{train\_ratio@{train\_ratio}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{train\_ratio}{train\_ratio}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f} 
+data\+\_\+management.\+Data\+Loader\+Module.\+train\+\_\+ratio = train\+\_\+ratio}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00313}{313}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}\index{data\_management.DataLoaderModule@{data\_management.DataLoaderModule}!transforms@{transforms}}
+\index{transforms@{transforms}!data\_management.DataLoaderModule@{data\_management.DataLoaderModule}}
+\doxysubsubsection{\texorpdfstring{transforms}{transforms}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5} 
+data\+\_\+management.\+Data\+Loader\+Module.\+transforms = transforms}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00312}{312}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{data__management_8py}{data\+\_\+management.\+py}}\end{DoxyCompactItemize}

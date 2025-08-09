@@ -1,0 +1,76 @@
+\doxysection{test\+\_\+gui\+\_\+training.\+py}
+\hypertarget{test__gui__training_8py_source}{}\label{test__gui__training_8py_source}\index{tests/test\_gui\_training.py@{tests/test\_gui\_training.py}}
+\mbox{\hyperlink{test__gui__training_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00001}\mbox{\hyperlink{namespacetest__gui__training}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00003}00003\ \textcolor{stringliteral}{Test\ GUI\ Training\ (nicht\ das\ vollständige\ GUI,\ nur\ die\ Training-\/Logik)}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00006}00006\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00008}00008\ sys.path.insert(0,\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'sourcecode'})))}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00010}00010\ \textcolor{comment}{\#\ Initialize\ logging\ first}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00011}00011\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00012}00012\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00014}\mbox{\hyperlink{namespacetest__gui__training_a9788e2fa27860fec32c3f1538e648f6b}{00014}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00016}00016\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00017}00017\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00018}00018\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ Compose}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00020}\mbox{\hyperlink{namespacetest__gui__training_a79ce2d708997f4f6fec6c62fc8e6635d}{00020}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__gui__training_a79ce2d708997f4f6fec6c62fc8e6635d}{test\_gui\_training}}():}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00021}00021\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ the\ GUI\ training\ logic\ without\ actually\ running\ the\ GUI"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00022}00022\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00023}00023\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00024}00024\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}TESTING\ GUI\ TRAINING\ LOGIC"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00025}00025\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00026}00026\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00027}00027\ \ \ \ \ \textcolor{comment}{\#\ Create\ SystemManager\ similar\ to\ GUI}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00028}00028\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Creating\ SystemManager\ for\ GUI\ training\ test..."{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00029}00029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00030}00030\ \ \ \ \ system\_manager\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}traindata"{}},}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ transforms=Compose([]),}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ resolutions=[16.0],}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ energies=[11.5,\ 15.75,\ 34.25],\ \ \textcolor{comment}{\#\ All\ energies\ for\ corrected\ training}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ quad\_energies=[11.5,\ 15.75,\ 34.25],}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ quad\_weights=[0.33,\ 0.33,\ 0.34],}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ device=torch.device(\textcolor{stringliteral}{'cpu'}),}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ num\_epochs=2,\ \ \textcolor{comment}{\#\ Short\ test}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ learning\_rate=0.0001,}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ patience=3,}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ cube\_size=32}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00043}00043\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00044}00044\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00045}00045\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ SystemManager\ created"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00046}00046\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ with\ energies:\ \{system\_manager.energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00047}00047\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00048}00048\ \ \ \ \ \textcolor{comment}{\#\ Test\ corrected\ training\ (like\ GUI\ would\ do)}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00049}00049\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Testing\ energy-\/conditioned\ training..."{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00050}00050\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ result\ =\ system\_manager.run\_energy\_conditioned\_training()}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Energy-\/conditioned\ training\ completed\ successfully!"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Model\ saved\ to:\ \{result['model\_path']\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00055}00055\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Energy-\/conditioned\ training\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Training\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00059}00059\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00060}00060\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00061}00061\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}GUI\ TRAINING\ TEST\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00062}00062\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00063}00063\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00064}00064\ }
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00065}00065\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00066}\mbox{\hyperlink{namespacetest__gui__training_a392a5426e0d7fda1638dc3925a331868}{00066}}\ \ \ \ \ success\ =\ \mbox{\hyperlink{namespacetest__gui__training}{test\_gui\_training}}()}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00067}00067\ \ \ \ \ \textcolor{keywordflow}{if}\ success:}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ GUI\ training\ test\ passed!"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00069}00069\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__gui__training_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ GUI\ training\ test\ failed!"{}})}
+
+\end{DoxyCode}

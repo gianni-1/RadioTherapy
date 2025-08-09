@@ -1,0 +1,44 @@
+\doxysection{test\+\_\+visualiztation.\+py}
+\hypertarget{test__visualiztation_8py_source}{}\label{test__visualiztation_8py_source}\index{tests/test\_visualiztation.py@{tests/test\_visualiztation.py}}
+\mbox{\hyperlink{test__visualiztation_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00001}\mbox{\hyperlink{namespacetest__visualiztation}{00001}}\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00002}00002\ \textcolor{keyword}{import}\ pytest}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00003}00003\ \textcolor{keyword}{from}\ visualization\ \textcolor{keyword}{import}\ interactive\_slice\_viewer}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00004}00004\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00005}\mbox{\hyperlink{namespacetest__visualiztation_adac63b6410227ac35d5a5b90129809e9}{00005}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__visualiztation_adac63b6410227ac35d5a5b90129809e9}{test\_interactive\_slice\_viewer\_slicing}}():}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00006}00006\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00007}00007\ \textcolor{stringliteral}{\ \ \ \ Test\ that\ interactive\_slice\_viewer\ correctly\ updates\ the\ image\ data}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00008}00008\ \textcolor{stringliteral}{\ \ \ \ when\ the\ slider\ value\ changes.}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00009}00009\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00010}00010\ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ simple\ volume:\ depth=4,\ height=2,\ width=2}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00011}00011\ \ \ \ \ cube\ =\ np.zeros((2,\ 2,\ 4))}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00012}00012\ \ \ \ \ \textcolor{comment}{\#\ Fill\ each\ slice\ with\ its\ index}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00013}00013\ \ \ \ \ \textcolor{keywordflow}{for}\ z\ \textcolor{keywordflow}{in}\ range(4):}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00014}00014\ \ \ \ \ \ \ \ \ cube[:,\ :,\ z]\ =\ z}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00016}00016\ \ \ \ \ \textcolor{comment}{\#\ Call\ viewer\ in\ test\ mode\ (no\ GUI)}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00017}00017\ \ \ \ \ fig,\ slider,\ im\ =\ interactive\_slice\_viewer(cube,\ show=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00019}00019\ \ \ \ \ \textcolor{comment}{\#\ Initial\ image\ should\ show\ middle\ slice:\ z=2}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00020}00020\ \ \ \ \ initial\ =\ im.get\_array().copy()}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00021}00021\ \ \ \ \ \textcolor{keyword}{assert}\ np.all(initial\ ==\ 2),\ f\textcolor{stringliteral}{"{}Expected\ initial\ slice\ 2,\ got\ \{initial\}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00023}00023\ \ \ \ \ \textcolor{comment}{\#\ Move\ slider\ to\ slice\ 0}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00024}00024\ \ \ \ \ slider.set\_val(0)}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00025}00025\ \ \ \ \ arr0\ =\ im.get\_array()}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00026}00026\ \ \ \ \ \textcolor{keyword}{assert}\ np.all(arr0\ ==\ 0),\ f\textcolor{stringliteral}{"{}Expected\ slice\ 0\ after\ slider=0,\ got\ \{arr0\}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00028}00028\ \ \ \ \ \textcolor{comment}{\#\ Move\ slider\ to\ slice\ 3}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00029}00029\ \ \ \ \ slider.set\_val(3)}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00030}00030\ \ \ \ \ arr3\ =\ im.get\_array()}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00031}00031\ \ \ \ \ \textcolor{keyword}{assert}\ np.all(arr3\ ==\ 3),\ f\textcolor{stringliteral}{"{}Expected\ slice\ 3\ after\ slider=3,\ got\ \{arr3\}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00033}\mbox{\hyperlink{namespacetest__visualiztation_adc816ed1130c2300ae952030629d56b9}{00033}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__visualiztation_adc816ed1130c2300ae952030629d56b9}{test\_invalid\_volume\_raises}}():}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00034}00034\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00035}00035\ \textcolor{stringliteral}{\ \ \ \ interactive\_slice\_viewer\ should\ reject\ non-\/3D\ arrays.}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00036}00036\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00037}00037\ \ \ \ \ \textcolor{keyword}{with}\ pytest.raises(ValueError):}
+\DoxyCodeLine{\Hypertarget{test__visualiztation_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ interactive\_slice\_viewer(np.zeros((2,\ 2)),\ show=\textcolor{keyword}{False})}
+
+\end{DoxyCode}

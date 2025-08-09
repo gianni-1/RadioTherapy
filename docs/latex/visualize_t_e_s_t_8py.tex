@@ -1,0 +1,47 @@
+\doxysection{tests/visualize\+TEST.py File Reference}
+\hypertarget{visualize_t_e_s_t_8py}{}\label{visualize_t_e_s_t_8py}\index{tests/visualizeTEST.py@{tests/visualizeTEST.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacevisualize_t_e_s_t}{visualize\+TEST}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023}{visualize\+TEST.\+update}} (val)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{visualize\+TEST.\+cube}} = np.\+load("{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+10.\+npy"{})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_aa43c52fa5ee7471ecbe077a233d37925}{visualize\+TEST.\+fig}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8f7cd9d586d17f3ae3962a0c5d9c6c1d}{visualize\+TEST.\+ax}}
+\item 
+int \mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{visualize\+TEST.\+slice\+\_\+idx}} = cube.\+shape\mbox{[}2\mbox{]} // 2
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_afe3251f55e9f71e3bb0f69d5b933324f}{visualize\+TEST.\+im}} = ax.\+imshow(\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}}\mbox{[}\+:, \+:, \mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{slice\+\_\+idx}}\mbox{]}, cmap="{}gray"{})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a42ab6a728c60f03434fc0c49fd2994bc}{visualize\+TEST.\+slider\+\_\+ax}} = plt.\+axes(\mbox{[}0.\+2, 0.\+05, 0.\+6, 0.\+03\mbox{]})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a60268abfbabe414662185822ad42df16}{visualize\+TEST.\+slider}}
+\item 
+tuple \mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{visualize\+TEST.\+cube\+\_\+norm}} = (\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}} -\/ cube.\+min()) / (cube.\+max() -\/ cube.\+min())
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a536026ff091c61820364d08c73089ff9}{visualize\+TEST.\+p\+\_\+low}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7334a1327b3ed65dbb89657046c6d089}{visualize\+TEST.\+p\+\_\+high}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a0202695b3fe032a9a1852e9a03dda677}{visualize\+TEST.\+x}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a337dfeda2101be90429fb631134acce9}{visualize\+TEST.\+y}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a03042d504841caeae10ed95403dcfea3}{visualize\+TEST.\+z}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a6d99fc429e5f67c994ad9c13e05a3a1a}{visualize\+TEST.\+cube\+\_\+smoothed}} = ndimage.\+gaussian\+\_\+filter(\mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{cube\+\_\+norm}}, sigma=0.\+5)
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8ed5c637fcc097e6d8524c8e94b6ad44}{visualize\+TEST.\+fig\+\_\+vol}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_af8c361e679d886907c6cbf818e899de7}{visualize\+TEST.\+scene}}
+\end{DoxyCompactItemize}

@@ -1,0 +1,334 @@
+\doxysection{debug\+\_\+training\+\_\+data Namespace Reference}
+\hypertarget{namespacedebug__training__data}{}\label{namespacedebug__training__data}\index{debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_aa63cb044680052707eedbc88c54d7c66}{test\+\_\+files}}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_a09564c6ee36c95797cb978d31cfff70a}{output\+\_\+files}}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_a34be15da77256c59052c10c2d6f415fe}{energies}} = \mbox{[}11.\+5, 15.\+75, 34.\+25\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_abd19d01169070d8618649843446212c1}{input\+\_\+data}} = np.\+load(input\+\_\+file)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a9ca62d6eae26a142e6ef928687fb26fd}{output\+\_\+data}} = np.\+load(output\+\_\+file)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a6e913d912fb35dead02daee45d0eaf9f}{correlation}} = np.\+corrcoef(input\+\_\+data.\+flatten(), output\+\_\+data.\+flatten())\mbox{[}0, 1\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a54bfca6a71c6aece18245b428da0161f}{data\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7d38bb2e5fa6035a156fc4745226526c}{train\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7ead9884f7aca7bf32418f16ebe7fc2d}{val\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_adb58e169a7c3fab57438338146ddfca8}{\+\_\+}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_ad7dfe068a649e372104a46cff0979887}{input\+\_\+batch}} = batch\mbox{[}\textquotesingle{}inputcube\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a72fcadd6aa15f520e06b7d53fe16069c}{output\+\_\+batch}} = batch\mbox{[}\textquotesingle{}outputcube\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a531d5fa1c3847489b49b57eca1d2c88b}{energy\+\_\+batch}} = batch\mbox{[}\textquotesingle{}energy\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}{device}} = torch.\+device("{}cpu"{})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}} = torch.\+randn(1, 2, 32, 32, 32)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a77d730c6516b64dde839d3ca51ea2b38}{test\+\_\+output}} = \mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}}\mbox{[}\+:, 0\+:1, \+:, \+:, \+:\mbox{]}
+\item 
+str \mbox{\hyperlink{namespacedebug__training__data_ae529477a3d857c570be723100878514b}{model\+\_\+path}} = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a3a73c7d037f130bcc7a4f1bde82ff128}{checkpoint}} = torch.\+load(\mbox{\hyperlink{namespacedebug__training__data_ae529477a3d857c570be723100878514b}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_abe61d170ed2ed5ada09fe7b2f6034eb9}{autoencoder}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}{encoded}} = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}{latent}} = \mbox{\hyperlink{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}{encoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}{decoded}} = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}{latent}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7e4c3c595a92355ef6223f134e50f6b1}{reconstruction}} = \mbox{\hyperlink{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}{decoded}}\mbox{[}0\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Überprüfe die Trainings-Daten auf Konsistenz
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacedebug__training__data_adb58e169a7c3fab57438338146ddfca8}\index{debug\_training\_data@{debug\_training\_data}!\_@{\_}}
+\index{\_@{\_}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{\_}{\_}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_adb58e169a7c3fab57438338146ddfca8} 
+debug\+\_\+training\+\_\+data.\+\_\+\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00087}{87}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_abe61d170ed2ed5ada09fe7b2f6034eb9}\index{debug\_training\_data@{debug\_training\_data}!autoencoder@{autoencoder}}
+\index{autoencoder@{autoencoder}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{autoencoder}{autoencoder}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_abe61d170ed2ed5ada09fe7b2f6034eb9} 
+debug\+\_\+training\+\_\+data.\+autoencoder}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ AutoencoderKL(}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{00010\ \ \ \ \ ).to(device)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00137}{137}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a3a73c7d037f130bcc7a4f1bde82ff128}\index{debug\_training\_data@{debug\_training\_data}!checkpoint@{checkpoint}}
+\index{checkpoint@{checkpoint}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{checkpoint}{checkpoint}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a3a73c7d037f130bcc7a4f1bde82ff128} 
+debug\+\_\+training\+\_\+data.\+checkpoint = torch.\+load(\mbox{\hyperlink{namespacedebug__training__data_ae529477a3d857c570be723100878514b}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}{device}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00134}{134}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a6e913d912fb35dead02daee45d0eaf9f}\index{debug\_training\_data@{debug\_training\_data}!correlation@{correlation}}
+\index{correlation@{correlation}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{correlation}{correlation}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a6e913d912fb35dead02daee45d0eaf9f} 
+debug\+\_\+training\+\_\+data.\+correlation = np.\+corrcoef(input\+\_\+data.\+flatten(), output\+\_\+data.\+flatten())\mbox{[}0, 1\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00060}{60}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a54bfca6a71c6aece18245b428da0161f}\index{debug\_training\_data@{debug\_training\_data}!data\_loader@{data\_loader}}
+\index{data\_loader@{data\_loader}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{data\_loader}{data\_loader}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a54bfca6a71c6aece18245b428da0161f} 
+debug\+\_\+training\+\_\+data.\+data\+\_\+loader}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ DataLoaderModule(}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{'traindata'},}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ transforms=Compose([]),}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ resolutions=[16.0],}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ energies=[11.5,\ 15.75,\ 34.25],}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ cube\_size=(32,\ 32,\ 32),}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ seed=42}
+\DoxyCodeLine{00009\ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00074}{74}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}\index{debug\_training\_data@{debug\_training\_data}!decoded@{decoded}}
+\index{decoded@{decoded}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{decoded}{decoded}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0} 
+debug\+\_\+training\+\_\+data.\+decoded = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}{latent}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00158}{158}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}\index{debug\_training\_data@{debug\_training\_data}!device@{device}}
+\index{device@{device}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926} 
+debug\+\_\+training\+\_\+data.\+device = torch.\+device("{}cpu"{})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00122}{122}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}\index{debug\_training\_data@{debug\_training\_data}!encoded@{encoded}}
+\index{encoded@{encoded}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{encoded}{encoded}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b} 
+debug\+\_\+training\+\_\+data.\+encoded = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00152}{152}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a34be15da77256c59052c10c2d6f415fe}\index{debug\_training\_data@{debug\_training\_data}!energies@{energies}}
+\index{energies@{energies}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{energies}{energies}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a34be15da77256c59052c10c2d6f415fe} 
+list debug\+\_\+training\+\_\+data.\+energies = \mbox{[}11.\+5, 15.\+75, 34.\+25\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00032}{32}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a531d5fa1c3847489b49b57eca1d2c88b}\index{debug\_training\_data@{debug\_training\_data}!energy\_batch@{energy\_batch}}
+\index{energy\_batch@{energy\_batch}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{energy\_batch}{energy\_batch}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a531d5fa1c3847489b49b57eca1d2c88b} 
+debug\+\_\+training\+\_\+data.\+energy\+\_\+batch = batch\mbox{[}\textquotesingle{}energy\textquotesingle{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00095}{95}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_ad7dfe068a649e372104a46cff0979887}\index{debug\_training\_data@{debug\_training\_data}!input\_batch@{input\_batch}}
+\index{input\_batch@{input\_batch}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{input\_batch}{input\_batch}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_ad7dfe068a649e372104a46cff0979887} 
+debug\+\_\+training\+\_\+data.\+input\+\_\+batch = batch\mbox{[}\textquotesingle{}inputcube\textquotesingle{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00093}{93}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_abd19d01169070d8618649843446212c1}\index{debug\_training\_data@{debug\_training\_data}!input\_data@{input\_data}}
+\index{input\_data@{input\_data}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{input\_data}{input\_data}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_abd19d01169070d8618649843446212c1} 
+debug\+\_\+training\+\_\+data.\+input\+\_\+data = np.\+load(input\+\_\+file)}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00040}{40}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}\index{debug\_training\_data@{debug\_training\_data}!latent@{latent}}
+\index{latent@{latent}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{latent}{latent}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4} 
+debug\+\_\+training\+\_\+data.\+latent = \mbox{\hyperlink{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}{encoded}}\mbox{[}0\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00154}{154}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_ae529477a3d857c570be723100878514b}\index{debug\_training\_data@{debug\_training\_data}!model\_path@{model\_path}}
+\index{model\_path@{model\_path}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{model\_path}{model\_path}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_ae529477a3d857c570be723100878514b} 
+str debug\+\_\+training\+\_\+data.\+model\+\_\+path = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00132}{132}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a72fcadd6aa15f520e06b7d53fe16069c}\index{debug\_training\_data@{debug\_training\_data}!output\_batch@{output\_batch}}
+\index{output\_batch@{output\_batch}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{output\_batch}{output\_batch}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a72fcadd6aa15f520e06b7d53fe16069c} 
+debug\+\_\+training\+\_\+data.\+output\+\_\+batch = batch\mbox{[}\textquotesingle{}outputcube\textquotesingle{}\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00094}{94}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a9ca62d6eae26a142e6ef928687fb26fd}\index{debug\_training\_data@{debug\_training\_data}!output\_data@{output\_data}}
+\index{output\_data@{output\_data}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{output\_data}{output\_data}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a9ca62d6eae26a142e6ef928687fb26fd} 
+debug\+\_\+training\+\_\+data.\+output\+\_\+data = np.\+load(output\+\_\+file)}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00041}{41}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a09564c6ee36c95797cb978d31cfff70a}\index{debug\_training\_data@{debug\_training\_data}!output\_files@{output\_files}}
+\index{output\_files@{output\_files}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{output\_files}{output\_files}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a09564c6ee36c95797cb978d31cfff70a} 
+list debug\+\_\+training\+\_\+data.\+output\+\_\+files}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ [}
+\DoxyCodeLine{00002\ \ \ \ \ \textcolor{stringliteral}{'traindata/11\_5/outputcube/235101017859661465075472232303048949736\_0.npy'},}
+\DoxyCodeLine{00003\ \ \ \ \ \textcolor{stringliteral}{'traindata/15\_75/outputcube/235101017859661465075472232303048949736\_0.npy'},}
+\DoxyCodeLine{00004\ \ \ \ \ \textcolor{stringliteral}{'traindata/34\_25/outputcube/235101017859661465075472232303048949736\_0.npy'}}
+\DoxyCodeLine{00005\ ]}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00026}{26}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a7e4c3c595a92355ef6223f134e50f6b1}\index{debug\_training\_data@{debug\_training\_data}!reconstruction@{reconstruction}}
+\index{reconstruction@{reconstruction}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{reconstruction}{reconstruction}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a7e4c3c595a92355ef6223f134e50f6b1} 
+debug\+\_\+training\+\_\+data.\+reconstruction = \mbox{\hyperlink{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}{decoded}}\mbox{[}0\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00160}{160}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_aa63cb044680052707eedbc88c54d7c66}\index{debug\_training\_data@{debug\_training\_data}!test\_files@{test\_files}}
+\index{test\_files@{test\_files}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{test\_files}{test\_files}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_aa63cb044680052707eedbc88c54d7c66} 
+list debug\+\_\+training\+\_\+data.\+test\+\_\+files}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ [}
+\DoxyCodeLine{00002\ \ \ \ \ \textcolor{stringliteral}{'traindata/11\_5/inputcube/235101017859661465075472232303048949736\_0.npy'},}
+\DoxyCodeLine{00003\ \ \ \ \ \textcolor{stringliteral}{'traindata/15\_75/inputcube/235101017859661465075472232303048949736\_0.npy'},}
+\DoxyCodeLine{00004\ \ \ \ \ \textcolor{stringliteral}{'traindata/34\_25/inputcube/235101017859661465075472232303048949736\_0.npy'}}
+\DoxyCodeLine{00005\ ]}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00020}{20}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}\index{debug\_training\_data@{debug\_training\_data}!test\_input@{test\_input}}
+\index{test\_input@{test\_input}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{test\_input}{test\_input}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61} 
+debug\+\_\+training\+\_\+data.\+test\+\_\+input = torch.\+randn(1, 2, 32, 32, 32)}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00123}{123}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a77d730c6516b64dde839d3ca51ea2b38}\index{debug\_training\_data@{debug\_training\_data}!test\_output@{test\_output}}
+\index{test\_output@{test\_output}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{test\_output}{test\_output}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a77d730c6516b64dde839d3ca51ea2b38} 
+debug\+\_\+training\+\_\+data.\+test\+\_\+output = \mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}}\mbox{[}\+:, 0\+:1, \+:, \+:, \+:\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00124}{124}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a7d38bb2e5fa6035a156fc4745226526c}\index{debug\_training\_data@{debug\_training\_data}!train\_loader@{train\_loader}}
+\index{train\_loader@{train\_loader}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{train\_loader}{train\_loader}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a7d38bb2e5fa6035a156fc4745226526c} 
+debug\+\_\+training\+\_\+data.\+train\+\_\+loader}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00087}{87}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+
+\Hypertarget{namespacedebug__training__data_a7ead9884f7aca7bf32418f16ebe7fc2d}\index{debug\_training\_data@{debug\_training\_data}!val\_loader@{val\_loader}}
+\index{val\_loader@{val\_loader}!debug\_training\_data@{debug\_training\_data}}
+\doxysubsubsection{\texorpdfstring{val\_loader}{val\_loader}}
+{\footnotesize\ttfamily \label{namespacedebug__training__data_a7ead9884f7aca7bf32418f16ebe7fc2d} 
+debug\+\_\+training\+\_\+data.\+val\+\_\+loader}
+
+
+
+Definition at line \mbox{\hyperlink{debug__training__data_8py_source_l00087}{87}} of file \mbox{\hyperlink{debug__training__data_8py_source}{debug\+\_\+training\+\_\+data.\+py}}.
+

@@ -1,0 +1,109 @@
+\doxysection{test\+\_\+training Namespace Reference}
+\hypertarget{namespacetest__training}{}\label{namespacetest__training}\index{test\_training@{test\_training}}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__training_a02a700bf9d3e974aabefb8c534acd68a}{level}}
+\item 
+\mbox{\hyperlink{namespacetest__training_a8711b49c7fcbcd36939c2453e609aac7}{device}} = torch.\+device("{}cuda"{} if torch.\+cuda.\+is\+\_\+available() else "{}cpu"{})
+\item 
+dict \mbox{\hyperlink{namespacetest__training_a457124dc67a100c8ab18cde228ef59f3}{config}}
+\item 
+\mbox{\hyperlink{namespacetest__training_abfbbdea93aa70d1e75cb943b4a8aedea}{system\+\_\+manager}}
+\item 
+\mbox{\hyperlink{namespacetest__training_a7738df8dbda6a50827fac0e4e84ff141}{result}} = system\+\_\+manager.\+run\+\_\+energy\+\_\+conditioned\+\_\+training()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Simple test script for energy-conditioned training
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacetest__training_a457124dc67a100c8ab18cde228ef59f3}\index{test\_training@{test\_training}!config@{config}}
+\index{config@{config}!test\_training@{test\_training}}
+\doxysubsubsection{\texorpdfstring{config}{config}}
+{\footnotesize\ttfamily \label{namespacetest__training_a457124dc67a100c8ab18cde228ef59f3} 
+dict test\+\_\+training.\+config}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ \{}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'root\_dir'}:\ \textcolor{stringliteral}{'traindata'},}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'resolutions'}:\ [16.0],\ \ \textcolor{comment}{\#\ Just\ one\ resolution}}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energies'}:\ [11.5,\ 15.75],\ \ \textcolor{comment}{\#\ Just\ two\ energies\ for\ faster\ testing}}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'quad\_energies'}:\ [11.5,\ 15.75],}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'quad\_weights'}:\ [1.0,\ 1.0],}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'batch\_size'}:\ 1,\ \ \textcolor{comment}{\#\ Small\ batch}}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'num\_epochs'}:\ 2,\ \ \textcolor{comment}{\#\ Just\ 2\ epochs\ for\ testing}}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'learning\_rate'}:\ 1e-\/4,}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'patience'}:\ 2,}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'cube\_size'}:\ (32,\ 32,\ 32),\ \ \textcolor{comment}{\#\ Small\ cube\ for\ speed}}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'seed'}:\ 42}
+\DoxyCodeLine{00013\ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{test__training_8py_source_l00030}{30}} of file \mbox{\hyperlink{test__training_8py_source}{test\+\_\+training.\+py}}.
+
+\Hypertarget{namespacetest__training_a8711b49c7fcbcd36939c2453e609aac7}\index{test\_training@{test\_training}!device@{device}}
+\index{device@{device}!test\_training@{test\_training}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{namespacetest__training_a8711b49c7fcbcd36939c2453e609aac7} 
+test\+\_\+training.\+device = torch.\+device("{}cuda"{} if torch.\+cuda.\+is\+\_\+available() else "{}cpu"{})}
+
+
+
+Definition at line \mbox{\hyperlink{test__training_8py_source_l00026}{26}} of file \mbox{\hyperlink{test__training_8py_source}{test\+\_\+training.\+py}}.
+
+\Hypertarget{namespacetest__training_a02a700bf9d3e974aabefb8c534acd68a}\index{test\_training@{test\_training}!level@{level}}
+\index{level@{level}!test\_training@{test\_training}}
+\doxysubsubsection{\texorpdfstring{level}{level}}
+{\footnotesize\ttfamily \label{namespacetest__training_a02a700bf9d3e974aabefb8c534acd68a} 
+test\+\_\+training.\+level}
+
+
+
+Definition at line \mbox{\hyperlink{test__training_8py_source_l00023}{23}} of file \mbox{\hyperlink{test__training_8py_source}{test\+\_\+training.\+py}}.
+
+\Hypertarget{namespacetest__training_a7738df8dbda6a50827fac0e4e84ff141}\index{test\_training@{test\_training}!result@{result}}
+\index{result@{result}!test\_training@{test\_training}}
+\doxysubsubsection{\texorpdfstring{result}{result}}
+{\footnotesize\ttfamily \label{namespacetest__training_a7738df8dbda6a50827fac0e4e84ff141} 
+test\+\_\+training.\+result = system\+\_\+manager.\+run\+\_\+energy\+\_\+conditioned\+\_\+training()}
+
+
+
+Definition at line \mbox{\hyperlink{test__training_8py_source_l00071}{71}} of file \mbox{\hyperlink{test__training_8py_source}{test\+\_\+training.\+py}}.
+
+\Hypertarget{namespacetest__training_abfbbdea93aa70d1e75cb943b4a8aedea}\index{test\_training@{test\_training}!system\_manager@{system\_manager}}
+\index{system\_manager@{system\_manager}!test\_training@{test\_training}}
+\doxysubsubsection{\texorpdfstring{system\_manager}{system\_manager}}
+{\footnotesize\ttfamily \label{namespacetest__training_abfbbdea93aa70d1e75cb943b4a8aedea} 
+test\+\_\+training.\+system\+\_\+manager}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ SystemManager(}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ root\_dir=config[\textcolor{stringliteral}{'root\_dir'}],}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ transforms=Compose([]),\ \ \textcolor{comment}{\#\ Will\ be\ set\ in\ method}}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ resolutions=config[\textcolor{stringliteral}{'resolutions'}],}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ energies=config[\textcolor{stringliteral}{'energies'}],}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ quad\_energies=config[\textcolor{stringliteral}{'quad\_energies'}],}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ quad\_weights=config[\textcolor{stringliteral}{'quad\_weights'}],}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ batch\_size=config[\textcolor{stringliteral}{'batch\_size'}],}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ device=device,}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ num\_epochs=config[\textcolor{stringliteral}{'num\_epochs'}],}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ learning\_rate=config[\textcolor{stringliteral}{'learning\_rate'}],}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ patience=config[\textcolor{stringliteral}{'patience'}],}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ cube\_size=config[\textcolor{stringliteral}{'cube\_size'}],}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ seed=config[\textcolor{stringliteral}{'seed'}]}
+\DoxyCodeLine{00015\ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{test__training_8py_source_l00051}{51}} of file \mbox{\hyperlink{test__training_8py_source}{test\+\_\+training.\+py}}.
+

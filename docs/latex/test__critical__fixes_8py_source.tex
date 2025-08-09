@@ -1,0 +1,223 @@
+\doxysection{test\+\_\+critical\+\_\+fixes.\+py}
+\hypertarget{test__critical__fixes_8py_source}{}\label{test__critical__fixes_8py_source}\index{tests/test\_critical\_fixes.py@{tests/test\_critical\_fixes.py}}
+\mbox{\hyperlink{test__critical__fixes_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00001}\mbox{\hyperlink{namespacetest__critical__fixes}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00003}00003\ \textcolor{stringliteral}{Quick\ test\ script\ to\ validate\ the\ critical\ fixes\ for\ ultra-\/sparse\ dose\ training.}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00004}00004\ \textcolor{stringliteral}{Tests\ dose-\/focused\ preprocessing,\ extreme\ weighted\ loss,\ and\ sample\ filtering.}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00005}00005\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00007}00007\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00008}00008\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00009}00009\ sys.path.append(\textcolor{stringliteral}{'/home/mpalm/RadioTherapy/sourcecode'})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00010}00010\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00011}00011\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00012}00012\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00013}00013\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00014}00014\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00016}00016\ \textcolor{comment}{\#\ Import\ our\ modules}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00017}00017\ \textcolor{keyword}{from}\ training\_pipeline\ \textcolor{keyword}{import}\ AutoencoderTrainer}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00018}00018\ \textcolor{keyword}{from}\ data\_management\ \textcolor{keyword}{import}\ DataLoaderModule,\ DoseNpyDataset}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00020}\mbox{\hyperlink{namespacetest__critical__fixes_ab91fe19bc2d5800f0ed11c06da4ba917}{00020}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00022}\mbox{\hyperlink{namespacetest__critical__fixes_a7c9466474f73d481b2b8a96c044a9866}{00022}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__critical__fixes_a7c9466474f73d481b2b8a96c044a9866}{test\_dose\_focused\_preprocessing}}():}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00023}00023\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ the\ dose-\/focused\ preprocessing\ functions"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00024}00024\ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ Testing\ Dose-\/Focused\ Preprocessing\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00025}00025\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00026}00026\ \ \ \ \ \textcolor{comment}{\#\ Import\ the\ preprocessing\ functions}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00027}00027\ \ \ \ \ sys.path.append(\textcolor{stringliteral}{'/home/mpalm/RadioTherapy'})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00028}00028\ \ \ \ \ \textcolor{keyword}{from}\ dose\_focused\_preprocessing\ \textcolor{keyword}{import}\ validate\_sample\_quality,\ crop\_to\_dose\_region}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00029}00029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00030}00030\ \ \ \ \ \textcolor{comment}{\#\ Create\ test\ data\ with\ ultra-\/sparse\ dose}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00031}00031\ \ \ \ \ test\_ct\ =\ np.random.randn(100,\ 100,\ 100).astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00032}00032\ \ \ \ \ test\_dose\ =\ np.zeros((100,\ 100,\ 100),\ dtype=np.float32)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00033}00033\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00034}00034\ \ \ \ \ \textcolor{comment}{\#\ Add\ small\ dose\ region\ (simulating\ ultra-\/sparse\ data)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00035}00035\ \ \ \ \ test\_dose[45:55,\ 45:55,\ 45:55]\ =\ np.random.uniform(0.1,\ 2.0,\ (10,\ 10,\ 10))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00036}00036\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00037}00037\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Test\ dose\ stats:\ max=\{test\_dose.max():.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}dose\_voxels=\{np.sum(test\_dose\ >\ 1e-\/6)\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}total\_voxels=\{test\_dose.size\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00040}00040\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00041}00041\ \ \ \ \ \textcolor{comment}{\#\ Test\ validation}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00042}00042\ \ \ \ \ validation\ =\ validate\_sample\_quality(test\_dose)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00043}00043\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Sample\ validation:\ \{validation\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00044}00044\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00045}00045\ \ \ \ \ \textcolor{comment}{\#\ Test\ cropping}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00046}00046\ \ \ \ \ ct\_cropped,\ dose\_cropped,\ crop\_info\ =\ crop\_to\_dose\_region(test\_ct,\ test\_dose)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00047}00047\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00048}00048\ \ \ \ \ \textcolor{keywordflow}{if}\ ct\_cropped\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Cropping\ successful:\ \{test\_dose.shape\}\ →\ \{dose\_cropped.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Crop\ info:\ \{crop\_info\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00051}00051\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Cropping\ failed"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00053}00053\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00054}00054\ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Dose-\/focused\ preprocessing\ test\ completed\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00056}\mbox{\hyperlink{namespacetest__critical__fixes_a08caff07bc05a1f2b2d789564a5692de}{00056}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__critical__fixes_a08caff07bc05a1f2b2d789564a5692de}{test\_extreme\_loss\_functions}}():}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00057}00057\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ the\ extreme\ loss\ functions\ on\ sparse\ data"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00058}00058\ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ Testing\ Extreme\ Loss\ Functions\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00059}00059\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00060}00060\ \ \ \ \ \textcolor{comment}{\#\ Create\ AutoencoderTrainer\ instance}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00061}00061\ \ \ \ \ trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{AutoencoderTrainer}}(}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ autoencoder=\textcolor{keywordtype}{None},\ discriminator=\textcolor{keywordtype}{None},\ unet=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ optimizer\_g=\textcolor{keywordtype}{None},\ optimizer\_d=\textcolor{keywordtype}{None},\ optimizer\_diff=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ device=\textcolor{stringliteral}{'cpu'}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00065}00065\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00066}00066\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00067}00067\ \ \ \ \ \textcolor{comment}{\#\ Create\ ultra-\/sparse\ test\ data}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00068}00068\ \ \ \ \ batch\_size\ =\ 2}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00069}00069\ \ \ \ \ spatial\_size\ =\ 64}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00070}00070\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00071}00071\ \ \ \ \ \textcolor{comment}{\#\ Prediction\ (random\ values)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00072}00072\ \ \ \ \ pred\ =\ torch.randn(batch\_size,\ 1,\ spatial\_size,\ spatial\_size,\ spatial\_size)\ *\ 0.1}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00073}00073\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00074}00074\ \ \ \ \ \textcolor{comment}{\#\ Target\ with\ ultra-\/sparse\ dose\ (only\ 16\ voxels\ have\ dose)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00075}00075\ \ \ \ \ target\ =\ torch.zeros(batch\_size,\ 1,\ spatial\_size,\ spatial\_size,\ spatial\_size)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00076}00076\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00077}00077\ \ \ \ \ \textcolor{comment}{\#\ Add\ tiny\ dose\ regions}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00078}00078\ \ \ \ \ \textcolor{keywordflow}{for}\ b\ \textcolor{keywordflow}{in}\ range(batch\_size):}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 8\ voxels\ per\ batch\ =\ 16\ total\ (ultra-\/sparse\ like\ in\ logs)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ coords\ =\ torch.randint(0,\ spatial\_size,\ (8,\ 3))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i\ \textcolor{keywordflow}{in}\ range(8):}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ x,\ y,\ z\ =\ coords[i]}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ target[b,\ 0,\ x,\ y,\ z]\ =\ torch.rand(1)\ *\ 0.2\ \ \textcolor{comment}{\#\ Max\ dose\ \string~0.2\ (like\ logs)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00084}00084\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00085}00085\ \ \ \ \ dose\_voxels\ =\ (target\ >\ 1e-\/6).sum().item()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00086}00086\ \ \ \ \ total\_voxels\ =\ target.numel()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00087}00087\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Test\ data:\ \{dose\_voxels\}/\{total\_voxels\}\ dose\ voxels\ (\{100*dose\_voxels/total\_voxels:.4f\}\%)"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00088}00088\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00089}00089\ \ \ \ \ \textcolor{comment}{\#\ Test\ different\ loss\ functions}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00090}00090\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ extreme\_loss\ =\ trainer.extreme\_dose\_focused\_loss(pred,\ target)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✓\ Extreme\ dose-\/focused\ loss:\ \{extreme\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00093}00093\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✗\ Extreme\ loss\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00095}00095\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00096}00096\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ weighted\_loss\ =\ trainer.weighted\_dose\_loss(pred,\ target)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✓\ Extreme\ weighted\ loss:\ \{weighted\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00099}00099\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✗\ Weighted\ loss\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00101}00101\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00102}00102\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ masked\_loss\ =\ trainer.masked\_dose\_loss(pred,\ target)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✓\ Pure\ dose\ loss:\ \{masked\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00105}00105\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✗\ Masked\ loss\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00107}00107\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00108}00108\ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Extreme\ loss\ functions\ test\ completed\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00110}\mbox{\hyperlink{namespacetest__critical__fixes_abecdf2b361b5fbb4d469cf44a8da4a26}{00110}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__critical__fixes_abecdf2b361b5fbb4d469cf44a8da4a26}{test\_sample\_filtering}}():}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00111}00111\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ the\ sample\ filtering\ in\ DataLoaderModule"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00112}00112\ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ Testing\ Sample\ Filtering\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00113}00113\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00114}00114\ \ \ \ \ \textcolor{comment}{\#\ Create\ test\ dataset\ instance}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00115}00115\ \ \ \ \ test\_dataset\ =\ \mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset}{DoseNpyDataset}}(root\_dir=\textcolor{stringliteral}{"{}/home/mpalm/RadioTherapy/traindata"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00116}00116\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00117}00117\ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ validation\ method\ exists}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00118}00118\ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(test\_dataset,\ \textcolor{stringliteral}{'validate\_sample\_quality'}):}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Sample\ validation\ method\ found"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Test\ with\ dummy\ dose\ files}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ test\_dose\_good\ =\ np.zeros((100,\ 100,\ 100))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ test\_dose\_good[40:60,\ 40:60,\ 40:60]\ =\ np.random.uniform(0.1,\ 1.0,\ (20,\ 20,\ 20))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ test\_dose\_bad\ =\ np.zeros((100,\ 100,\ 100))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ test\_dose\_bad[50:55,\ 50:55,\ 50:55]\ =\ np.random.uniform(0.001,\ 0.01,\ (5,\ 5,\ 5))}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ good\_result\ =\ test\_dataset.validate\_sample\_quality(\textcolor{stringliteral}{'/tmp/dummy\_good.npy'})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ bad\_result\ =\ test\_dataset.validate\_sample\_quality(\textcolor{stringliteral}{'/tmp/dummy\_bad.npy'})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Sample\ filtering\ working:\ good=\{good\_result\},\ bad=\{bad\_result\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00132}00132\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}✗\ Sample\ validation\ method\ not\ found"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00134}00134\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00135}00135\ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Sample\ filtering\ test\ completed\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00136}00136\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00137}\mbox{\hyperlink{namespacetest__critical__fixes_a59e6764bc15393348feb4451c369915e}{00137}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__critical__fixes_a59e6764bc15393348feb4451c369915e}{test\_realistic\_training\_scenario}}():}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00138}00138\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Simulate\ realistic\ training\ with\ ultra-\/sparse\ data"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00139}00139\ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ Testing\ Realistic\ Training\ Scenario\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00140}00140\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00141}00141\ \ \ \ \ \textcolor{comment}{\#\ Simulate\ batch\ with\ statistics\ from\ logs}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00142}00142\ \ \ \ \ batch\_size\ =\ 2}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00143}00143\ \ \ \ \ spatial\_size\ =\ 50\ \ \textcolor{comment}{\#\ Smaller\ for\ faster\ testing}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00144}00144\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00145}00145\ \ \ \ \ \textcolor{comment}{\#\ Create\ batch\ similar\ to\ problematic\ log\ entries}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00146}00146\ \ \ \ \ ct\_batch\ =\ torch.randn(batch\_size,\ 1,\ spatial\_size,\ spatial\_size,\ spatial\_size)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00147}00147\ \ \ \ \ dose\_batch\ =\ torch.zeros(batch\_size,\ 1,\ spatial\_size,\ spatial\_size,\ spatial\_size)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00148}00148\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00149}00149\ \ \ \ \ \textcolor{comment}{\#\ Add\ ultra-\/sparse\ dose\ (16\ voxels\ total\ like\ in\ logs)}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00150}00150\ \ \ \ \ dose\_coords\ =\ [}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ (25,\ 25,\ 25),\ (26,\ 25,\ 25),\ (25,\ 26,\ 25),\ (25,\ 25,\ 26),}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ (27,\ 25,\ 25),\ (25,\ 27,\ 25),\ (25,\ 25,\ 27),\ (26,\ 26,\ 25),}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ (30,\ 30,\ 30),\ (31,\ 30,\ 30),\ (30,\ 31,\ 30),\ (30,\ 30,\ 31),}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ (32,\ 30,\ 30),\ (30,\ 32,\ 30),\ (30,\ 30,\ 32),\ (31,\ 31,\ 30)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00155}00155\ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00156}00156\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00157}00157\ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ (x,\ y,\ z)\ \textcolor{keywordflow}{in}\ enumerate(dose\_coords):}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ batch\_idx\ =\ i\ \%\ batch\_size}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ dose\_batch[batch\_idx,\ 0,\ x,\ y,\ z]\ =\ np.random.uniform(0.1,\ 0.25)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00160}00160\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00161}00161\ \ \ \ \ dose\_voxels\ =\ (dose\_batch\ >\ 1e-\/6).sum().item()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00162}00162\ \ \ \ \ total\_voxels\ =\ dose\_batch.numel()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00163}00163\ \ \ \ \ max\_dose\ =\ dose\_batch.max().item()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00164}00164\ \ \ \ \ mean\_dose\ =\ dose\_batch[dose\_batch\ >\ 1e-\/6].mean().item()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00165}00165\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00166}00166\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Realistic\ scenario\ stats:"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00167}00167\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Dose\ voxels:\ \{dose\_voxels\}/\{total\_voxels\}\ (\{100*dose\_voxels/total\_voxels:.4f\}\%)"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00168}00168\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Max\ dose:\ \{max\_dose:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00169}00169\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Mean\ dose:\ \{mean\_dose:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00170}00170\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ (Similar\ to\ logs:\ 16/2M\ voxels,\ max\string~0.25)"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00171}00171\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00172}00172\ \ \ \ \ \textcolor{comment}{\#\ Test\ if\ extreme\ loss\ can\ handle\ this}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00173}00173\ \ \ \ \ trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{AutoencoderTrainer}}(}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ autoencoder=\textcolor{keywordtype}{None},\ discriminator=\textcolor{keywordtype}{None},\ unet=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ optimizer\_g=\textcolor{keywordtype}{None},\ optimizer\_d=\textcolor{keywordtype}{None},\ optimizer\_diff=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ device=\textcolor{stringliteral}{'cpu'}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00177}00177\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00178}00178\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00179}00179\ \ \ \ \ \textcolor{comment}{\#\ Random\ prediction}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00180}00180\ \ \ \ \ pred\_batch\ =\ torch.randn\_like(dose\_batch)\ *\ 0.1}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00181}00181\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00182}00182\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ loss\ =\ trainer.extreme\_dose\_focused\_loss(pred\_batch,\ dose\_batch)}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✓\ Extreme\ loss\ on\ realistic\ data:\ \{loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ loss.item()\ >\ 1e-\/6:\ \ \textcolor{comment}{\#\ Should\ be\ meaningful,\ not\ zero}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Loss\ is\ meaningful\ (not\ collapsed\ to\ zero)"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}⚠\ Loss\ is\ very\ small\ -\/\ might\ indicate\ problems"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00191}00191\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✗\ Extreme\ loss\ failed\ on\ realistic\ data:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00193}00193\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00194}00194\ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Realistic\ training\ scenario\ test\ completed\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00196}\mbox{\hyperlink{namespacetest__critical__fixes_a475dd422dd75fe7dc6f13c310eaa88e0}{00196}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__critical__fixes_a475dd422dd75fe7dc6f13c310eaa88e0}{main}}():}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00197}00197\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Run\ all\ critical\ tests"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00198}00198\ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ CRITICAL\ FIXES\ VALIDATION\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00199}00199\ \ \ \ \ print(\textcolor{stringliteral}{"{}Testing\ fixes\ for\ ultra-\/sparse\ dose\ training\ problems\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00200}00200\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00201}00201\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacetest__critical__fixes_a7c9466474f73d481b2b8a96c044a9866}{test\_dose\_focused\_preprocessing}}()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacetest__critical__fixes_a08caff07bc05a1f2b2d789564a5692de}{test\_extreme\_loss\_functions}}()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacetest__critical__fixes_abecdf2b361b5fbb4d469cf44a8da4a26}{test\_sample\_filtering}}()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacetest__critical__fixes_a59e6764bc15393348feb4451c369915e}{test\_realistic\_training\_scenario}}()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}===\ ALL\ TESTS\ COMPLETED\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}✓\ Critical\ fixes\ appear\ to\ be\ working"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Ready\ for\ training\ test\ with\ real\ data"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00211}00211\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}✗\ Test\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00215}00215\ }
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00216}00216\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__critical__fixes_8py_source_l00217}00217\ \ \ \ \ \mbox{\hyperlink{namespacetest__critical__fixes_a475dd422dd75fe7dc6f13c310eaa88e0}{main}}()}
+
+\end{DoxyCode}

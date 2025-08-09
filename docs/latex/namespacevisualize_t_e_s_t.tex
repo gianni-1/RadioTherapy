@@ -1,0 +1,244 @@
+\doxysection{visualize\+TEST Namespace Reference}
+\hypertarget{namespacevisualize_t_e_s_t}{}\label{namespacevisualize_t_e_s_t}\index{visualizeTEST@{visualizeTEST}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023}{update}} (val)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}} = np.\+load("{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+10.\+npy"{})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_aa43c52fa5ee7471ecbe077a233d37925}{fig}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8f7cd9d586d17f3ae3962a0c5d9c6c1d}{ax}}
+\item 
+int \mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{slice\+\_\+idx}} = cube.\+shape\mbox{[}2\mbox{]} // 2
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_afe3251f55e9f71e3bb0f69d5b933324f}{im}} = ax.\+imshow(\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}}\mbox{[}\+:, \+:, \mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{slice\+\_\+idx}}\mbox{]}, cmap="{}gray"{})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a42ab6a728c60f03434fc0c49fd2994bc}{slider\+\_\+ax}} = plt.\+axes(\mbox{[}0.\+2, 0.\+05, 0.\+6, 0.\+03\mbox{]})
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a60268abfbabe414662185822ad42df16}{slider}}
+\item 
+tuple \mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{cube\+\_\+norm}} = (\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}} -\/ cube.\+min()) / (cube.\+max() -\/ cube.\+min())
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a536026ff091c61820364d08c73089ff9}{p\+\_\+low}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7334a1327b3ed65dbb89657046c6d089}{p\+\_\+high}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a0202695b3fe032a9a1852e9a03dda677}{x}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a337dfeda2101be90429fb631134acce9}{y}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a03042d504841caeae10ed95403dcfea3}{z}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a6d99fc429e5f67c994ad9c13e05a3a1a}{cube\+\_\+smoothed}} = ndimage.\+gaussian\+\_\+filter(\mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{cube\+\_\+norm}}, sigma=0.\+5)
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8ed5c637fcc097e6d8524c8e94b6ad44}{fig\+\_\+vol}}
+\item 
+\mbox{\hyperlink{namespacevisualize_t_e_s_t_af8c361e679d886907c6cbf818e899de7}{scene}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023}\index{visualizeTEST@{visualizeTEST}!update@{update}}
+\index{update@{update}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023} 
+visualize\+TEST.\+update (\begin{DoxyParamCaption}\item[{}]{val}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00027}{27}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacevisualize_t_e_s_t_a8f7cd9d586d17f3ae3962a0c5d9c6c1d}\index{visualizeTEST@{visualizeTEST}!ax@{ax}}
+\index{ax@{ax}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{ax}{ax}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a8f7cd9d586d17f3ae3962a0c5d9c6c1d} 
+visualize\+TEST.\+ax}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00015}{15}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}\index{visualizeTEST@{visualizeTEST}!cube@{cube}}
+\index{cube@{cube}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{cube}{cube}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c} 
+visualize\+TEST.\+cube = np.\+load("{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+10.\+npy"{})}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00006}{6}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}\index{visualizeTEST@{visualizeTEST}!cube\_norm@{cube\_norm}}
+\index{cube\_norm@{cube\_norm}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{cube\_norm}{cube\_norm}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7} 
+tuple visualize\+TEST.\+cube\+\_\+norm = (\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}} -\/ cube.\+min()) / (cube.\+max() -\/ cube.\+min())}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00037}{37}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a6d99fc429e5f67c994ad9c13e05a3a1a}\index{visualizeTEST@{visualizeTEST}!cube\_smoothed@{cube\_smoothed}}
+\index{cube\_smoothed@{cube\_smoothed}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{cube\_smoothed}{cube\_smoothed}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a6d99fc429e5f67c994ad9c13e05a3a1a} 
+visualize\+TEST.\+cube\+\_\+smoothed = ndimage.\+gaussian\+\_\+filter(\mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{cube\+\_\+norm}}, sigma=0.\+5)}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00049}{49}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_aa43c52fa5ee7471ecbe077a233d37925}\index{visualizeTEST@{visualizeTEST}!fig@{fig}}
+\index{fig@{fig}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{fig}{fig}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_aa43c52fa5ee7471ecbe077a233d37925} 
+visualize\+TEST.\+fig}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00015}{15}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a8ed5c637fcc097e6d8524c8e94b6ad44}\index{visualizeTEST@{visualizeTEST}!fig\_vol@{fig\_vol}}
+\index{fig\_vol@{fig\_vol}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{fig\_vol}{fig\_vol}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a8ed5c637fcc097e6d8524c8e94b6ad44} 
+visualize\+TEST.\+fig\+\_\+vol}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ go.Figure(}
+\DoxyCodeLine{00002\ \ \ \ \ data=go.Volume(}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ x=x.flatten(),}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ y=y.flatten(),}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ z=z.flatten(),}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ value=cube\_smoothed.flatten(),}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ opacity=0.1,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ mehr\ transparent\ für\ bessere\ Sicht}}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ surface\_count=15,\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ weniger\ Isoflächen\ für\ glatteres\ Aussehen}}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ isomin=p\_low\ *\ 1.2,\ \ \ \ \ \ \ \ \textcolor{comment}{\#\ etwas\ höhere\ Schwelle}}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ isomax=p\_high\ *\ 0.8,\ \ \ \ \ \ \ \textcolor{comment}{\#\ etwas\ niedrigere\ obere\ Schwelle}}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ colorscale=\textcolor{stringliteral}{"{}Hot"{}},\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ bessere\ Farbskala\ für\ Dosisverteilung}}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ caps=dict(x\_show=\textcolor{keyword}{False},\ y\_show=\textcolor{keyword}{False},\ z\_show=\textcolor{keyword}{False})\ \ \textcolor{comment}{\#\ keine\ Kappen}}
+\DoxyCodeLine{00013\ \ \ \ \ )}
+\DoxyCodeLine{00014\ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00053}{53}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_afe3251f55e9f71e3bb0f69d5b933324f}\index{visualizeTEST@{visualizeTEST}!im@{im}}
+\index{im@{im}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{im}{im}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_afe3251f55e9f71e3bb0f69d5b933324f} 
+visualize\+TEST.\+im = ax.\+imshow(\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{cube}}\mbox{[}\+:, \+:, \mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{slice\+\_\+idx}}\mbox{]}, cmap="{}gray"{})}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00017}{17}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a7334a1327b3ed65dbb89657046c6d089}\index{visualizeTEST@{visualizeTEST}!p\_high@{p\_high}}
+\index{p\_high@{p\_high}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{p\_high}{p\_high}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a7334a1327b3ed65dbb89657046c6d089} 
+visualize\+TEST.\+p\+\_\+high}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00040}{40}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a536026ff091c61820364d08c73089ff9}\index{visualizeTEST@{visualizeTEST}!p\_low@{p\_low}}
+\index{p\_low@{p\_low}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{p\_low}{p\_low}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a536026ff091c61820364d08c73089ff9} 
+visualize\+TEST.\+p\+\_\+low}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00040}{40}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_af8c361e679d886907c6cbf818e899de7}\index{visualizeTEST@{visualizeTEST}!scene@{scene}}
+\index{scene@{scene}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{scene}{scene}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_af8c361e679d886907c6cbf818e899de7} 
+visualize\+TEST.\+scene}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00068}{68}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}\index{visualizeTEST@{visualizeTEST}!slice\_idx@{slice\_idx}}
+\index{slice\_idx@{slice\_idx}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{slice\_idx}{slice\_idx}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9} 
+int visualize\+TEST.\+slice\+\_\+idx = cube.\+shape\mbox{[}2\mbox{]} // 2}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00016}{16}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a60268abfbabe414662185822ad42df16}\index{visualizeTEST@{visualizeTEST}!slider@{slider}}
+\index{slider@{slider}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{slider}{slider}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a60268abfbabe414662185822ad42df16} 
+visualize\+TEST.\+slider}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ widgets.Slider(}
+\DoxyCodeLine{00002\ \ \ \ \ slider\_ax,\ \textcolor{stringliteral}{"{}z‑Slice"{}},\ 0,\ cube.shape[2]\ -\/\ 1,}
+\DoxyCodeLine{00003\ \ \ \ \ valinit=slice\_idx,\ valfmt=\textcolor{stringliteral}{"{}\%0.0f"{}}}
+\DoxyCodeLine{00004\ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00022}{22}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a42ab6a728c60f03434fc0c49fd2994bc}\index{visualizeTEST@{visualizeTEST}!slider\_ax@{slider\_ax}}
+\index{slider\_ax@{slider\_ax}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{slider\_ax}{slider\_ax}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a42ab6a728c60f03434fc0c49fd2994bc} 
+visualize\+TEST.\+slider\+\_\+ax = plt.\+axes(\mbox{[}0.\+2, 0.\+05, 0.\+6, 0.\+03\mbox{]})}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00021}{21}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a0202695b3fe032a9a1852e9a03dda677}\index{visualizeTEST@{visualizeTEST}!x@{x}}
+\index{x@{x}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{x}{x}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a0202695b3fe032a9a1852e9a03dda677} 
+visualize\+TEST.\+x}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00044}{44}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a337dfeda2101be90429fb631134acce9}\index{visualizeTEST@{visualizeTEST}!y@{y}}
+\index{y@{y}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{y}{y}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a337dfeda2101be90429fb631134acce9} 
+visualize\+TEST.\+y}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00044}{44}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+
+\Hypertarget{namespacevisualize_t_e_s_t_a03042d504841caeae10ed95403dcfea3}\index{visualizeTEST@{visualizeTEST}!z@{z}}
+\index{z@{z}!visualizeTEST@{visualizeTEST}}
+\doxysubsubsection{\texorpdfstring{z}{z}}
+{\footnotesize\ttfamily \label{namespacevisualize_t_e_s_t_a03042d504841caeae10ed95403dcfea3} 
+visualize\+TEST.\+z}
+
+
+
+Definition at line \mbox{\hyperlink{visualize_t_e_s_t_8py_source_l00044}{44}} of file \mbox{\hyperlink{visualize_t_e_s_t_8py_source}{visualize\+TEST.\+py}}.
+

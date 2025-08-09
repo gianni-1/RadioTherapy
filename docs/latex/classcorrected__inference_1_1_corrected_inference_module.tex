@@ -1,0 +1,285 @@
+\doxysection{corrected\+\_\+inference.\+Corrected\+Inference\+Module Class Reference}
+\hypertarget{classcorrected__inference_1_1_corrected_inference_module}{}\label{classcorrected__inference_1_1_corrected_inference_module}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ad1ba9509dbf90141e9e01db05e1ebabf}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{model\+\_\+path}}, \mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}}=\textquotesingle{}cpu\textquotesingle{})
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc}{preprocess\+\_\+ct}} (self, ct\+\_\+array, target\+\_\+cube\+\_\+size=(64, 64, 64))
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a0a45d088895987ac737ad825664ce89e}{run\+\_\+inference}} (self, ct\+\_\+tensor, quad\+\_\+energies=None, quad\+\_\+weights=None, target\+\_\+cube\+\_\+size=(64, 64, 64))
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}{run\+\_\+inference\+\_\+single\+\_\+energy}} (self, ct\+\_\+tensor, target\+\_\+energy=None, target\+\_\+cube\+\_\+size=(64, 64, 64))
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}} = device
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{model\+\_\+path}} = model\+\_\+path
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}} = torch.\+load(\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}}, weights\+\_\+only=False)
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483}{energies}} = self.\+checkpoint.\+get(\textquotesingle{}energies\textquotesingle{}, \mbox{[}11.\+5, 15.\+75, 34.\+25\mbox{]})
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e}{scale\+\_\+factor}} = self.\+checkpoint.\+get(\textquotesingle{}scale\+\_\+factor\textquotesingle{}, 0.\+18215)
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{unet}}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}{scheduler}}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175}{inferer}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380}{\+\_\+load\+\_\+models}} (self)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Fixed inference module that properly handles the energy-conditioned model.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00014}{14}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_ad1ba9509dbf90141e9e01db05e1ebabf}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_ad1ba9509dbf90141e9e01db05e1ebabf} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{model\+\_\+path}{, }\item[{}]{device}{ = {\ttfamily \textquotesingle{}cpu\textquotesingle{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initialize with the corrected energy-conditioned model.
+
+Args:
+    model_path: Path to the unified model checkpoint
+    device: Device to run inference on
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00019}{19}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!\_load\_models@{\_load\_models}}
+\index{\_load\_models@{\_load\_models}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{\_load\_models()}{\_load\_models()}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+\_\+load\+\_\+models (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Load autoencoder, unet, and scheduler from checkpoint.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00068}{68}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!preprocess\_ct@{preprocess\_ct}}
+\index{preprocess\_ct@{preprocess\_ct}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{preprocess\_ct()}{preprocess\_ct()}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+preprocess\+\_\+ct (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+array}{, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (64,~64,~64)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Preprocess CT data for inference.
+
+Args:
+    ct_array: CT data as numpy array
+    target_cube_size: Target size for processing
+    
+Returns:
+    Preprocessed CT tensor
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00154}{154}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a0a45d088895987ac737ad825664ce89e}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!run\_inference@{run\_inference}}
+\index{run\_inference@{run\_inference}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{run\_inference()}{run\_inference()}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a0a45d088895987ac737ad825664ce89e} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+run\+\_\+inference (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{quad\+\_\+energies}{ = {\ttfamily None}, }\item[{}]{quad\+\_\+weights}{ = {\ttfamily None}, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (64,~64,~64)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Run inference on CT data with quadrature integration over energies.
+
+Args:
+    ct_tensor: CT data tensor or numpy array
+    quad_energies: List of quadrature energies (if None, uses single energy)
+    quad_weights: List of quadrature weights (if None, uses single energy)
+    target_cube_size: Target cube size for processing
+    
+Returns:
+    Dose distribution tensor
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00193}{193}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!run\_inference\_single\_energy@{run\_inference\_single\_energy}}
+\index{run\_inference\_single\_energy@{run\_inference\_single\_energy}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{run\_inference\_single\_energy()}{run\_inference\_single\_energy()}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+run\+\_\+inference\+\_\+single\+\_\+energy (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{target\+\_\+energy}{ = {\ttfamily None}, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (64,~64,~64)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Run inference on CT data for a single energy.
+
+Args:
+    ct_tensor: CT data tensor or numpy array
+    target_energy: Target energy for inference (if None, uses first available)
+    target_cube_size: Target cube size for processing
+    
+Returns:
+    Dose distribution tensor
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00249}{249}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!autoencoder@{autoencoder}}
+\index{autoencoder@{autoencoder}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{autoencoder}{autoencoder}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+autoencoder}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ AutoencoderKL(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ CT\ +\ Energy\ channel}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ).to(self.device)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00080}{80}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!checkpoint@{checkpoint}}
+\index{checkpoint@{checkpoint}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{checkpoint}{checkpoint}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+checkpoint = torch.\+load(\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}}, weights\+\_\+only=False)}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00041}{41}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!device@{device}}
+\index{device@{device}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+device = device}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00031}{31}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!energies@{energies}}
+\index{energies@{energies}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{energies}{energies}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+energies = self.\+checkpoint.\+get(\textquotesingle{}energies\textquotesingle{}, \mbox{[}11.\+5, 15.\+75, 34.\+25\mbox{]})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00056}{56}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!inferer@{inferer}}
+\index{inferer@{inferer}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{inferer}{inferer}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+inferer}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ LatentDiffusionInferer(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scheduler=self.scheduler,\ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=self.scale\_factor}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00140}{140}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!model\_path@{model\_path}}
+\index{model\_path@{model\_path}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{model\_path}{model\_path}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+model\+\_\+path = model\+\_\+path}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00032}{32}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!scale\_factor@{scale\_factor}}
+\index{scale\_factor@{scale\_factor}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{scale\_factor}{scale\_factor}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+scale\+\_\+factor = self.\+checkpoint.\+get(\textquotesingle{}scale\+\_\+factor\textquotesingle{}, 0.\+18215)}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00057}{57}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!scheduler@{scheduler}}
+\index{scheduler@{scheduler}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{scheduler}{scheduler}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+scheduler}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ DDPMScheduler(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_train\_timesteps=1000,\ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,\ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_end=0.0195}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00111}{111}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+\Hypertarget{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}\index{corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}!unet@{unet}}
+\index{unet@{unet}!corrected\_inference.CorrectedInferenceModule@{corrected\_inference.CorrectedInferenceModule}}
+\doxysubsubsection{\texorpdfstring{unet}{unet}}
+{\footnotesize\ttfamily \label{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad} 
+corrected\+\_\+inference.\+Corrected\+Inference\+Module.\+unet}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ DiffusionModelUNet(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ Latent\ space\ is\ 2\ channels}}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{True},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cross\_attention\_dim=2,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 32,\ 32),}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ ).to(self.device)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{corrected__inference_8py_source_l00094}{94}} of file \mbox{\hyperlink{corrected__inference_8py_source}{corrected\+\_\+inference.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{corrected__inference_8py}{corrected\+\_\+inference.\+py}}\end{DoxyCompactItemize}

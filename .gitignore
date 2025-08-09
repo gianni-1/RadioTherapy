@@ -6,3 +6,4 @@
 *.npy
 *.log
 traindata/
+*.ckpt

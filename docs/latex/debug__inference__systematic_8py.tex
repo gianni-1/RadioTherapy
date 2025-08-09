@@ -1,0 +1,74 @@
+\doxysection{tests/debug\+\_\+inference\+\_\+systematic.py File Reference}
+\hypertarget{debug__inference__systematic_8py}{}\label{debug__inference__systematic_8py}\index{tests/debug\_inference\_systematic.py@{tests/debug\_inference\_systematic.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacedebug__inference__systematic}{debug\+\_\+inference\+\_\+systematic}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a9db7507120490bd195c6e7033b4cf08e}{debug\+\_\+inference\+\_\+systematic.\+level}}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_af66e22a7e144467bc09248b9f7b50bb5}{debug\+\_\+inference\+\_\+systematic.\+INFO}}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a9193cc7903caae419198dd59f130d8d7}{debug\+\_\+inference\+\_\+systematic.\+format}}
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__systematic_ab34940792571f00c31fc17e4f3bd0b1a}{debug\+\_\+inference\+\_\+systematic.\+input\+\_\+file}} = \textquotesingle{}traindata/11\+\_\+5/inputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__systematic_ab6847216fa2e9dee0b79198e77816e1f}{debug\+\_\+inference\+\_\+systematic.\+output\+\_\+file}} = \textquotesingle{}traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_af318c56abc87487f7ee3481155a465b0}{debug\+\_\+inference\+\_\+systematic.\+input\+\_\+data}} = np.\+load(\mbox{\hyperlink{namespacedebug__inference__systematic_ab34940792571f00c31fc17e4f3bd0b1a}{input\+\_\+file}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a26f5720ffd829d00a66399517b4bd983}{debug\+\_\+inference\+\_\+systematic.\+ground\+\_\+truth}} = np.\+load(\mbox{\hyperlink{namespacedebug__inference__systematic_ab6847216fa2e9dee0b79198e77816e1f}{output\+\_\+file}})
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__systematic_a822bf668920081cfa527bb12d0e49bbb}{debug\+\_\+inference\+\_\+systematic.\+model\+\_\+path}} = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{debug\+\_\+inference\+\_\+systematic.\+device}} = torch.\+device("{}cpu"{})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_ab63274322a160e824969792be12aaeb6}{debug\+\_\+inference\+\_\+systematic.\+checkpoint}} = torch.\+load(\mbox{\hyperlink{namespacedebug__inference__systematic_a822bf668920081cfa527bb12d0e49bbb}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a0c33d94c007766ebaeeec062673ca6df}{debug\+\_\+inference\+\_\+systematic.\+config}} = \mbox{\hyperlink{namespacedebug__inference__systematic_ab63274322a160e824969792be12aaeb6}{checkpoint}}\mbox{[}\textquotesingle{}training\+\_\+config\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_ac747710123bdafaa4fa89931f539b94e}{debug\+\_\+inference\+\_\+systematic.\+training\+\_\+cube\+\_\+size}} = \mbox{\hyperlink{namespacedebug__inference__systematic_a0c33d94c007766ebaeeec062673ca6df}{config}}\mbox{[}\textquotesingle{}cube\+\_\+size\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_ad15a4a6a8d2239e6122e6889770eefba}{debug\+\_\+inference\+\_\+systematic.\+autoencoder}}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a48934192d560871a2bdfcd185e2980e7}{debug\+\_\+inference\+\_\+systematic.\+input\+\_\+tensor}} = torch.\+tensor(\mbox{\hyperlink{namespacedebug__inference__systematic_af318c56abc87487f7ee3481155a465b0}{input\+\_\+data}}, dtype=torch.\+float32).unsqueeze(0).unsqueeze(0).to(\mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a3ad18df71260aedd4212242fb1b0cf3c}{debug\+\_\+inference\+\_\+systematic.\+ground\+\_\+truth\+\_\+tensor}} = torch.\+tensor(\mbox{\hyperlink{namespacedebug__inference__systematic_a26f5720ffd829d00a66399517b4bd983}{ground\+\_\+truth}}, dtype=torch.\+float32).unsqueeze(0).unsqueeze(0).to(\mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_aed41090f15d4b5b1fd550872f66f98a4}{debug\+\_\+inference\+\_\+systematic.\+input\+\_\+resized}} = interpolate(\mbox{\hyperlink{namespacedebug__inference__systematic_a48934192d560871a2bdfcd185e2980e7}{input\+\_\+tensor}}, size=\mbox{\hyperlink{namespacedebug__inference__systematic_ac747710123bdafaa4fa89931f539b94e}{training\+\_\+cube\+\_\+size}}, mode=\textquotesingle{}trilinear\textquotesingle{}, align\+\_\+corners=True)
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a355e0ded1a4c80e3da7e2581a03251d4}{debug\+\_\+inference\+\_\+systematic.\+ground\+\_\+truth\+\_\+resized}} = interpolate(\mbox{\hyperlink{namespacedebug__inference__systematic_a3ad18df71260aedd4212242fb1b0cf3c}{ground\+\_\+truth\+\_\+tensor}}, size=\mbox{\hyperlink{namespacedebug__inference__systematic_ac747710123bdafaa4fa89931f539b94e}{training\+\_\+cube\+\_\+size}}, mode=\textquotesingle{}trilinear\textquotesingle{}, align\+\_\+corners=True)
+\item 
+float \mbox{\hyperlink{namespacedebug__inference__systematic_a0aaf96dfe9843325b098d42da374a64d}{debug\+\_\+inference\+\_\+systematic.\+energy\+\_\+value}} = 11.\+5
+\item 
+list \mbox{\hyperlink{namespacedebug__inference__systematic_a98c967a106a520478c0a575a5b77d892}{debug\+\_\+inference\+\_\+systematic.\+energy\+\_\+normalizations}}
+\item 
+int \mbox{\hyperlink{namespacedebug__inference__systematic_a813ef8a41cb1991019262e83761a740a}{debug\+\_\+inference\+\_\+systematic.\+best\+\_\+correlation}} = -\/1
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_af66c58a67c788f92eaee3a0950fa4bea}{debug\+\_\+inference\+\_\+systematic.\+best\+\_\+method}} = None
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a649612a3b21854e999619703e889eecf}{debug\+\_\+inference\+\_\+systematic.\+best\+\_\+reconstruction}} = None
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a71e0014fd5130c1c5113fb037da5bc35}{debug\+\_\+inference\+\_\+systematic.\+input\+\_\+2channel}} = torch.\+zeros((1, 2, \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{namespacedebug__inference__systematic_ac747710123bdafaa4fa89931f539b94e}{training\+\_\+cube\+\_\+size}}), \mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{device}}=\mbox{\hyperlink{namespacedebug__inference__systematic_a3d0b9c0d2783bfaa7623e6302a952222}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a7f5bc547499e60ba496ac6caf04a7598}{debug\+\_\+inference\+\_\+systematic.\+encoded}} = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__inference__systematic_a71e0014fd5130c1c5113fb037da5bc35}{input\+\_\+2channel}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a5b9efe4721d9ae47e557451fb4aef7ee}{debug\+\_\+inference\+\_\+systematic.\+latent}} = \mbox{\hyperlink{namespacedebug__inference__systematic_a7f5bc547499e60ba496ac6caf04a7598}{encoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a0ac19569f6258062ec20f47d5bc3a5f7}{debug\+\_\+inference\+\_\+systematic.\+decoded}} = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__inference__systematic_a5b9efe4721d9ae47e557451fb4aef7ee}{latent}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a28cac3982aa5f66cc0b4427ab9b7abf1}{debug\+\_\+inference\+\_\+systematic.\+reconstruction}} = \mbox{\hyperlink{namespacedebug__inference__systematic_a0ac19569f6258062ec20f47d5bc3a5f7}{decoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a3b0d768591e83dedd82c4e4b99dc6b11}{debug\+\_\+inference\+\_\+systematic.\+reconstruction\+\_\+full}} = interpolate(\mbox{\hyperlink{namespacedebug__inference__systematic_a28cac3982aa5f66cc0b4427ab9b7abf1}{reconstruction}}, size=(100, 100, 100), mode=\textquotesingle{}trilinear\textquotesingle{}, align\+\_\+corners=True)
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_a280c84a15817c60ab146d8c383bb26fc}{debug\+\_\+inference\+\_\+systematic.\+reconstruction\+\_\+np}} = reconstruction\+\_\+full.\+cpu().numpy().squeeze()
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_addfd22a9c18f841403e62495ba254406}{debug\+\_\+inference\+\_\+systematic.\+mse}} = np.\+mean((\mbox{\hyperlink{namespacedebug__inference__systematic_a280c84a15817c60ab146d8c383bb26fc}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__systematic_a26f5720ffd829d00a66399517b4bd983}{ground\+\_\+truth}}) \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} 2)
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_ad0a63016d16bba1a36f37ba8f679b41e}{debug\+\_\+inference\+\_\+systematic.\+mae}} = np.\+mean(np.\+abs(\mbox{\hyperlink{namespacedebug__inference__systematic_a280c84a15817c60ab146d8c383bb26fc}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__systematic_a26f5720ffd829d00a66399517b4bd983}{ground\+\_\+truth}}))
+\item 
+\mbox{\hyperlink{namespacedebug__inference__systematic_ae784d816bc4cbf23eea547c87aa9dda8}{debug\+\_\+inference\+\_\+systematic.\+correlation}} = np.\+corrcoef(reconstruction\+\_\+np.\+flatten(), ground\+\_\+truth.\+flatten())\mbox{[}0, 1\mbox{]}
+\end{DoxyCompactItemize}

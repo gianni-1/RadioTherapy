@@ -718,3 +718,74 @@
 2025-08-09 14:28:23,083 INFO:__main__: GUI module loaded with logging configured
 2025-08-09 14:28:25,206 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
 2025-08-09 14:28:28,614 INFO:parameter_manager: 🔧 CORRECTED: Using SINGLE resolution 64 for stability (was multi-resolution)
+2025-08-09 15:19:51,499 INFO:__main__: GUI module loaded with logging configured
+2025-08-09 15:19:53,227 INFO:numexpr.utils: NumExpr defaulting to 8 threads.
+2025-08-09 15:19:56,584 INFO:parameter_manager: 🔧 CORRECTED: Using SINGLE resolution 64 for stability (was multi-resolution)
+2025-08-09 15:20:00,983 INFO:__main__: Opening CT file selection dialog...
+2025-08-09 15:20:07,591 INFO:__main__: User selected CT file: /Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/46_53/inputcube/226808136684964871480153898846429021344_100.npy
+2025-08-09 15:20:07,592 INFO:__main__: Loading NumPy file...
+2025-08-09 15:20:07,595 INFO:__main__: ✓ CT file loaded successfully: shape=(100, 100, 100), dtype=float32
+2025-08-09 15:20:07,596 INFO:__main__: ✓ CT data range: [-1000.000, 1297.601]
+2025-08-09 15:20:07,596 INFO:__main__: ✓ CT file loaded, UI state updated.
+2025-08-09 15:20:08,303 INFO:__main__: Opening model file selection dialog...
+2025-08-09 15:20:17,271 INFO:__main__: Model file selection cancelled by user
+2025-08-09 15:22:01,692 INFO:__main__: Opening model file selection dialog...
+2025-08-09 15:22:03,606 INFO:__main__: User selected model file: /Users/giannigagliardi/Documents/Git/RadioTherapy/model_and_result/GG-ThreeHundred.ckpt
+2025-08-09 15:22:03,606 INFO:__main__: Validating model checkpoint...
+2025-08-09 15:22:03,837 INFO:__main__: ✓ Model checkpoint validated successfully
+2025-08-09 15:22:03,837 INFO:__main__: ✓ Checkpoint keys: ['models_by_energy', 'dose_normalization_params']
+2025-08-09 15:22:03,838 INFO:__main__: ✓ Model file successfully selected and validated, UI state updated.
+2025-08-09 15:22:04,668 INFO:__main__: ============================================================
+2025-08-09 15:22:04,668 INFO:__main__: DOSE CALCULATION STARTED VIA GUI (STANDALONE APPROACH)
+2025-08-09 15:22:04,668 INFO:__main__: ============================================================
+2025-08-09 15:22:04,668 INFO:__main__: Energy range: 0.0 to 50.0 eV
+2025-08-09 15:22:04,674 INFO:__main__: Inference thread started
+2025-08-09 15:22:04,674 INFO:__main__: Starting background inference worker
+2025-08-09 15:22:04,687 INFO:__main__: Quad energies: [3.47, 15.75, 34.25, 46.53]
+2025-08-09 15:22:04,690 INFO:__main__: CT loaded: shape=(100, 100, 100), dtype=float32
+2025-08-09 15:22:04,693 INFO:__main__: CT tensor shape: torch.Size([1, 100, 100, 100])
+2025-08-09 15:22:04,693 INFO:inference_module_standalone: Loading checkpoint from: /Users/giannigagliardi/Documents/Git/RadioTherapy/model_and_result/GG-ThreeHundred.ckpt
+2025-08-09 15:22:05,008 INFO:inference_module_standalone: ✓ Checkpoint loaded successfully
+2025-08-09 15:22:05,008 INFO:inference_module_standalone: Found 4 energy-specific models in checkpoint
+2025-08-09 15:22:05,008 INFO:inference_module_standalone: Available energies in checkpoint: ['res64x64x64_e3.47', 'res64x64x64_e15.75', 'res64x64x64_e34.25', 'res64x64x64_e46.53']
+2025-08-09 15:22:05,008 INFO:inference_module_standalone: ✓ Found dose normalization parameters for 4 energy/resolution combinations
+2025-08-09 15:22:05,008 INFO:inference_module_standalone:   res64x64x64_e3.47: clip_min=0.000000, clip_max=15.355803
+2025-08-09 15:22:05,008 INFO:inference_module_standalone:   res64x64x64_e15.75: clip_min=0.000999, clip_max=34.891815
+2025-08-09 15:22:05,008 INFO:inference_module_standalone:   res64x64x64_e34.25: clip_min=0.010449, clip_max=42.313839
+2025-08-09 15:22:05,008 INFO:inference_module_standalone:   res64x64x64_e46.53: clip_min=0.029185, clip_max=64.450958
+2025-08-09 15:22:05,009 INFO:inference_module_standalone: Loading models for energy 3.47 keV (using res64x64x64_e3.47)...
+2025-08-09 15:22:05,009 INFO:inference_module_standalone: ✓ Scale factor extracted: 0.8504326368901645
+2025-08-09 15:22:05,057 INFO:inference_module_standalone: ✓ Autoencoder state loaded for energy 3.47
+2025-08-09 15:22:05,061 INFO:inference_module_standalone: ✓ UNet state loaded for energy 3.47
+2025-08-09 15:22:05,062 INFO:inference_module_standalone: Loading models for energy 15.75 keV (using res64x64x64_e15.75)...
+2025-08-09 15:22:05,085 INFO:inference_module_standalone: ✓ Autoencoder state loaded for energy 15.75
+2025-08-09 15:22:05,089 INFO:inference_module_standalone: ✓ UNet state loaded for energy 15.75
+2025-08-09 15:22:05,092 INFO:inference_module_standalone: Loading models for energy 34.25 keV (using res64x64x64_e34.25)...
+2025-08-09 15:22:05,166 INFO:inference_module_standalone: ✓ Autoencoder state loaded for energy 34.25
+2025-08-09 15:22:05,170 INFO:inference_module_standalone: ✓ UNet state loaded for energy 34.25
+2025-08-09 15:22:05,170 INFO:inference_module_standalone: Loading models for energy 46.53 keV (using res64x64x64_e46.53)...
+2025-08-09 15:22:05,249 INFO:inference_module_standalone: ✓ Autoencoder state loaded for energy 46.53
+2025-08-09 15:22:05,263 INFO:inference_module_standalone: ✓ UNet state loaded for energy 46.53
+2025-08-09 15:22:05,264 INFO:inference_module_standalone: ✓ Loaded energy-specific models for 4 energies: [3.47, 15.75, 34.25, 46.53]
+2025-08-09 15:22:05,273 INFO:__main__: Models loaded from checkpoint
+2025-08-09 15:22:05,273 INFO:__main__: InferenceModule constructed
+2025-08-09 15:22:05,273 INFO:inference_module: Starting full inference over energies
+2025-08-09 15:22:05,273 INFO:inference_module: Running inference over energies: [3.47, 15.75, 34.25, 46.53]
+2025-08-09 15:22:05,273 INFO:inference_module: Running inference for energy: 3.47 keV
+2025-08-09 15:22:05,273 INFO:inference_module: Starting inference conditioned on energy: 3.47 keV
+2025-08-09 15:22:05,273 INFO:inference_module: Raw ct_tensor shape: (1, 100, 100, 100), dims: 4
+2025-08-09 15:22:05,279 INFO:inference_module: Preprocessed CT stats: shape=(1, 1, 100, 100, 100), min=-1000.0000, max=1297.6014, mean=-380.5658, std=505.6055
+2025-08-09 15:22:05,279 INFO:inference_module: Input data shape after preprocessing: torch.Size([1, 1, 100, 100, 100])
+2025-08-09 15:22:05,280 INFO:inference_module: Input data min/max: -1000.0000/1297.6014
+2025-08-09 15:22:05,280 INFO:inference_module: Original energy_value: 3.47 keV
+2025-08-09 15:22:05,280 INFO:inference_module: Normalized energy: 0.0347
+2025-08-09 15:22:05,280 INFO:inference_module: Using unconditional diffusion (no cross-attention)
+2025-08-09 15:22:05,281 INFO:inference_module: Energy tensor constant value: 0.0347
+2025-08-09 15:22:05,287 INFO:inference_module: Energy tensor unique values: [0.0347]
+2025-08-09 15:22:05,290 INFO:inference_module: Conditioned input shape: torch.Size([1, 2, 100, 100, 100])
+2025-08-09 15:22:11,492 INFO:inference_module: Latent isnan: False, isinf: False
+2025-08-09 15:22:11,494 INFO:inference_module: Latent shape after encoding: torch.Size([1, 2, 25, 25, 25])
+2025-08-09 15:22:11,495 INFO:inference_module: Latent min/max: -0.6736/1.0841
+2025-08-09 15:22:11,495 INFO:inference_module: Latent (after scaling) isnan: False, isinf: False
+2025-08-09 15:22:11,495 INFO:inference_module: Cropped latent to {new_D,new_H,new_W} for UNet compatibility
+2025-08-09 15:22:11,497 INFO:inference_module: Running unconditional diffusion sampling (no cross-attention)

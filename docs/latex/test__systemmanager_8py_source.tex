@@ -1,0 +1,68 @@
+\doxysection{test\+\_\+systemmanager.\+py}
+\hypertarget{test__systemmanager_8py_source}{}\label{test__systemmanager_8py_source}\index{tests/test\_systemmanager.py@{tests/test\_systemmanager.py}}
+\mbox{\hyperlink{test__systemmanager_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00001}\mbox{\hyperlink{namespacetest__systemmanager}{00001}}\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00002}00002\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00003}00003\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00004}00004\ \textcolor{keyword}{import}\ pytest}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00005}00005\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00006}00006\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00007}00007\ }
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00008}00008\ \textcolor{preprocessor}{@pytest.fixture}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00009}\mbox{\hyperlink{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520}{00009}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520}{temp\_root}}(tmp\_path):}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00010}00010\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Create\ a\ temporary\ root\ directory."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00011}00011\ \ \ \ \ \textcolor{keywordflow}{return}\ str(tmp\_path)}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00013}00013\ \textcolor{preprocessor}{@pytest.fixture}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00014}\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{00014}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{manager}}(temp\_root):}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00015}00015\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Initialize\ a\ SystemManager\ with\ minimal\ settings."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00016}00016\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00017}00017\ \ \ \ \ \ \ \ \ root\_dir=temp\_root,}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00018}00018\ \ \ \ \ \ \ \ \ transforms=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00019}00019\ \ \ \ \ \ \ \ \ resolutions=[],}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00020}00020\ \ \ \ \ \ \ \ \ energies=[],}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00021}00021\ \ \ \ \ \ \ \ \ quad\_energies=[1],}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ quad\_weights=[1.0],}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ device=torch.device(\textcolor{stringliteral}{'cpu'}),}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00025}00025\ \ \ \ \ \ \ \ \ num\_epochs=1,}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00026}00026\ \ \ \ \ \ \ \ \ learning\_rate=0.1,}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ patience=1,}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ cube\_size=(1,\ 1,\ 1),}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ seed=42}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00030}00030\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00032}\mbox{\hyperlink{namespacetest__systemmanager_a84d1deb418e2b7cc3af083a1b0351303}{00032}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__systemmanager_a84d1deb418e2b7cc3af083a1b0351303}{test\_run\_inference\_no\_models\_and\_no\_checkpoint}}(manager):}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00033}00033\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ If\ no\ models\_by\_energy\ are\ loaded\ and\ no\ checkpoint\ is\ provided,}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00035}00035\ \textcolor{stringliteral}{\ \ \ \ run\_inference\ should\ raise\ RuntimeError.}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00036}00036\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00037}00037\ \ \ \ \ manager.models\_by\_energy\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00038}00038\ \ \ \ \ \textcolor{keyword}{with}\ pytest.raises(RuntimeError)\ \textcolor{keyword}{as}\ exc:}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ manager.run\_inference(\textcolor{stringliteral}{"{}dummy.nii"{}})}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00040}00040\ \ \ \ \ \textcolor{keyword}{assert}\ \textcolor{stringliteral}{"{}No\ trained\ models\ found"{}}\ \textcolor{keywordflow}{in}\ str(exc.value)}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00042}\mbox{\hyperlink{namespacetest__systemmanager_a07c6d3cc748678c7de545fcfe659782f}{00042}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__systemmanager_a07c6d3cc748678c7de545fcfe659782f}{test\_run\_inference\_invalid\_checkpoint\_type}}(manager):}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00043}00043\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00044}00044\ \textcolor{stringliteral}{\ \ \ \ Providing\ a\ checkpoint\ of\ unsupported\ type\ should\ raise\ ValueError.}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00045}00045\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00046}00046\ \ \ \ \ manager.models\_by\_energy\ =\ \{1:\ (\textcolor{keywordtype}{None},\ \textcolor{keywordtype}{None},\ \textcolor{keywordtype}{None})\}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00047}00047\ \ \ \ \ \textcolor{keyword}{with}\ pytest.raises(ValueError)\ \textcolor{keyword}{as}\ exc:}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ manager.run\_inference(\textcolor{stringliteral}{"{}dummy.nii"{}},\ model\_checkpoint=123)}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00049}00049\ \ \ \ \ \textcolor{keyword}{assert}\ \textcolor{stringliteral}{"{}Invalid\ model\ checkpoint"{}}\ \textcolor{keywordflow}{in}\ str(exc.value)}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00051}\mbox{\hyperlink{namespacetest__systemmanager_a8e9098fa3fa916269d47a910f04459de}{00051}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__systemmanager_a8e9098fa3fa916269d47a910f04459de}{test\_run\_inference\_unsupported\_ct\_extension}}(manager):}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00052}00052\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00053}00053\ \textcolor{stringliteral}{\ \ \ \ Providing\ an\ unsupported\ CT\ file\ extension\ should\ raise\ ValueError.}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00054}00054\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00055}00055\ \ \ \ \ manager.models\_by\_energy\ =\ \{1:\ (\textcolor{keywordtype}{None},\ \textcolor{keywordtype}{None},\ \textcolor{keywordtype}{None})\}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00056}00056\ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ dummy\ .txt\ file}}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00057}00057\ \ \ \ \ dummy\_txt\ =\ os.path.join(manager.root\_dir,\ \textcolor{stringliteral}{"{}scan.txt"{}})}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00058}00058\ \ \ \ \ \textcolor{keyword}{with}\ open(dummy\_txt,\ \textcolor{stringliteral}{"{}w"{}})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ f.write(\textcolor{stringliteral}{"{}not\ a\ ct"{}})}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00060}00060\ \ \ \ \ \textcolor{keyword}{with}\ pytest.raises(ValueError)\ \textcolor{keyword}{as}\ exc:}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ manager.run\_inference(dummy\_txt)}
+\DoxyCodeLine{\Hypertarget{test__systemmanager_8py_source_l00062}00062\ \ \ \ \ \textcolor{keyword}{assert}\ \textcolor{stringliteral}{"{}Unsupported\ CT\ file\ format"{}}\ \textcolor{keywordflow}{in}\ str(exc.value)}
+
+\end{DoxyCode}

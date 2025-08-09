@@ -1,0 +1,168 @@
+\doxysection{storage.\+Storage Class Reference}
+\hypertarget{classstorage_1_1_storage}{}\label{classstorage_1_1_storage}\index{storage.Storage@{storage.Storage}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_a1f5e759333557bcbc7872ee0266088d4}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\+\_\+dir}}="{}models"{}, \mbox{\hyperlink{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}{log\+\_\+file}}="{}training\+\_\+log.\+txt"{})
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_ab8453cd2faad929c1300c361254f3f3b}{save\+\_\+model}} (self, model, filename)
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_a3817a4f9ee80aef8e86489d6e9df2db6}{load\+\_\+model}} (self, model, filename, device=torch.\+device("{}cpu"{}))
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_a4f38287418ca09d6e13d4b3e2dcbdcc4}{save\+\_\+dose\+\_\+distribution}} (self, dose\+\_\+distribution, filename)
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_ab3beb7aae324f3b2ea458eca70ee8872}{log\+\_\+error}} (self, message)
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_a116295ff89d50f7f008584243bb73463}{export\+\_\+results}} (self, results, filename)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\+\_\+dir}} = model\+\_\+dir
+\item 
+\mbox{\hyperlink{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}{log\+\_\+file}} = log\+\_\+file
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}The Storage module handles persistence tasks for the project.
+It provides methods to save and load model checkpoints, save dose distributions,
+log errors, and export results.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00007}{7}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classstorage_1_1_storage_a1f5e759333557bcbc7872ee0266088d4}\index{storage.Storage@{storage.Storage}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_a1f5e759333557bcbc7872ee0266088d4} 
+storage.\+Storage.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{model\+\_\+dir}{ = {\ttfamily "{}models"{}}, }\item[{}]{log\+\_\+file}{ = {\ttfamily "{}training\+\_\+log.txt"{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the Storage module.
+
+Args:
+    model_dir (str): Directory where model checkpoints and results are saved.
+    log_file (str): File path for the training log.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00014}{14}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classstorage_1_1_storage_a116295ff89d50f7f008584243bb73463}\index{storage.Storage@{storage.Storage}!export\_results@{export\_results}}
+\index{export\_results@{export\_results}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{export\_results()}{export\_results()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_a116295ff89d50f7f008584243bb73463} 
+storage.\+Storage.\+export\+\_\+results (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{results}{, }\item[{}]{filename}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Exports training or inference results to a file.
+
+Args:
+    results (str): The results in string format.
+    filename (str): The filename to export the results (relative to model_dir).
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00082}{82}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+\Hypertarget{classstorage_1_1_storage_a3817a4f9ee80aef8e86489d6e9df2db6}\index{storage.Storage@{storage.Storage}!load\_model@{load\_model}}
+\index{load\_model@{load\_model}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{load\_model()}{load\_model()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_a3817a4f9ee80aef8e86489d6e9df2db6} 
+storage.\+Storage.\+load\+\_\+model (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{model}{, }\item[{}]{filename}{, }\item[{}]{device}{ = {\ttfamily torch.device("{}cpu"{})}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Loads a saved model's state dictionary from a file and loads it into the given model.
+
+Args:
+    model (torch.nn.Module): The model instance to load the state dictionary into.
+    filename (str): The filename (relative to model_dir) to load the model from.
+    device (torch.device): The device to map the model to.
+
+Returns:
+    torch.nn.Module: The model loaded with the saved state dictionary.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00039}{39}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+\Hypertarget{classstorage_1_1_storage_ab3beb7aae324f3b2ea458eca70ee8872}\index{storage.Storage@{storage.Storage}!log\_error@{log\_error}}
+\index{log\_error@{log\_error}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{log\_error()}{log\_error()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_ab3beb7aae324f3b2ea458eca70ee8872} 
+storage.\+Storage.\+log\+\_\+error (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{message}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Appends an error message to the log file.
+
+Args:
+    message (str): The error message to log.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00071}{71}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+\Hypertarget{classstorage_1_1_storage_a4f38287418ca09d6e13d4b3e2dcbdcc4}\index{storage.Storage@{storage.Storage}!save\_dose\_distribution@{save\_dose\_distribution}}
+\index{save\_dose\_distribution@{save\_dose\_distribution}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{save\_dose\_distribution()}{save\_dose\_distribution()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_a4f38287418ca09d6e13d4b3e2dcbdcc4} 
+storage.\+Storage.\+save\+\_\+dose\+\_\+distribution (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{dose\+\_\+distribution}{, }\item[{}]{filename}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Saves the computed dose distribution as a numpy file.
+
+Args:
+    dose_distribution (numpy.ndarray): The dose distribution array.
+    filename (str): The filename to save the dose distribution (relative to model_dir).
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00059}{59}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+\Hypertarget{classstorage_1_1_storage_ab8453cd2faad929c1300c361254f3f3b}\index{storage.Storage@{storage.Storage}!save\_model@{save\_model}}
+\index{save\_model@{save\_model}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{save\_model()}{save\_model()}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_ab8453cd2faad929c1300c361254f3f3b} 
+storage.\+Storage.\+save\+\_\+model (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{model}{, }\item[{}]{filename}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Saves the model's state dictionary to a file.
+
+Args:
+    model (torch.nn.Module): The model to be saved.
+    filename (str): The filename (relative to model_dir) to save the model.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00027}{27}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}\index{storage.Storage@{storage.Storage}!log\_file@{log\_file}}
+\index{log\_file@{log\_file}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{log\_file}{log\_file}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1} 
+storage.\+Storage.\+log\+\_\+file = log\+\_\+file}
+
+
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00023}{23}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+\Hypertarget{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}\index{storage.Storage@{storage.Storage}!model\_dir@{model\_dir}}
+\index{model\_dir@{model\_dir}!storage.Storage@{storage.Storage}}
+\doxysubsubsection{\texorpdfstring{model\_dir}{model\_dir}}
+{\footnotesize\ttfamily \label{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202} 
+storage.\+Storage.\+model\+\_\+dir = model\+\_\+dir}
+
+
+
+Definition at line \mbox{\hyperlink{storage_8py_source_l00022}{22}} of file \mbox{\hyperlink{storage_8py_source}{storage.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{storage_8py}{storage.\+py}}\end{DoxyCompactItemize}

@@ -1,0 +1,147 @@
+\doxysection{data\+\_\+management.\+Hotspot\+Patch\+Dataset Class Reference}
+\hypertarget{classdata__management_1_1_hotspot_patch_dataset}{}\label{classdata__management_1_1_hotspot_patch_dataset}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+Inheritance diagram for data\+\_\+management.\+Hotspot\+Patch\+Dataset\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classdata__management_1_1_hotspot_patch_dataset}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a68725100609c43a243a7c16d524656f5}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, root\+\_\+dir, section=None, \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}{patch\+\_\+size}}=(32, 32, 32), min\+\_\+hotspot\+\_\+voxels=1000, dose\+\_\+threshold=0.\+5, max\+\_\+patches=16, random\+\_\+patches=0, \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{transforms}}=None, energy=None, \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{max\+\_\+patches\+\_\+per\+\_\+energy}}=80)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ab546c06abedaaee947f9422c19645f66}{\+\_\+\+\_\+len\+\_\+\+\_\+}} (self)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_aefc54fddd8ecd94c82b3cb455c792469}{\+\_\+\+\_\+getitem\+\_\+\+\_\+}} (self, idx)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}{patch\+\_\+size}} = patch\+\_\+size
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{transforms}} = transforms
+\item 
+list \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\+\_\+records}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}{selected\+\_\+energy}} = energy
+\item 
+list \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\+\_\+stats}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{max\+\_\+patches\+\_\+per\+\_\+energy}} = max\+\_\+patches\+\_\+per\+\_\+energy
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Dataset, das aus jedem Input/Target-Cube Hotspot-Patches extrahiert und als einzelne Trainingssamples zurückgibt.
+Nutzt extract_hotspot_patches(volume, ...), um Patch-Startpositionen zu bestimmen.
+Jeder __getitem__ gibt einen Patch (Input, Target, Energy) zurück.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00008}{8}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_a68725100609c43a243a7c16d524656f5}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_a68725100609c43a243a7c16d524656f5} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{root\+\_\+dir}{, }\item[{}]{section}{ = {\ttfamily None}, }\item[{}]{patch\+\_\+size}{ = {\ttfamily (32,32,32)}, }\item[{}]{min\+\_\+hotspot\+\_\+voxels}{ = {\ttfamily 1000}, }\item[{}]{dose\+\_\+threshold}{ = {\ttfamily 0.5}, }\item[{}]{max\+\_\+patches}{ = {\ttfamily 16}, }\item[{}]{random\+\_\+patches}{ = {\ttfamily 0}, }\item[{}]{transforms}{ = {\ttfamily None}, }\item[{}]{energy}{ = {\ttfamily None}, }\item[{}]{max\+\_\+patches\+\_\+per\+\_\+energy}{ = {\ttfamily 80}}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00014}{14}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_aefc54fddd8ecd94c82b3cb455c792469}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!\_\_getitem\_\_@{\_\_getitem\_\_}}
+\index{\_\_getitem\_\_@{\_\_getitem\_\_}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_getitem\_\_()}{\_\_getitem\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_aefc54fddd8ecd94c82b3cb455c792469} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+\_\+\+\_\+getitem\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{idx}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00150}{150}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_ab546c06abedaaee947f9422c19645f66}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!\_\_len\_\_@{\_\_len\_\_}}
+\index{\_\_len\_\_@{\_\_len\_\_}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_len\_\_()}{\_\_len\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_ab546c06abedaaee947f9422c19645f66} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+\_\+\+\_\+len\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00147}{147}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!max\_patches\_per\_energy@{max\_patches\_per\_energy}}
+\index{max\_patches\_per\_energy@{max\_patches\_per\_energy}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{max\_patches\_per\_energy}{max\_patches\_per\_energy}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+max\+\_\+patches\+\_\+per\+\_\+energy = max\+\_\+patches\+\_\+per\+\_\+energy}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00030}{30}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!patch\_records@{patch\_records}}
+\index{patch\_records@{patch\_records}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{patch\_records}{patch\_records}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+patch\+\_\+records = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00027}{27}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!patch\_size@{patch\_size}}
+\index{patch\_size@{patch\_size}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{patch\_size}{patch\_size}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+patch\+\_\+size = patch\+\_\+size}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00025}{25}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!patch\_stats@{patch\_stats}}
+\index{patch\_stats@{patch\_stats}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{patch\_stats}{patch\_stats}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+patch\+\_\+stats = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00029}{29}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!selected\_energy@{selected\_energy}}
+\index{selected\_energy@{selected\_energy}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{selected\_energy}{selected\_energy}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+selected\+\_\+energy = energy}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00028}{28}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}\index{data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}!transforms@{transforms}}
+\index{transforms@{transforms}!data\_management.HotspotPatchDataset@{data\_management.HotspotPatchDataset}}
+\doxysubsubsection{\texorpdfstring{transforms}{transforms}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32} 
+data\+\_\+management.\+Hotspot\+Patch\+Dataset.\+transforms = transforms}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00026}{26}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{data__management_8py}{data\+\_\+management.\+py}}\end{DoxyCompactItemize}

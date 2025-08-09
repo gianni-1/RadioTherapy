@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['sample_5finput_5fpath_0',['sample_input_path',['../namespacevalidate__energy__conditioning.html#abc5cc87ade57535d6a2a5b25777aa879',1,'validate_energy_conditioning']]],
+  ['sample_5foutput_5fpath_1',['sample_output_path',['../namespacevalidate__energy__conditioning.html#abf0f955bff2359d615db0324c6f9b812',1,'validate_energy_conditioning']]],
+  ['samples_2',['samples',['../classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset.html#a38512cc979ac49a8f2bc2b2bef7b1086',1,'corrected_training_pipeline.CorrectedDoseNpyDataset.samples'],['../classdata__management_1_1_dose_npy_dataset.html#abbafa9672f2c8ded788abeeeb74fb6be',1,'data_management.DoseNpyDataset.samples']]],
+  ['saved_5fckpts_3',['saved_ckpts',['../classsystem__manager_1_1_system_manager.html#a1667a4f402b4ad96534676e37d5e8557',1,'system_manager::SystemManager']]],
+  ['scale_5ffactor_4',['scale_factor',['../classcorrected__inference_1_1_corrected_inference_module.html#ae42a2df6d20529855d13d7116a8cb97e',1,'corrected_inference.CorrectedInferenceModule.scale_factor'],['../classinference__module_1_1_inference_module.html#a4d782d9a3c6bfb882ebe0af03ee60f59',1,'inference_module.InferenceModule.scale_factor'],['../classsystem__manager_1_1_system_manager.html#a901045b2299d2d94fec8f615c9a71f3a',1,'system_manager.SystemManager.scale_factor']]],
+  ['scene_5',['scene',['../namespacevisualize_t_e_s_t.html#af8c361e679d886907c6cbf818e899de7',1,'visualizeTEST']]],
+  ['scheduler_6',['scheduler',['../classcorrected__inference_1_1_corrected_inference_module.html#abc35857cd72fd1417d06568162fb38fb',1,'corrected_inference.CorrectedInferenceModule.scheduler'],['../classsystem__manager_1_1_system_manager.html#a367293403c8336feea463cd5ccb50dd7',1,'system_manager.SystemManager.scheduler']]],
+  ['seed_7',['seed',['../classdata__management_1_1_data_loader_module.html#a1877161983d11184d4f3b30d5f223316',1,'data_management.DataLoaderModule.seed'],['../classsystem__manager_1_1_system_manager.html#ae19ac87927b4ea2fe0f7630c598dc89f',1,'system_manager.SystemManager.seed']]],
+  ['select_5finput_5ffolder_8',['select_input_folder',['../classgui_1_1_main_window.html#aaf7680a7b0caf9ea3bf67f80c3d81bce',1,'gui::MainWindow']]],
+  ['selected_5fenergy_9',['selected_energy',['../classdata__management_1_1_hotspot_patch_dataset.html#ac2348abdc371814622457aee8a02f1b4',1,'data_management::HotspotPatchDataset']]],
+  ['show_5fplots_5fbutton_10',['show_plots_button',['../classgui_1_1_main_window.html#a05e7ba5630c9b5e6a511a960c7fb909d',1,'gui::MainWindow']]],
+  ['show_5ftraining_5fplots_11',['show_training_plots',['../classgui_1_1_main_window.html#a64c619b7794214586dcce36a45dea4d1',1,'gui::MainWindow']]],
+  ['slice_5fidx_12',['slice_idx',['../namespacevisualize_t_e_s_t.html#a1b27309a15530117619c58844b1531c9',1,'visualizeTEST']]],
+  ['slider_13',['slider',['../namespacevisualize_t_e_s_t.html#a60268abfbabe414662185822ad42df16',1,'visualizeTEST']]],
+  ['slider_5fax_14',['slider_ax',['../namespacevisualize_t_e_s_t.html#a42ab6a728c60f03434fc0c49fd2994bc',1,'visualizeTEST']]],
+  ['smoothing_5fkernel_15',['smoothing_kernel',['../classsystem__manager_1_1_system_manager.html#a5526e8bcf1a71155ea8d50b62feab109',1,'system_manager::SystemManager']]],
+  ['std_5fvariation_16',['std_variation',['../namespacevalidate__energy__conditioning.html#a1e86de44d55e6f02eee53a078abac8fa',1,'validate_energy_conditioning']]],
+  ['stds_17',['stds',['../namespacevalidate__energy__conditioning.html#a259c770353d76248d96a6fdabe3878c1',1,'validate_energy_conditioning']]],
+  ['stop_5ftraining_18',['stop_training',['../classsystem__manager_1_1_system_manager.html#ae109b393dfbe5719623b2da5156b391e',1,'system_manager::SystemManager']]],
+  ['success_19',['success',['../namespacetest__gui__training.html#a392a5426e0d7fda1638dc3925a331868',1,'test_gui_training.success'],['../namespacetest__pipeline__fixes.html#a685b3b874d4b69e327608c580926297b',1,'test_pipeline_fixes.success']]],
+  ['system_5fmanager_20',['system_manager',['../classgui_1_1_main_window.html#ab64d09c983ec14bb31e3815d7cbc695c',1,'gui.MainWindow.system_manager'],['../namespacetest__training.html#abfbbdea93aa70d1e75cb943b4a8aedea',1,'test_training.system_manager']]]
+];

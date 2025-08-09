@@ -247,7 +247,7 @@ class SystemManager:
                 energy=energy,
                 max_patches_per_energy=80 if energy <= 40.0 else 60  # Less patches for high energy
             )
-            # Für Validation jetzt auch HotspotPatchDataset verwenden (ohne random_patches)
+            # Validation dataset
             val_ds = HotspotPatchDataset(
                 root_dir=self.root_dir,
                 section=None,
@@ -260,7 +260,7 @@ class SystemManager:
                 energy=energy,
                 max_patches_per_energy=20 if energy <= 40.0 else 15  # Less patches for high energy validation
             )
-            # DataLoader wie gehabt
+            # DataLoader as before
             from data_management import DataLoaderModule
             data_module = DataLoaderModule(
                 root_dir=self.root_dir,

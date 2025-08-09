@@ -1,0 +1,1000 @@
+\doxysection{training\+\_\+pipeline.\+py}
+\hypertarget{training__pipeline_8py_source}{}\label{training__pipeline_8py_source}\index{sourcecode/training\_pipeline.py@{sourcecode/training\_pipeline.py}}
+\mbox{\hyperlink{training__pipeline_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00001}\mbox{\hyperlink{namespacetraining__pipeline}{00001}}\ \textcolor{comment}{\#training\_pipeline.py}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00002}00002\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00003}00003\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00004}00004\ \textcolor{keyword}{import}\ torch.nn.functional\ \textcolor{keyword}{as}\ F}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00005}00005\ \textcolor{keyword}{from}\ torch.nn\ \textcolor{keyword}{import}\ L1Loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00006}00006\ \textcolor{keyword}{from}\ tqdm\ \textcolor{keyword}{import}\ tqdm}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00007}00007\ \textcolor{keyword}{from}\ monai.losses\ \textcolor{keyword}{import}\ PatchAdversarialLoss,\ PerceptualLoss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00008}00008\ \textcolor{keyword}{import}\ math}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00009}00009\ \textcolor{keyword}{from}\ torch.nn.utils\ \textcolor{keyword}{import}\ clip\_grad\_norm\_}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00010}00010\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00011}00011\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00012}00012\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00013}00013\ \textcolor{keyword}{from}\ data\_management\ \textcolor{keyword}{import}\ HotspotPatchDataset}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00018}00018\ \textcolor{comment}{\#\ Constants}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00019}00019\ \textcolor{comment}{\#ENERGY\_NORMALIZATION\_FACTOR\ =\ 50.0\ \ \#\ ≈ max(energy)\ in\ training\ set\ (46.53 keV)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00020}\mbox{\hyperlink{namespacetraining__pipeline_acf567453b1f89addc6ba462416c3dd88}{00020}}\ DOSE\_EPS\ =\ 1e-\/8\ \ \ \textcolor{comment}{\#\ small\ value\ to\ avoid\ division‑by‑zero\ in\ normalisation}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00021}\mbox{\hyperlink{namespacetraining__pipeline_ae0354f46868cfc801923a958fb668d94}{00021}}\ TV\_WEIGHT\ =\ 5e-\/3\ \ \ \ \ \ \textcolor{comment}{\#\ stronger\ weight\ for\ total‑variation\ smoothness\ loss}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00022}00022\ \textcolor{comment}{\#\ Min‑max\ limits\ for\ dose\ normalisation\ (Gy).}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00023}00023\ \textcolor{comment}{\#\ These\ will\ be\ updated\ dynamically\ from\ the\ dataset\ statistics}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00024}\mbox{\hyperlink{namespacetraining__pipeline_aeffbff27a3037abab256a334e75b4cf5}{00024}}\ CLIP\_MIN\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00025}\mbox{\hyperlink{namespacetraining__pipeline_a47704e8c0ab80a827d948a4ad9758229}{00025}}\ CLIP\_MAX\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00027}\mbox{\hyperlink{namespacetraining__pipeline_a791db62e3f0f90b04468aebd11d9db16}{00027}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00029}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping}{00029}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping}{EarlyStopping}}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00030}00030\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00031}00031\ \textcolor{stringliteral}{\ \ \ \ Monitors\ the\ validation\ loss\ and\ triggers\ early\ stopping\ if\ the\ loss}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00032}00032\ \textcolor{stringliteral}{\ \ \ \ the\ loss\ does\ not\ improve\ over\ a\ defined\ number\ of\ epochs.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00033}00033\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00034}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a7d88ba83466ed9c2d470eb6a0a625b09}{00034}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a7d88ba83466ed9c2d470eb6a0a625b09}{\_\_init\_\_}}(self,\ patience=5):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00036}00036\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00037}00037\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ patience\ (int):\ Number\ of\ epochs\ permitted\ without\ improvement.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00038}00038\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00039}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}{00039}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}{patience}}\ =\ patience}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00040}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{00040}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{best\_val\_loss}}\ =\ float(\textcolor{stringliteral}{'inf'})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00041}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{00041}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\_no\_improvement}}\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00043}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_aa4244a4be5c9cb31a846c91996bd2edd}{00043}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_aa4244a4be5c9cb31a846c91996bd2edd}{update}}(self,\ val\_loss):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00045}00045\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Compares\ the\ current\ validation\ loss\ with\ the\ best\ loss\ to\ date.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00046}00046\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00047}00047\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ val\_loss\ (float):\ Current\ loss\ of\ validation.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00048}00048\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00049}00049\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ bool:\ If\ Early\ Stopping\ is\ triggered\ true\ otherwise\ False.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00050}00050\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ val\_loss\ <\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{best\_val\_loss}}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{best\_val\_loss}}\ =\ val\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\_no\_improvement}}\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\_no\_improvement}}\ +=\ 1}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\_no\_improvement}}\ >=\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}{patience}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00059}\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a712055ca21cb5f5604e308c83ced2101}{00059}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a712055ca21cb5f5604e308c83ced2101}{reset}}(self):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00061}00061\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Resets\ the\ early\ stopping\ parameters.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00062}00062\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{best\_val\_loss}}\ =\ float(\textcolor{stringliteral}{'inf'})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\_no\_improvement}}\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00066}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{00066}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{AutoencoderTrainer}}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00067}00067\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00068}00068\ \textcolor{stringliteral}{\ \ \ \ Encapsulates\ the\ training\ process\ for\ the\ autoencoder,\ including\ validation.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00069}00069\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00070}00070\ \textcolor{stringliteral}{\ \ \ \ This\ implementation\ has\ been\ updated\ to\ integrate\ energy\ conditioning.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00071}00071\ \textcolor{stringliteral}{\ \ \ \ Each\ sample\ is\ expected\ to\ contain\ an\ "{}energy"{}\ field,\ which\ is\ normalized,\ expanded\ to\ match}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00072}00072\ \textcolor{stringliteral}{\ \ \ \ the\ spatial\ dimensions\ of\ the\ image,\ and\ then\ concatenated\ as\ an\ additional\ input\ channel.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00073}00073\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00074}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a0d7b3326925c31ed55a077bb080a728b}{00074}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a0d7b3326925c31ed55a077bb080a728b}{\_\_init\_\_}}(self,\ autoencoder,\ discriminator,\ optimizer\_g,\ optimizer\_d,\ energy\_min,\ energy\_max,\ device,}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ kl\_weight=1e-\/6,\ adv\_weight=0.001,\ perceptual\_weight=0.005,}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tv\_weight=TV\_WEIGHT,\ warm\_up\_epochs=2):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00078}00078\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00079}00079\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ autoencoder\ (torch.nn.Module):\ The\ autoencoder\ model.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00080}00080\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ discriminator\ (torch.nn.Module):\ The\ discriminator\ model\ (for\ adversarial\ training).}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00081}00081\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ optimizer\_g\ (torch.optim.Optimizer):\ Optimizer\ for\ the\ generator.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00082}00082\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ optimizer\_d\ (torch.optim.Optimizer):\ Optimizer\ for\ the\ discriminator.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00083}00083\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device\ (str):\ Device\ to\ run\ the\ training\ on\ ('cpu'\ or\ 'cuda').}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00084}00084\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ kl\_weight\ (float):\ Weight\ for\ KL\ divergence\ loss.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00085}00085\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ adv\_weight\ (float):\ Weight\ for\ adversarial\ loss.\ Default:\ 0.001}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00086}00086\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ perceptual\_weight\ (float):\ Weight\ for\ perceptual\ loss.\ Default:\ 0.005}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00087}00087\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ tv\_weight\ (float):\ Weight\ for\ total‑variation\ loss.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00088}00088\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ warm\_up\_epochs\ (int):\ Number\ of\ epochs\ to\ warm\ up\ the\ KL\ weight.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00089}00089\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00090}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{00090}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}\ =\ autoencoder}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00091}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{00091}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ =\ discriminator}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00092}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{00092}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}\ =\ optimizer\_g}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00093}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{00093}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}\ =\ optimizer\_d}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00094}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{00094}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}}\ =\ device}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ dose\ normalization\ parameters\ (will\ be\ calculated\ from\ data)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00097}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{00097}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00098}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{00098}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00099}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a59d6f8c1d7421cc3e9dc1940ecb080b3}{00099}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a59d6f8c1d7421cc3e9dc1940ecb080b3}{energy\_min}}\ =\ energy\_min}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00100}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad178bae7c8739cae5a47a4646c9ae3bb}{00100}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad178bae7c8739cae5a47a4646c9ae3bb}{energy\_max}}\ =\ energy\_max}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00101}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a156297f2494ce7027a4cba0aab19196e}{00101}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a156297f2494ce7027a4cba0aab19196e}{kl\_weight}}\ =\ kl\_weight}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00102}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a61b631bdd74c7c4b4e1ac8d139328f96}{00102}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a61b631bdd74c7c4b4e1ac8d139328f96}{adv\_weight}}\ =\ adv\_weight}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00103}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_af64142b9a2159a927d26db40c32d4e5f}{00103}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_af64142b9a2159a927d26db40c32d4e5f}{perceptual\_weight}}\ =\ perceptual\_weight}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00104}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a466ba10ef3c6e2fca38233a5ab658309}{00104}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a466ba10ef3c6e2fca38233a5ab658309}{tv\_weight}}\ =\ tv\_weight}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00105}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adbed48424c281adb63c47938019c5186}{00105}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adbed48424c281adb63c47938019c5186}{warm\_up\_epochs}}\ =\ warm\_up\_epochs}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Loss\ functions\ will\ be\ initialized\ after\ normalization\ parameters\ are\ calculated}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00108}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a69b45d2dd52a3c38e3dfabfada5c6e34}{00108}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a69b45d2dd52a3c38e3dfabfada5c6e34}{l1\_loss}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00109}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_acf990e8ab631b0a57b2a44ae20e9aa63}{00109}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_acf990e8ab631b0a57b2a44ae20e9aa63}{adv\_loss}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00110}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa418db301054beefba1c45160aa486b6}{00110}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa418db301054beefba1c45160aa486b6}{perceptual\_loss}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00112}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae9a04af5c8218cd9e6652c463ccc18ec}{00112}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae9a04af5c8218cd9e6652c463ccc18ec}{calculate\_dose\_normalization\_params}}(self,\ dataloader,\ energy=None):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00114}00114\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Calculate\ clip\_min\ and\ clip\_max\ from\ the\ training\ data\ for\ dose\ normalization.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00115}00115\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ This\ should\ be\ called\ before\ training\ starts.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00116}00116\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00117}00117\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00118}00118\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dataloader:\ Training\ dataloader}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00119}00119\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ energy:\ Energy\ level\ for\ energy-\/specific\ normalization}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00120}00120\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Calculating\ dose\ normalization\ parameters\ from\ training\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy-\/specific\ normalization\ for\ energy:\ \{energy:.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ all\_dose\_values\ =\ []}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ sample\_count\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ batch\ \textcolor{keywordflow}{in}\ dataloader:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ target\_dose\ =\ batch[\textcolor{stringliteral}{"{}target"{}}]\ \ \textcolor{comment}{\#\ Assuming\ target\ is\ the\ dose\ data}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ sample\_count\ +=\ target\_dose.shape[0]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Convert\ to\ numpy\ and\ flatten}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_values\ =\ target\_dose.cpu().numpy().flatten()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Log\ sample\ statistics}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Batch\ \{len(all\_dose\_values)+1\}:\ shape=\{target\_dose.shape\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}min=\{dose\_values.min():.6f\},\ max=\{dose\_values.max():.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}mean=\{dose\_values.mean():.6f\},\ nonzero\_count=\{np.count\_nonzero(dose\_values)\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ all\_dose\_values.append(dose\_values)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ all\_dose\_values:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}No\ dose\ data\ found\ in\ dataloader"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ all\_dose\_values\ =\ np.concatenate(all\_dose\_values)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Total\ samples\ processed:\ \{sample\_count\},\ total\ voxels:\ \{len(all\_dose\_values)\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Overall\ dose\ stats:\ min=\{all\_dose\_values.min():.6f\},\ max=\{all\_dose\_values.max():.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}mean=\{all\_dose\_values.mean():.6f\},\ std=\{all\_dose\_values.std():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 🔍\ ENHANCED\ DEBUGGING:\ Check\ if\ dose\ values\ are\ realistic}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ nonzero\_values\ =\ all\_dose\_values[all\_dose\_values\ >\ 0]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(nonzero\_values)\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Non-\/zero\ dose\ analysis:"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Count:\ \{len(nonzero\_values)\}/\{len(all\_dose\_values)\}\ (\{100*len(nonzero\_values)/len(all\_dose\_values):.1f\}\%)"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Min\ non-\/zero:\ \{nonzero\_values.min():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Max\ non-\/zero:\ \{nonzero\_values.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Mean\ non-\/zero:\ \{nonzero\_values.mean():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Median\ non-\/zero:\ \{np.median(nonzero\_values):.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ values\ seem\ suspiciously\ low\ (should\ be\ in\ tens,\ not\ decimals)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ nonzero\_values.max()\ <\ 5.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}\ DOSE\ VALUES\ TOO\ LOW!\ Max\ dose\ \{nonzero\_values.max():.6f\}\ <\ 5.0"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Expected\ dose\ values\ in\ range\ 10-\/50+\ for\ radiotherapy!"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}This\ suggests\ a\ major\ pipeline\ or\ data\ scaling\ issue."{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ percentiles\ to\ avoid\ outliers,\ but\ ensure\ meaningful\ range}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ clip\_min\_candidate\ =\ float(np.percentile(all\_dose\_values,\ 0.1))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENERGY-\/SPECIFIC\ DOSE\ NORMALIZATION\ FIX**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ For\ very\ high\ energies,\ use\ actual\ max\ to\ preserve\ signal\ strength**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Don't\ use\ percentiles\ for\ high\ energies\ as\ they\ cause\ severe\ underestimation}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\_candidate\ =\ float(np.max(all\_dose\_values))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ High\ energy\ (\{energy:.2f\}):\ Using\ ACTUAL\ maximum\ for\ clip\_max:\ \{clip\_max\_candidate:.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Only\ cap\ if\ extremely\ unreasonable\ (>150\ Gy)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ clip\_max\_candidate\ >\ 150.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\_candidate\ =\ 100.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ Capping\ clip\_max\ to\ 100.0\ for\ energy\ \{energy:.2f\}\ (was\ \{float(np.max(all\_dose\_values)):.2f\})"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Using\ full\ range\ clip\_max=\{clip\_max\_candidate:.2f\}\ for\ energy\ \{energy:.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normal\ case:\ use\ actual\ maximum\ for\ better\ reconstruction}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max\_candidate\ =\ float(np.max(all\_dose\_values))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Handle\ edge\ cases\ where\ data\ is\ all\ zeros\ or\ very\ close**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ clip\_max\_candidate\ -\/\ clip\_min\_candidate\ <\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Percentile\ dose\ range\ too\ small:\ \{clip\_max\_candidate\ -\/\ clip\_min\_candidate:.10f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}Using\ actual\ min/max\ normalization\ parameters..."{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ actual\ min/max\ if\ percentiles\ fail}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ actual\_min\ =\ float(all\_dose\_values.min())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ actual\_max\ =\ float(all\_dose\_values.max())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ actual\_max\ -\/\ actual\_min\ <\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Data\ is\ essentially\ constant\ -\/\ use\ safe\ defaults}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}All\ dose\ values\ are\ essentially\ the\ same!\ Using\ emergency\ defaults."{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ =\ 1.0\ \ \textcolor{comment}{\#\ Safe\ fallback}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ actual\ range}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ =\ actual\_min}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ =\ actual\_max}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Successfully\ using\ actual\ range:\ \{self.clip\_min:.6f\}\ to\ \{self.clip\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normal\ case\ -\/\ use\ percentiles}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ =\ clip\_min\_candidate}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ =\ clip\_max\_candidate}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Successfully\ using\ percentile\ range:\ \{self.clip\_min:.6f\}\ to\ \{self.clip\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose\ normalization\ parameters:"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ clip\_min:\ \{self.clip\_min:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ clip\_max:\ \{self.clip\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ dose\ range:\ \{self.clip\_max\ -\/\ self.clip\_min:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ parameters}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ <=\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(f\textcolor{stringliteral}{"{}Invalid\ normalization\ range:\ clip\_max\ (\{self.clip\_max\})\ <=\ clip\_min\ (\{self.clip\_min\})"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}},\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00221}00221\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00222}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a3625bf826f0c216830bc0aadbbdd7f66}{00222}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a3625bf826f0c216830bc0aadbbdd7f66}{setup\_loss\_functions}}(self):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Initialize\ loss\ functions\ after\ normalization\ parameters\ are\ set."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Loss\ functions}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a69b45d2dd52a3c38e3dfabfada5c6e34}{l1\_loss}}\ =\ L1Loss()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_acf990e8ab631b0a57b2a44ae20e9aa63}{adv\_loss}}\ =\ PatchAdversarialLoss(criterion=\textcolor{stringliteral}{"{}least\_squares"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa418db301054beefba1c45160aa486b6}{perceptual\_loss}}\ =\ PerceptualLoss(spatial\_dims=3,\ network\_type=\textcolor{stringliteral}{"{}alex"{}}).to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loss\ functions\ initialized\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00230}00230\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00231}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa2b91f1911944a208bddf71cb97e5a8d}{00231}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa2b91f1911944a208bddf71cb97e5a8d}{weighted\_dose\_loss}}(self,\ pred,\ target,\ weight\_factor=10000.0,\ dose\_threshold=1e-\/6):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00233}00233\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Extreme\ weighted\ L1\ loss\ for\ ultra-\/sparse\ dose\ data.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00234}00234\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00235}00235\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00236}00236\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ pred:\ Predicted\ dose\ values}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00237}00237\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target:\ Ground\ truth\ dose\ values\ \ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00238}00238\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ weight\_factor:\ Extreme\ multiplier\ for\ non-\/zero\ dose\ voxels\ (10,000x)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00239}00239\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dose\_threshold:\ Minimum\ value\ to\ consider\ as\ "{}real\ dose"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00240}00240\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ extreme\ weight\ mask}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Weights\ are\ 10,000x\ for\ dose\ voxels,\ nearly\ zero\ for\ background}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ weights\ =\ torch.where(target\ >\ dose\_threshold,\ 100000.0,\ 0.01)\ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Weighted\ absolute\ difference}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ weighted\_diff\ =\ torch.abs(pred\ -\/\ target)\ *\ weights}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ stats\ for\ logging}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ total\_voxels\ =\ target.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ dose\_voxels\ =\ (target\ >\ dose\_threshold).sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_loss\ =\ weighted\_diff[target\ >\ dose\_threshold].mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ background\_loss\ =\ weighted\_diff[target\ <=\ dose\_threshold].mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}EXTREME\ Weighted\ loss\ -\/\ \{dose\_voxels\}/\{total\_voxels\}\ dose\ voxels\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}(\{100*dose\_voxels/total\_voxels:.4f\}\%),\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}dose\_loss:\ \{dose\_loss:.6f\},\ bg\_loss:\ \{background\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ dose\ voxels\ found\ -\/\ using\ minimal\ background\ loss"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ weighted\_diff.mean()\ *\ 0.001\ \ \textcolor{comment}{\#\ Minimal\ loss\ when\ no\ dose}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ weighted\_diff.mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00264}00264\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00265}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5c50ef75c8f14358ddfcdae6b14f386}{00265}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5c50ef75c8f14358ddfcdae6b14f386}{masked\_dose\_loss}}(self,\ pred,\ target,\ dose\_threshold=1e-\/6):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00267}00267\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Pure\ dose-\/only\ loss\ -\/\ ignores\ background\ completely.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00268}00268\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00269}00269\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00270}00270\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ pred:\ Predicted\ dose\ values}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00271}00271\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target:\ Ground\ truth\ dose\ values}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00272}00272\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dose\_threshold:\ Minimum\ value\ to\ consider\ as\ "{}real\ dose"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00273}00273\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ mask\ for\ non-\/zero\ dose\ regions}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ dose\_mask\ =\ target\ >\ dose\_threshold}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_mask.sum()\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ No\ dose\ regions\ -\/\ return\ extremely\ small\ loss\ to\ avoid\ stopping\ training}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ dose\ regions\ found\ in\ batch\ -\/\ returning\ minimal\ loss"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ torch.tensor(1e-\/6,\ device=target.device,\ requires\_grad=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ mask\ -\/\ ONLY\ train\ on\ dose\ regions}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ masked\_pred\ =\ pred[dose\_mask]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ masked\_target\ =\ target[dose\_mask]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ MSE\ loss\ for\ better\ gradient\ signal\ on\ sparse\ data}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ loss\ =\ F.mse\_loss(masked\_pred,\ masked\_target)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ dose\_voxels\ =\ dose\_mask.sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ total\_voxels\ =\ target.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}PURE\ Dose\ loss\ -\/\ Training\ ONLY\ on\ \{dose\_voxels\}/\{total\_voxels\}\ voxels\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}(\{100*dose\_voxels/total\_voxels:.4f\}\%),\ MSE\ loss:\ \{loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00295}00295\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00296}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aeddf2bedee336f299c830d5ba9921026}{00296}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aeddf2bedee336f299c830d5ba9921026}{extreme\_dose\_focused\_loss}}(self,\ pred,\ target,\ dose\_threshold=1e-\/6):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00298}00298\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Combination\ of\ extreme\ weighted\ and\ pure\ masked\ loss\ for\ ultra-\/sparse\ data.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00299}00299\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Uses\ 100,000x\ weights\ and\ pure\ MSE\ loss\ for\ maximum\ signal.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00300}00300\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ dose\_mask\ =\ target\ >\ dose\_threshold}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ dose\_voxels\ =\ dose\_mask.sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ No\ dose\ -\/\ minimal\ loss\ to\ keep\ training\ alive}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ torch.tensor(1e-\/6,\ device=target.device,\ requires\_grad=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Pure\ dose\ loss\ (MSE\ on\ dose\ regions\ only)\ -\/\ better\ gradients\ for\ sparse\ data}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00309}00309\ \ \ \ \ \ \ \ \ masked\_pred\ =\ pred[dose\_mask]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ masked\_target\ =\ target[dose\_mask]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ pure\_dose\_loss\ =\ F.mse\_loss(masked\_pred,\ masked\_target)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ EXTREME\ weighted\ loss\ for\ EXTREME\ sparsity\ (1,000,000x\ weight\ for\ dose\ -\/\ MASSIVE\ INCREASE\ for\ 0.005\%\ sparsity)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ sparsity\_percent\ =\ 100\ *\ dose\_voxels\ /\ target.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00315}00315\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Adaptive\ weight\ based\ on\ actual\ sparsity\ level\ -\/\ MUCH\ MORE\ AGGRESSIVE}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sparsity\_percent\ <\ 0.006:\ \ \textcolor{comment}{\#\ Less\ than\ 0.006\%\ sparsity\ (like\ we\ see:\ 0.005\%)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_weight\ =\ 1000000.0\ \ \textcolor{comment}{\#\ 1M\ weight\ for\ ultra-\/extreme\ cases}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ \ \ \ \ background\_weight\ =\ 0.0000001\ \ \textcolor{comment}{\#\ Nearly\ ignore\ background\ completely}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ sparsity\_percent\ <\ 0.01:\ \ \textcolor{comment}{\#\ Less\ than\ 0.01\%\ sparsity\ \ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_weight\ =\ 500000.0\ \ \textcolor{comment}{\#\ 500K\ weight\ for\ extreme\ cases}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ background\_weight\ =\ 0.000001\ \ \textcolor{comment}{\#\ Nearly\ ignore\ background\ completely}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00324}00324\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_weight\ =\ 100000.0\ \ \textcolor{comment}{\#\ Original\ 100K\ weight}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ background\_weight\ =\ 0.00001}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ weights\ =\ torch.where(dose\_mask,\ dose\_weight,\ background\_weight)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ weighted\_loss\ =\ (torch.abs(pred\ -\/\ target)\ *\ weights).mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Combine:\ Emphasize\ pure\ dose\ training\ even\ more\ heavily\ for\ extreme\ sparsity}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sparsity\_percent\ <\ 0.006:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_loss\ =\ 0.95\ *\ pure\_dose\_loss\ +\ 0.05\ *\ weighted\_loss\ \ \textcolor{comment}{\#\ 95\%\ pure\ dose\ focus\ for\ ultra-\/extreme}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ sparsity\_percent\ <\ 0.01:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_loss\ =\ 0.9\ *\ pure\_dose\_loss\ +\ 0.1\ *\ weighted\_loss\ \ \textcolor{comment}{\#\ 90\%\ pure\ dose\ focus}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00336}00336\ \ \ \ \ \ \ \ \ \ \ \ \ combined\_loss\ =\ 0.8\ *\ pure\_dose\_loss\ +\ 0.2\ *\ weighted\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ total\_voxels\ =\ target.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}EXTREME\ loss\ -\/\ \{dose\_voxels\}/\{total\_voxels\}\ dose\ voxels\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}(\{sparsity\_percent:.5f\}\%),\ dose\_weight:\ \{dose\_weight:.0f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}pure\_MSE:\ \{pure\_dose\_loss:.6f\},\ weighted\_\{dose\_weight:.0f\}:\ \{weighted\_loss:.6f\},\ combined:\ \{combined\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ combined\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00344}00344\ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ \#}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00345}00345\ \ \ \ \ \textcolor{comment}{\#\ utilities\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00346}00346\ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ \#}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00347}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ab5e1a782cac7eef5abe7b2a955ff713f}{00347}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ab5e1a782cac7eef5abe7b2a955ff713f}{\_compute\_dataset\_dose\_stats}}(self,\ loader):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00349}00349\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Go\ once\ over\ the\ whole\ loader\ to\ obtain\ global\ mean\ /\ std\ of\ the}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00350}00350\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ ground-\/truth\ dose.\ \ These\ statistics\ are\ required\ for\ a\ stable}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00351}00351\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ normalisation\ of\ the\ target\ and\ the\ network\ output\ and\ will\ be}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00352}00352\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ cached\ in\ \`{}self.dose\_mean\`{}\ and\ \`{}self.dose\_std\`{}.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00353}00353\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00354}00354\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00355}00355\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ loader\ (DataLoader):\ training\ (or\ validation)\ loader\ that\ yields}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00356}00356\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dictionaries\ with\ a\ "{}target"{}\ key.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00357}00357\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}[Dose\ stats]\ computing\ dataset-\/wide\ mean\ /\ std\ …"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ sum\_val,\ sum\_sq,\ num\_vox\ =\ 0.0,\ 0.0,\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ b\ \textcolor{keywordflow}{in}\ loader:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tgt\ =\ b[\textcolor{stringliteral}{"{}target"{}}]\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ shape\ [B,1,D,H,W]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sum\_val\ +=\ tgt.sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sum\_sq\ \ +=\ (tgt\ **\ 2).sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_vox\ +=\ tgt.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00366}00366\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ mean\ =\ sum\_val\ /\ num\_vox}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ var\ \ =\ (sum\_sq\ /\ num\_vox)\ -\/\ mean\ **\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ std\ \ =\ math.sqrt(max(var,\ DOSE\_EPS))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00370}00370\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00371}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a85753dbf34a29befdc1aa56f7b44f761}{00371}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a85753dbf34a29befdc1aa56f7b44f761}{dose\_mean}}\ =\ mean}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00372}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a3dfba1748640646f38d25498ff91c76e}{00372}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a3dfba1748640646f38d25498ff91c76e}{dose\_std}}\ \ =\ std}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00373}00373\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ also\ capture\ absolute\ min\ /\ max\ for\ min‑max\ normalisation}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ dataset\_min\ =\ float(\textcolor{stringliteral}{'inf'})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ dataset\_max\ =\ float(\textcolor{stringliteral}{'-\/inf'})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ b\ \textcolor{keywordflow}{in}\ loader:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \ \ \ \ tgt\ =\ b[\textcolor{stringliteral}{"{}target"{}}]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ dataset\_min\ =\ min(dataset\_min,\ tgt.min().item())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ dataset\_max\ =\ max(dataset\_max,\ tgt.max().item())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00380}00380\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ =\ dataset\_min}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ =\ dataset\_max}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00383}00383\ \ \ \ \ \ \ \ \ logger.info(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}[Dose\ stats]\ mean=\{mean:.5f\}\ \ std=\{std:.5f\}\ \ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}min=\{dataset\_min:.5f\}\ \ max=\{dataset\_max:.5f\}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00386}00386\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00387}00387\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00388}00388\ \ \ \ \ \textcolor{preprocessor}{@staticmethod}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00389}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad12a03b0be0966bce87fe9b12c6be8e7}{00389}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad12a03b0be0966bce87fe9b12c6be8e7}{\_total\_variation\_loss}}(img):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00390}00390\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00391}00391\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ 3-\/D\ total-\/variation\ loss\ encouraging\ spatial\ smoothness.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00392}00392\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00393}00393\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00394}00394\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ img\ (torch.Tensor):\ tensor\ of\ shape\ [B,\ C,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00395}00395\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00396}00396\ \ \ \ \ \ \ \ \ dx\ =\ torch.abs(img[...,\ :-\/1,\ :,\ :]\ -\/\ img[...,\ 1:,\ :,\ :]).mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00397}00397\ \ \ \ \ \ \ \ \ dy\ =\ torch.abs(img[...,\ :,\ :-\/1,\ :]\ -\/\ img[...,\ :,\ 1:,\ :]).mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00398}00398\ \ \ \ \ \ \ \ \ dz\ =\ torch.abs(img[...,\ :,\ :,\ :-\/1]\ -\/\ img[...,\ :,\ :,\ 1:]).mean()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00399}00399\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ dx\ +\ dy\ +\ dz}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00400}00400\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00401}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ab1fb53dc495476f66c5164f0c9b81b5d}{00401}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ab1fb53dc495476f66c5164f0c9b81b5d}{train\_one\_epoch}}(self,\ train\_loader,\ epoch):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00402}00402\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00403}00403\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Trains\ the\ autoencoder\ and\ the\ discriminator\ for\ an\ epoch.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00404}00404\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00405}00405\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ This\ method\ integrates\ energy\ conditioning:\ for\ each\ batch,\ it\ extracts\ the\ "{}energy"{}\ values,}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00406}00406\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ normalizes\ them,\ expands\ them\ to\ match\ the\ spatial\ dimensions,\ and\ concatenates\ them\ as\ an}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00407}00407\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ additional\ channel\ to\ the\ input\ images.\ The\ autoencoder\ must\ be\ adapted\ to\ accept\ the\ increased}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00408}00408\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ number\ of\ input\ channels.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00409}00409\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00410}00410\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00411}00411\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ train\_loader\ (DataLoader):\ DataLoader\ for\ training\ data.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00412}00412\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ epoch\ (int):\ Current\ epoch.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00413}00413\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00414}00414\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ tuple:\ Average\ reconstruction\ loss,\ generator\ loss\ and\ discriminator\ loss.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00415}00415\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00416}00416\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.train()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00417}00417\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}.train()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ epoch\_loss\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00419}00419\ \ \ \ \ \ \ \ \ gen\_epoch\_loss\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00420}00420\ \ \ \ \ \ \ \ \ disc\_epoch\_loss\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00422}00422\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Starting\ autoencoder\ training\ epoch\ \{epoch\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00423}00423\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00424}00424\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENERGY-\/SPECIFIC\ LEARNING\ RATE\ ADJUSTMENT**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00425}00425\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ energy\ from\ first\ batch\ to\ determine\ if\ adjustment\ is\ needed}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00426}00426\ \ \ \ \ \ \ \ \ first\_batch\ =\ next(iter(train\_loader))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00427}00427\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}energy"{}}\ \textcolor{keywordflow}{in}\ first\_batch:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ current\_energy\ =\ first\_batch[\textcolor{stringliteral}{"{}energy"{}}][0].item()\ \ \textcolor{comment}{\#\ Get\ first\ energy\ value}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00429}00429\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ energy:\ \{current\_energy:.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00430}00430\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00431}00431\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Adaptive\ Learning\ Rate\ for\ high\ energies}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00432}00432\ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_g\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00433}00433\ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_d\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00434}00434\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00435}00435\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Reduce\ Learning\ Rate\ for\ high\ energies\ by\ factor\ 3}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00436}00436\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_g\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}.param\_groups[0][\textcolor{stringliteral}{'lr'}]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00437}00437\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_d\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}.param\_groups[0][\textcolor{stringliteral}{'lr'}]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_lr\_g\ =\ original\_lr\_g\ *\ 0.33}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_lr\_d\ =\ original\_lr\_d\ *\ 0.33}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00440}00440\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ param\_group\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}.param\_groups:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ param\_group[\textcolor{stringliteral}{'lr'}]\ =\ new\_lr\_g}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ param\_group\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}.param\_groups:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ param\_group[\textcolor{stringliteral}{'lr'}]\ =\ new\_lr\_d}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}🔥\ HIGH\ ENERGY\ (\{current\_energy:.2f\}):\ Reduced\ learning\ rates"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Generator:\ \{original\_lr\_g:.6f\}\ -\/>\ \{new\_lr\_g:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Discriminator:\ \{original\_lr\_d:.6f\}\ -\/>\ \{new\_lr\_d:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00449}00449\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00450}00450\ \ \ \ \ \ \ \ \ \ \ \ \ current\_energy\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_g\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00452}00452\ \ \ \ \ \ \ \ \ \ \ \ \ original\_lr\_d\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00454}00454\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00455}00455\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ one-\/time\ initialization\ of\ energy\ normalization\ range}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00456}00456\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00457}00457\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a59d6f8c1d7421cc3e9dc1940ecb080b3}{energy\_min}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00458}00458\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy\_min/max\ not\ initialised\ -\/\ run\ \_compute\_dataset\_energy\_stats\ first"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00461}00461\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ step,\ batch\ \textcolor{keywordflow}{in}\ enumerate(tqdm(train\_loader,\ desc=f\textcolor{stringliteral}{"{}Autoencoder\ Epoch\ \{epoch\}"{}})):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00462}00462\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Move\ data\ to\ device}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ images\ =\ batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})\ \ \textcolor{comment}{\#\ Expected\ shape:\ [B,\ 1,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00464}00464\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\ =\ batch[\textcolor{stringliteral}{"{}target"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})\ \ \textcolor{comment}{\#\ Ground-\/truth\ dose}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **DEBUG:\ Log\ dose\ statistics\ for\ first\ few\ batches**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ step\ <\ 3:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_stats\ =\ \{}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'min'}:\ dose\_target.min().item(),}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'max'}:\ dose\_target.max().item(),\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'mean'}:\ dose\_target.mean().item(),}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00472}00472\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'nonzero\_count'}:\ (dose\_target\ >\ 1e-\/6).sum().item(),}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00473}00473\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'total\_voxels'}:\ dose\_target.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00474}00474\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00475}00475\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Batch\ \{step+1\}\ dose\ stats:\ \{dose\_stats\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Apply\ consistent\ dose\ normalization\ during\ training**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normalize\ dose\ to\ [0,1]\ range\ using\ clip\_min/clip\_max\ with\ safety\ checks}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ (self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ >\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_range\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ (dose\_target\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ /\ dose\_range}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Clamp\ to\ [0,1]\ range\ to\ handle\ outliers}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ torch.clamp(dose\_target\_norm,\ 0.0,\ 1.0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}Normalized\ dose:\ orig\_range=[\{dose\_target.min().item():.6f\},\ \{dose\_target.max().item():.6f\}]\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}-\/>\ norm\_range=[\{dose\_target\_norm.min().item():.6f\},\ \{dose\_target\_norm.max().item():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00486}00486\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00487}00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Fallback:\ use\ raw\ dose\ values\ if\ normalization\ parameters\ not\ available}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00488}00488\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}Skipping\ dose\ normalization\ -\/\ using\ raw\ dose\ values"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ dose\_target}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00490}00490\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ energy\ conditioning\ if\ energy\ data\ is\ available}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}energy"{}}\ \textcolor{keywordflow}{in}\ batch:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ batch[\textcolor{stringliteral}{"{}energy"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Min-\/Max\ normalize\ energy\ using\ dataset\ range\ with\ zero-\/division\ guard}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ eps\ =\ 1e-\/8}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00496}00496\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ energies.float()\ /\ 100.00}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}xNormalized\ energy:\ \{normalized\_energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00498}00498\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ images.shape}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00499}00499\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00500}00500\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([images,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00501}00501\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00502}00502\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Throw\ an\ error\ if\ energy\ conditioning\ is\ expected\ but\ not\ provided}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00503}00503\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00504}00504\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Energy\ conditioning\ is\ expected\ but\ 'energy'\ field\ is\ missing\ in\ the\ batch."{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00505}00505\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00506}00506\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Verify\ input\ channels\ match\ autoencoder\ expectations}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00508}00508\ \ \ \ \ \ \ \ \ \ \ \ \ first\_conv\ =\ next((m\ \textcolor{keywordflow}{for}\ m\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.modules()\ \textcolor{keywordflow}{if}\ isinstance(m,\ torch.nn.Conv3d)),\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00509}00509\ \ \ \ \ \ \ \ \ \ \ \ \ expected\_in\_channels\ =\ first\_conv.in\_channels\ \textcolor{keywordflow}{if}\ first\_conv\ \textcolor{keywordflow}{else}\ conditioned\_input.shape[1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00510}00510\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00511}00511\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ conditioned\_input.shape[1]\ !=\ expected\_in\_channels:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00512}00512\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00513}00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Input\ channel\ mismatch:\ model\ expects\ \{expected\_in\_channels\}\ channels,\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00514}00514\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}but\ got\ \{conditioned\_input.shape[1]\}\ channels.\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00515}00515\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Energy\ conditioning:\ \{'enabled'\ if\ 'energy'\ in\ batch\ else\ 'disabled'\}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00517}00517\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#Zero\ the\ gradients\ for\ the\ generator\ }}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00519}00519\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}.zero\_grad(set\_to\_none=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Pass\ the\ conditioned\ input\ through\ the\ autoencoder}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ (Note:\ autoencoder's\ in\_channels\ should\ be\ updated\ to\ handle\ conditioned\ input)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction,\ z\_mu,\ z\_sigma\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00524}00524\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Apply\ same\ normalization\ to\ reconstruction\ as\ target**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00525}00525\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ (self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ >\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_range\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00527}00527\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ (reconstruction\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ /\ dose\_range}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00528}00528\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ torch.clamp(reconstruction\_norm,\ 0.0,\ 1.0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00529}00529\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00530}00530\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ reconstruction}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00531}00531\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00532}00532\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#calculate\ KL\ loss}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00533}00533\ \ \ \ \ \ \ \ \ \ \ \ \ kl\_loss\ =\ 0.5\ *\ torch.sum(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00534}00534\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\_mu.pow(2)\ +\ z\_sigma.pow(2)\ -\/\ torch.log(z\_sigma.pow(2))\ -\/\ 1}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00535}00535\ \ \ \ \ \ \ \ \ \ \ \ \ )\ /images.size(0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00536}00536\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Use\ extreme\ dose-\/focused\ loss\ for\ ultra-\/sparse\ data**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00537}00537\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00538}00538\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ dose\ statistics\ first}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00539}00539\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mask\ =\ dose\_target\_norm\ >\ 1e-\/6}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00540}00540\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_voxels\ =\ dose\_mask.sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00541}00541\ \ \ \ \ \ \ \ \ \ \ \ \ total\_voxels\ =\ dose\_target\_norm.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00542}00542\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_percentage\ =\ 100\ *\ dose\_voxels\ /\ total\_voxels}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00543}00543\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00544}00544\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00545}00545\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}Batch\ has\ no\ dose\ voxels\ -\/\ skipping"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00546}00546\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00547}00547\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00548}00548\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ <\ 10000:\ \ \textcolor{comment}{\#\ Schwelle\ für\ MEGA-\/ULTRA-\/EXTREME\ deutlich\ erhöht}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00549}00549\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Ultra-\/sparse\ batch\ -\/\ use\ extreme\ loss}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00550}00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recons\_loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aeddf2bedee336f299c830d5ba9921026}{extreme\_dose\_focused\_loss}}(reconstruction\_norm.float(),\ dose\_target\_norm.float())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00551}00551\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_type\ =\ \textcolor{stringliteral}{"{}EXTREME\ (1,000,000x\ weights\ +\ MSE)"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00552}00552\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00553}00553\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normal\ sparse\ batch\ -\/\ use\ combined\ weighted/masked\ approach}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00554}00554\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ weighted\_loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa2b91f1911944a208bddf71cb97e5a8d}{weighted\_dose\_loss}}(reconstruction\_norm.float(),\ dose\_target\_norm.float())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00555}00555\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ masked\_loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5c50ef75c8f14358ddfcdae6b14f386}{masked\_dose\_loss}}(reconstruction\_norm.float(),\ dose\_target\_norm.float())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00556}00556\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recons\_loss\ =\ 0.6\ *\ weighted\_loss\ +\ 0.4\ *\ masked\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00557}00557\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_type\ =\ \textcolor{stringliteral}{"{}COMBINED\ (100,000x\ weighted\ +\ pure\ masked)"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00558}00558\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00559}00559\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENERGY-\/SPECIFIC\ LOSS\ AMPLIFICATION\ FOR\ HIGH\ ENERGIES**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00560}00560\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ current\_energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00561}00561\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recons\_loss\ =\ recons\_loss\ *\ 1.5\ \ \textcolor{comment}{\#\ 50\%\ stronger\ weighting}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00562}00562\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_type\ +=\ \textcolor{stringliteral}{"{}\ +\ HIGH\_ENERGY\_BOOST"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00563}00563\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ step\ <\ 3:\ \ \textcolor{comment}{\#\ Log\ only\ for\ first\ few\ batches}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00564}00564\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ Applied\ 1.5x\ loss\ boost\ for\ high\ energy\ \{current\_energy:.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00565}00565\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00566}00566\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENHANCED:\ Comprehensive\ sparse\ data\ analysis**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00567}00567\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_ratio\ =\ dose\_voxels\ /\ total\_voxels}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00568}00568\ \ \ \ \ \ \ \ \ \ \ \ \ sparsity\_level\ =\ f\textcolor{stringliteral}{"{}\{dose\_ratio*100:.6f\}\%"{}}\ \textcolor{keywordflow}{if}\ dose\_ratio\ >\ 0\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}NO\_DOSE"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00569}00569\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00570}00570\ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}\{loss\_type\}\ loss\ on\ \{dose\_voxels\}/\{total\_voxels\}\ dose\ voxels\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00571}00571\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}(\{dose\_percentage:.4f\}\%),\ loss:\ \{recons\_loss:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00572}00572\ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}\ \ \ -\/>\ Sparsity:\ \{sparsity\_level\},\ recon\_range:\ [\{reconstruction\_norm.min().item():.6f\},\ \{reconstruction\_norm.max().item():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00573}00573\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00574}00574\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Track\ dose-\/only\ reconstruction\ quality\ with\ enhanced\ metrics}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00576}00576\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mask\_bool\ =\ dose\_target\_norm\ >\ 1e-\/6}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00577}00577\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mse\ =\ F.mse\_loss(reconstruction\_norm[dose\_mask\_bool],\ dose\_target\_norm[dose\_mask\_bool])}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00578}00578\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mae\ =\ F.l1\_loss(reconstruction\_norm[dose\_mask\_bool],\ dose\_target\_norm[dose\_mask\_bool])}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00579}00579\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00580}00580\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Signal\ strength\ analysis}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00581}00581\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_signal\ =\ dose\_target\_norm[dose\_mask\_bool].mean().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00582}00582\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recon\_signal\ =\ reconstruction\_norm[dose\_mask\_bool].mean().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00583}00583\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ signal\_ratio\ =\ (recon\_signal\ /\ target\_signal)\ \textcolor{keywordflow}{if}\ target\_signal\ >\ 0\ \textcolor{keywordflow}{else}\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00584}00584\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00585}00585\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}\ \ \ -\/>\ Dose-\/only\ MSE:\ \{dose\_mse:.6f\},\ MAE:\ \{dose\_mae:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00586}00586\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}\ \ \ -\/>\ Signal\ ratio:\ \{signal\_ratio:.6f\}\ (target:\ \{target\_signal:.6f\},\ recon:\ \{recon\_signal:.6f\})"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00587}00587\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00588}00588\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Critical\ thresholds}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00589}00589\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Nur\ jede\ 20.\ Warnung\ loggen,\ um\ Spam\ zu\ vermeiden}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00590}00590\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ step\ \%\ 20\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00591}00591\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ signal\_ratio\ <\ 0.01:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00592}00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ SIGNAL\ COLLAPSE:\ ratio=\{signal\_ratio:.6f\}\ -\/\ model\ barely\ responding!"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00593}00593\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ signal\_ratio\ <\ 0.1:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ WEAK\ SIGNAL:\ ratio=\{signal\_ratio:.6f\}\ -\/\ consider\ higher\ weights!"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00596}00596\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Check\ for\ NaN\ in\ loss**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00597}00597\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ torch.isnan(recons\_loss)\ \textcolor{keywordflow}{or}\ torch.isinf(recons\_loss):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00598}00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}NaN/Inf\ detected\ in\ reconstruction\ loss:\ \{recons\_loss.item()\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}reconstruction\_norm\ stats:\ min=\{reconstruction\_norm.min().item():.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00600}00600\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}max=\{reconstruction\_norm.max().item():.6f\},\ mean=\{reconstruction\_norm.mean().item():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00601}00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}dose\_target\_norm\ stats:\ min=\{dose\_target\_norm.min().item():.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00602}00602\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}max=\{dose\_target\_norm.max().item():.6f\},\ mean=\{dose\_target\_norm.mean().item():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00603}00603\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Skip\ this\ batch}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00604}00604\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00605}00605\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00606}00606\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENHANCED:\ Model\ collapse\ detection\ and\ automatic\ intervention**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00607}00607\ \ \ \ \ \ \ \ \ \ \ \ \ recon\_max\ =\ reconstruction\_norm.max().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00608}00608\ \ \ \ \ \ \ \ \ \ \ \ \ target\_max\ =\ dose\_target\_norm.max().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00609}00609\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00610}00610\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **ENERGY-\/SPECIFIC\ DEGRADATION\ THRESHOLDS**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00611}00611\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ current\_energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00612}00612\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Stricter\ threshold\ for\ high\ energies}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00613}00613\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ degradation\_threshold\ =\ 0.05}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00614}00614\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ collapse\_threshold\ =\ 0.001}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00615}00615\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00616}00616\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normal\ thresholds}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00617}00617\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ degradation\_threshold\ =\ 0.02}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00618}00618\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ collapse\_threshold\ =\ 0.0001}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00619}00619\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00620}00620\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Nur\ jede\ 20.\ Warnung\ loggen,\ um\ Spam\ zu\ vermeiden}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00621}00621\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ step\ \%\ 20\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00622}00622\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ratio\ =\ recon\_max\ /\ max(target\_max,\ 1e-\/6)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00623}00623\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ recon\_max\ <\ collapse\_threshold\ \textcolor{keywordflow}{and}\ target\_max\ >\ 0.01:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00624}00624\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ CRITICAL\ MODEL\ COLLAPSE:\ recon\_max=\{recon\_max:.6f\},\ target\_max=\{target\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00625}00625\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ Signal\ ratio:\ \{ratio:.8f\}\ (should\ be\ >\{degradation\_threshold\})"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00626}00626\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ current\_energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00627}00627\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ HIGH\ ENERGY\ COLLAPSE:\ energy=\{current\_energy:.2f\}\ -\/\ Consider\ reducing\ clip\_max"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00628}00628\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ URGENT:\ Consider\ 500K+\ weights\ or\ alternative\ loss\ function"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00629}00629\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ ratio\ <\ degradation\_threshold\ \textcolor{keywordflow}{and}\ target\_max\ >\ 0.1:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00630}00630\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ MODEL\ DEGRADATION:\ recon\_max=\{recon\_max:.6f\},\ target\_max=\{target\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00631}00631\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ Model\ producing\ weak\ signals\ -\/\ monitor\ closely"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00632}00632\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ current\_energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ current\_energy\ >\ 40.0:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00633}00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ HIGH\ ENERGY\ DEGRADATION:\ energy=\{current\_energy:.2f\},\ ratio=\{ratio:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \ Suggested:\ Reduce\ dose\ normalization\ clip\_max"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00635}00635\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00636}00636\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ compute\ adversarial\ loss\ if\ using\ discriminator}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00637}00637\ \ \ \ \ \ \ \ \ \ \ \ \ adv\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00638}00638\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ epoch\ >\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adbed48424c281adb63c47938019c5186}{warm\_up\_epochs}}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00639}00639\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logits\_fake\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}(reconstruction.contiguous().float())[-\/1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00640}00640\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ adv\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_acf990e8ab631b0a57b2a44ae20e9aa63}{adv\_loss}}(logits\_fake,\ target\_is\_real=\textcolor{keyword}{True},\ for\_discriminator=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00641}00641\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ compute\ perceptual\ loss\ (use\ dose\ target\ as\ reference,\ not\ CT\ input)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00642}00642\ \ \ \ \ \ \ \ \ \ \ \ \ perc\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa418db301054beefba1c45160aa486b6}{perceptual\_loss}}(reconstruction\_norm,\ dose\_target\_norm)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00643}00643\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ compute\ TV\ in\ physical\ Gy\ units\ (before\ normalisation)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00644}00644\ \ \ \ \ \ \ \ \ \ \ \ \ tv\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad12a03b0be0966bce87fe9b12c6be8e7}{\_total\_variation\_loss}}(reconstruction)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00645}00645\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ total\ generator\ loss}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00646}00646\ \ \ \ \ \ \ \ \ \ \ \ \ loss\_g\ =\ (recons\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00647}00647\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ +\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a156297f2494ce7027a4cba0aab19196e}{kl\_weight}}\ *\ kl\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00648}00648\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ +\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a61b631bdd74c7c4b4e1ac8d139328f96}{adv\_weight}}\ *\ adv}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ +\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_af64142b9a2159a927d26db40c32d4e5f}{perceptual\_weight}}\ *\ perc}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00650}00650\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ +\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a466ba10ef3c6e2fca38233a5ab658309}{tv\_weight}}\ *\ tv)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00651}00651\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00652}00652\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ adversarial\ loss\ if\ past\ warm-\/up\ phase\ and\ discriminator\ is\ used.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00653}00653\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ epoch\ >\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adbed48424c281adb63c47938019c5186}{warm\_up\_epochs}}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00654}00654\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ gen\_epoch\_loss\ +=\ adv.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00655}00655\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ keep\ track\ of\ TV\ loss\ for\ logging}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00656}00656\ \ \ \ \ \ \ \ \ \ \ \ \ gen\_epoch\_loss\ +=\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a466ba10ef3c6e2fca38233a5ab658309}{tv\_weight}}\ *\ tv.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00657}00657\ \ \ \ \ \ \ \ \ \ \ \ \ loss\_g.backward()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00658}00658\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ ULTRA-\/conservative\ gradient\ clipping\ for\ extreme\ stability}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00659}00659\ \ \ \ \ \ \ \ \ \ \ \ \ torch.nn.utils.clip\_grad\_norm\_(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.parameters(),\ max\_norm=0.1)\ \ \textcolor{comment}{\#\ Much\ more\ conservative}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00660}00660\ \ \ \ \ \ \ \ \ \ \ \ \ torch.nn.utils.clip\_grad\_value\_(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.parameters(),\ clip\_value=0.01)\ \ \textcolor{comment}{\#\ Much\ more\ conservative}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}.step()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00662}00662\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00663}00663\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Check\ for\ NaN\ in\ generator\ loss**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00664}00664\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ epoch\ >\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adbed48424c281adb63c47938019c5186}{warm\_up\_epochs}}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00665}00665\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}.zero\_grad(set\_to\_none=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00667}00667\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Discriminator\ loss:\ real\ vs\ fake}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00668}00668\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logits\_fake\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}(reconstruction.contiguous().detach())[-\/1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00669}00669\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_d\_fake\ =\ F.mse\_loss(logits\_fake,\ torch.zeros\_like(logits\_fake))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00670}00670\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00671}00671\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Discriminator\ loss:\ real\ vs\ real}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00672}00672\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logits\_real\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}(dose\_target.contiguous().detach())[-\/1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00673}00673\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_d\_real\ =\ F.mse\_loss(logits\_real,\ torch.ones\_like(logits\_real))}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00674}00674\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00675}00675\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ discriminator\_loss\ =\ (loss\_d\_fake\ +\ loss\_d\_real)\ /\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00676}00676\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ discriminator\_loss.backward()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00677}00677\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}.step()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00678}00678\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ disc\_epoch\_loss\ +=\ discriminator\_loss.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00679}00679\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00680}00680\ \ \ \ \ \ \ \ \ \ \ \ \ epoch\_loss\ +=\ recons\_loss.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00681}00681\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00682}00682\ \ \ \ \ \ \ \ \ avg\_loss\ =\ epoch\_loss\ /\ (step\ +\ 1)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00683}00683\ \ \ \ \ \ \ \ \ avg\_gen\_loss\ =\ gen\_epoch\_loss\ /\ (step\ +\ 1)\ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00684}00684\ \ \ \ \ \ \ \ \ avg\_disc\_loss\ =\ disc\_epoch\_loss\ /\ (step\ +\ 1)\ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ad6e805b40aade00ae4239e41da768155}{discriminator}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00685}00685\ \ \ \ \ \ \ \ \ logger.info(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00686}00686\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Epoch\ \{epoch\}\ completed:\ recon\_loss=\{avg\_loss:.6f\},\ adv\_loss=\{avg\_gen\_loss:.4f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00687}00687\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}disc\_loss=\{avg\_disc\_loss:.4f\},\ tv=\{tv.item():.4f\}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00688}00688\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00689}00689\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Dynamic\ message\ based\ on\ actual\ loss\ types\ used}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00690}00690\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/>\ Training\ with\ ADAPTIVE\ loss\ selection:\ MEGA-\/ULTRA-\/EXTREME\ (<300\ dose\ voxels,\ 1M\ weights\ for\ <0.006\%\ sparsity)\ +\ COMBINED\ (≥300\ dose\ voxels)"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00691}00691\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00692}00692\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **RESTORE\ ORIGINAL\ LEARNING\ RATES**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00693}00693\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ original\_lr\_g\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ original\_lr\_d\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00694}00694\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ param\_group\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a6ee2bb826988911bc0bafc4b76cf4f7a}{optimizer\_g}}.param\_groups:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00695}00695\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ param\_group[\textcolor{stringliteral}{'lr'}]\ =\ original\_lr\_g}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00696}00696\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ param\_group\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a93911595ab3cbba9492b259ab9f6cd34}{optimizer\_d}}.param\_groups:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00697}00697\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ param\_group[\textcolor{stringliteral}{'lr'}]\ =\ original\_lr\_d}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00698}00698\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ Restored\ original\ learning\ rates:\ G=\{original\_lr\_g:.6f\},\ D=\{original\_lr\_d:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00699}00699\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00700}00700\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ avg\_loss,\ avg\_gen\_loss,\ avg\_disc\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00701}00701\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00702}\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a2cf3b2917665eb9b9852862f5a28b738}{00702}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a2cf3b2917665eb9b9852862f5a28b738}{validate}}(self,\ val\_loader):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00703}00703\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00704}00704\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Performs\ the\ validation\ of\ the\ autoencoder\ and\ returns\ the\ average\ loss.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00705}00705\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00706}00706\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ val\_loader\ (DataLoader):\ DataLoader\ for\ validation\ data.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00707}00707\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00708}00708\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ float:\ Average\ validation\ loss.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00709}00709\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00710}00710\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.eval()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00711}00711\ \ \ \ \ \ \ \ \ val\_loss\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00712}00712\ \ \ \ \ \ \ \ \ batch\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00713}00713\ \ \ \ \ \ \ \ \ extreme\_count\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00714}00714\ \ \ \ \ \ \ \ \ combined\_count\ =\ 0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00715}00715\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00716}00716\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ validation"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00717}00717\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Validation\ dataset:\ \{len(val\_loader)\}\ batches"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00718}00718\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00719}00719\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00720}00720\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ batch\ \textcolor{keywordflow}{in}\ enumerate(val\_loader):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00721}00721\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ images\ =\ batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00722}00722\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\ =\ batch[\textcolor{stringliteral}{"{}target"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})\ \ \textcolor{comment}{\#\ ground‑truth\ dose}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00723}00723\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00724}00724\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Apply\ consistent\ dose\ normalization\ during\ validation**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00725}00725\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ (self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ >\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00726}00726\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_range\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00727}00727\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ (dose\_target\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ /\ dose\_range}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00728}00728\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ torch.clamp(dose\_target\_norm,\ 0.0,\ 1.0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00729}00729\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00730}00730\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_target\_norm\ =\ dose\_target}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00731}00731\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ energy\ conditioning\ if\ energy\ data\ is\ available}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00732}00732\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}energy"{}}\ \textcolor{keywordflow}{in}\ batch:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00733}00733\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ batch[\textcolor{stringliteral}{"{}energy"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa338fcbf4587b96ce754ead0be444c42}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00734}00734\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Min-\/Max\ normalize\ energy\ using\ dataset\ range\ with\ zero-\/division\ guard}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00735}00735\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ eps\ =\ 1e-\/8}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00736}00736\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ energies.float()\ /\ 100.00}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00737}00737\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ i\ ==\ 0:\ \ \textcolor{comment}{\#\ Log\ energy\ only\ for\ first\ batch}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00738}00738\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_val\ =\ energies[0].item()\ \textcolor{keywordflow}{if}\ energies.numel()\ >\ 1\ \textcolor{keywordflow}{else}\ energies.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00739}00739\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ norm\_val\ =\ normalized\_energy[0].item()\ \textcolor{keywordflow}{if}\ normalized\_energy.numel()\ >\ 1\ \textcolor{keywordflow}{else}\ normalized\_energy.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00740}00740\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Val\ energy\ normalization:\ \{energy\_val:.2f\}\ -\/>\ \{norm\_val:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00741}00741\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ images.shape}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00742}00742\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00743}00743\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([images,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00744}00744\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00745}00745\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00746}00746\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Energy\ conditioning\ is\ expected\ but\ 'energy'\ field\ is\ missing\ in\ the\ batch."{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00747}00747\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00748}00748\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00749}00749\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Verify\ input\ channels\ match\ autoencoder\ expectations}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00750}00750\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ first\_conv\ =\ next((m\ \textcolor{keywordflow}{for}\ m\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}.modules()\ \textcolor{keywordflow}{if}\ isinstance(m,\ torch.nn.Conv3d)),\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00751}00751\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ expected\_in\_channels\ =\ first\_conv.in\_channels\ \textcolor{keywordflow}{if}\ first\_conv\ \textcolor{keywordflow}{else}\ conditioned\_input.shape[1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00752}00752\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00753}00753\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ conditioned\_input.shape[1]\ !=\ expected\_in\_channels:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00754}00754\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00755}00755\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Validation\ input\ channel\ mismatch:\ model\ expects\ \{expected\_in\_channels\}\ channels,\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00756}00756\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}but\ got\ \{conditioned\_input.shape[1]\}\ channels."{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00757}00757\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00758}00758\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00759}00759\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction,\ z\_mu,\ z\_sigma\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_a7124e3fe5b84de8377fd901a9926c7d5}{autoencoder}}(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00760}00760\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00761}00761\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Apply\ same\ normalization\ to\ reconstruction\ during\ validation**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00762}00762\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ (self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ >\ 1e-\/6:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00763}00763\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_range\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5d729d27ad117769d78bd56d3574b58}{clip\_max}}\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00764}00764\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ (reconstruction\ -\/\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_adeeed15643293d715ce23eefd4c2eb90}{clip\_min}})\ /\ dose\_range}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00765}00765\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ torch.clamp(reconstruction\_norm,\ 0.0,\ 1.0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00766}00766\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00767}00767\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reconstruction\_norm\ =\ reconstruction}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00768}00768\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00769}00769\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Use\ SAME\ adaptive\ loss\ selection\ as\ training**}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00770}00770\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mask\ =\ dose\_target\_norm\ >\ 1e-\/6}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00771}00771\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_voxels\ =\ dose\_mask.sum().item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00772}00772\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00773}00773\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_voxels\ <\ 300:\ \ \textcolor{comment}{\#\ CRITICAL\ FIX:\ Same\ threshold\ as\ training\ (300)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00774}00774\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Ultra-\/sparse\ batch\ -\/\ use\ extreme\ loss\ (same\ as\ training)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00775}00775\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aeddf2bedee336f299c830d5ba9921026}{extreme\_dose\_focused\_loss}}(reconstruction\_norm,\ dose\_target\_norm)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00776}00776\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_type\ =\ \textcolor{stringliteral}{"{}MEGA-\/ULTRA-\/EXTREME"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00777}00777\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ extreme\_count\ +=\ 1}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00778}00778\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00779}00779\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normal\ sparse\ batch\ -\/\ use\ combined\ weighted/masked\ approach\ (same\ as\ training)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00780}00780\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ weighted\_loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_aa2b91f1911944a208bddf71cb97e5a8d}{weighted\_dose\_loss}}(reconstruction\_norm,\ dose\_target\_norm)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00781}00781\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ masked\_loss\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer_ae5c50ef75c8f14358ddfcdae6b14f386}{masked\_dose\_loss}}(reconstruction\_norm,\ dose\_target\_norm)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00782}00782\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\ =\ 0.6\ *\ weighted\_loss\ +\ 0.4\ *\ masked\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00783}00783\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ loss\_type\ =\ \textcolor{stringliteral}{"{}COMBINED"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00784}00784\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ combined\_count\ +=\ 1}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00785}00785\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00786}00786\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\_loss\ +=\ loss.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00787}00787\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ batch\_losses.append(loss.item())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00788}00788\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00789}00789\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Debug\ logging\ for\ first\ few\ batches}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00790}00790\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ i\ <\ 3:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00791}00791\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_voxels\ =\ dose\_target\_norm.numel()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00792}00792\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_val\ =\ energies[0].item()\ \textcolor{keywordflow}{if}\ energies.numel()\ >\ 1\ \textcolor{keywordflow}{else}\ energies.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Val\ batch\ \{i\}:\ energy=\{energy\_val:.1f\},\ \{loss\_type\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00794}00794\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}\{dose\_voxels\}/\{total\_voxels\}\ dose\ voxels\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00795}00795\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}(\{100*dose\_voxels/total\_voxels:.4f\}\%),\ loss=\{loss.item():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00796}00796\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/>\ target\_range=[\{dose\_target\_norm.min():.6f\},\ \{dose\_target\_norm.max():.6f\}],\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00797}00797\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}recon\_range=[\{reconstruction\_norm.min():.6f\},\ \{reconstruction\_norm.max():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00798}00798\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00799}00799\ \ \ \ \ \ \ \ \ avg\_val\_loss\ =\ val\_loss\ /\ len(val\_loader)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00800}00800\ \ \ \ \ \ \ \ \ loss\_std\ =\ np.std(batch\_losses)\ \textcolor{keywordflow}{if}\ len(batch\_losses)\ >\ 1\ \textcolor{keywordflow}{else}\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00801}00801\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00802}00802\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Validation\ completed:\ avg\_val\_loss=\{avg\_val\_loss:.6f\}\ ±\ \{loss\_std:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00803}00803\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/>\ Loss\ distribution:\ \{extreme\_count\}\ MEGA-\/ULTRA-\/EXTREME\ batches,\ \{combined\_count\}\ COMBINED\ batches"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00804}00804\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/>\ Loss\ range:\ min=\{min(batch\_losses):.6f\},\ max=\{max(batch\_losses):.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00805}00805\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00806}00806\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ avg\_val\_loss}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00807}00807\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00808}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer}{00808}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer}{DiffusionTrainer}}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00809}00809\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00810}00810\ \textcolor{stringliteral}{\ \ \ \ Encapsulates\ the\ training\ process\ for\ the\ diffusion\ model.\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00811}00811\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00812}00812\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00813}00813\ \textcolor{stringliteral}{\ \ \ \ Trains\ diffusion\ model\ for\ one\ epoch.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00814}00814\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00815}00815\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00816}00816\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ train\_loader\ (DataLoader):\ DataLoader\ for\ training\ data.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00817}00817\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ epoch\ (int):\ Current\ epoch\ index.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00818}00818\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ inferer\ (callable):\ A\ callable\ with\ signature}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00819}00819\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ inferer(inputs,\ autoencoder\_model,\ diffusion\_model,\ noise,\ timesteps)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00820}00820\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ that\ returns\ predicted\ noise.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00821}00821\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00822}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9d895124c9c3e61a7def924d9641e1c8}{00822}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9d895124c9c3e61a7def924d9641e1c8}{\_\_init\_\_}}(self,\ diffusion\_model,\ optimizer\_diff,\ energy\_min,\ energy\_max,\ device):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00823}00823\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00824}00824\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00825}00825\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ diffusion\_model\ (torch.nn.Module):\ Das\ Diffusionsmodell\ (z.\ B.\ ein\ UNet).}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00826}00826\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ optimizer\_diff\ (torch.optim.Optimizer):\ Optimierer\ für\ das\ Diffusionsmodell.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00827}00827\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device\ (torch.device):\ CPU\ oder\ GPU.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00828}00828\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00829}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{00829}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}\ =\ diffusion\_model}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00830}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{00830}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{optimizer\_diff}}\ =\ optimizer\_diff}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00831}00831\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Min-\/Max\ energy\ normalization\ parameters}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00832}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9}{00832}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9}{energy\_min}}\ =\ energy\_min}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00833}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046}{00833}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046}{energy\_max}}\ =\ energy\_max}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00834}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{00834}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}}\ =\ device}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00835}00835\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00836}00836\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Determine\ the\ cross‑attention\ dimension\ expected\ by\ the\ UNet.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00837}00837\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00838}00838\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Many\ UNet\ variants\ have\ several\ cross‑attention\ blocks\ operating}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00839}00839\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ at\ different\ channel\ widths.\ \ Each\ block\ owns\ a\ projection\ layer}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00840}00840\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ called\ “to\_k”;\ its\ *input*\ dimension\ equals\ the\ context‑vector}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00841}00841\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ length\ expected\ by\ this\ block.\ \ All\ blocks\ that\ consume\ the\ same}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00842}00842\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ context\ embedding\ should\ therefore\ agree\ on\ that\ dimension\ –}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00843}00843\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ but\ some\ architectures\ prepend\ an\ additional\ projection\ layer,}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00844}00844\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ so\ we\ might\ see\ values\ like\ 2,\ 64,\ 128,\ …}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00845}00845\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00846}00846\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Empirically,\ the\ *smallest*\ of\ these\ \`{}in\_features`\ values}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00847}00847\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ corresponds\ to\ the\ original\ conditioning\ size\ (in\ our\ case}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00848}00848\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \`{}(energy,\ bias)\ =\ 2`).\ \ We\ therefore\ collect\ **all**\ \`{}to\_k`}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00849}00849\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ modules\ and\ pick\ the\ minimum\ \`{}in\_features`.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00850}00850\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00851}00851\ \ \ \ \ \ \ \ \ cand\_dims\ =\ set()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00852}00852\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ name,\ mod\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}.named\_modules():}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00853}00853\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(mod,\ torch.nn.Linear)\ \textcolor{keywordflow}{and}\ (name.endswith(\textcolor{stringliteral}{"{}to\_k"{}})\ \textcolor{keywordflow}{or}\ \textcolor{stringliteral}{"{}.to\_k"{}}\ \textcolor{keywordflow}{in}\ name):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00854}00854\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cand\_dims.add(mod.in\_features)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00855}00855\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00856}00856\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ cand\_dims:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00857}00857\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ choose\ the\ smallest\ dimension\ –\ typically\ 2}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00858}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c}{00858}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c}{cross\_attn\_dim}}\ =\ min(cand\_dims)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00859}00859\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00861}00861\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Could\ not\ find\ any\ cross-\/attention\ projection\ layer\ in\ the\ diffusion\ model.\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00862}00862\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Ensure\ that\ the\ model\ is\ correctly\ configured\ for\ energy\ conditioning."{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00863}00863\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00864}00864\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00865}00865\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c}{cross\_attn\_dim}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00866}00866\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}Could\ not\ determine\ cross‑attention\ dimension\ from\ diffusion\ model."{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00867}00867\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00868}00868\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Note:\ Context\ projection\ disabled\ since\ running\ in\ unconditional\ mode}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00869}00869\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Small\ MLP\ that\ maps\ (energy,\ bias)\ →\ vector\ of\ length\ \`{}cross\_attn\_dim`}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00870}00870\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ self.context\_proj\ =\ torch.nn.Linear(2,\ self.cross\_attn\_dim).to(self.device)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00871}00871\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00872}\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a5b507d0375c19ba5a5ba08c8b2a42f62}{00872}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a5b507d0375c19ba5a5ba08c8b2a42f62}{train\_one\_epoch}}(self,\ train\_loader,\ epoch,\ inferer=None,\ autoencoder=None):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00873}00873\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00874}00874\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00875}00875\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ diffusion\_model\ (torch.nn.Module):\ The\ diffusion\ model\ (e.g.\ a\ UNet).}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00876}00876\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ optimizer\_diff\ (torch.optim.Optimizer):\ Optimizer\ for\ the\ diffusion\ model.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00877}00877\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device\ (torch.device):\ CPU\ or\ GPU.}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00878}00878\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00879}00879\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ if\ no\ inferer\ or\ autoencoder\ provided,\ skip\ diffusion\ training}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00880}00880\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ inferer\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{or}\ autoencoder\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00881}00881\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00882}00882\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00883}00883\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}.train()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00884}00884\ \ \ \ \ \ \ \ \ epoch\_loss\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00885}00885\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00886}00886\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ step,\ batch\ \textcolor{keywordflow}{in}\ enumerate(tqdm(train\_loader,\ desc=f\textcolor{stringliteral}{"{}Diffusion\ Epoch\ \{epoch\}"{}})):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00887}00887\ \ \ \ \ \ \ \ \ \ \ \ \ images\ =\ batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00888}00888\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00889}00889\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ energy\ conditioning\ consistently}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00890}00890\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}energy"{}}\ \textcolor{keywordflow}{in}\ batch:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00891}00891\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ batch[\textcolor{stringliteral}{"{}energy"{}}].to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00892}00892\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Min-\/Max\ normalize\ energy\ using\ dataset\ range\ with\ zero-\/division\ guard}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00893}00893\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ eps\ =\ 1e-\/8}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00894}00894\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#normalized\_energy\ =\ (energies.float()\ -\/\ self.energy\_min)\ /\ (self.energy\_max\ -\/\ self.energy\_min\ +\ eps)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00895}00895\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ energies.float()\ /\ 100.00}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00896}00896\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Normalized\ energy:\ \{normalized\_energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00897}00897\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ images.shape}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00898}00898\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00899}00899\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([images,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00900}00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00901}00901\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ If\ energy\ conditioning\ is\ expected\ but\ not\ provided,\ raise\ an\ error}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00902}00902\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00903}00903\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Energy\ conditioning\ is\ expected\ but\ 'energy'\ field\ is\ missing\ in\ the\ batch."{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00904}00904\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00905}00905\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00906}00906\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Zero\ gradients\ for\ diffusion\ optimizer}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00907}00907\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{optimizer\_diff}}.zero\_grad(set\_to\_none=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00908}00908\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00909}00909\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Encode\ conditioned\ input\ to\ latents\ using\ the\ autoencoder}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00910}00910\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00911}00911\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ MONAI's\ AutoencoderKL.encode()\ returns\ a\ tuple\ (mu,\ logvar)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00912}00912\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ For\ consistent\ handling,\ always\ expect\ this\ format}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00913}00913\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mu,\ logvar\ =\ autoencoder.encode(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00914}00914\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Sample\ from\ the\ latent\ distribution}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00915}00915\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std\ =\ torch.exp(0.5\ *\ logvar)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00916}00916\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ eps\ =\ torch.randn\_like(std)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00917}00917\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latents\ =\ mu\ +\ eps\ *\ std}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00918}00918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latents\ =\ latents.to(self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00919}00919\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00920}00920\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Crop\ /\ pad\ latents\ symmetrically\ so\ that\ spatial\ dims\ are\ multiples}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00921}00921\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ of\ the\ UNet\ down‑sampling\ factor}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00922}00922\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ down\_blocks\ =\ [m\ \textcolor{keywordflow}{for}\ m\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}.modules()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00923}00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(m,\ torch.nn.Conv3d)\ \textcolor{keywordflow}{and}\ any(s\ >\ 1\ \textcolor{keywordflow}{for}\ s\ \textcolor{keywordflow}{in}\ m.stride)]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00924}00924\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ downsample\_factor\ =\ 2\ **\ len(down\_blocks)\ \textcolor{keywordflow}{if}\ down\_blocks\ \textcolor{keywordflow}{else}\ 1}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00925}00925\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00926}00926\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ latents.shape}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00927}00927\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_D\ =\ (D\ //\ downsample\_factor)\ *\ downsample\_factor}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00928}00928\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_H\ =\ (H\ //\ downsample\_factor)\ *\ downsample\_factor}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00929}00929\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_W\ =\ (W\ //\ downsample\_factor)\ *\ downsample\_factor}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00930}00930\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00931}00931\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (new\_D,\ new\_H,\ new\_W)\ !=\ (D,\ H,\ W):}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00932}00932\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ d0\ =\ (D\ -\/\ new\_D)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00933}00933\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ h0\ =\ (H\ -\/\ new\_H)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00934}00934\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ w0\ =\ (W\ -\/\ new\_W)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00935}00935\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latents\ =\ latents[:,\ :,\ d0:d0\ +\ new\_D,\ h0:h0\ +\ new\_H,\ w0:w0\ +\ new\_W]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00936}00936\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00937}00937\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Verify\ latent\ channels\ match\ diffusion\ model\ expectations}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00938}00938\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ first\_conv\_diff\ =\ next((m\ \textcolor{keywordflow}{for}\ m\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}.modules()\ \textcolor{keywordflow}{if}\ isinstance(m,\ torch.nn.Conv3d)),\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00939}00939\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ expected\_latent\_ch\ =\ first\_conv\_diff.in\_channels\ \textcolor{keywordflow}{if}\ first\_conv\_diff\ \textcolor{keywordflow}{else}\ latents.shape[1]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00940}00940\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00941}00941\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ latents.shape[1]\ !=\ expected\_latent\_ch:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00942}00942\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00943}00943\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Latent\ channel\ mismatch:\ diffusion\ model\ expects\ \{expected\_latent\_ch\}\ channels,\ "{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00944}00944\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}but\ autoencoder\ produces\ \{latents.shape[1]\}\ channels"{}}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00945}00945\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00946}00946\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00947}00947\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ generates\ random\ noise}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00948}00948\ \ \ \ \ \ \ \ \ \ \ \ \ noise\ =\ torch.randn\_like(latents)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00949}00949\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00950}00950\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ generates\ random\ Timesteps}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00951}00951\ \ \ \ \ \ \ \ \ \ \ \ \ timesteps\ =\ torch.randint(0,\ inferer.scheduler.num\_train\_timesteps,\ (images.shape[0],),\ device=self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}}).long()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00952}00952\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00953}00953\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ noise\ to\ the\ latents\ to\ create\ x\_t}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00954}00954\ \ \ \ \ \ \ \ \ \ \ \ \ noisy\_latents\ =\ inferer.scheduler.add\_noise(latents,\ noise,\ timesteps)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00955}00955\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00956}00956\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00957}00957\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Note:\ Running\ in\ unconditional\ mode\ (with\_conditioning=False)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00958}00958\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Context/conditioning\ has\ been\ disabled\ in\ system\_manager.py}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00959}00959\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00960}00960\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ energy\_feat\ =\ normalized\_energy.view(B,\ 1)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ [B,1]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00961}00961\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ bias\_feat\ \ \ =\ torch.ones\_like(energy\_feat)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ [B,1]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00962}00962\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ base\_ctx\ \ \ \ =\ torch.cat([energy\_feat,\ bias\_feat],\ dim=-\/1)\ \ \#\ [B,2]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00963}00963\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ proj\_ctx\ \ \ \ =\ self.context\_proj(base\_ctx)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ [B,cross\_attn\_dim]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00964}00964\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ context\_tensor\ =\ proj\_ctx.unsqueeze(1)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ [B,1,cross\_attn\_dim]}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00965}00965\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00966}00966\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/\ classifier‑free\ guidance\ dropout\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00967}00967\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ if\ torch.rand(1,\ device=self.device).item()\ <\ 0.1:}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00968}00968\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ \ \ \ context\_tensor\ =\ None\ \ \ \ \ \#\ unconditional\ pass}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00969}00969\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00970}00970\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Predict\ the\ noise\ component\ and\ optimise\ (unconditional)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00971}00971\ \ \ \ \ \ \ \ \ \ \ \ \ noise\_pred\ =\ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}(}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00972}00972\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ noisy\_latents,}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00973}00973\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timesteps=timesteps}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00974}00974\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00975}00975\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00976}00976\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ optimisation\ step\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00977}00977\ \ \ \ \ \ \ \ \ \ \ \ \ loss\ =\ F.mse\_loss(noise\_pred.float(),\ noise.float())}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00978}00978\ \ \ \ \ \ \ \ \ \ \ \ \ loss.backward()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00979}00979\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00980}00980\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ gradient‑clipping\ stabilises\ very\ small\ batches}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00981}00981\ \ \ \ \ \ \ \ \ \ \ \ \ clip\_grad\_norm\_(self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\_model}}.parameters(),\ max\_norm=1.0)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00982}00982\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00983}00983\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{optimizer\_diff}}.step()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00984}00984\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Crop\ original\ noise\ to\ match\ predicted\ noise\ spatial\ dimensions\ (symmetric)}}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00985}00985\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ noise.ndim\ ==\ noise\_pred.ndim\ \textcolor{keywordflow}{and}\ noise.shape[2:]\ !=\ noise\_pred.shape[2:]:}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00986}00986\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_,\ \_,\ Dn,\ Hn,\ Wn\ =\ noise\_pred.shape}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00987}00987\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ d0\ =\ (noise.shape[2]\ -\/\ Dn)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00988}00988\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ h0\ =\ (noise.shape[3]\ -\/\ Hn)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00989}00989\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ w0\ =\ (noise.shape[4]\ -\/\ Wn)\ //\ 2}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00990}00990\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ noise\ =\ noise[:,\ :,\ d0:d0\ +\ Dn,\ h0:h0\ +\ Hn,\ w0:w0\ +\ Wn]}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00991}00991\ \ \ \ \ \ \ \ \ \ \ \ \ epoch\_loss\ +=\ loss.item()}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00992}00992\ }
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00993}00993\ \ \ \ \ \ \ \ \ avg\_loss\ =\ epoch\_loss\ /\ (step\ +\ 1)}
+\DoxyCodeLine{\Hypertarget{training__pipeline_8py_source_l00994}00994\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ avg\_loss}
+
+\end{DoxyCode}

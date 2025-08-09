@@ -1,0 +1,140 @@
+\doxysection{inference\+\_\+module\+\_\+standalone Namespace Reference}
+\hypertarget{namespaceinference__module__standalone}{}\label{namespaceinference__module__standalone}\index{inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_a513b2c4c81726c8bc3ef4d19abeaacfa}{load\+\_\+ct}} (Path path)
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_a9612a4d0349fc748a04f3ae5698f54fc}{create\+\_\+dose\+\_\+visualization}} (dose\+\_\+array, output\+\_\+path, title="{}Dose Distribution"{}, input\+\_\+path=None)
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_aa84a574fcf43ff996449ae618705970e}{save\+\_\+dose}} (Path path, np.\+ndarray dose, affine=None)
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_ad12767de95907673d31f53656b56fbaa}{save\+\_\+nifti\+\_\+with\+\_\+manifest}} (dose\+\_\+array, output\+\_\+path, root\+\_\+dir="{}."{})
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_a9314e1aaceb9180a0aa6aac3f07153ae}{load\+\_\+models\+\_\+from\+\_\+checkpoint}} (checkpoint\+\_\+path, energies, device=\textquotesingle{}cpu\textquotesingle{})
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_ab8fc90345cce52fd3c124ba3a64c494e}{get\+\_\+gaussian\+\_\+quadrature\+\_\+4point}} (energy\+\_\+min=3.\+47, energy\+\_\+max=46.\+53)
+\item 
+\mbox{\hyperlink{namespaceinference__module__standalone_ac707fddb66ee7b1d3a29150e312e2897}{main}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{namespaceinference__module__standalone_a9671136412ab815c4761ce23fcdbaa41}{has\+\_\+nibabel}} = True
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Standalone inference script for radiotherapy dose prediction using the original InferenceModule.
+This script uses the InferenceModule from sourcecode/ directory.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespaceinference__module__standalone_a9612a4d0349fc748a04f3ae5698f54fc}\index{inference\_module\_standalone@{inference\_module\_standalone}!create\_dose\_visualization@{create\_dose\_visualization}}
+\index{create\_dose\_visualization@{create\_dose\_visualization}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{create\_dose\_visualization()}{create\_dose\_visualization()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_a9612a4d0349fc748a04f3ae5698f54fc} 
+inference\+\_\+module\+\_\+standalone.\+create\+\_\+dose\+\_\+visualization (\begin{DoxyParamCaption}\item[{}]{dose\+\_\+array}{, }\item[{}]{output\+\_\+path}{, }\item[{}]{title}{ = {\ttfamily "{}Dose~Distribution"{}}, }\item[{}]{input\+\_\+path}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Create PNG visualization of dose distribution with optional ground truth comparison.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00049}{49}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_ab8fc90345cce52fd3c124ba3a64c494e}\index{inference\_module\_standalone@{inference\_module\_standalone}!get\_gaussian\_quadrature\_4point@{get\_gaussian\_quadrature\_4point}}
+\index{get\_gaussian\_quadrature\_4point@{get\_gaussian\_quadrature\_4point}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{get\_gaussian\_quadrature\_4point()}{get\_gaussian\_quadrature\_4point()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_ab8fc90345cce52fd3c124ba3a64c494e} 
+inference\+\_\+module\+\_\+standalone.\+get\+\_\+gaussian\+\_\+quadrature\+\_\+4point (\begin{DoxyParamCaption}\item[{}]{energy\+\_\+min}{ = {\ttfamily 3.47}, }\item[{}]{energy\+\_\+max}{ = {\ttfamily 46.53}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Get 4-point Gaussian Quadrature nodes and weights for energy integration.
+Uses the available energies from the checkpoint with optimized weights for Gaussian dose distribution.
+
+Args:
+    energy_min (float): Minimum energy value (keV) - not used, kept for compatibility
+    energy_max (float): Maximum energy value (keV) - not used, kept for compatibility
+    
+Returns:
+    tuple: (energies, weights) for 4-point Gaussian Quadrature
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00465}{465}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_a513b2c4c81726c8bc3ef4d19abeaacfa}\index{inference\_module\_standalone@{inference\_module\_standalone}!load\_ct@{load\_ct}}
+\index{load\_ct@{load\_ct}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{load\_ct()}{load\_ct()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_a513b2c4c81726c8bc3ef4d19abeaacfa} 
+inference\+\_\+module\+\_\+standalone.\+load\+\_\+ct (\begin{DoxyParamCaption}\item[{Path}]{path}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Load CT data from .npy or .nii/.nii.gz file and return array and affine.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00036}{36}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_a9314e1aaceb9180a0aa6aac3f07153ae}\index{inference\_module\_standalone@{inference\_module\_standalone}!load\_models\_from\_checkpoint@{load\_models\_from\_checkpoint}}
+\index{load\_models\_from\_checkpoint@{load\_models\_from\_checkpoint}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{load\_models\_from\_checkpoint()}{load\_models\_from\_checkpoint()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_a9314e1aaceb9180a0aa6aac3f07153ae} 
+inference\+\_\+module\+\_\+standalone.\+load\+\_\+models\+\_\+from\+\_\+checkpoint (\begin{DoxyParamCaption}\item[{}]{checkpoint\+\_\+path}{, }\item[{}]{energies}{, }\item[{}]{device}{ = {\ttfamily \textquotesingle{}cpu\textquotesingle{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Load models from checkpoint and create models_by_energy dict for InferenceModule.
+
+Args:
+    checkpoint_path (str): Path to model checkpoint
+    energies (list): List of energy values
+    device (str): Device to load models on
+    
+Returns:
+    dict: models_by_energy dictionary
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00298}{298}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_ac707fddb66ee7b1d3a29150e312e2897}\index{inference\_module\_standalone@{inference\_module\_standalone}!main@{main}}
+\index{main@{main}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_ac707fddb66ee7b1d3a29150e312e2897} 
+inference\+\_\+module\+\_\+standalone.\+main (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00494}{494}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_aa84a574fcf43ff996449ae618705970e}\index{inference\_module\_standalone@{inference\_module\_standalone}!save\_dose@{save\_dose}}
+\index{save\_dose@{save\_dose}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{save\_dose()}{save\_dose()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_aa84a574fcf43ff996449ae618705970e} 
+inference\+\_\+module\+\_\+standalone.\+save\+\_\+dose (\begin{DoxyParamCaption}\item[{Path}]{path}{, }\item[{np.\+ndarray}]{dose}{, }\item[{}]{affine}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Save dose array to .npy or .nii/.nii.gz file using affine if available.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00247}{247}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+\Hypertarget{namespaceinference__module__standalone_ad12767de95907673d31f53656b56fbaa}\index{inference\_module\_standalone@{inference\_module\_standalone}!save\_nifti\_with\_manifest@{save\_nifti\_with\_manifest}}
+\index{save\_nifti\_with\_manifest@{save\_nifti\_with\_manifest}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{save\_nifti\_with\_manifest()}{save\_nifti\_with\_manifest()}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_ad12767de95907673d31f53656b56fbaa} 
+inference\+\_\+module\+\_\+standalone.\+save\+\_\+nifti\+\_\+with\+\_\+manifest (\begin{DoxyParamCaption}\item[{}]{dose\+\_\+array}{, }\item[{}]{output\+\_\+path}{, }\item[{}]{root\+\_\+dir}{ = {\ttfamily "{}."{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Save dose array as NIfTI file with optional manifest attachment for 3D GUI viewing.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00257}{257}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespaceinference__module__standalone_a9671136412ab815c4761ce23fcdbaa41}\index{inference\_module\_standalone@{inference\_module\_standalone}!has\_nibabel@{has\_nibabel}}
+\index{has\_nibabel@{has\_nibabel}!inference\_module\_standalone@{inference\_module\_standalone}}
+\doxysubsubsection{\texorpdfstring{has\_nibabel}{has\_nibabel}}
+{\footnotesize\ttfamily \label{namespaceinference__module__standalone_a9671136412ab815c4761ce23fcdbaa41} 
+bool inference\+\_\+module\+\_\+standalone.\+has\+\_\+nibabel = True}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module__standalone_8py_source_l00020}{20}} of file \mbox{\hyperlink{inference__module__standalone_8py_source}{inference\+\_\+module\+\_\+standalone.\+py}}.
+

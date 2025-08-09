@@ -1,0 +1,75 @@
+\doxysection{test\+\_\+gui Namespace Reference}
+\hypertarget{namespacetest__gui}{}\label{namespacetest__gui}\index{test\_gui@{test\_gui}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__gui_ac92416caf971cf2675d6d0cd09a08002}{qapp}} ()
+\item 
+\mbox{\hyperlink{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715}{window}} (\mbox{\hyperlink{namespacetest__gui_ac92416caf971cf2675d6d0cd09a08002}{qapp}}, qtbot, tmp\+\_\+path, monkeypatch)
+\item 
+\mbox{\hyperlink{namespacetest__gui_a4109c52243e2c16768ed4b24df85643e}{test\+\_\+initial\+\_\+button\+\_\+states}} (\mbox{\hyperlink{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715}{window}})
+\item 
+\mbox{\hyperlink{namespacetest__gui_a23f027793ecd082c505dc8f9faade8e6}{test\+\_\+energy\+\_\+range\+\_\+validation}} (\mbox{\hyperlink{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715}{window}}, monkeypatch)
+\item 
+\mbox{\hyperlink{namespacetest__gui_a6c53378bb6f5691d9dd3dbf38c8812ba}{test\+\_\+select\+\_\+input\+\_\+folder\+\_\+enables\+\_\+train}} (\mbox{\hyperlink{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715}{window}})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacetest__gui_ac92416caf971cf2675d6d0cd09a08002}\index{test\_gui@{test\_gui}!qapp@{qapp}}
+\index{qapp@{qapp}!test\_gui@{test\_gui}}
+\doxysubsubsection{\texorpdfstring{qapp()}{qapp()}}
+{\footnotesize\ttfamily \label{namespacetest__gui_ac92416caf971cf2675d6d0cd09a08002} 
+test\+\_\+gui.\+qapp (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Provides a single QApplication instance for all tests.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__gui_8py_source_l00009}{9}} of file \mbox{\hyperlink{test__gui_8py_source}{test\+\_\+gui.\+py}}.
+
+\Hypertarget{namespacetest__gui_a23f027793ecd082c505dc8f9faade8e6}\index{test\_gui@{test\_gui}!test\_energy\_range\_validation@{test\_energy\_range\_validation}}
+\index{test\_energy\_range\_validation@{test\_energy\_range\_validation}!test\_gui@{test\_gui}}
+\doxysubsubsection{\texorpdfstring{test\_energy\_range\_validation()}{test\_energy\_range\_validation()}}
+{\footnotesize\ttfamily \label{namespacetest__gui_a23f027793ecd082c505dc8f9faade8e6} 
+test\+\_\+gui.\+test\+\_\+energy\+\_\+range\+\_\+validation (\begin{DoxyParamCaption}\item[{}]{window}{, }\item[{}]{monkeypatch}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}calculate_dose raises an exception when min > max.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__gui_8py_source_l00051}{51}} of file \mbox{\hyperlink{test__gui_8py_source}{test\+\_\+gui.\+py}}.
+
+\Hypertarget{namespacetest__gui_a4109c52243e2c16768ed4b24df85643e}\index{test\_gui@{test\_gui}!test\_initial\_button\_states@{test\_initial\_button\_states}}
+\index{test\_initial\_button\_states@{test\_initial\_button\_states}!test\_gui@{test\_gui}}
+\doxysubsubsection{\texorpdfstring{test\_initial\_button\_states()}{test\_initial\_button\_states()}}
+{\footnotesize\ttfamily \label{namespacetest__gui_a4109c52243e2c16768ed4b24df85643e} 
+test\+\_\+gui.\+test\+\_\+initial\+\_\+button\+\_\+states (\begin{DoxyParamCaption}\item[{}]{window}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Dose, Train, and Visualize buttons are initially disabled.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__gui_8py_source_l00045}{45}} of file \mbox{\hyperlink{test__gui_8py_source}{test\+\_\+gui.\+py}}.
+
+\Hypertarget{namespacetest__gui_a6c53378bb6f5691d9dd3dbf38c8812ba}\index{test\_gui@{test\_gui}!test\_select\_input\_folder\_enables\_train@{test\_select\_input\_folder\_enables\_train}}
+\index{test\_select\_input\_folder\_enables\_train@{test\_select\_input\_folder\_enables\_train}!test\_gui@{test\_gui}}
+\doxysubsubsection{\texorpdfstring{test\_select\_input\_folder\_enables\_train()}{test\_select\_input\_folder\_enables\_train()}}
+{\footnotesize\ttfamily \label{namespacetest__gui_a6c53378bb6f5691d9dd3dbf38c8812ba} 
+test\+\_\+gui.\+test\+\_\+select\+\_\+input\+\_\+folder\+\_\+enables\+\_\+train (\begin{DoxyParamCaption}\item[{}]{window}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}select_input_folder enables the train_button when structure is correct.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__gui_8py_source_l00069}{69}} of file \mbox{\hyperlink{test__gui_8py_source}{test\+\_\+gui.\+py}}.
+
+\Hypertarget{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715}\index{test\_gui@{test\_gui}!window@{window}}
+\index{window@{window}!test\_gui@{test\_gui}}
+\doxysubsubsection{\texorpdfstring{window()}{window()}}
+{\footnotesize\ttfamily \label{namespacetest__gui_ac30d076c3c0b9c6debaef431390d3715} 
+test\+\_\+gui.\+window (\begin{DoxyParamCaption}\item[{}]{qapp}{, }\item[{}]{qtbot}{, }\item[{}]{tmp\+\_\+path}{, }\item[{}]{monkeypatch}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Creates a MainWindow, constructs a dummy dataset in tmp_path,
+patches QFileDialog.select_input_folder, and returns the window.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__gui_8py_source_l00015}{15}} of file \mbox{\hyperlink{test__gui_8py_source}{test\+\_\+gui.\+py}}.
+

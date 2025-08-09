@@ -1,0 +1,95 @@
+\doxysection{test\+\_\+gui\+\_\+inference.\+py}
+\hypertarget{test__gui__inference_8py_source}{}\label{test__gui__inference_8py_source}\index{tests/test\_gui\_inference.py@{tests/test\_gui\_inference.py}}
+\mbox{\hyperlink{test__gui__inference_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00001}\mbox{\hyperlink{namespacetest__gui__inference}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00003}00003\ \textcolor{stringliteral}{Test\ that\ the\ GUI\ would\ produce\ corrected\ inference\ output}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00006}00006\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00008}00008\ sys.path.insert(0,\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'sourcecode'})))}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00010}00010\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00011}00011\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00012}00012\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00014}\mbox{\hyperlink{namespacetest__gui__inference_a2723afdb96d229a916e3e444307ba145}{00014}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__gui__inference_a2723afdb96d229a916e3e444307ba145}{test\_gui\_inference}}():}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00015}00015\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Simulate\ what\ the\ GUI\ would\ do\ for\ inference"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00016}00016\ \ \ \ \ print(\textcolor{stringliteral}{"{}Testing\ GUI\ inference\ path..."{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00017}00017\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00018}00018\ \ \ \ \ \textcolor{comment}{\#\ Use\ the\ same\ real\ training\ data}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00019}00019\ \ \ \ \ input\_path\ =\ \textcolor{stringliteral}{"{}traindata/11\_5/inputcube/235101017859661465075472232303048949736\_0.npy"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00020}00020\ \ \ \ \ ground\_truth\_path\ =\ \textcolor{stringliteral}{"{}traindata/11\_5/outputcube/235101017859661465075472232303048949736\_0.npy"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00021}00021\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00022}00022\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(input\_path):}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Input\ file\ not\ found:\ \{input\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00025}00025\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00026}00026\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(ground\_truth\_path):}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Ground\ truth\ file\ not\ found:\ \{ground\_truth\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00029}00029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00030}00030\ \ \ \ \ \textcolor{comment}{\#\ Load\ ground\ truth\ for\ comparison}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00031}00031\ \ \ \ \ ground\_truth\ =\ np.load(ground\_truth\_path)}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00032}00032\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Ground\ truth\ shape:\ \{ground\_truth.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00033}00033\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Ground\ truth\ range:\ \{ground\_truth.min():.6f\}\ to\ \{ground\_truth.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00034}00034\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00035}00035\ \ \ \ \ \textcolor{comment}{\#\ Create\ SystemManager\ with\ GUI-\/like\ configuration}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00036}00036\ \ \ \ \ system\_manager\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}."{}},}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ transforms=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ resolutions=[(64,\ 64,\ 64)],}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ quad\_energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ quad\_weights=[1.0],}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ device=torch.device(\textcolor{stringliteral}{'cpu'}),}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ num\_epochs=1,}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ learning\_rate=0.001,}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ patience=10,}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ cube\_size=64}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00049}00049\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00050}00050\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00051}00051\ \ \ \ \ \textcolor{comment}{\#\ Test\ inference\ exactly\ as\ the\ GUI\ would\ call\ it}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00052}00052\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Running\ inference\ (as\ GUI\ would)..."{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ output\_path\ =\ system\_manager.run\_inference(}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ input\_path,}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ model\_checkpoint=\textcolor{stringliteral}{"{}unified\_energy\_conditioned\_model\_res16.0\_energies3.ckpt"{}}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Inference\ completed\ successfully!"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Output\ saved\ to:\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ and\ analyze\ the\ result}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ img\ =\ nib.load(output\_path)}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ data\ =\ img.get\_fdata()}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Output\ shape:\ \{data.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Output\ range:\ \{data.min():.6f\}\ to\ \{data.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ correlation\ with\ ground\ truth}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ data.shape\ ==\ ground\_truth.shape:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ correlation\ =\ np.corrcoef(data.flatten(),\ ground\_truth.flatten())[0,\ 1]}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Correlation\ with\ ground\ truth:\ \{correlation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ the\ correlation\ is\ good\ (should\ be\ \string~0.23)}}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ correlation\ >\ 0.2:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ SUCCESS:\ GUI\ inference\ produces\ meaningful\ correlation!"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ FAILURE:\ GUI\ inference\ correlation\ too\ low"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ FAILURE:\ Shape\ mismatch\ -\/\ output\ \{data.shape\}\ vs\ ground\ truth\ \{ground\_truth.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ ERROR\ during\ inference:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00088}00088\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__gui__inference_8py_source_l00089}00089\ \ \ \ \ \mbox{\hyperlink{namespacetest__gui__inference}{test\_gui\_inference}}()}
+
+\end{DoxyCode}

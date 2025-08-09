@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['p_5fhigh_0',['p_high',['../namespacevisualize_t_e_s_t.html#a7334a1327b3ed65dbb89657046c6d089',1,'visualizeTEST']]],
+  ['p_5flow_1',['p_low',['../namespacevisualize_t_e_s_t.html#a536026ff091c61820364d08c73089ff9',1,'visualizeTEST']]],
+  ['patch_5frecords_2',['patch_records',['../classdata__management_1_1_hotspot_patch_dataset.html#a2557e030ff591ff83df6a2f1aa9e59cb',1,'data_management::HotspotPatchDataset']]],
+  ['patch_5fsize_3',['patch_size',['../classdata__management_1_1_hotspot_patch_dataset.html#ad08c786109d35ce7b500757eb211175b',1,'data_management::HotspotPatchDataset']]],
+  ['patch_5fstats_4',['patch_stats',['../classdata__management_1_1_hotspot_patch_dataset.html#a0b5e899c7d4e77e326168d01d05256dd',1,'data_management::HotspotPatchDataset']]],
+  ['patience_5',['patience',['../classparameter__manager_1_1_parameter_manager.html#a4a292c72e5bf638ab2c5331010d96848',1,'parameter_manager.ParameterManager.patience'],['../classsystem__manager_1_1_system_manager.html#ab3757642aaced79e51c245a0ca12a350',1,'system_manager.SystemManager.patience'],['../classtraining__pipeline_1_1_early_stopping.html#a9922effa7a4b495facf80281b4de2d89',1,'training_pipeline.EarlyStopping.patience']]],
+  ['patience_5fspin_6',['patience_spin',['../classgui_1_1_main_window.html#a5b53e71ba059ffe984246436bd9c4d91',1,'gui::MainWindow']]],
+  ['perceptual_5floss_7',['perceptual_loss',['../classtraining__pipeline_1_1_autoencoder_trainer.html#aa418db301054beefba1c45160aa486b6',1,'training_pipeline::AutoencoderTrainer']]],
+  ['perceptual_5fweight_8',['perceptual_weight',['../classtraining__pipeline_1_1_autoencoder_trainer.html#af64142b9a2159a927d26db40c32d4e5f',1,'training_pipeline::AutoencoderTrainer']]],
+  ['physical_5finput_9',['physical_input',['../namespacevalidate__energy__conditioning.html#a2947e9ea79a00c2bd513f56f9afdcb42',1,'validate_energy_conditioning']]],
+  ['pm_10',['pm',['../classgui_1_1_main_window.html#a00b64bc11a5b3a052457abe6eaf9c006',1,'gui::MainWindow']]],
+  ['pred1_11',['pred1',['../namespacevalidate__energy__conditioning.html#aa87ffea40e2d05a26aa4d5cc87ffe3f9',1,'validate_energy_conditioning']]],
+  ['pred2_12',['pred2',['../namespacevalidate__energy__conditioning.html#a5c1eb4bdadb863f9558f0b852d199ab8',1,'validate_energy_conditioning']]],
+  ['pred_5fmax_13',['pred_max',['../namespacevalidate__energy__conditioning.html#a257a0ed721119aa265f9234b63a2f172',1,'validate_energy_conditioning']]],
+  ['pred_5fmean_14',['pred_mean',['../namespacevalidate__energy__conditioning.html#adbd6a08bb35d8cfe0117e9b183c04da3',1,'validate_energy_conditioning']]],
+  ['pred_5fmin_15',['pred_min',['../namespacevalidate__energy__conditioning.html#a5deeab0ac070c14390395bb3402b4cab',1,'validate_energy_conditioning']]],
+  ['pred_5fstd_16',['pred_std',['../namespacevalidate__energy__conditioning.html#ae61385a63980c52b59c1aaa489490885',1,'validate_energy_conditioning']]],
+  ['prediction_17',['prediction',['../namespacevalidate__energy__conditioning.html#afca2130574e6d52969fb1e20a41f0478',1,'validate_energy_conditioning']]],
+  ['prediction_5fnp_18',['prediction_np',['../namespacevalidate__energy__conditioning.html#aa0c11fd10d5c56e50a958c724119b47b',1,'validate_energy_conditioning']]],
+  ['predictions_19',['predictions',['../namespacevalidate__energy__conditioning.html#a2426c9a6f763f83e98edea7cfb5517e0',1,'validate_energy_conditioning']]],
+  ['progress_20',['progress',['../classgui_1_1_training_worker.html#a475e81fd5991f20fc3c16756be9b133b',1,'gui::TrainingWorker']]],
+  ['project_5froot_21',['project_root',['../namespacestandalone__training.html#a2dc4cb61949c478cdbe710af0946a845',1,'standalone_training']]]
+];

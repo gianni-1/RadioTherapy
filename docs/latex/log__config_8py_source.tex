@@ -1,0 +1,39 @@
+\doxysection{log\+\_\+config.\+py}
+\hypertarget{log__config_8py_source}{}\label{log__config_8py_source}\index{sourcecode/log\_config.py@{sourcecode/log\_config.py}}
+\mbox{\hyperlink{log__config_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00001}\mbox{\hyperlink{namespacelog__config}{00001}}\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00002}00002\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00003}00003\ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00004}00004\ \textcolor{comment}{\#\ Configure\ root\ logger\ to\ output\ into\ radiotherapy.log\ in\ project\ root}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00005}\mbox{\hyperlink{namespacelog__config_a2fb8cb7264210ad2cfc1733f945238b2}{00005}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacelog__config_a2fb8cb7264210ad2cfc1733f945238b2}{configure\_logging}}():}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00006}00006\ \ \ \ \ \textcolor{comment}{\#\ Always\ use\ the\ project\ root\ for\ the\ log\ file}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00007}00007\ \ \ \ \ \textcolor{comment}{\#\ Get\ the\ directory\ of\ this\ script\ (sourcecode/)}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00008}00008\ \ \ \ \ script\_dir\ =\ os.path.dirname(os.path.abspath(\_\_file\_\_))}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00009}00009\ \ \ \ \ \textcolor{comment}{\#\ Go\ up\ one\ level\ to\ the\ project\ root}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00010}00010\ \ \ \ \ project\_root\ =\ os.path.dirname(script\_dir)}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00011}00011\ \ \ \ \ log\_file\ =\ os.path.join(project\_root,\ \textcolor{stringliteral}{'radiotherapy.log'})}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00012}00012\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00013}00013\ \ \ \ \ \textcolor{comment}{\#\ Clear\ any\ existing\ handlers\ to\ avoid\ duplicates}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00014}00014\ \ \ \ \ root\_logger\ =\ logging.getLogger()}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00015}00015\ \ \ \ \ \textcolor{keywordflow}{for}\ handler\ \textcolor{keywordflow}{in}\ root\_logger.handlers[:]:}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00016}00016\ \ \ \ \ \ \ \ \ root\_logger.removeHandler(handler)}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00017}00017\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00018}00018\ \ \ \ \ \textcolor{comment}{\#\ Configure\ logging\ with\ file\ handler}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00019}00019\ \ \ \ \ logging.basicConfig(}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00020}00020\ \ \ \ \ \ \ \ \ filename=log\_file,}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00021}00021\ \ \ \ \ \ \ \ \ filemode=\textcolor{stringliteral}{'a'},}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ format=\textcolor{stringliteral}{'\%(asctime)s\ \%(levelname)s:\%(name)s:\ \%(message)s'},}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ level=logging.INFO,}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ force=\textcolor{keyword}{True}\ \ \textcolor{comment}{\#\ Force\ reconfiguration}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00025}00025\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00026}00026\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00027}00027\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Logging\ configured\ to\ write\ to:\ \{log\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00029}00029\ \textcolor{comment}{\#\ Ensure\ logging\ is\ configured\ on\ import}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00030}00030\ \mbox{\hyperlink{namespacelog__config_a2fb8cb7264210ad2cfc1733f945238b2}{configure\_logging}}()}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00032}00032\ \textcolor{comment}{\#\ Provide\ module-\/level\ logger}}
+\DoxyCodeLine{\Hypertarget{log__config_8py_source_l00033}\mbox{\hyperlink{namespacelog__config_a6792484558582ce7565c118ff2f3736f}{00033}}\ logger\ =\ logging.getLogger(\textcolor{stringliteral}{'radiotherapy'})}
+
+\end{DoxyCode}

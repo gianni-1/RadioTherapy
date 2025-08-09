@@ -1,0 +1,252 @@
+\doxysection{validate\+\_\+energy\+\_\+conditioning.\+py}
+\hypertarget{validate__energy__conditioning_8py_source}{}\label{validate__energy__conditioning_8py_source}\index{tests/validate\_energy\_conditioning.py@{tests/validate\_energy\_conditioning.py}}
+\mbox{\hyperlink{validate__energy__conditioning_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00001}\mbox{\hyperlink{namespacevalidate__energy__conditioning}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00003}00003\ \textcolor{stringliteral}{Validation\ script\ to\ test\ if\ energy\ conditioning\ actually\ works}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00004}00004\ \textcolor{stringliteral}{This\ script\ tests\ the\ trained\ unified\ model\ to\ see\ if\ it\ produces\ different\ outputs\ for\ different\ energies}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00005}00005\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00008}00008\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00009}00009\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00010}00010\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00011}00011\ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00013}00013\ \textcolor{comment}{\#\ Add\ paths}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00014}00014\ sys.path.append(\textcolor{stringliteral}{'sourcecode'})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00015}00015\ os.environ[\textcolor{stringliteral}{'PYTHONPATH'}]\ =\ \textcolor{stringliteral}{'/Users/giannigagliardi/Documents/Git/RadioTherapy'}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00017}00017\ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00018}00018\ \ \ \ \ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00019}00019\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00020}00020\ \ \ \ \ print(\textcolor{stringliteral}{"{}🔍\ Energy\ Conditioning\ Validation\ Test"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00021}00021\ \ \ \ \ print(\textcolor{stringliteral}{"{}="{}}\ *\ 50)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00022}00022\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00023}00023\ \ \ \ \ \textcolor{comment}{\#\ Setup\ basic\ logging}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00024}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a29b0d09e60a09ffda28ce1ea2760c52c}{00024}}\ \ \ \ \ logging.basicConfig(level=logging.INFO)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00025}00025\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00026}00026\ \ \ \ \ \textcolor{comment}{\#\ Set\ device}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00027}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2e8ec894c7f852f77a5365fb813417eb}{00027}}\ \ \ \ \ device\ =\ torch.device(\textcolor{stringliteral}{"{}cuda"{}}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}cpu"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00028}00028\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Using\ device:\ \{device\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00029}00029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00030}00030\ \ \ \ \ \textcolor{comment}{\#\ Test\ configuration}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00031}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a7f7b1da0712c121f10a19acd6d0b7dab}{00031}}\ \ \ \ \ config\ =\ \{}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'root\_dir'}:\ \textcolor{stringliteral}{'traindata'},}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'resolutions'}:\ [16.0],}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energies'}:\ [11.5,\ 15.75,\ 34.25],\ \ \textcolor{comment}{\#\ Test\ all\ three\ energies}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'batch\_size'}:\ 1,}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'cube\_size'}:\ (32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'model\_path'}:\ \textcolor{stringliteral}{'/Users/giannigagliardi/Documents/Git/RadioTherapy/unified\_energy\_conditioned\_model\_res16.0\_energies2.ckpt'}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00038}00038\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00039}00039\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00040}00040\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Model\ path:\ \{config['model\_path']\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00041}00041\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Testing\ energies:\ \{config['energies']\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00042}00042\ \ \ \ \ print()}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00043}00043\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00044}00044\ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ model\ exists}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00045}00045\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(config[\textcolor{stringliteral}{'model\_path'}]):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ Model\ file\ not\ found:\ \{config['model\_path']\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ exit(1)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00048}00048\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00049}00049\ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ model\ checkpoint\ directly}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00050}00050\ \ \ \ \ print(\textcolor{stringliteral}{"{}Loading\ model\ checkpoint..."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00051}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a27c9fa5fe3f1b1202cc726db87b8d4c8}{00051}}\ \ \ \ \ checkpoint\ =\ torch.load(config[\textcolor{stringliteral}{'model\_path'}],\ map\_location=device)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00052}00052\ \ \ \ \ print(\textcolor{stringliteral}{"{}\ Model\ checkpoint\ loaded\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00053}00053\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00054}00054\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Checkpoint\ keys:\ \{list(checkpoint.keys())\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00055}00055\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00056}00056\ \ \ \ \ \textcolor{comment}{\#\ Get\ the\ actual\ training\ configuration\ from\ the\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00057}00057\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'training\_config'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00058}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a1ad4a425e8d4083a4431fedba0e0b751}{00058}}\ \ \ \ \ \ \ \ \ training\_config\ =\ checkpoint[\textcolor{stringliteral}{'training\_config'}]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Training\ config:\ \{training\_config\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00060}00060\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00061}00061\ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ autoencoder\ architecture\ from\ our\ training\ pipeline}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00062}00062\ \ \ \ \ \textcolor{keyword}{from}\ generative.networks.nets\ \textcolor{keyword}{import}\ AutoencoderKL}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00063}00063\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00064}00064\ \ \ \ \ \textcolor{comment}{\#\ Initialize\ autoencoder\ with\ the\ ACTUAL\ parameters\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00065}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a042823c3aa8c22d893eb9dad167434eb}{00065}}\ \ \ \ \ autoencoder\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ CT\ +\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ out\_channels=1,\ \textcolor{comment}{\#\ Output\ dose}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),\ \ \ \ \textcolor{comment}{\#\ Correct\ configuration\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ latent\_channels=2,\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Correct\ configuration\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ num\_res\_blocks=1,\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Correct\ configuration\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ norm\_num\_groups=8,\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Correct\ configuration\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),\ \ \textcolor{comment}{\#\ Correct\ configuration\ from\ training}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00074}00074\ \ \ \ \ ).to(device)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00075}00075\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00076}00076\ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ trained\ weights}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00077}00077\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'autoencoder'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ autoencoder.load\_state\_dict(checkpoint[\textcolor{stringliteral}{'autoencoder'}])}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ Autoencoder\ state\ dict\ loaded\ from\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00080}00080\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ Autoencoder\ not\ found\ in\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ exit(1)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00083}00083\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00084}00084\ \ \ \ \ autoencoder.eval()}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00085}00085\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00086}00086\ \ \ \ \ print(\textcolor{stringliteral}{"{}\ Autoencoder\ model\ loaded\ and\ ready\ for\ testing"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00087}00087\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00088}00088\ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ same\ input\ data\ but\ test\ with\ different\ energy\ values}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00089}00089\ \ \ \ \ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)nLoading\ test\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00090}00090\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00091}00091\ \ \ \ \ \textcolor{comment}{\#\ Load\ a\ sample\ input\ (we'll\ use\ the\ same\ physical\ input\ but\ different\ energy\ channels)}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00092}\mbox{\hyperlink{namespacevalidate__energy__conditioning_abc5cc87ade57535d6a2a5b25777aa879}{00092}}\ \ \ \ \ sample\_input\_path\ =\ \textcolor{stringliteral}{'traindata/11\_5/inputcube/235101017859661465075472232303048949736\_0.npy'}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00093}\mbox{\hyperlink{namespacevalidate__energy__conditioning_abf0f955bff2359d615db0324c6f9b812}{00093}}\ \ \ \ \ sample\_output\_path\ =\ \textcolor{stringliteral}{'traindata/11\_5/outputcube/235101017859661465075472232303048949736\_0.npy'}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00094}00094\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00095}00095\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(sample\_input\_path):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ Sample\ input\ not\ found:\ \{sample\_input\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ exit(1)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00098}00098\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00099}00099\ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ physical\ dose\ distribution\ (first\ channel)}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00100}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2947e9ea79a00c2bd513f56f9afdcb42}{00100}}\ \ \ \ \ physical\_input\ =\ np.load(sample\_input\_path)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00101}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a8d96e3c11fddde65bc1e93fdb73411de}{00101}}\ \ \ \ \ ground\_truth\ =\ np.load(sample\_output\_path)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00102}00102\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00103}00103\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Loaded\ input\ shape:\ \{physical\_input.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00104}00104\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Loaded\ ground\ truth\ shape:\ \{ground\_truth.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00105}00105\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00106}00106\ \ \ \ \ \textcolor{comment}{\#\ Test\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00107}00107\ \ \ \ \ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n🧪\ Testing\ Energy\ Conditioning..."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00108}00108\ \ \ \ \ print(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 30)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00109}00109\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00110}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3811e986dd0e2e9cf36da57ec1e0a4dd}{00110}}\ \ \ \ \ results\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00111}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2426c9a6f763f83e98edea7cfb5517e0}{00111}}\ \ \ \ \ predictions\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00112}00112\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00113}00113\ \ \ \ \ \textcolor{keywordflow}{for}\ energy\ \textcolor{keywordflow}{in}\ config[\textcolor{stringliteral}{'energies'}]:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)nTesting\ energy:\ \{energy\}\ MeV"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ energy-\/conditioned\ input}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Channel\ 0:\ physical\ dose\ distribution}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Channel\ 1:\ energy\ value\ (normalized)}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00119}\mbox{\hyperlink{namespacevalidate__energy__conditioning_ad4d6c40e0e52b4be86db2f36f4775452}{00119}}\ \ \ \ \ \ \ \ \ energy\_normalized\ =\ energy\ /\ 40.0\ \ \textcolor{comment}{\#\ Normalize\ energy\ to\ [0,1]\ range\ approximately}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ 2-\/channel\ input}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00122}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3b8c46e9463cdca93245f2515e141d51}{00122}}\ \ \ \ \ \ \ \ \ input\_2channel\ =\ np.zeros((2,\ *physical\_input.shape))}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ input\_2channel[0]\ =\ physical\_input\ \ \textcolor{comment}{\#\ Physical\ dose}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ input\_2channel[1]\ =\ energy\_normalized\ \ \textcolor{comment}{\#\ Energy\ channel}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Convert\ to\ tensor\ and\ add\ batch\ dimension}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00127}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a0a64885b8a4ded6c90278899892279af}{00127}}\ \ \ \ \ \ \ \ \ input\_tensor\ =\ torch.tensor(input\_2channel,\ dtype=torch.float32).unsqueeze(0).to(device)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Input\ tensor\ shape:\ \{input\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Energy\ channel\ value:\ \{energy\_normalized:.4f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00134}\mbox{\hyperlink{namespacevalidate__energy__conditioning_afca2130574e6d52969fb1e20a41f0478}{00134}}\ \ \ \ \ \ \ \ \ \ \ \ \ prediction\ =\ \mbox{\hyperlink{namespacevalidate__energy__conditioning_a042823c3aa8c22d893eb9dad167434eb}{autoencoder}}(input\_tensor)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ AutoencoderKL\ returns\ a\ tuple\ (reconstruction,\ latent),\ we\ want\ the\ reconstruction}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(prediction,\ tuple):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prediction\ =\ prediction[0]\ \ \textcolor{comment}{\#\ Get\ the\ reconstruction}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00138}\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{00138}}\ \ \ \ \ \ \ \ \ \ \ \ \ prediction\_np\ =\ prediction.cpu().numpy().squeeze()}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ predictions[energy]\ =\ prediction\_np}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ some\ statistics}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00143}\mbox{\hyperlink{namespacevalidate__energy__conditioning_adbd6a08bb35d8cfe0117e9b183c04da3}{00143}}\ \ \ \ \ \ \ \ \ pred\_mean\ =\ np.mean(prediction\_np)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00144}\mbox{\hyperlink{namespacevalidate__energy__conditioning_ae61385a63980c52b59c1aaa489490885}{00144}}\ \ \ \ \ \ \ \ \ pred\_std\ =\ np.std(prediction\_np)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00145}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a257a0ed721119aa265f9234b63a2f172}{00145}}\ \ \ \ \ \ \ \ \ pred\_max\ =\ np.max(prediction\_np)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00146}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a5deeab0ac070c14390395bb3402b4cab}{00146}}\ \ \ \ \ \ \ \ \ pred\_min\ =\ np.min(prediction\_np)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ results[energy]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'mean'}:\ pred\_mean,}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'std'}:\ pred\_std,}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'max'}:\ pred\_max,}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'min'}:\ pred\_min}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Prediction\ statistics:"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ \ Mean:\ \{pred\_mean:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ \ Std:\ \ \{pred\_std:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ \ Max:\ \ \{pred\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ \ Min:\ \ \{pred\_min:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00160}00160\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00161}00161\ \ \ \ \ \textcolor{comment}{\#\ Compare\ predictions\ between\ energies}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00162}00162\ \ \ \ \ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n\ Energy\ Conditioning\ Analysis"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00163}00163\ \ \ \ \ print(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 30)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00164}00164\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00165}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a9bb1d26860b8f14ca10cb22d98f96c86}{00165}}\ \ \ \ \ energy\_list\ =\ list(config[\textcolor{stringliteral}{'energies'}])}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00166}00166\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00167}00167\ \ \ \ \ \textcolor{comment}{\#\ Calculate\ differences\ between\ energy\ predictions}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00168}00168\ \ \ \ \ \textcolor{keywordflow}{for}\ i\ \textcolor{keywordflow}{in}\ range(len(energy\_list)):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ j\ \textcolor{keywordflow}{in}\ range(i\ +\ 1,\ len(energy\_list)):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00170}\mbox{\hyperlink{namespacevalidate__energy__conditioning_accd39e090e62335192692e3ca2ea4f26}{00170}}\ \ \ \ \ \ \ \ \ \ \ \ \ energy1,\ energy2\ =\ energy\_list[i],\ energy\_list[j]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00171}\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa87ffea40e2d05a26aa4d5cc87ffe3f9}{00171}}\ \ \ \ \ \ \ \ \ \ \ \ \ pred1,\ pred2\ =\ predictions[energy1],\ predictions[energy2]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ various\ difference\ metrics}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00174}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a62e50fe0b163bbff824a2cd387dca818}{00174}}\ \ \ \ \ \ \ \ \ \ \ \ \ mse\ =\ np.mean((pred1\ -\/\ pred2)\ **\ 2)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00175}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a71bbcdb7331dd0bcafa6b9f7f940bf95}{00175}}\ \ \ \ \ \ \ \ \ \ \ \ \ mae\ =\ np.mean(np.abs(pred1\ -\/\ pred2))}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00176}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a1258c9f356e4ec553f3e8093cecb5a08}{00176}}\ \ \ \ \ \ \ \ \ \ \ \ \ max\_diff\ =\ np.max(np.abs(pred1\ -\/\ pred2))}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00177}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a29d88c4645f4a8522c7a3b5b6432623a}{00177}}\ \ \ \ \ \ \ \ \ \ \ \ \ correlation\ =\ np.corrcoef(pred1.flatten(),\ pred2.flatten())[0,\ 1]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n\{energy1\}\ MeV\ vs\ \{energy2\}\ MeV:"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ MSE:\ \ \ \ \ \ \ \ \ \{mse:.8f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ MAE:\ \ \ \ \ \ \ \ \ \{mae:.8f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Max\ Diff:\ \ \ \ \{max\_diff:.8f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ Correlation:\ \{correlation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Energy\ conditioning\ is\ working\ if:}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 1.\ MSE\ >\ 0\ (predictions\ are\ different)}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 2.\ Correlation\ <\ 1\ (not\ identical)}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 3.\ Differences\ are\ meaningful\ relative\ to\ the\ prediction\ scale}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ mse\ >\ 1e-\/8\ \textcolor{keywordflow}{and}\ correlation\ <\ 0.99:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ ENERGY\ CONDITIONING\ DETECTED\ -\/\ Model\ responds\ to\ energy!"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ mse\ <\ 1e-\/10:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ NO\ ENERGY\ CONDITIONING\ -\/\ Predictions\ are\ identical"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ \ \ \ WEAK\ ENERGY\ CONDITIONING\ -\/\ Small\ differences\ detected"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00196}00196\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00197}00197\ \ \ \ \ \textcolor{comment}{\#\ Statistical\ summary}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00198}00198\ \ \ \ \ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n📈\ Summary\ Statistics"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00199}00199\ \ \ \ \ print(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 20)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00200}00200\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00201}\mbox{\hyperlink{namespacevalidate__energy__conditioning_af9b68e974ff61248661442fb89b43581}{00201}}\ \ \ \ \ means\ =\ [results[e][\textcolor{stringliteral}{'mean'}]\ \textcolor{keywordflow}{for}\ e\ \textcolor{keywordflow}{in}\ energy\_list]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00202}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a259c770353d76248d96a6fdabe3878c1}{00202}}\ \ \ \ \ stds\ =\ [results[e][\textcolor{stringliteral}{'std'}]\ \textcolor{keywordflow}{for}\ e\ \textcolor{keywordflow}{in}\ energy\_list]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00203}00203\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00204}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a00415200f60d47738834e92a3ec47915}{00204}}\ \ \ \ \ mean\_variation\ =\ np.std(means)\ /\ np.mean(means)\ \textcolor{keywordflow}{if}\ np.mean(means)\ !=\ 0\ \textcolor{keywordflow}{else}\ 0}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00205}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a1e86de44d55e6f02eee53a078abac8fa}{00205}}\ \ \ \ \ std\_variation\ =\ np.std(stds)\ /\ np.mean(stds)\ \textcolor{keywordflow}{if}\ np.mean(stds)\ !=\ 0\ \textcolor{keywordflow}{else}\ 0}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00206}00206\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00207}00207\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Mean\ variation\ across\ energies:\ \{mean\_variation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00208}00208\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Std\ variation\ across\ energies:\ \ \{std\_variation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00209}00209\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00210}00210\ \ \ \ \ \textcolor{comment}{\#\ Overall\ assessment}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00211}00211\ \ \ \ \ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n🎯\ Overall\ Assessment"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00212}00212\ \ \ \ \ print(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 20)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00213}00213\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00214}00214\ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ any\ meaningful\ differences\ exist}}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00215}\mbox{\hyperlink{namespacevalidate__energy__conditioning_ab5e0d67e3e9d2a8cbfd098e9ad79c602}{00215}}\ \ \ \ \ max\_mse\ =\ 0}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00216}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a78eff7cbb1c9b887d2dcfbec2ccadfa3}{00216}}\ \ \ \ \ min\_correlation\ =\ 1.0}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00217}00217\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00218}00218\ \ \ \ \ \textcolor{keywordflow}{for}\ i\ \textcolor{keywordflow}{in}\ range(len(energy\_list)):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ j\ \textcolor{keywordflow}{in}\ range(i\ +\ 1,\ len(energy\_list)):}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ pred1,\ pred2\ =\ predictions[energy\_list[i]],\ predictions[energy\_list[j]]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ mse\ =\ np.mean((pred1\ -\/\ pred2)\ **\ 2)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ correlation\ =\ np.corrcoef(pred1.flatten(),\ pred2.flatten())[0,\ 1]}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ max\_mse\ =\ max(max\_mse,\ mse)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ min\_correlation\ =\ min(min\_correlation,\ correlation)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00225}00225\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00226}00226\ \ \ \ \ \textcolor{keywordflow}{if}\ max\_mse\ >\ 1e-\/6\ \textcolor{keywordflow}{and}\ min\_correlation\ <\ 0.95:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ SUCCESS:\ Energy\ conditioning\ is\ working!"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ \ \ The\ model\ produces\ meaningfully\ different\ outputs\ for\ different\ energies."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ \ \ The\ original\ problem\ has\ been\ SOLVED!\ 🎉"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00230}00230\ \ \ \ \ \textcolor{keywordflow}{elif}\ max\_mse\ >\ 1e-\/8:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ \ PARTIAL\ SUCCESS:\ Weak\ energy\ conditioning\ detected."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ \ \ The\ model\ shows\ some\ response\ to\ energy,\ but\ may\ need\ more\ training."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00233}00233\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ FAILURE:\ No\ energy\ conditioning\ detected."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00235}00235\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}\ \ \ The\ model\ ignores\ the\ energy\ input.\ Problem\ NOT\ solved."{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00236}00236\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00237}00237\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)nMax\ MSE\ between\ energies:\ \{max\_mse:.2e\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00238}00238\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Min\ correlation\ between\ energies:\ \{min\_correlation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00239}00239\ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00240}00240\ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00241}00241\ \ \ \ \ print(f\textcolor{stringliteral}{"{}\ Error\ during\ validation:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00242}00242\ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00243}00243\ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00244}00244\ }
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00245}00245\ print(\textcolor{stringliteral}{"{}\(\backslash\)\(\backslash\)n"{}}\ +\ \textcolor{stringliteral}{"{}="{}}\ *\ 50)}
+\DoxyCodeLine{\Hypertarget{validate__energy__conditioning_8py_source_l00246}00246\ print(\textcolor{stringliteral}{"{}Energy\ conditioning\ validation\ complete!"{}})}
+
+\end{DoxyCode}

@@ -1,0 +1,152 @@
+\doxysection{gui.\+Inference\+Worker Class Reference}
+\hypertarget{classgui_1_1_inference_worker}{}\label{classgui_1_1_inference_worker}\index{gui.InferenceWorker@{gui.InferenceWorker}}
+Inheritance diagram for gui.\+Inference\+Worker\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classgui_1_1_inference_worker}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, str \mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\+\_\+file}}, str \mbox{\hyperlink{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}{model\+\_\+checkpoint}}, float \mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{min\+\_\+e}}, float \mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{max\+\_\+e}})
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_a5684b12112b69e4b723abb987d39ac23}{run}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\+\_\+file}} = ct\+\_\+file
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}{model\+\_\+checkpoint}} = model\+\_\+checkpoint
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{min\+\_\+e}} = min\+\_\+e
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{max\+\_\+e}} = max\+\_\+e
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_a599a7c1ce9419d48d3aec4c3c0900983}{finished}} = Signal(str)
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_ac980aaaa23c5c7004f07683f519db8a8}{error}} = Signal(str)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\+\_\+check\+\_\+canceled}} (self)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Worker to run inference in a separate thread, mirroring the standalone approach.
+Emits finished(output_path: str) on success, error(message: str) on failure.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00084}{84}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c}\index{gui.InferenceWorker@{gui.InferenceWorker}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c} 
+gui.\+Inference\+Worker.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{ct\+\_\+file}{, }\item[{str}]{model\+\_\+checkpoint}{, }\item[{float}]{min\+\_\+e}{, }\item[{float}]{max\+\_\+e}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00092}{92}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}\index{gui.InferenceWorker@{gui.InferenceWorker}!\_check\_canceled@{\_check\_canceled}}
+\index{\_check\_canceled@{\_check\_canceled}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{\_check\_canceled()}{\_check\_canceled()}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc} 
+gui.\+Inference\+Worker.\+\_\+check\+\_\+canceled (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00099}{99}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_a5684b12112b69e4b723abb987d39ac23}\index{gui.InferenceWorker@{gui.InferenceWorker}!run@{run}}
+\index{run@{run}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_a5684b12112b69e4b723abb987d39ac23} 
+gui.\+Inference\+Worker.\+run (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00107}{107}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}\index{gui.InferenceWorker@{gui.InferenceWorker}!ct\_file@{ct\_file}}
+\index{ct\_file@{ct\_file}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{ct\_file}{ct\_file}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c} 
+gui.\+Inference\+Worker.\+ct\+\_\+file = ct\+\_\+file}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00094}{94}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_ac980aaaa23c5c7004f07683f519db8a8}\index{gui.InferenceWorker@{gui.InferenceWorker}!error@{error}}
+\index{error@{error}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{error}{error}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_ac980aaaa23c5c7004f07683f519db8a8} 
+gui.\+Inference\+Worker.\+error = Signal(str)\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00090}{90}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_a599a7c1ce9419d48d3aec4c3c0900983}\index{gui.InferenceWorker@{gui.InferenceWorker}!finished@{finished}}
+\index{finished@{finished}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{finished}{finished}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_a599a7c1ce9419d48d3aec4c3c0900983} 
+gui.\+Inference\+Worker.\+finished = Signal(str)\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00089}{89}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}\index{gui.InferenceWorker@{gui.InferenceWorker}!max\_e@{max\_e}}
+\index{max\_e@{max\_e}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{max\_e}{max\_e}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce} 
+gui.\+Inference\+Worker.\+max\+\_\+e = max\+\_\+e}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00097}{97}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}\index{gui.InferenceWorker@{gui.InferenceWorker}!min\_e@{min\_e}}
+\index{min\_e@{min\_e}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{min\_e}{min\_e}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9} 
+gui.\+Inference\+Worker.\+min\+\_\+e = min\+\_\+e}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00096}{96}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}\index{gui.InferenceWorker@{gui.InferenceWorker}!model\_checkpoint@{model\_checkpoint}}
+\index{model\_checkpoint@{model\_checkpoint}!gui.InferenceWorker@{gui.InferenceWorker}}
+\doxysubsubsection{\texorpdfstring{model\_checkpoint}{model\_checkpoint}}
+{\footnotesize\ttfamily \label{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939} 
+gui.\+Inference\+Worker.\+model\+\_\+checkpoint = model\+\_\+checkpoint}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00095}{95}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{gui_8py}{gui.\+py}}\end{DoxyCompactItemize}

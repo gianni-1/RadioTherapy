@@ -1,0 +1,99 @@
+\doxysection{storage.\+py}
+\hypertarget{storage_8py_source}{}\label{storage_8py_source}\index{sourcecode/storage.py@{sourcecode/storage.py}}
+\mbox{\hyperlink{storage_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00001}\mbox{\hyperlink{namespacestorage}{00001}}\ \textcolor{comment}{\#\ storage.py}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00002}00002\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00003}00003\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00004}00004\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00005}00005\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00007}\mbox{\hyperlink{classstorage_1_1_storage}{00007}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classstorage_1_1_storage}{Storage}}:}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00008}00008\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00009}00009\ \textcolor{stringliteral}{\ \ \ \ The\ Storage\ module\ handles\ persistence\ tasks\ for\ the\ project.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00010}00010\ \textcolor{stringliteral}{\ \ \ \ It\ provides\ methods\ to\ save\ and\ load\ model\ checkpoints,\ save\ dose\ distributions,}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00011}00011\ \textcolor{stringliteral}{\ \ \ \ log\ errors,\ and\ export\ results.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00014}\mbox{\hyperlink{classstorage_1_1_storage_a1f5e759333557bcbc7872ee0266088d4}{00014}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_a1f5e759333557bcbc7872ee0266088d4}{\_\_init\_\_}}(self,\ model\_dir="{}models"{},\ log\_file="{}training\_log.txt"{}):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00015}00015\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Initializes\ the\ Storage\ module.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ model\_dir\ (str):\ Directory\ where\ model\ checkpoints\ and\ results\ are\ saved.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ log\_file\ (str):\ File\ path\ for\ the\ training\ log.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00022}\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{00022}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}}\ =\ model\_dir}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00023}\mbox{\hyperlink{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}{00023}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}{log\_file}}\ =\ log\_file}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ the\ model\ directory\ if\ it\ doesn't\ exist}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00025}00025\ \ \ \ \ \ \ \ \ os.makedirs(self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}},\ exist\_ok=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00027}\mbox{\hyperlink{classstorage_1_1_storage_ab8453cd2faad929c1300c361254f3f3b}{00027}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_ab8453cd2faad929c1300c361254f3f3b}{save\_model}}(self,\ model,\ filename):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00029}00029\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Saves\ the\ model's\ state\ dictionary\ to\ a\ file.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00030}00030\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00031}00031\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00032}00032\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ model\ (torch.nn.Module):\ The\ model\ to\ be\ saved.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00033}00033\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ filename\ (str):\ The\ filename\ (relative\ to\ model\_dir)\ to\ save\ the\ model.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ path\ =\ os.path.join(self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}},\ filename)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ torch.save(model.state\_dict(),\ path)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Model\ saved\ to\ \{path\}"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00039}\mbox{\hyperlink{classstorage_1_1_storage_a3817a4f9ee80aef8e86489d6e9df2db6}{00039}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_a3817a4f9ee80aef8e86489d6e9df2db6}{load\_model}}(self,\ model,\ filename,\ device=torch.device(\textcolor{stringliteral}{"{}cpu"{}})):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00041}00041\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Loads\ a\ saved\ model's\ state\ dictionary\ from\ a\ file\ and\ loads\ it\ into\ the\ given\ model.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00042}00042\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00043}00043\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00044}00044\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ model\ (torch.nn.Module):\ The\ model\ instance\ to\ load\ the\ state\ dictionary\ into.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00045}00045\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ filename\ (str):\ The\ filename\ (relative\ to\ model\_dir)\ to\ load\ the\ model\ from.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00046}00046\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device\ (torch.device):\ The\ device\ to\ map\ the\ model\ to.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00047}00047\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00048}00048\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00049}00049\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ torch.nn.Module:\ The\ model\ loaded\ with\ the\ saved\ state\ dictionary.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00050}00050\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ path\ =\ os.path.join(self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}},\ filename)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(path):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ FileNotFoundError(f\textcolor{stringliteral}{"{}Model\ file\ \{path\}\ not\ found!"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ state\_dict\ =\ torch.load(path,\ map\_location=device)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ model.load\_state\_dict(state\_dict)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Model\ loaded\ from\ \{path\}"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ model}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00059}\mbox{\hyperlink{classstorage_1_1_storage_a4f38287418ca09d6e13d4b3e2dcbdcc4}{00059}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_a4f38287418ca09d6e13d4b3e2dcbdcc4}{save\_dose\_distribution}}(self,\ dose\_distribution,\ filename):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00061}00061\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Saves\ the\ computed\ dose\ distribution\ as\ a\ numpy\ file.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00062}00062\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00063}00063\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00064}00064\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dose\_distribution\ (numpy.ndarray):\ The\ dose\ distribution\ array.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00065}00065\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ filename\ (str):\ The\ filename\ to\ save\ the\ dose\ distribution\ (relative\ to\ model\_dir).}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00066}00066\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ path\ =\ os.path.join(self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}},\ filename)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ np.save(path,\ dose\_distribution)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Dose\ distribution\ saved\ to\ \{path\}"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00071}\mbox{\hyperlink{classstorage_1_1_storage_ab3beb7aae324f3b2ea458eca70ee8872}{00071}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_ab3beb7aae324f3b2ea458eca70ee8872}{log\_error}}(self,\ message):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00073}00073\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Appends\ an\ error\ message\ to\ the\ log\ file.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00074}00074\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00075}00075\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00076}00076\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ message\ (str):\ The\ error\ message\ to\ log.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00077}00077\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(self.\mbox{\hyperlink{classstorage_1_1_storage_a14c51390aee7ff02dd282515674c8ff1}{log\_file}},\ \textcolor{stringliteral}{"{}a"{}})\ \textcolor{keyword}{as}\ log\_file:}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ log\_file.write(message\ +\ \textcolor{stringliteral}{"{}\(\backslash\)n"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Logged\ error:\ \{message\}"{}})}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00082}\mbox{\hyperlink{classstorage_1_1_storage_a116295ff89d50f7f008584243bb73463}{00082}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classstorage_1_1_storage_a116295ff89d50f7f008584243bb73463}{export\_results}}(self,\ results,\ filename):}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00084}00084\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Exports\ training\ or\ inference\ results\ to\ a\ file.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00085}00085\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00086}00086\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00087}00087\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ results\ (str):\ The\ results\ in\ string\ format.}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00088}00088\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ filename\ (str):\ The\ filename\ to\ export\ the\ results\ (relative\ to\ model\_dir).}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00089}00089\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ path\ =\ os.path.join(self.\mbox{\hyperlink{classstorage_1_1_storage_abc532f4db338709f2491b88f215da202}{model\_dir}},\ filename)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(path,\ \textcolor{stringliteral}{"{}w"{}})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ f.write(results)}
+\DoxyCodeLine{\Hypertarget{storage_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Results\ exported\ to\ \{path\}"{}})}
+
+\end{DoxyCode}

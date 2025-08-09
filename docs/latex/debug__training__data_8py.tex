@@ -1,0 +1,56 @@
+\doxysection{tests/debug\+\_\+training\+\_\+data.py File Reference}
+\hypertarget{debug__training__data_8py}{}\label{debug__training__data_8py}\index{tests/debug\_training\_data.py@{tests/debug\_training\_data.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacedebug__training__data}{debug\+\_\+training\+\_\+data}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_aa63cb044680052707eedbc88c54d7c66}{debug\+\_\+training\+\_\+data.\+test\+\_\+files}}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_a09564c6ee36c95797cb978d31cfff70a}{debug\+\_\+training\+\_\+data.\+output\+\_\+files}}
+\item 
+list \mbox{\hyperlink{namespacedebug__training__data_a34be15da77256c59052c10c2d6f415fe}{debug\+\_\+training\+\_\+data.\+energies}} = \mbox{[}11.\+5, 15.\+75, 34.\+25\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_abd19d01169070d8618649843446212c1}{debug\+\_\+training\+\_\+data.\+input\+\_\+data}} = np.\+load(input\+\_\+file)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a9ca62d6eae26a142e6ef928687fb26fd}{debug\+\_\+training\+\_\+data.\+output\+\_\+data}} = np.\+load(output\+\_\+file)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a6e913d912fb35dead02daee45d0eaf9f}{debug\+\_\+training\+\_\+data.\+correlation}} = np.\+corrcoef(input\+\_\+data.\+flatten(), output\+\_\+data.\+flatten())\mbox{[}0, 1\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a54bfca6a71c6aece18245b428da0161f}{debug\+\_\+training\+\_\+data.\+data\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7d38bb2e5fa6035a156fc4745226526c}{debug\+\_\+training\+\_\+data.\+train\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7ead9884f7aca7bf32418f16ebe7fc2d}{debug\+\_\+training\+\_\+data.\+val\+\_\+loader}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_adb58e169a7c3fab57438338146ddfca8}{debug\+\_\+training\+\_\+data.\+\_\+}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_ad7dfe068a649e372104a46cff0979887}{debug\+\_\+training\+\_\+data.\+input\+\_\+batch}} = batch\mbox{[}\textquotesingle{}inputcube\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a72fcadd6aa15f520e06b7d53fe16069c}{debug\+\_\+training\+\_\+data.\+output\+\_\+batch}} = batch\mbox{[}\textquotesingle{}outputcube\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a531d5fa1c3847489b49b57eca1d2c88b}{debug\+\_\+training\+\_\+data.\+energy\+\_\+batch}} = batch\mbox{[}\textquotesingle{}energy\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}{debug\+\_\+training\+\_\+data.\+device}} = torch.\+device("{}cpu"{})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{debug\+\_\+training\+\_\+data.\+test\+\_\+input}} = torch.\+randn(1, 2, 32, 32, 32)
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a77d730c6516b64dde839d3ca51ea2b38}{debug\+\_\+training\+\_\+data.\+test\+\_\+output}} = \mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}}\mbox{[}\+:, 0\+:1, \+:, \+:, \+:\mbox{]}
+\item 
+str \mbox{\hyperlink{namespacedebug__training__data_ae529477a3d857c570be723100878514b}{debug\+\_\+training\+\_\+data.\+model\+\_\+path}} = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a3a73c7d037f130bcc7a4f1bde82ff128}{debug\+\_\+training\+\_\+data.\+checkpoint}} = torch.\+load(\mbox{\hyperlink{namespacedebug__training__data_ae529477a3d857c570be723100878514b}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__training__data_a2c3be911e34b3105521189e14be2a926}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_abe61d170ed2ed5ada09fe7b2f6034eb9}{debug\+\_\+training\+\_\+data.\+autoencoder}}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}{debug\+\_\+training\+\_\+data.\+encoded}} = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__training__data_a00bd48227b10471e4299740058f4ad61}{test\+\_\+input}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}{debug\+\_\+training\+\_\+data.\+latent}} = \mbox{\hyperlink{namespacedebug__training__data_a61ba2a6c070d58da733ae68a984c8a3b}{encoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}{debug\+\_\+training\+\_\+data.\+decoded}} = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__training__data_af10024f8e606a22dbcfaf6aef3a637c4}{latent}})
+\item 
+\mbox{\hyperlink{namespacedebug__training__data_a7e4c3c595a92355ef6223f134e50f6b1}{debug\+\_\+training\+\_\+data.\+reconstruction}} = \mbox{\hyperlink{namespacedebug__training__data_a7b723e79bb642ae4493acf7615ffdeb0}{decoded}}\mbox{[}0\mbox{]}
+\end{DoxyCompactItemize}

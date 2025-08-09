@@ -1,0 +1,127 @@
+\doxysection{visualization.\+Visualization Class Reference}
+\hypertarget{classvisualization_1_1_visualization}{}\label{classvisualization_1_1_visualization}\index{visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvisualization_1_1_visualization_a401462682e6ab22c05fbf2a0df27a4c7}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self)
+\item 
+\mbox{\hyperlink{classvisualization_1_1_visualization_aafd3c88f131316692c91a9be21008a2b}{plot\+\_\+learning\+\_\+curve}} (self, epochs, loss\+\_\+list, title="{}Learning Curve"{}, filename=None)
+\item 
+\mbox{\hyperlink{classvisualization_1_1_visualization_af3eb4cda2ba3747bd175b3209c0b52a9}{plot\+\_\+adversarial\+\_\+curves}} (self, epochs, gen\+\_\+loss, disc\+\_\+loss, title="{}Adversarial Training Curves"{}, filename=None)
+\item 
+\mbox{\hyperlink{classvisualization_1_1_visualization_a14c6fb3cfe7d06b049c32cff71674e8b}{display\+\_\+sample\+\_\+images}} (self, images, title="{}Sample Images"{}, filename=None)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classvisualization_1_1_visualization_a2907b30df8a7f8535a3d35583f27d8d5}{plot\+\_\+loss\+\_\+curves}} (ae\+\_\+train, ae\+\_\+val, gen, disc, diff, resolution, energy)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}The Visualization module provides methods to plot training curves and display sample images.
+This is useful for monitoring the training process and visualizing inference results.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00009}{9}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classvisualization_1_1_visualization_a401462682e6ab22c05fbf2a0df27a4c7}\index{visualization.Visualization@{visualization.Visualization}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classvisualization_1_1_visualization_a401462682e6ab22c05fbf2a0df27a4c7} 
+visualization.\+Visualization.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the Visualization module.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00015}{15}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classvisualization_1_1_visualization_a14c6fb3cfe7d06b049c32cff71674e8b}\index{visualization.Visualization@{visualization.Visualization}!display\_sample\_images@{display\_sample\_images}}
+\index{display\_sample\_images@{display\_sample\_images}!visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection{\texorpdfstring{display\_sample\_images()}{display\_sample\_images()}}
+{\footnotesize\ttfamily \label{classvisualization_1_1_visualization_a14c6fb3cfe7d06b049c32cff71674e8b} 
+visualization.\+Visualization.\+display\+\_\+sample\+\_\+images (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{images}{, }\item[{}]{title}{ = {\ttfamily "{}Sample~Images"{}}, }\item[{}]{filename}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Displays sample images from the given batch. For 3D images, it shows three orthogonal slices.
+
+Args:
+    images (torch.Tensor or numpy.ndarray): Images to display. Expected shape is either 
+        [batch, channels, depth, height, width] for 3D images or [batch, channels, height, width] for 2D.
+    title (str): Title for the plot.
+    filename (str, optional): If provided, the figure is saved to this file.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00070}{70}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{classvisualization_1_1_visualization_af3eb4cda2ba3747bd175b3209c0b52a9}\index{visualization.Visualization@{visualization.Visualization}!plot\_adversarial\_curves@{plot\_adversarial\_curves}}
+\index{plot\_adversarial\_curves@{plot\_adversarial\_curves}!visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection{\texorpdfstring{plot\_adversarial\_curves()}{plot\_adversarial\_curves()}}
+{\footnotesize\ttfamily \label{classvisualization_1_1_visualization_af3eb4cda2ba3747bd175b3209c0b52a9} 
+visualization.\+Visualization.\+plot\+\_\+adversarial\+\_\+curves (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{epochs}{, }\item[{}]{gen\+\_\+loss}{, }\item[{}]{disc\+\_\+loss}{, }\item[{}]{title}{ = {\ttfamily "{}Adversarial~Training~Curves"{}}, }\item[{}]{filename}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Plots the adversarial training curves for generator and discriminator.
+
+Args:
+    epochs (list or array): Epoch numbers.
+    gen_loss (list or array): Generator loss values.
+    disc_loss (list or array): Discriminator loss values.
+    title (str): Title of the plot.
+    filename (str, optional): If provided, the plot is saved to this file.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00045}{45}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{classvisualization_1_1_visualization_aafd3c88f131316692c91a9be21008a2b}\index{visualization.Visualization@{visualization.Visualization}!plot\_learning\_curve@{plot\_learning\_curve}}
+\index{plot\_learning\_curve@{plot\_learning\_curve}!visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection{\texorpdfstring{plot\_learning\_curve()}{plot\_learning\_curve()}}
+{\footnotesize\ttfamily \label{classvisualization_1_1_visualization_aafd3c88f131316692c91a9be21008a2b} 
+visualization.\+Visualization.\+plot\+\_\+learning\+\_\+curve (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{epochs}{, }\item[{}]{loss\+\_\+list}{, }\item[{}]{title}{ = {\ttfamily "{}Learning~Curve"{}}, }\item[{}]{filename}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Plots the learning curve over epochs.
+
+Args:
+    epochs (list or array): Epoch numbers.
+    loss_list (list or array): Loss values corresponding to each epoch.
+    title (str): Title of the plot.
+    filename (str, optional): If provided, the plot is saved to this file.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00021}{21}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{classvisualization_1_1_visualization_a2907b30df8a7f8535a3d35583f27d8d5}\index{visualization.Visualization@{visualization.Visualization}!plot\_loss\_curves@{plot\_loss\_curves}}
+\index{plot\_loss\_curves@{plot\_loss\_curves}!visualization.Visualization@{visualization.Visualization}}
+\doxysubsubsection{\texorpdfstring{plot\_loss\_curves()}{plot\_loss\_curves()}}
+{\footnotesize\ttfamily \label{classvisualization_1_1_visualization_a2907b30df8a7f8535a3d35583f27d8d5} 
+visualization.\+Visualization.\+plot\+\_\+loss\+\_\+curves (\begin{DoxyParamCaption}\item[{}]{ae\+\_\+train}{, }\item[{}]{ae\+\_\+val}{, }\item[{}]{gen}{, }\item[{}]{disc}{, }\item[{}]{diff}{, }\item[{}]{resolution}{, }\item[{}]{energy}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\begin{DoxyVerb}Plot training and validation losses for autoencoder and diffusion model.
+
+Args:
+    ae_train (list of float): Autoencoder training losses per epoch.
+    ae_val   (list of float): Autoencoder validation losses per epoch.
+    gen      (list of float): Generator losses per epoch.
+    disc     (list of float): Discriminator losses per epoch.
+    diff     (list of float): Diffusion model losses per epoch.
+    resolution (tuple): Spatial resolution used for this run.
+    energy   (float): Energy level used for this run.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00120}{120}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{visualization_8py}{visualization.\+py}}\end{DoxyCompactItemize}

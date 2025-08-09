@@ -1,0 +1,82 @@
+\doxysection{tests/validate\+\_\+energy\+\_\+conditioning.py File Reference}
+\hypertarget{validate__energy__conditioning_8py}{}\label{validate__energy__conditioning_8py}\index{tests/validate\_energy\_conditioning.py@{tests/validate\_energy\_conditioning.py}}
+\doxysubsubsection*{Namespaces}
+\begin{DoxyCompactItemize}
+\item 
+namespace \mbox{\hyperlink{namespacevalidate__energy__conditioning}{validate\+\_\+energy\+\_\+conditioning}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a29b0d09e60a09ffda28ce1ea2760c52c}{validate\+\_\+energy\+\_\+conditioning.\+level}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2e8ec894c7f852f77a5365fb813417eb}{validate\+\_\+energy\+\_\+conditioning.\+device}} = torch.\+device("{}cuda"{} if torch.\+cuda.\+is\+\_\+available() else "{}cpu"{})
+\item 
+dict \mbox{\hyperlink{namespacevalidate__energy__conditioning_a7f7b1da0712c121f10a19acd6d0b7dab}{validate\+\_\+energy\+\_\+conditioning.\+config}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a27c9fa5fe3f1b1202cc726db87b8d4c8}{validate\+\_\+energy\+\_\+conditioning.\+checkpoint}} = torch.\+load(\mbox{\hyperlink{namespacevalidate__energy__conditioning_a7f7b1da0712c121f10a19acd6d0b7dab}{config}}\mbox{[}\textquotesingle{}model\+\_\+path\textquotesingle{}\mbox{]}, map\+\_\+location=\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2e8ec894c7f852f77a5365fb813417eb}{device}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a1ad4a425e8d4083a4431fedba0e0b751}{validate\+\_\+energy\+\_\+conditioning.\+training\+\_\+config}} = \mbox{\hyperlink{namespacevalidate__energy__conditioning_a27c9fa5fe3f1b1202cc726db87b8d4c8}{checkpoint}}\mbox{[}\textquotesingle{}training\+\_\+config\textquotesingle{}\mbox{]}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a042823c3aa8c22d893eb9dad167434eb}{validate\+\_\+energy\+\_\+conditioning.\+autoencoder}}
+\item 
+str \mbox{\hyperlink{namespacevalidate__energy__conditioning_abc5cc87ade57535d6a2a5b25777aa879}{validate\+\_\+energy\+\_\+conditioning.\+sample\+\_\+input\+\_\+path}} = \textquotesingle{}traindata/11\+\_\+5/inputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacevalidate__energy__conditioning_abf0f955bff2359d615db0324c6f9b812}{validate\+\_\+energy\+\_\+conditioning.\+sample\+\_\+output\+\_\+path}} = \textquotesingle{}traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2947e9ea79a00c2bd513f56f9afdcb42}{validate\+\_\+energy\+\_\+conditioning.\+physical\+\_\+input}} = np.\+load(\mbox{\hyperlink{namespacevalidate__energy__conditioning_abc5cc87ade57535d6a2a5b25777aa879}{sample\+\_\+input\+\_\+path}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a8d96e3c11fddde65bc1e93fdb73411de}{validate\+\_\+energy\+\_\+conditioning.\+ground\+\_\+truth}} = np.\+load(\mbox{\hyperlink{namespacevalidate__energy__conditioning_abf0f955bff2359d615db0324c6f9b812}{sample\+\_\+output\+\_\+path}})
+\item 
+dict \mbox{\hyperlink{namespacevalidate__energy__conditioning_a3811e986dd0e2e9cf36da57ec1e0a4dd}{validate\+\_\+energy\+\_\+conditioning.\+results}} = \{\}
+\item 
+dict \mbox{\hyperlink{namespacevalidate__energy__conditioning_a2426c9a6f763f83e98edea7cfb5517e0}{validate\+\_\+energy\+\_\+conditioning.\+predictions}} = \{\}
+\item 
+float \mbox{\hyperlink{namespacevalidate__energy__conditioning_ad4d6c40e0e52b4be86db2f36f4775452}{validate\+\_\+energy\+\_\+conditioning.\+energy\+\_\+normalized}} = energy / 40.\+0
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3b8c46e9463cdca93245f2515e141d51}{validate\+\_\+energy\+\_\+conditioning.\+input\+\_\+2channel}} = np.\+zeros((2, \texorpdfstring{$\ast$}{*}physical\+\_\+input.\+shape))
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a0a64885b8a4ded6c90278899892279af}{validate\+\_\+energy\+\_\+conditioning.\+input\+\_\+tensor}} = torch.\+tensor(\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3b8c46e9463cdca93245f2515e141d51}{input\+\_\+2channel}}, dtype=torch.\+float32).unsqueeze(0).to(\mbox{\hyperlink{namespacevalidate__energy__conditioning_a2e8ec894c7f852f77a5365fb813417eb}{device}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_afca2130574e6d52969fb1e20a41f0478}{validate\+\_\+energy\+\_\+conditioning.\+prediction}} = \mbox{\hyperlink{namespacevalidate__energy__conditioning_a042823c3aa8c22d893eb9dad167434eb}{autoencoder}}(\mbox{\hyperlink{namespacevalidate__energy__conditioning_a0a64885b8a4ded6c90278899892279af}{input\+\_\+tensor}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{validate\+\_\+energy\+\_\+conditioning.\+prediction\+\_\+np}} = prediction.\+cpu().numpy().squeeze()
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_adbd6a08bb35d8cfe0117e9b183c04da3}{validate\+\_\+energy\+\_\+conditioning.\+pred\+\_\+mean}} = np.\+mean(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{prediction\+\_\+np}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_ae61385a63980c52b59c1aaa489490885}{validate\+\_\+energy\+\_\+conditioning.\+pred\+\_\+std}} = np.\+std(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{prediction\+\_\+np}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a257a0ed721119aa265f9234b63a2f172}{validate\+\_\+energy\+\_\+conditioning.\+pred\+\_\+max}} = np.\+max(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{prediction\+\_\+np}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a5deeab0ac070c14390395bb3402b4cab}{validate\+\_\+energy\+\_\+conditioning.\+pred\+\_\+min}} = np.\+min(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa0c11fd10d5c56e50a958c724119b47b}{prediction\+\_\+np}})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a9bb1d26860b8f14ca10cb22d98f96c86}{validate\+\_\+energy\+\_\+conditioning.\+energy\+\_\+list}} = list(\mbox{\hyperlink{namespacevalidate__energy__conditioning_a7f7b1da0712c121f10a19acd6d0b7dab}{config}}\mbox{[}\textquotesingle{}energies\textquotesingle{}\mbox{]})
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_accd39e090e62335192692e3ca2ea4f26}{validate\+\_\+energy\+\_\+conditioning.\+energy1}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_ab6608842fd7a0c6cc3bdb96a4f832ea0}{validate\+\_\+energy\+\_\+conditioning.\+energy2}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa87ffea40e2d05a26aa4d5cc87ffe3f9}{validate\+\_\+energy\+\_\+conditioning.\+pred1}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a5c1eb4bdadb863f9558f0b852d199ab8}{validate\+\_\+energy\+\_\+conditioning.\+pred2}}
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a62e50fe0b163bbff824a2cd387dca818}{validate\+\_\+energy\+\_\+conditioning.\+mse}} = np.\+mean((\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa87ffea40e2d05a26aa4d5cc87ffe3f9}{pred1}} -\/ \mbox{\hyperlink{namespacevalidate__energy__conditioning_a5c1eb4bdadb863f9558f0b852d199ab8}{pred2}}) \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} 2)
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a71bbcdb7331dd0bcafa6b9f7f940bf95}{validate\+\_\+energy\+\_\+conditioning.\+mae}} = np.\+mean(np.\+abs(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa87ffea40e2d05a26aa4d5cc87ffe3f9}{pred1}} -\/ \mbox{\hyperlink{namespacevalidate__energy__conditioning_a5c1eb4bdadb863f9558f0b852d199ab8}{pred2}}))
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a1258c9f356e4ec553f3e8093cecb5a08}{validate\+\_\+energy\+\_\+conditioning.\+max\+\_\+diff}} = np.\+max(np.\+abs(\mbox{\hyperlink{namespacevalidate__energy__conditioning_aa87ffea40e2d05a26aa4d5cc87ffe3f9}{pred1}} -\/ \mbox{\hyperlink{namespacevalidate__energy__conditioning_a5c1eb4bdadb863f9558f0b852d199ab8}{pred2}}))
+\item 
+\mbox{\hyperlink{namespacevalidate__energy__conditioning_a29d88c4645f4a8522c7a3b5b6432623a}{validate\+\_\+energy\+\_\+conditioning.\+correlation}} = np.\+corrcoef(pred1.\+flatten(), pred2.\+flatten())\mbox{[}0, 1\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacevalidate__energy__conditioning_af9b68e974ff61248661442fb89b43581}{validate\+\_\+energy\+\_\+conditioning.\+means}} = \mbox{[}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3811e986dd0e2e9cf36da57ec1e0a4dd}{results}}\mbox{[}e\mbox{]}\mbox{[}\textquotesingle{}mean\textquotesingle{}\mbox{]} for e in \mbox{\hyperlink{namespacevalidate__energy__conditioning_a9bb1d26860b8f14ca10cb22d98f96c86}{energy\+\_\+list}}\mbox{]}
+\item 
+list \mbox{\hyperlink{namespacevalidate__energy__conditioning_a259c770353d76248d96a6fdabe3878c1}{validate\+\_\+energy\+\_\+conditioning.\+stds}} = \mbox{[}\mbox{\hyperlink{namespacevalidate__energy__conditioning_a3811e986dd0e2e9cf36da57ec1e0a4dd}{results}}\mbox{[}e\mbox{]}\mbox{[}\textquotesingle{}std\textquotesingle{}\mbox{]} for e in \mbox{\hyperlink{namespacevalidate__energy__conditioning_a9bb1d26860b8f14ca10cb22d98f96c86}{energy\+\_\+list}}\mbox{]}
+\item 
+int \mbox{\hyperlink{namespacevalidate__energy__conditioning_a00415200f60d47738834e92a3ec47915}{validate\+\_\+energy\+\_\+conditioning.\+mean\+\_\+variation}} = 0 else 0
+\item 
+int \mbox{\hyperlink{namespacevalidate__energy__conditioning_a1e86de44d55e6f02eee53a078abac8fa}{validate\+\_\+energy\+\_\+conditioning.\+std\+\_\+variation}} = 0 else 0
+\item 
+int \mbox{\hyperlink{namespacevalidate__energy__conditioning_ab5e0d67e3e9d2a8cbfd098e9ad79c602}{validate\+\_\+energy\+\_\+conditioning.\+max\+\_\+mse}} = 0
+\item 
+float \mbox{\hyperlink{namespacevalidate__energy__conditioning_a78eff7cbb1c9b887d2dcfbec2ccadfa3}{validate\+\_\+energy\+\_\+conditioning.\+min\+\_\+correlation}} = 1.\+0
+\end{DoxyCompactItemize}

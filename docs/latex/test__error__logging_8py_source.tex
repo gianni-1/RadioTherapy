@@ -1,0 +1,94 @@
+\doxysection{test\+\_\+error\+\_\+logging.\+py}
+\hypertarget{test__error__logging_8py_source}{}\label{test__error__logging_8py_source}\index{tests/test\_error\_logging.py@{tests/test\_error\_logging.py}}
+\mbox{\hyperlink{test__error__logging_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00001}\mbox{\hyperlink{namespacetest__error__logging}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00003}00003\ \textcolor{stringliteral}{Test\ error\ logging\ in\ the\ corrected\ inference\ pipeline}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00006}00006\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00008}00008\ sys.path.insert(0,\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'sourcecode'})))}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00010}00010\ \textcolor{comment}{\#\ Initialize\ logging\ first}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00011}00011\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00012}00012\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00014}00014\ \textcolor{comment}{\#\ Set\ up\ logging\ to\ also\ output\ to\ console}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00015}\mbox{\hyperlink{namespacetest__error__logging_a9e6234655c447cda503391857efd96dd}{00015}}\ console\_handler\ =\ logging.StreamHandler()}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00016}00016\ console\_handler.setLevel(logging.INFO)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00017}\mbox{\hyperlink{namespacetest__error__logging_a18717aee50ae2834b18cacb92c6601bb}{00017}}\ formatter\ =\ logging.Formatter(\textcolor{stringliteral}{'\%(asctime)s\ \%(levelname)s:\%(name)s:\ \%(message)s'})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00018}00018\ console\_handler.setFormatter(formatter)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00020}00020\ \textcolor{comment}{\#\ Get\ root\ logger\ and\ add\ console\ handler}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00021}\mbox{\hyperlink{namespacetest__error__logging_ae244461cc1751f832570f6620b475341}{00021}}\ root\_logger\ =\ logging.getLogger()}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00022}00022\ root\_logger.addHandler(console\_handler)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00023}00023\ root\_logger.setLevel(logging.INFO)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00025}\mbox{\hyperlink{namespacetest__error__logging_ab18099ce3e02953c1e05a9ae0475b699}{00025}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00027}00027\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00028}00028\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00029}00029\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00031}\mbox{\hyperlink{namespacetest__error__logging_a3614d11f67ebb8eb44c01abf9785ca2b}{00031}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__error__logging_a3614d11f67ebb8eb44c01abf9785ca2b}{test\_error\_logging}}():}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00032}00032\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ error\ logging\ by\ providing\ an\ invalid\ model\ checkpoint"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00033}00033\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00034}00034\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}TESTING\ ERROR\ LOGGING"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00035}00035\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00036}00036\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00037}00037\ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ simple\ test\ CT\ file}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00038}00038\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Creating\ test\ CT\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00039}00039\ \ \ \ \ test\_ct\ =\ np.random.rand(100,\ 100,\ 100).astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00040}00040\ \ \ \ \ test\_ct\_path\ =\ \textcolor{stringliteral}{"{}test\_ct.npy"{}}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00041}00041\ \ \ \ \ np.save(test\_ct\_path,\ test\_ct)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00042}00042\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Test\ CT\ saved\ to:\ \{test\_ct\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00043}00043\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00044}00044\ \ \ \ \ \textcolor{comment}{\#\ Create\ SystemManager\ with\ minimal\ setup}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00045}00045\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Creating\ SystemManager..."{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00046}00046\ \ \ \ \ system\_manager\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}."{}},}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ transforms=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ resolutions=[(64,\ 64,\ 64)],}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ quad\_energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ quad\_weights=[1.0],}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ device=torch.device(\textcolor{stringliteral}{'cpu'}),}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ num\_epochs=1,}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ learning\_rate=0.001,}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ patience=10,}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ cube\_size=64}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00059}00059\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00060}00060\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ SystemManager\ created\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00061}00061\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00062}00062\ \ \ \ \ \textcolor{comment}{\#\ Test\ inference\ with\ invalid\ checkpoint\ (should\ trigger\ error\ logging)}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00063}00063\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ inference\ test\ with\ invalid\ checkpoint..."{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00064}00064\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ output\_path\ =\ system\_manager.run\_inference(}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ test\_ct\_path,\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ model\_checkpoint=\textcolor{stringliteral}{"{}nonexistent\_model.ckpt"{}}\ \ \textcolor{comment}{\#\ This\ will\ cause\ an\ error}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}This\ should\ not\ happen\ -\/\ expected\ an\ error!"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00072}00072\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Expected\ error\ caught:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Error\ logging\ test\ completed\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00075}00075\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00076}00076\ \ \ \ \ \textcolor{keywordflow}{finally}:}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Clean\ up}}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Cleaning\ up\ test\ files..."{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.exists(test\_ct\_path):}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ os.remove(test\_ct\_path)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Removed\ test\ file:\ \{test\_ct\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}ERROR\ LOGGING\ TEST\ COMPLETED"{}})}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00087}00087\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__error__logging_8py_source_l00088}00088\ \ \ \ \ \mbox{\hyperlink{namespacetest__error__logging}{test\_error\_logging}}()}
+
+\end{DoxyCode}

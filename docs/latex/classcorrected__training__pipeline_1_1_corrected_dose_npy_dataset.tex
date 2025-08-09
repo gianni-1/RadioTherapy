@@ -1,0 +1,147 @@
+\doxysection{corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset Class Reference}
+\hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}{}\label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+Inheritance diagram for corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a3635a0a12381fc3b87f11f7db15e85ce}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc}{root\+\_\+dir}}, section=None, \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{transforms}}=None, \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26}{target\+\_\+resolution}}=(64, 64, 64))
+\item 
+Dict\mbox{[}str, float\mbox{]} \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a19d8788b683816ddb652c2b5c4d66688}{get\+\_\+dose\+\_\+normalization\+\_\+params}} (self)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a768dafdf157d6f61f5538e746520b8e5}{\+\_\+\+\_\+len\+\_\+\+\_\+}} (self)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ad068e2923c2529c64668d4a76aa98315}{\+\_\+\+\_\+getitem\+\_\+\+\_\+}} (self, idx)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc}{root\+\_\+dir}} = root\+\_\+dir
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26}{target\+\_\+resolution}} = target\+\_\+resolution
+\item 
+list \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{samples}} = \mbox{[}$\,$\mbox{]}
+\item 
+dict \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\+\_\+dose\+\_\+stats}} = \{\}
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{transforms}} = transforms
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}CORRECTED Dataset that properly loads original dose values for correct normalization.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00036}{36}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a3635a0a12381fc3b87f11f7db15e85ce}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a3635a0a12381fc3b87f11f7db15e85ce} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{root\+\_\+dir}{, }\item[{}]{section}{ = {\ttfamily None}, }\item[{}]{transforms}{ = {\ttfamily None}, }\item[{}]{target\+\_\+resolution}{ = {\ttfamily (64,~64,~64)}}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00040}{40}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ad068e2923c2529c64668d4a76aa98315}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!\_\_getitem\_\_@{\_\_getitem\_\_}}
+\index{\_\_getitem\_\_@{\_\_getitem\_\_}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_getitem\_\_()}{\_\_getitem\_\_()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ad068e2923c2529c64668d4a76aa98315} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+\_\+\+\_\+getitem\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{idx}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00148}{148}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a768dafdf157d6f61f5538e746520b8e5}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!\_\_len\_\_@{\_\_len\_\_}}
+\index{\_\_len\_\_@{\_\_len\_\_}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_len\_\_()}{\_\_len\_\_()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a768dafdf157d6f61f5538e746520b8e5} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+\_\+\+\_\+len\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00145}{145}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a19d8788b683816ddb652c2b5c4d66688}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!get\_dose\_normalization\_params@{get\_dose\_normalization\_params}}
+\index{get\_dose\_normalization\_params@{get\_dose\_normalization\_params}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{get\_dose\_normalization\_params()}{get\_dose\_normalization\_params()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a19d8788b683816ddb652c2b5c4d66688} 
+ Dict\mbox{[}str, float\mbox{]} corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+get\+\_\+dose\+\_\+normalization\+\_\+params (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Get realistic dose normalization parameters based on ORIGINAL data.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00110}{110}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!original\_dose\_stats@{original\_dose\_stats}}
+\index{original\_dose\_stats@{original\_dose\_stats}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{original\_dose\_stats}{original\_dose\_stats}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95} 
+dict corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+original\+\_\+dose\+\_\+stats = \{\}}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00050}{50}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!root\_dir@{root\_dir}}
+\index{root\_dir@{root\_dir}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{root\_dir}{root\_dir}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+root\+\_\+dir = root\+\_\+dir}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00041}{41}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!samples@{samples}}
+\index{samples@{samples}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{samples}{samples}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+samples = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00043}{43}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!target\_resolution@{target\_resolution}}
+\index{target\_resolution@{target\_resolution}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{target\_resolution}{target\_resolution}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+target\+\_\+resolution = target\+\_\+resolution}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00042}{42}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}\index{corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}!transforms@{transforms}}
+\index{transforms@{transforms}!corrected\_training\_pipeline.CorrectedDoseNpyDataset@{corrected\_training\_pipeline.CorrectedDoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{transforms}{transforms}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Dose\+Npy\+Dataset.\+transforms = transforms}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00101}{101}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{corrected__training__pipeline_8py}{corrected\+\_\+training\+\_\+pipeline.\+py}}\end{DoxyCompactItemize}

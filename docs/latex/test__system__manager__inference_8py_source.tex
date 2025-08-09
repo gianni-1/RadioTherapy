@@ -1,0 +1,115 @@
+\doxysection{test\+\_\+system\+\_\+manager\+\_\+inference.\+py}
+\hypertarget{test__system__manager__inference_8py_source}{}\label{test__system__manager__inference_8py_source}\index{tests/test\_system\_manager\_inference.py@{tests/test\_system\_manager\_inference.py}}
+\mbox{\hyperlink{test__system__manager__inference_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00001}\mbox{\hyperlink{namespacetest__system__manager__inference}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00003}00003\ \textcolor{stringliteral}{Test\ the\ corrected\ inference\ through\ SystemManager}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00006}00006\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00007}00007\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00008}00008\ sys.path.insert(0,\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'sourcecode'})))}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00010}00010\ \textcolor{comment}{\#\ Initialize\ logging\ first}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00011}00011\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00012}00012\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00014}00014\ \textcolor{comment}{\#\ Set\ up\ logging\ to\ also\ output\ to\ console}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00015}\mbox{\hyperlink{namespacetest__system__manager__inference_a12f9d9aafc1778839ff6d884ce4ae6d0}{00015}}\ console\_handler\ =\ logging.StreamHandler()}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00016}00016\ console\_handler.setLevel(logging.INFO)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00017}\mbox{\hyperlink{namespacetest__system__manager__inference_a2705dfb72bb9a3232a6afa61912be685}{00017}}\ formatter\ =\ logging.Formatter(\textcolor{stringliteral}{'\%(asctime)s\ \%(levelname)s:\%(name)s:\ \%(message)s'})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00018}00018\ console\_handler.setFormatter(formatter)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00020}00020\ \textcolor{comment}{\#\ Get\ root\ logger\ and\ add\ console\ handler}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00021}\mbox{\hyperlink{namespacetest__system__manager__inference_a516bc8ea0aac6c768cb5cc9b50900e7a}{00021}}\ root\_logger\ =\ logging.getLogger()}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00022}00022\ root\_logger.addHandler(console\_handler)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00023}00023\ root\_logger.setLevel(logging.INFO)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00025}\mbox{\hyperlink{namespacetest__system__manager__inference_a388e8362f1739373a16a79293035a212}{00025}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00027}00027\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00028}00028\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00029}00029\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00031}\mbox{\hyperlink{namespacetest__system__manager__inference_aadcbead977c3b44ee3ada3c73e649e30}{00031}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__system__manager__inference_aadcbead977c3b44ee3ada3c73e649e30}{test\_system\_manager\_inference}}():}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00032}00032\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ that\ the\ SystemManager\ uses\ the\ corrected\ inference"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00033}00033\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00034}00034\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}TESTING\ SYSTEM\ MANAGER\ WITH\ CORRECTED\ INFERENCE"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00035}00035\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00036}00036\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00037}00037\ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ simple\ test\ CT\ file}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00038}00038\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Creating\ test\ CT\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00039}00039\ \ \ \ \ test\_ct\ =\ np.random.rand(100,\ 100,\ 100).astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00040}00040\ \ \ \ \ test\_ct\_path\ =\ \textcolor{stringliteral}{"{}test\_ct.npy"{}}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00041}00041\ \ \ \ \ np.save(test\_ct\_path,\ test\_ct)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00042}00042\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Test\ CT\ saved\ to:\ \{test\_ct\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00043}00043\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Test\ CT\ shape:\ \{test\_ct.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00044}00044\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Test\ CT\ range:\ \{test\_ct.min():.6f\}\ to\ \{test\_ct.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00045}00045\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00046}00046\ \ \ \ \ \textcolor{comment}{\#\ Create\ SystemManager\ with\ minimal\ setup}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00047}00047\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Creating\ SystemManager..."{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00048}00048\ \ \ \ \ system\_manager\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}."{}},}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ transforms=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ resolutions=[(64,\ 64,\ 64)],}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ quad\_energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ quad\_weights=[1.0],}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ batch\_size=1,}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ device=torch.device(\textcolor{stringliteral}{'cpu'}),}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ num\_epochs=1,}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ learning\_rate=0.001,}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ patience=10,}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ cube\_size=64}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00061}00061\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00062}00062\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ SystemManager\ created\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00063}00063\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00064}00064\ \ \ \ \ \textcolor{comment}{\#\ Test\ inference}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00065}00065\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ inference\ test..."{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00066}00066\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ output\_path\ =\ system\_manager.run\_inference(}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ test\_ct\_path,\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ model\_checkpoint=\textcolor{stringliteral}{"{}unified\_energy\_conditioned\_model\_res16.0\_energies3.ckpt"{}}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Inference\ completed\ successfully!"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ saved\ to:\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ the\ output\ file\ exists}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.exists(output\_path):}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Output\ file\ created\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ and\ check\ the\ output}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ img\ =\ nib.load(output\_path)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ data\ =\ img.get\_fdata()}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ shape:\ \{data.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ range:\ \{data.min():.6f\}\ to\ \{data.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Output\ file\ loaded\ and\ validated\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}✗\ Output\ file\ not\ found"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00091}00091\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}✗\ Error\ during\ inference:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Inference\ test\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00096}00096\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00097}00097\ \ \ \ \ \textcolor{keywordflow}{finally}:}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Clean\ up}}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Cleaning\ up\ test\ files..."{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.exists(test\_ct\_path):}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ os.remove(test\_ct\_path)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Removed\ test\ file:\ \{test\_ct\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}SYSTEM\ MANAGER\ INFERENCE\ TEST\ COMPLETED"{}})}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00107}00107\ }
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00108}00108\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__system__manager__inference_8py_source_l00109}00109\ \ \ \ \ \mbox{\hyperlink{namespacetest__system__manager__inference}{test\_system\_manager\_inference}}()}
+
+\end{DoxyCode}

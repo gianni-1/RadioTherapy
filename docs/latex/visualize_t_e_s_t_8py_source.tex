@@ -1,0 +1,84 @@
+\doxysection{visualize\+TEST.\+py}
+\hypertarget{visualize_t_e_s_t_8py_source}{}\label{visualize_t_e_s_t_8py_source}\index{tests/visualizeTEST.py@{tests/visualizeTEST.py}}
+\mbox{\hyperlink{visualize_t_e_s_t_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00001}\mbox{\hyperlink{namespacevisualize_t_e_s_t}{00001}}\ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00002}00002\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00003}00003\ \textcolor{keyword}{import}\ plotly.graph\_objects\ \textcolor{keyword}{as}\ go}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00004}00004\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00005}00005\ \textcolor{comment}{\#\ Load\ the\ cube}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00006}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7d61eafb2e1202e68a5b6d722c53b91c}{00006}}\ cube\ =\ np.load(\textcolor{stringliteral}{"{}/Users/giannigagliardi/Documents/Git/RadioTherapy/traindata/11\_5/outputcube/235101017859661465075472232303048949736\_10.npy"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00007}00007\ \textcolor{comment}{\#\ If\ the\ loaded\ cube\ has\ an\ extra\ energy\ dimension,\ pick\ the\ first\ energy}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00008}00008\ \textcolor{keywordflow}{if}\ cube.ndim\ ==\ 4:}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00009}00009\ \ \ \ \ cube\ =\ cube[0]}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00010}00010\ \textcolor{keywordflow}{elif}\ cube.ndim\ !=\ 3:}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00011}00011\ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Unexpected\ cube\ shape\ \{cube.shape\};\ expected\ 3D\ or\ 4D\ (energy\ ×\ D\ ×\ H\ ×\ W)."{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00012}00012\ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ Interactive\ slice\ viewer\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00013}00013\ \textcolor{keyword}{import}\ matplotlib.widgets\ \textcolor{keyword}{as}\ widgets}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00015}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8f7cd9d586d17f3ae3962a0c5d9c6c1d}{00015}}\ fig,\ ax\ =\ plt.subplots()}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00016}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a1b27309a15530117619c58844b1531c9}{00016}}\ slice\_idx\ =\ cube.shape[2]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00017}\mbox{\hyperlink{namespacevisualize_t_e_s_t_afe3251f55e9f71e3bb0f69d5b933324f}{00017}}\ im\ =\ ax.imshow(cube[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{"{}gray"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00018}00018\ ax.set\_title(f\textcolor{stringliteral}{"{}Slice\ \{slice\_idx\}"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00019}00019\ ax.axis(\textcolor{stringliteral}{"{}off"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00021}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a42ab6a728c60f03434fc0c49fd2994bc}{00021}}\ slider\_ax\ =\ plt.axes([0.2,\ 0.05,\ 0.6,\ 0.03])}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00022}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a60268abfbabe414662185822ad42df16}{00022}}\ slider\ =\ widgets.Slider(}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00023}00023\ \ \ \ \ slider\_ax,\ \textcolor{stringliteral}{"{}z‑Slice"{}},\ 0,\ cube.shape[2]\ -\/\ 1,}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00024}00024\ \ \ \ \ valinit=slice\_idx,\ valfmt=\textcolor{stringliteral}{"{}\%0.0f"{}}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00025}00025\ )}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00027}\mbox{\hyperlink{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023}{00027}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacevisualize_t_e_s_t_af2a1300f541f0cd31035da88a0747023}{update}}(val):}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00028}00028\ \ \ \ \ z\ =\ int(slider.val)}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00029}00029\ \ \ \ \ im.set\_data(cube[:,\ :,\ z])}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00030}00030\ \ \ \ \ ax.set\_title(f\textcolor{stringliteral}{"{}Slice\ \{z\}"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00031}00031\ \ \ \ \ fig.canvas.draw\_idle()}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00033}00033\ slider.on\_changed(update)}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00034}00034\ plt.show()}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00035}00035\ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ end\ slice\ viewer\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00037}\mbox{\hyperlink{namespacevisualize_t_e_s_t_ad3db97e784a85062474d5b143e910ed7}{00037}}\ cube\_norm\ =\ (cube\ -\/\ cube.min())\ /\ (cube.max()\ -\/\ cube.min())}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00038}00038\ \textcolor{comment}{\#\ -\/-\/-\/\ choose\ sensible\ isosurface\ thresholds\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00039}00039\ \textcolor{comment}{\#\ This\ prints\ the\ 1st\ and\ 99th\ percentiles\ so\ we\ know\ where\ most\ intensities\ lie.}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00040}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a7334a1327b3ed65dbb89657046c6d089}{00040}}\ p\_low,\ p\_high\ =\ np.percentile(cube\_norm,\ [1,\ 99])}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00041}00041\ print(f\textcolor{stringliteral}{"{}Suggested\ thresholds\ \ p\_low=\{p\_low:.4f\}\ \ p\_high=\{p\_high:.4f\}"{}})}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00043}00043\ \textcolor{comment}{\#\ create\ 3‑D\ coordinate\ grid\ that\ matches\ the\ cube\ dimensions}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00044}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a0202695b3fe032a9a1852e9a03dda677}{00044}}\ x,\ y,\ z\ =\ np.mgrid[0:cube.shape[0],\ 0:cube.shape[1],\ 0:cube.shape[2]]}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00046}00046\ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ 3‑D\ volume\ rendering\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00047}00047\ \textcolor{comment}{\#\ Apply\ smoothing\ to\ reduce\ artifacts}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00048}00048\ \textcolor{keyword}{from}\ scipy\ \textcolor{keyword}{import}\ ndimage}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00049}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a6d99fc429e5f67c994ad9c13e05a3a1a}{00049}}\ cube\_smoothed\ =\ ndimage.gaussian\_filter(cube\_norm,\ sigma=0.5)}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00051}00051\ \textcolor{comment}{\#\ If\ the\ printed\ p\_low/p\_high\ look\ too\ small\ or\ too\ large,}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00052}00052\ \textcolor{comment}{\#\ feel\ free\ to\ tweak\ them\ below.}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00053}\mbox{\hyperlink{namespacevisualize_t_e_s_t_a8ed5c637fcc097e6d8524c8e94b6ad44}{00053}}\ fig\_vol\ =\ go.Figure(}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00054}00054\ \ \ \ \ data=go.Volume(}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ x=x.flatten(),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ y=y.flatten(),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ z=z.flatten(),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ value=cube\_smoothed.flatten(),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ opacity=0.1,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ mehr\ transparent\ für\ bessere\ Sicht}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ surface\_count=15,\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ weniger\ Isoflächen\ für\ glatteres\ Aussehen}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ isomin=p\_low\ *\ 1.2,\ \ \ \ \ \ \ \ \textcolor{comment}{\#\ etwas\ höhere\ Schwelle}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ isomax=p\_high\ *\ 0.8,\ \ \ \ \ \ \ \textcolor{comment}{\#\ etwas\ niedrigere\ obere\ Schwelle}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ colorscale=\textcolor{stringliteral}{"{}Hot"{}},\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ bessere\ Farbskala\ für\ Dosisverteilung}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ caps=dict(x\_show=\textcolor{keyword}{False},\ y\_show=\textcolor{keyword}{False},\ z\_show=\textcolor{keyword}{False})\ \ \textcolor{comment}{\#\ keine\ Kappen}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00065}00065\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00066}00066\ )}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00067}00067\ \textcolor{comment}{\#\ realistische\ Seitenverhältnisse\ beibehalten}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00068}\mbox{\hyperlink{namespacevisualize_t_e_s_t_af8c361e679d886907c6cbf818e899de7}{00068}}\ fig\_vol.update\_layout(scene=dict(aspectmode=\textcolor{stringliteral}{"{}data"{}}))}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00069}00069\ \textcolor{comment}{\#\ enforce\ axis\ ranges\ to\ match\ cube\ shape}}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00070}00070\ fig\_vol.update\_layout(}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00071}00071\ \ \ \ \ scene=dict(}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ xaxis=dict(range=[0,\ cube.shape[0]]),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ yaxis=dict(range=[0,\ cube.shape[1]]),}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ zaxis=dict(range=[0,\ cube.shape[2]])}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00075}00075\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00076}00076\ )}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00077}00077\ fig\_vol.show()}
+\DoxyCodeLine{\Hypertarget{visualize_t_e_s_t_8py_source_l00078}00078\ \textcolor{comment}{\#\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/\ end\ volume\ rendering\ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+
+\end{DoxyCode}

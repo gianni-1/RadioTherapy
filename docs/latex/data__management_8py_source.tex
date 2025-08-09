@@ -1,0 +1,386 @@
+\doxysection{data\+\_\+management.\+py}
+\hypertarget{data__management_8py_source}{}\label{data__management_8py_source}\index{sourcecode/data\_management.py@{sourcecode/data\_management.py}}
+\mbox{\hyperlink{data__management_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00001}\mbox{\hyperlink{namespacedata__management}{00001}}\ \textcolor{comment}{\#\ Import\ Dataset\ before\ using\ it}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00002}00002\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00003}00003\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00004}00004\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00005}00005\ \textcolor{keyword}{from}\ torch.utils.data\ \textcolor{keyword}{import}\ Dataset}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00006}00006\ \textcolor{keyword}{from}\ hotspot\_patch\_sampler\ \textcolor{keyword}{import}\ extract\_hotspot\_patches}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00007}00007\ \textcolor{comment}{\#\ -\/-\/-\/\ HotspotPatchDataset:\ Patch-\/basierte\ Trainingsdaten\ für\ Hotspot-\/Lernen\ -\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00008}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset}{00008}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset}{HotspotPatchDataset}}(Dataset):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00009}00009\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00010}00010\ \textcolor{stringliteral}{\ \ \ \ Dataset,\ das\ aus\ jedem\ Input/Target-\/Cube\ Hotspot-\/Patches\ extrahiert\ und\ als\ einzelne\ Trainingssamples\ zurückgibt.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00011}00011\ \textcolor{stringliteral}{\ \ \ \ Nutzt\ extract\_hotspot\_patches(volume,\ ...),\ um\ Patch-\/Startpositionen\ zu\ bestimmen.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ Jeder\ \_\_getitem\_\_\ gibt\ einen\ Patch\ (Input,\ Target,\ Energy)\ zurück.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00013}00013\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00014}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a68725100609c43a243a7c16d524656f5}{00014}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a68725100609c43a243a7c16d524656f5}{\_\_init\_\_}}(self,\ root\_dir,\ section=None,\ patch\_size=(32,32,32),\ min\_hotspot\_voxels=1000,\ dose\_threshold=0.5,\ max\_patches=16,\ random\_patches=0,\ transforms=\textcolor{keywordtype}{None},\ energy=\textcolor{keywordtype}{None},\ max\_patches\_per\_energy=80):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00015}00015\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00016}00016\ \ \ \ \ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00017}00017\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00018}00018\ \ \ \ \ \ \ \ \ base\_dir\ =\ root\_dir\ \textcolor{keywordflow}{if}\ section\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ os.path.join(root\_dir,\ section)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00019}00019\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ base\_dir=\{base\_dir\},\ section=\{section\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00020}00020\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00021}00021\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ base\_dir\ exists}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(base\_dir):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ base\_dir\ does\ not\ exist:\ \{base\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00025}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}{00025}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}{patch\_size}}\ =\ patch\_size}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00026}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{00026}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00027}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{00027}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\_records}}\ =\ []\ \ \textcolor{comment}{\#\ Liste:\ (in\_fp,\ out\_fp,\ energy,\ (z,y,x))}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00028}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}{00028}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}{selected\_energy}}\ =\ energy}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00029}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{00029}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}\ =\ []\ \ \textcolor{comment}{\#\ Liste:\ (n\_voxels\_gt0,\ n\_voxels\_gt\_thresh,\ max\_dose,\ mean\_dose)}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00030}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{00030}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{max\_patches\_per\_energy}}\ =\ max\_patches\_per\_energy}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ List\ directories\ in\ base\_dir\ for\ debugging}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_folders\ =\ sorted(os.listdir(base\_dir))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Found\ directories\ in\ \{base\_dir\}:\ \{energy\_folders\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Error\ listing\ \{base\_dir\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_folders\ =\ []}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_folder\ \textcolor{keywordflow}{in}\ energy\_folders:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ \ \ \ \ folder\_path\ =\ os.path.join(base\_dir,\ energy\_folder)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Checking\ energy\_folder=\{energy\_folder\},\ folder\_path=\{folder\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(folder\_path)\ \textcolor{keywordflow}{or}\ energy\_folder.startswith(\textcolor{stringliteral}{'.'}):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Skipping\ \{energy\_folder\}\ (not\ directory\ or\ hidden)"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ folder\_energy\ =\ float(energy\_folder.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Parsed\ energy=\{folder\_energy\}\ from\ folder=\{energy\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ ValueError\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Skipping\ \{energy\_folder\}\ (can't\ parse\ energy):\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Filter:\ Nur\ gewünschte\ Energie\ verwenden,\ falls\ gesetzt}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}{selected\_energy}}\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ abs(folder\_energy\ -\/\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac2348abdc371814622457aee8a02f1b4}{selected\_energy}})\ >\ 0.01:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Skipping\ energy\ \{folder\_energy\}\ (selected\_energy=\{self.selected\_energy\})"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ in\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}inputcube"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ out\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}outputcube"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Checking\ in\_dir=\{in\_dir\},\ out\_dir=\{out\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(in\_dir)\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ os.path.isdir(out\_dir):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Missing\ inputcube/outputcube\ in\ \{folder\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ in\_dir\ exists:\ \{os.path.exists(in\_dir)\},\ out\_dir\ exists:\ \{os.path.exists(out\_dir)\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ List\ files\ in\ directories\ for\ debugging}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_files\ =\ os.listdir(in\_dir)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\_files\ =\ os.listdir(out\_dir)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Found\ \{len(input\_files)\}\ input\ files,\ \{len(output\_files)\}\ output\ files"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Error\ listing\ files:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ fname\ \textcolor{keywordflow}{in}\ sorted(os.listdir(in\_dir)):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ fname.endswith(\textcolor{stringliteral}{"{}.npy"{}}):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_fp\ =\ os.path.join(in\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_fp\ =\ os.path.join(out\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Processing\ file\ \{fname\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ output\ file\ exists}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.exists(out\_fp):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Output\ file\ missing:\ \{out\_fp\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Lade\ Target-\/Dosis-\/Array,\ um\ Hotspot-\/Patches\ zu\ bestimmen}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_array\ =\ np.load(out\_fp)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Loaded\ dose\ array\ shape:\ \{dose\_array.shape\},\ range:\ \{dose\_array.min():.6f\}\ to\ \{dose\_array.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CRITICAL\ FIX:\ Adjust\ dose\_threshold\ based\ on\ actual\ data\ range}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_dose\ =\ dose\_array.max()}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ max\_dose\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ 10\%\ of\ max\ dose\ as\ threshold\ instead\ of\ fixed\ 0.5}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ adaptive\_threshold\ =\ max(dose\_threshold\ *\ max\_dose,\ max\_dose\ *\ 0.1)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Adaptive\ dose\ threshold:\ \{adaptive\_threshold:.6f\}\ (max\_dose:\ \{max\_dose:.6f\})"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ adaptive\_threshold\ =\ dose\_threshold}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Max\ dose\ is\ 0,\ using\ default\ threshold:\ \{adaptive\_threshold\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Fehler\ beim\ Laden\ von\ \{out\_fp\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\_indices\ =\ extract\_hotspot\_patches(}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_array,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\_size=patch\_size,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ min\_hotspot\_voxels=min\_hotspot\_voxels,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_threshold=adaptive\_threshold,\ \ \textcolor{comment}{\#\ Use\ adaptive\ threshold}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_patches=max\_patches,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ random\_patches=random\_patches}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ Found\ \{len(patch\_indices)\}\ patches\ for\ file\ \{fname\}\ (adaptive\_threshold=\{adaptive\_threshold:.6f\})"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **PATCH\ BALANCING:\ Limit\ patches\ per\ energy\ to\ prevent\ imbalance**}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(patch\_indices)\ >\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{max\_patches\_per\_energy}}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy\ \{folder\_energy:.2f\}:\ Limiting\ patches\ from\ \{len(patch\_indices)\}\ to\ \{self.max\_patches\_per\_energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Random\ selection\ for\ balanced\ distribution}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ random}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\_indices\ =\ random.sample(patch\_indices,\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2a461eeff10ce8f2b90f548e1135164c}{max\_patches\_per\_energy}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ idx\ \textcolor{keywordflow}{in}\ patch\_indices:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ patch\ statistics}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z,\ y,\ x\ =\ idx}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dz,\ dy,\ dx\ =\ patch\_size}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\ =\ dose\_array[z:z+dz,\ y:y+dy,\ x:x+dx]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_voxels\_gt0\ =\ int((patch\ >\ 0).sum())}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ n\_voxels\_gt\_thresh\ =\ int((patch\ >\ dose\_threshold).sum())}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_dose\ =\ float(patch.max())}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mean\_dose\ =\ float(patch.mean())}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\_records}}.append((in\_fp,\ out\_fp,\ folder\_energy,\ idx))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}.append((n\_voxels\_gt0,\ n\_voxels\_gt\_thresh,\ max\_dose,\ mean\_dose))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Logging\ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}})\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ n\_voxels\_gt0\_list\ =\ [s[0]\ \textcolor{keywordflow}{for}\ s\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ n\_voxels\_gt\_thresh\_list\ =\ [s[1]\ \textcolor{keywordflow}{for}\ s\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ max\_dose\_list\ =\ [s[2]\ \textcolor{keywordflow}{for}\ s\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ mean\_dose\_list\ =\ [s[3]\ \textcolor{keywordflow}{for}\ s\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a0b5e899c7d4e77e326168d01d05256dd}{patch\_stats}}]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Patch-\/Statistiken:\ Mittelwert\ Voxel>0:\ \{np.mean(n\_voxels\_gt0\_list):.1f\},\ Mittelwert\ Voxel>thresh:\ \{np.mean(n\_voxels\_gt\_thresh\_list):.1f\},\ MaxDose\ Mittelwert:\ \{np.mean(max\_dose\_list):.3f\},\ MeanDose\ Mittelwert:\ \{np.mean(mean\_dose\_list):.3f\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Patch-\/Statistiken:\ Min/Max\ Voxel>0:\ \{np.min(n\_voxels\_gt0\_list)\}/\{np.max(n\_voxels\_gt0\_list)\},\ Min/Max\ Voxel>thresh:\ \{np.min(n\_voxels\_gt\_thresh\_list)\}/\{np.max(n\_voxels\_gt\_thresh\_list)\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}HotspotPatchDataset:\ \{len(self.patch\_records)\}\ Patches\ extrahiert."{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Debug}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\_records}})\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}Energie\ der\ ersten\ 5\ Patches:\ \{[self.patch\_records[i][2]\ for\ i\ in\ range(min(5,\ len(self.patch\_records)))]\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00146}00146\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00147}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ab546c06abedaaee947f9422c19645f66}{00147}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ab546c06abedaaee947f9422c19645f66}{\_\_len\_\_}}(self):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ len(self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\_records}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00150}\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_aefc54fddd8ecd94c82b3cb455c792469}{00150}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_aefc54fddd8ecd94c82b3cb455c792469}{\_\_getitem\_\_}}(self,\ idx):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ in\_fp,\ out\_fp,\ energy,\ (z,\ y,\ x)\ =\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_a2557e030ff591ff83df6a2f1aa9e59cb}{patch\_records}}[idx]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ arr\_in\ =\ np.load(in\_fp)\ \ \ \ \textcolor{comment}{\#\ [D,H,W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ arr\_out\ =\ np.load(out\_fp)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ dz,\ dy,\ dx\ =\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ad08c786109d35ce7b500757eb211175b}{patch\_size}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ patch\_in\ =\ arr\_in[z:z+dz,\ y:y+dy,\ x:x+dx]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ patch\_out\ =\ arr\_out[z:z+dz,\ y:y+dy,\ x:x+dx]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ sample\ =\ \{}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}input"{}}:\ torch.from\_numpy(patch\_in)[\textcolor{keywordtype}{None}].float(),\ \ \ \ \textcolor{comment}{\#\ [1,D,H,W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}target"{}}:\ torch.from\_numpy(patch\_out)[\textcolor{keywordtype}{None}].float(),\ \ \textcolor{comment}{\#\ [1,D,H,W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ torch.tensor([energy],\ dtype=torch.float32),}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{transforms}}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ self.\mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset_ac27d122e761ce86b1a6f1cc15e91fa32}{transforms}}(sample)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sample}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00165}00165\ \textcolor{comment}{\#data\_management.py}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00167}00167\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00168}00168\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00169}00169\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ DataLoader}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00170}00170\ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00171}00171\ \ \ \ \ \textcolor{keyword}{from}\ monai.apps.datasets\ \textcolor{keyword}{import}\ CustomDataset}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00172}00172\ \textcolor{keywordflow}{except}\ ImportError:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00173}00173\ \ \ \ \ \textcolor{comment}{\#\ Fallback\ for\ newer\ MONAI\ versions\ where\ CustomDataset\ moved}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00174}00174\ \ \ \ \ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ Dataset\ \textcolor{keyword}{as}\ CustomDataset}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00175}00175\ \textcolor{keyword}{from}\ torch.utils.data\ \textcolor{keyword}{import}\ random\_split}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00176}00176\ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00177}00177\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00178}00178\ \textcolor{keyword}{from}\ torch.utils.data\ \textcolor{keyword}{import}\ Dataset}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00179}00179\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ Compose,\ LoadImaged}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00180}00180\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NumpyReader}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00181}00181\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00182}00182\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00183}00183\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00184}\mbox{\hyperlink{namespacedata__management_a2b1ce8468acb03e2f15bedfc5e0599e8}{00184}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00185}00185\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00186}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset}{00186}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset}{DoseNpyDataset}}(Dataset):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00187}00187\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00188}00188\ \textcolor{stringliteral}{\ \ \ \ Dataset\ that\ loads\ input/output\ .npy\ cubes\ and\ parses\ the\ energy\ level\ from\ the\ folder\ name.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00189}00189\ \textcolor{stringliteral}{\ \ \ \ Expects\ directory\ structure:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00190}00190\ \textcolor{stringliteral}{\ \ \ \ \ \ root\_dir/}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00191}00191\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ <section>/\ \ \ \ \ \ \ \ \ \#\ e.g.\ "{}training"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00192}00192\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ <energy\_folder>/\ \#\ e.g.\ "{}11\_5"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00193}00193\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ inputcube/\ \ \ \ \ \#\ contains\ input\ .npy\ files}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00194}00194\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ outputcube/\ \ \ \ \#\ contains\ target\ .npy\ files}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00195}00195\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00196}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a7a8e79b6371b377edc04f57d84c2b8ef}{00196}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a7a8e79b6371b377edc04f57d84c2b8ef}{\_\_init\_\_}}(self,\ root\_dir,\ section=None,\ transforms=None):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ base\_dir\ =\ root\_dir\ \textcolor{keywordflow}{if}\ section\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ os.path.join(root\_dir,\ section)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00198}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{00198}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{samples}}\ =\ []}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_folder\ \textcolor{keywordflow}{in}\ sorted(os.listdir(base\_dir)):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ folder\_path\ =\ os.path.join(base\_dir,\ energy\_folder)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Skip\ non-\/directories\ and\ hidden\ entries}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(folder\_path)\ \textcolor{keywordflow}{or}\ energy\_folder.startswith(\textcolor{stringliteral}{'.'}):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ energy\ value\ from\ folder\ name}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\ =\ float(energy\_folder.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ ValueError:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ in\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}inputcube"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ out\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}outputcube"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Skip\ if\ expected\ subdirectories\ do\ not\ exist}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(in\_dir)\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ os.path.isdir(out\_dir):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ fname\ \textcolor{keywordflow}{in}\ sorted(os.listdir(in\_dir)):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ fname.endswith(\textcolor{stringliteral}{"{}.npy"{}}):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_fp\ =\ os.path.join(in\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_fp\ =\ os.path.join(out\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Validate\ sample\ quality\ before\ adding**}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48}{validate\_sample\_quality}}(out\_fp):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{samples}}.append((in\_fp,\ out\_fp,\ energy))}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}Rejected\ sample\ \{fname\}\ (insufficient\ dose)"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00226}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{00226}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy\ levels\ found:\ \{sorted(set([s[2]\ for\ s\ in\ self.samples]))\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Total\ valid\ samples:\ \{len(self.samples)\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00229}00229\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00230}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48}{00230}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48}{validate\_sample\_quality}}(self,\ dose\_path,\ min\_dose\_voxels=20,\ min\_max\_dose=0.01):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00232}00232\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Check\ if\ a\ dose\ sample\ is\ suitable\ for\ training.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00233}00233\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00234}00234\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00235}00235\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dose\_path:\ Path\ to\ dose\ .npy\ file}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00236}00236\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ min\_dose\_voxels:\ Minimum\ number\ of\ dose\ voxels\ required}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00237}00237\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ min\_max\_dose:\ Minimum\ maximum\ dose\ value\ required}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00238}00238\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00239}00239\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00240}00240\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ bool:\ True\ if\ sample\ is\ valid\ for\ training}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00241}00241\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_array\ =\ np.load(dose\_path)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Count\ dose\ voxels}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mask\ =\ dose\_array\ >\ 1e-\/6}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_voxel\_count\ =\ dose\_mask.sum()}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ max\_dose\ =\ dose\_array.max()}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ quality\ criteria}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ is\_valid\ =\ (dose\_voxel\_count\ >=\ min\_dose\_voxels)\ \textcolor{keywordflow}{and}\ (max\_dose\ >=\ min\_max\_dose)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ is\_valid:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.debug(f\textcolor{stringliteral}{"{}Sample\ validation\ failed:\ dose\_voxels=\{dose\_voxel\_count\}\ (min=\{min\_dose\_voxels\}),\ "{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}max\_dose=\{max\_dose:.6f\}\ (min=\{min\_max\_dose\})"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ is\_valid}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Failed\ to\ validate\ sample\ \{dose\_path\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy\ levels\ found:\ \{sorted(set([s[2]\ for\ s\ in\ self.samples]))\}"{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00264}00264\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00265}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ad128d55ca67898987448780e0e163622}{00265}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ad128d55ca67898987448780e0e163622}{\_\_len\_\_}}(self):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ len(self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{samples}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00267}00267\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00268}\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ab8a4deda09aa7669dea99b3a34fbe248}{00268}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ab8a4deda09aa7669dea99b3a34fbe248}{\_\_getitem\_\_}}(self,\ idx):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ in\_fp,\ out\_fp,\ energy\ =\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{samples}}[idx]}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Determine\ if\ LoadImaged\ is\ expected\ by\ checking\ transforms}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ use\_load\_imaged\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}\ \textcolor{keywordflow}{and}\ isinstance(self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}},\ Compose):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ LoadImaged}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ use\_load\_imaged\ =\ any(isinstance(tr,\ LoadImaged)\ \textcolor{keywordflow}{for}\ tr\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}.transforms)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00275}00275\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ use\_load\_imaged:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Return\ file\ paths\ for\ MONAI\ LoadImaged}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ \{}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}input"{}}:\ in\_fp,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}target"{}}:\ out\_fp,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ torch.tensor([energy],\ dtype=torch.float32),}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ arrays\ directly\ for\ tensor-\/based\ pipeline}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ arr\_in\ =\ np.load(in\_fp)\ \ \ \ \textcolor{comment}{\#\ shape\ [D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ arr\_out\ =\ np.load(out\_fp)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ \{}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}input"{}}:\ torch.from\_numpy(arr\_in)[\textcolor{keywordtype}{None}].float(),\ \ \ \ \textcolor{comment}{\#\ [1,D,H,W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}target"{}}:\ torch.from\_numpy(arr\_out)[\textcolor{keywordtype}{None}].float(),\ \ \textcolor{comment}{\#\ [1,D,H,W]}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ torch.tensor([energy],\ dtype=torch.float32),}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Now\ apply\ transforms\ (e.g.,\ EnsureChannelFirstd,\ spacing)\ which\ act\ on\ keys}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ self.\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}(sample)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sample}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00296}00296\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00297}\mbox{\hyperlink{classdata__management_1_1_data_loader_module}{00297}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module}{DataLoaderModule}}:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00298}00298\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00299}00299\ \textcolor{stringliteral}{\ \ \ \ This\ module\ takes\ care\ of\ loading,\ splitting\ and\ creating\ DataLoaders}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00300}00300\ \textcolor{stringliteral}{\ \ \ \ for\ training\ and\ validation\ data\ from\ a\ CustomDataset.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00301}00301\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00302}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ac16842b9a65c120f106f459ec8559c2f}{00302}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ac16842b9a65c120f106f459ec8559c2f}{\_\_init\_\_}}(self,\ root\_dir,\ transforms,\ train\_ratio=0.8,\ seed=42):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00304}00304\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00305}00305\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ root\_dir\ (str):\ The\ root\ directory\ where\ the\ data\ is\ located.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00306}00306\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ transforms\ (monai.transforms.Compose):\ Transforms\ that\ are\ applied\ to\ the\ data.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00307}00307\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ energy\ (optional,\ int\ or\ float):\ Filter\ to\ load\ only\ samples\ of\ a\ certain\ energy.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00308}00308\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ train\_ratio\ (float):\ Ratio\ of\ the\ data\ used\ for\ training.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00309}00309\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ seed\ (int):\ Seed\ for\ the\ reproducibility\ of\ the\ split.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00310}00310\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00311}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}{00311}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}{root\_dir}}\ =\ root\_dir}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00312}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}{00312}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00313}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}{00313}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}{train\_ratio}}\ =\ train\_ratio}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00314}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}{00314}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}{seed}}\ =\ seed}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00316}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a02e0f4054d862c802aa4a960a19386d0}{00316}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a02e0f4054d862c802aa4a960a19386d0}{load\_dataset}}(self,\ section="{}training"{}):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00318}00318\ \textcolor{stringliteral}{\ \ \ \ \ \ Loads\ the\ complete\ dataset\ as\ a\ CustomDataset.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00319}00319\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00320}00320\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00321}00321\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ section\ (str):\ Specifies\ which\ part\ of\ the\ dataset\ is\ to\ be\ loaded\ (e.g.\ “training”).}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00322}00322\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00323}00323\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00324}00324\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ CustomDataset:\ The\ loaded\ dataset.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00325}00325\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Pass\ through\ full\ transform\ pipeline\ (LoadImaged\ remains\ for\ file\ loading)}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset}{DoseNpyDataset}}(self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a5c6533bba553995ba601e63aa62311ba}{root\_dir}},\ section=section,\ transforms=self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_ae256fba3613f3b830bc2f48383afd9d5}{transforms}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00328}00328\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00329}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a535f8b04fced3b878cfa7e1bdd2a1780}{00329}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a535f8b04fced3b878cfa7e1bdd2a1780}{split\_dataset}}(self,\ ds\_full):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00331}00331\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Splits\ the\ complete\ dataset\ into\ training\ and\ validation\ sets.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00332}00332\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00333}00333\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00334}00334\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ ds\_full\ (Dataset):\ The\ complete\ dataset.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00335}00335\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00336}00336\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00337}00337\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ tuple:\ (train\_ds,\ val\_ds)}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00338}00338\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ dataset\_size\ =\ len(ds\_full)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ train\_size\ =\ int(dataset\_size\ *\ self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1f02e438ec5f3fa9dd80fc3ad0e15f1f}{train\_ratio}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ val\_size\ =\ dataset\_size\ -\/\ train\_size}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ train\_ds,\ val\_ds\ =\ random\_split(}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \ \ \ \ ds\_full,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \ \ \ \ [train\_size,\ val\_size],}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ generator=torch.Generator().manual\_seed(self.\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1877161983d11184d4f3b30d5f223316}{seed}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00346}00346\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ train\_ds,\ val\_ds}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00348}00348\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00349}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a0e68fbdbc7c76abbb79581ca41d9c05d}{00349}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a0e68fbdbc7c76abbb79581ca41d9c05d}{custom\_collate}}(self,\ batch):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00351}00351\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Custom\ collate\ function\ that\ checks\ and\ collates\ 'input',\ 'target',\ and\ 'energy'\ if\ available.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00352}00352\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ sample\ \textcolor{keywordflow}{in}\ enumerate(batch):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}input"{}}\ \textcolor{keywordflow}{not}\ \textcolor{keywordflow}{in}\ sample\ \textcolor{keywordflow}{or}\ \textcolor{stringliteral}{"{}target"{}}\ \textcolor{keywordflow}{not}\ \textcolor{keywordflow}{in}\ sample:}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00355}00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Sample\ \{i\}\ is\ missing\ required\ keys\ 'input'\ or\ 'target'."{}})}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ the\ default\ collate\ function\ to\ combine\ the\ dictionaries,\ which\ will\ combine}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ any\ common\ keys\ (including\ 'energy',\ if\ present)}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ torch.utils.data.dataloader.default\_collate(batch)}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00359}00359\ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00360}00360\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00361}\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1657963e4f7847ae195eea9e80c51513}{00361}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classdata__management_1_1_data_loader_module_a1657963e4f7847ae195eea9e80c51513}{create\_data\_loader}}(self,\ dataset,\ batch\_size,\ shuffle,\ num\_workers=0):}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00363}00363\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ Creates\ a\ DataLoader\ from\ the\ given\ dataset.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00364}00364\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00365}00365\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00366}00366\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dataset\ (Dataset):\ The\ dataset\ from\ which\ data\ is\ to\ be\ loaded.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00367}00367\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ batch\_size\ (int):\ Number\ of\ samples\ per\ batch.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00368}00368\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ shuffle\ (bool):\ Whether\ the\ data\ should\ be\ shuffled\ before\ each\ run.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00369}00369\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ num\_workers\ (int):\ Number\ of\ parallel\ processes\ for\ loading\ the\ data.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00370}00370\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00371}00371\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00372}00372\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ DataLoader:\ The\ DataLoader\ created.}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00373}00373\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ DataLoader(}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ \ \ \ \ dataset,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size=batch\_size,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \ \ \ \ shuffle=shuffle,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ num\_workers=num\_workers,}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ persistent\_workers=\textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{data__management_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ )}
+
+\end{DoxyCode}

@@ -1,0 +1,797 @@
+\doxysection{gui.\+Main\+Window Class Reference}
+\hypertarget{classgui_1_1_main_window}{}\label{classgui_1_1_main_window}\index{gui.MainWindow@{gui.MainWindow}}
+Inheritance diagram for gui.\+Main\+Window\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classgui_1_1_main_window}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ad43897c3af129d947ff2f2c2771ab335}{select\+\_\+input\+\_\+folder}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a20e63bfec1754dfc7491107d29cc7c6f}{train\+\_\+model}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_af94494bbc7c38ba1fd0518415db0b9f5}{open\+\_\+file\+\_\+dialog}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a0a364fac0a66a92e34c462dcb4d0eb97}{open\+\_\+model\+\_\+dialog}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a999be86b05866efa13552a01e5baf63a}{calculate\+\_\+dose}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a5bc61970054cad6e01eb729df3bfc649}{on\+\_\+inference\+\_\+finished}} (self, str output\+\_\+path)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a94598dc1295b81610a996eea69a4d333}{on\+\_\+inference\+\_\+error}} (self, str message)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ac16a891ae6f97dfb8f04064ba07a3ff8}{visualize\+\_\+inference\+\_\+results}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ae2dff578f5c7a0fed8182c4893d1076f}{on\+\_\+training\+\_\+finished}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a16a3869377ff51fcfa4c3c14c4e8bf12}{on\+\_\+training\+\_\+error}} (self, msg)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aa4c2a020dbb733877892b047bd847e23}{show\+\_\+training\+\_\+plots}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a1b659bc3f95c814888fb276530e3bb2e}{center}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\+\_\+dir}} = None
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\+\_\+dir}} = None
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{ct\+\_\+file}} = None
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{model\+\_\+checkpoint}} = None
+\item 
+bool \mbox{\hyperlink{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}{model\+\_\+file\+\_\+bool}} = False
+\item 
+bool \mbox{\hyperlink{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}{ct\+\_\+file\+\_\+bool}} = False
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\+\_\+manager}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\+\_\+spin}} = QSpin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\+\_\+spin}} = QSpin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\+\_\+spin}} = QSpin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\+\_\+rate\+\_\+spin}} = QDouble\+Spin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\+\_\+min\+\_\+spin}} = QDouble\+Spin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\+\_\+max\+\_\+spin}} = QDouble\+Spin\+Box(self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6}{open\+\_\+file\+\_\+dialog}} = QPush\+Button("{}Upload CT Scan"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d}{open\+\_\+model\+\_\+dialog}} = QPush\+Button("{}Upload Model File"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\+\_\+button}} = QPush\+Button("{}Calculate Dose"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0}{calculate\+\_\+dose}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{input\+\_\+button}} = QPush\+Button("{}Select one Energy Folder for Training"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce}{select\+\_\+input\+\_\+folder}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{input\+\_\+label}} = QLabel("{}No input folder selected"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\+\_\+button}} = QPush\+Button("{}Train Model"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a}{train\+\_\+model}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\+\_\+plots\+\_\+button}} = QPush\+Button("{}Show Training Graphs"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}{show\+\_\+training\+\_\+plots}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\+\_\+button}} = QPush\+Button("{}Visualize Dose Distribution"{}, self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e}{visualize\+\_\+inference\+\_\+results}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715}{on\+\_\+training\+\_\+finished}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f}{on\+\_\+training\+\_\+error}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}{ct\+\_\+volume}} = data
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af}{on\+\_\+inference\+\_\+finished}} = \mbox{\hyperlink{classgui_1_1_inference_worker}{Inference\+Worker}}(self.\+ct\+\_\+file, self.\+model\+\_\+checkpoint, min\+\_\+e, max\+\_\+e)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7}{on\+\_\+inference\+\_\+error}}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}{dose\+\_\+result\+\_\+path}} = output\+\_\+path
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+str \mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\+\_\+\+INPUT}} = "{}input"{}
+\item 
+str \mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\+\_\+\+TARGET}} = "{}target"{}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{\+\_\+create\+\_\+transforms}} (self, cube\+\_\+size)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6}{\+\_\+create\+\_\+central\+\_\+widget}} (self)
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\+\_\+update\+\_\+ui\+\_\+state}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_acf5d08ed8d7644198cb86e0b17ca7dea}{\+\_\+train\+\_\+thread}} = thread
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a23d7e3f6071b10a90c645d06a7c19a60}{\+\_\+train\+\_\+worker}} = worker
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}{\+\_\+train\+\_\+progress}} = progress
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_adac5660d51ade7ab449367272bf57a58}{\+\_\+infer\+\_\+thread}} = thread
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_aa5fb998f98f5998cb88fb33dfe122e00}{\+\_\+infer\+\_\+worker}} = worker
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}{\+\_\+infer\+\_\+progress}} = progress
+\item 
+\mbox{\hyperlink{classgui_1_1_main_window_a369deb12f3b8152ebd1093ebca8ec922}{\+\_\+plots\+\_\+window}} = plots\+\_\+window
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Main entry point for the RadioTherapy project.
+
+This function sets up the configuration parameters, initializes the SystemManager,
+and triggers the training and inference processes.
+
+MainWindow is the primary GUI window for the RadioTherapy project.
+It provides a menu bar with file actions and a central widget containing buttons for CT upload, dose calculation, and visualization.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00210}{210}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5}\index{gui.MainWindow@{gui.MainWindow}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5} 
+gui.\+Main\+Window.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00224}{224}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6}\index{gui.MainWindow@{gui.MainWindow}!\_create\_central\_widget@{\_create\_central\_widget}}
+\index{\_create\_central\_widget@{\_create\_central\_widget}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_create\_central\_widget()}{\_create\_central\_widget()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6} 
+gui.\+Main\+Window.\+\_\+create\+\_\+central\+\_\+widget (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Sets up the central widget with a vertical layout and adds buttons for CT upload, dose calculation, and visualization.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00281}{281}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}\index{gui.MainWindow@{gui.MainWindow}!\_create\_transforms@{\_create\_transforms}}
+\index{\_create\_transforms@{\_create\_transforms}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_create\_transforms()}{\_create\_transforms()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c} 
+gui.\+Main\+Window.\+\_\+create\+\_\+transforms (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{cube\+\_\+size}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Creates the MONAI transforms pipeline.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00265}{265}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}\index{gui.MainWindow@{gui.MainWindow}!\_update\_ui\_state@{\_update\_ui\_state}}
+\index{\_update\_ui\_state@{\_update\_ui\_state}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_update\_ui\_state()}{\_update\_ui\_state()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775} 
+gui.\+Main\+Window.\+\_\+update\+\_\+ui\+\_\+state (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Centralized method to update the state of UI elements.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00497}{497}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a999be86b05866efa13552a01e5baf63a}\index{gui.MainWindow@{gui.MainWindow}!calculate\_dose@{calculate\_dose}}
+\index{calculate\_dose@{calculate\_dose}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{calculate\_dose()}{calculate\_dose()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a999be86b05866efa13552a01e5baf63a} 
+gui.\+Main\+Window.\+calculate\+\_\+dose (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculate dose distribution using the original InferenceModule directly (standalone approach).
+Now runs in a background thread with a progress dialog.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00727}{727}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a1b659bc3f95c814888fb276530e3bb2e}\index{gui.MainWindow@{gui.MainWindow}!center@{center}}
+\index{center@{center}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{center()}{center()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a1b659bc3f95c814888fb276530e3bb2e} 
+gui.\+Main\+Window.\+center (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Center the window on the screen.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00914}{914}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a94598dc1295b81610a996eea69a4d333}\index{gui.MainWindow@{gui.MainWindow}!on\_inference\_error@{on\_inference\_error}}
+\index{on\_inference\_error@{on\_inference\_error}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_inference\_error()}{on\_inference\_error()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a94598dc1295b81610a996eea69a4d333} 
+gui.\+Main\+Window.\+on\+\_\+inference\+\_\+error (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{message}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00811}{811}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a5bc61970054cad6e01eb729df3bfc649}\index{gui.MainWindow@{gui.MainWindow}!on\_inference\_finished@{on\_inference\_finished}}
+\index{on\_inference\_finished@{on\_inference\_finished}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_inference\_finished()}{on\_inference\_finished()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a5bc61970054cad6e01eb729df3bfc649} 
+gui.\+Main\+Window.\+on\+\_\+inference\+\_\+finished (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{output\+\_\+path}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00795}{795}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a16a3869377ff51fcfa4c3c14c4e8bf12}\index{gui.MainWindow@{gui.MainWindow}!on\_training\_error@{on\_training\_error}}
+\index{on\_training\_error@{on\_training\_error}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_training\_error()}{on\_training\_error()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a16a3869377ff51fcfa4c3c14c4e8bf12} 
+gui.\+Main\+Window.\+on\+\_\+training\+\_\+error (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{msg}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Slot to close progress dialog and show error message on main thread\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00849}{849}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ae2dff578f5c7a0fed8182c4893d1076f}\index{gui.MainWindow@{gui.MainWindow}!on\_training\_finished@{on\_training\_finished}}
+\index{on\_training\_finished@{on\_training\_finished}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_training\_finished()}{on\_training\_finished()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ae2dff578f5c7a0fed8182c4893d1076f} 
+gui.\+Main\+Window.\+on\+\_\+training\+\_\+finished (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Slot to close progress dialog and show success message on main thread\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00838}{838}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_af94494bbc7c38ba1fd0518415db0b9f5}\index{gui.MainWindow@{gui.MainWindow}!open\_file\_dialog@{open\_file\_dialog}}
+\index{open\_file\_dialog@{open\_file\_dialog}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{open\_file\_dialog()}{open\_file\_dialog()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_af94494bbc7c38ba1fd0518415db0b9f5} 
+gui.\+Main\+Window.\+open\+\_\+file\+\_\+dialog (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Opens a file dialog for selecting a CT scan file in NIfTI format.
+If a file is selected, its path is stored and the dose calculation button is enabled.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00650}{650}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a0a364fac0a66a92e34c462dcb4d0eb97}\index{gui.MainWindow@{gui.MainWindow}!open\_model\_dialog@{open\_model\_dialog}}
+\index{open\_model\_dialog@{open\_model\_dialog}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{open\_model\_dialog()}{open\_model\_dialog()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a0a364fac0a66a92e34c462dcb4d0eb97} 
+gui.\+Main\+Window.\+open\+\_\+model\+\_\+dialog (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Opens a file dialog for selecting a model file in .ckpt format.
+If a file is selected, its path is stored and the dose calculation button is enabled.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00692}{692}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ad43897c3af129d947ff2f2c2771ab335}\index{gui.MainWindow@{gui.MainWindow}!select\_input\_folder@{select\_input\_folder}}
+\index{select\_input\_folder@{select\_input\_folder}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{select\_input\_folder()}{select\_input\_folder()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ad43897c3af129d947ff2f2c2771ab335} 
+gui.\+Main\+Window.\+select\+\_\+input\+\_\+folder (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Opens a directory dialog to select the output cubes folder for training.
+Enables the Train button if both folders are selected.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00431}{431}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aa4c2a020dbb733877892b047bd847e23}\index{gui.MainWindow@{gui.MainWindow}!show\_training\_plots@{show\_training\_plots}}
+\index{show\_training\_plots@{show\_training\_plots}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{show\_training\_plots()}{show\_training\_plots()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aa4c2a020dbb733877892b047bd847e23} 
+gui.\+Main\+Window.\+show\+\_\+training\+\_\+plots (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Open a window showing the three training plot images together.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00857}{857}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a20e63bfec1754dfc7491107d29cc7c6f}\index{gui.MainWindow@{gui.MainWindow}!train\_model@{train\_model}}
+\index{train\_model@{train\_model}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{train\_model()}{train\_model()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a20e63bfec1754dfc7491107d29cc7c6f} 
+gui.\+Main\+Window.\+train\+\_\+model (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calls the training pipeline using the selected input and output folders.
+Expects both folders to be subdirectories of the same parent (root) folder.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00506}{506}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ac16a891ae6f97dfb8f04064ba07a3ff8}\index{gui.MainWindow@{gui.MainWindow}!visualize\_inference\_results@{visualize\_inference\_results}}
+\index{visualize\_inference\_results@{visualize\_inference\_results}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{visualize\_inference\_results()}{visualize\_inference\_results()}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ac16a891ae6f97dfb8f04064ba07a3ff8} 
+gui.\+Main\+Window.\+visualize\+\_\+inference\+\_\+results (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Visualizes the calculated dose distribution from inference results and embeds it in the GUI window.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00818}{818}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}\index{gui.MainWindow@{gui.MainWindow}!\_infer\_progress@{\_infer\_progress}}
+\index{\_infer\_progress@{\_infer\_progress}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_infer\_progress}{\_infer\_progress}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585} 
+gui.\+Main\+Window.\+\_\+infer\+\_\+progress = progress\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00789}{789}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_adac5660d51ade7ab449367272bf57a58}\index{gui.MainWindow@{gui.MainWindow}!\_infer\_thread@{\_infer\_thread}}
+\index{\_infer\_thread@{\_infer\_thread}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_infer\_thread}{\_infer\_thread}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_adac5660d51ade7ab449367272bf57a58} 
+gui.\+Main\+Window.\+\_\+infer\+\_\+thread = thread\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00787}{787}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aa5fb998f98f5998cb88fb33dfe122e00}\index{gui.MainWindow@{gui.MainWindow}!\_infer\_worker@{\_infer\_worker}}
+\index{\_infer\_worker@{\_infer\_worker}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_infer\_worker}{\_infer\_worker}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aa5fb998f98f5998cb88fb33dfe122e00} 
+gui.\+Main\+Window.\+\_\+infer\+\_\+worker = worker\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00788}{788}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a369deb12f3b8152ebd1093ebca8ec922}\index{gui.MainWindow@{gui.MainWindow}!\_plots\_window@{\_plots\_window}}
+\index{\_plots\_window@{\_plots\_window}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_plots\_window}{\_plots\_window}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a369deb12f3b8152ebd1093ebca8ec922} 
+gui.\+Main\+Window.\+\_\+plots\+\_\+window = plots\+\_\+window\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00912}{912}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}\index{gui.MainWindow@{gui.MainWindow}!\_train\_progress@{\_train\_progress}}
+\index{\_train\_progress@{\_train\_progress}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_train\_progress}{\_train\_progress}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1} 
+gui.\+Main\+Window.\+\_\+train\+\_\+progress = progress\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00644}{644}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_acf5d08ed8d7644198cb86e0b17ca7dea}\index{gui.MainWindow@{gui.MainWindow}!\_train\_thread@{\_train\_thread}}
+\index{\_train\_thread@{\_train\_thread}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_train\_thread}{\_train\_thread}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_acf5d08ed8d7644198cb86e0b17ca7dea} 
+gui.\+Main\+Window.\+\_\+train\+\_\+thread = thread\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00642}{642}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a23d7e3f6071b10a90c645d06a7c19a60}\index{gui.MainWindow@{gui.MainWindow}!\_train\_worker@{\_train\_worker}}
+\index{\_train\_worker@{\_train\_worker}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{\_train\_worker}{\_train\_worker}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a23d7e3f6071b10a90c645d06a7c19a60} 
+gui.\+Main\+Window.\+\_\+train\+\_\+worker = worker\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00643}{643}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}\index{gui.MainWindow@{gui.MainWindow}!batch\_spin@{batch\_spin}}
+\index{batch\_spin@{batch\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{batch\_spin}{batch\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec} 
+gui.\+Main\+Window.\+batch\+\_\+spin = QSpin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00315}{315}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0}\index{gui.MainWindow@{gui.MainWindow}!calculate\_dose@{calculate\_dose}}
+\index{calculate\_dose@{calculate\_dose}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{calculate\_dose}{calculate\_dose}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0} 
+gui.\+Main\+Window.\+calculate\+\_\+dose}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00396}{396}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}\index{gui.MainWindow@{gui.MainWindow}!ct\_file@{ct\_file}}
+\index{ct\_file@{ct\_file}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{ct\_file}{ct\_file}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0} 
+gui.\+Main\+Window.\+ct\+\_\+file = None}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00231}{231}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}\index{gui.MainWindow@{gui.MainWindow}!ct\_file\_bool@{ct\_file\_bool}}
+\index{ct\_file\_bool@{ct\_file\_bool}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{ct\_file\_bool}{ct\_file\_bool}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401} 
+bool gui.\+Main\+Window.\+ct\+\_\+file\+\_\+bool = False}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00234}{234}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}\index{gui.MainWindow@{gui.MainWindow}!ct\_volume@{ct\_volume}}
+\index{ct\_volume@{ct\_volume}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{ct\_volume}{ct\_volume}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676} 
+gui.\+Main\+Window.\+ct\+\_\+volume = data}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00677}{677}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}\index{gui.MainWindow@{gui.MainWindow}!dose\_button@{dose\_button}}
+\index{dose\_button@{dose\_button}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{dose\_button}{dose\_button}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf} 
+gui.\+Main\+Window.\+dose\+\_\+button = QPush\+Button("{}Calculate Dose"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00393}{393}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}\index{gui.MainWindow@{gui.MainWindow}!dose\_result\_path@{dose\_result\_path}}
+\index{dose\_result\_path@{dose\_result\_path}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{dose\_result\_path}{dose\_result\_path}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1} 
+gui.\+Main\+Window.\+dose\+\_\+result\+\_\+path = output\+\_\+path}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00800}{800}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}\index{gui.MainWindow@{gui.MainWindow}!energy\_max\_spin@{energy\_max\_spin}}
+\index{energy\_max\_spin@{energy\_max\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{energy\_max\_spin}{energy\_max\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061} 
+gui.\+Main\+Window.\+energy\+\_\+max\+\_\+spin = QDouble\+Spin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00373}{373}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}\index{gui.MainWindow@{gui.MainWindow}!energy\_min\_spin@{energy\_min\_spin}}
+\index{energy\_min\_spin@{energy\_min\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{energy\_min\_spin}{energy\_min\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b} 
+gui.\+Main\+Window.\+energy\+\_\+min\+\_\+spin = QDouble\+Spin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00365}{365}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}\index{gui.MainWindow@{gui.MainWindow}!epochs\_spin@{epochs\_spin}}
+\index{epochs\_spin@{epochs\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{epochs\_spin}{epochs\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9} 
+gui.\+Main\+Window.\+epochs\+\_\+spin = QSpin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00322}{322}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}\index{gui.MainWindow@{gui.MainWindow}!input\_button@{input\_button}}
+\index{input\_button@{input\_button}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{input\_button}{input\_button}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c} 
+gui.\+Main\+Window.\+input\+\_\+button = QPush\+Button("{}Select one Energy Folder for Training"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00400}{400}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}\index{gui.MainWindow@{gui.MainWindow}!input\_dir@{input\_dir}}
+\index{input\_dir@{input\_dir}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{input\_dir}{input\_dir}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066} 
+gui.\+Main\+Window.\+input\+\_\+dir = None}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00229}{229}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}\index{gui.MainWindow@{gui.MainWindow}!input\_label@{input\_label}}
+\index{input\_label@{input\_label}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{input\_label}{input\_label}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628} 
+gui.\+Main\+Window.\+input\+\_\+label = QLabel("{}No input folder selected"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00405}{405}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}\index{gui.MainWindow@{gui.MainWindow}!KEY\_INPUT@{KEY\_INPUT}}
+\index{KEY\_INPUT@{KEY\_INPUT}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{KEY\_INPUT}{KEY\_INPUT}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59} 
+str gui.\+Main\+Window.\+KEY\+\_\+\+INPUT = "{}input"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00221}{221}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}\index{gui.MainWindow@{gui.MainWindow}!KEY\_TARGET@{KEY\_TARGET}}
+\index{KEY\_TARGET@{KEY\_TARGET}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{KEY\_TARGET}{KEY\_TARGET}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411} 
+str gui.\+Main\+Window.\+KEY\+\_\+\+TARGET = "{}target"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00222}{222}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}\index{gui.MainWindow@{gui.MainWindow}!learning\_rate\_spin@{learning\_rate\_spin}}
+\index{learning\_rate\_spin@{learning\_rate\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{learning\_rate\_spin}{learning\_rate\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16} 
+gui.\+Main\+Window.\+learning\+\_\+rate\+\_\+spin = QDouble\+Spin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00335}{335}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}\index{gui.MainWindow@{gui.MainWindow}!model\_checkpoint@{model\_checkpoint}}
+\index{model\_checkpoint@{model\_checkpoint}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{model\_checkpoint}{model\_checkpoint}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5} 
+gui.\+Main\+Window.\+model\+\_\+checkpoint = None}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00232}{232}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}\index{gui.MainWindow@{gui.MainWindow}!model\_file\_bool@{model\_file\_bool}}
+\index{model\_file\_bool@{model\_file\_bool}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{model\_file\_bool}{model\_file\_bool}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175} 
+gui.\+Main\+Window.\+model\+\_\+file\+\_\+bool = False}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00233}{233}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7}\index{gui.MainWindow@{gui.MainWindow}!on\_inference\_error@{on\_inference\_error}}
+\index{on\_inference\_error@{on\_inference\_error}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_inference\_error}{on\_inference\_error}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7} 
+gui.\+Main\+Window.\+on\+\_\+inference\+\_\+error}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00784}{784}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af}\index{gui.MainWindow@{gui.MainWindow}!on\_inference\_finished@{on\_inference\_finished}}
+\index{on\_inference\_finished@{on\_inference\_finished}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_inference\_finished}{on\_inference\_finished}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af} 
+gui.\+Main\+Window.\+on\+\_\+inference\+\_\+finished = \mbox{\hyperlink{classgui_1_1_inference_worker}{Inference\+Worker}}(self.\+ct\+\_\+file, self.\+model\+\_\+checkpoint, min\+\_\+e, max\+\_\+e)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00783}{783}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f}\index{gui.MainWindow@{gui.MainWindow}!on\_training\_error@{on\_training\_error}}
+\index{on\_training\_error@{on\_training\_error}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_training\_error}{on\_training\_error}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f} 
+gui.\+Main\+Window.\+on\+\_\+training\+\_\+error}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00640}{640}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715}\index{gui.MainWindow@{gui.MainWindow}!on\_training\_finished@{on\_training\_finished}}
+\index{on\_training\_finished@{on\_training\_finished}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{on\_training\_finished}{on\_training\_finished}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715} 
+gui.\+Main\+Window.\+on\+\_\+training\+\_\+finished}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00639}{639}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6}\index{gui.MainWindow@{gui.MainWindow}!open\_file\_dialog@{open\_file\_dialog}}
+\index{open\_file\_dialog@{open\_file\_dialog}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{open\_file\_dialog}{open\_file\_dialog}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6} 
+gui.\+Main\+Window.\+open\+\_\+file\+\_\+dialog = QPush\+Button("{}Upload CT Scan"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00383}{383}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d}\index{gui.MainWindow@{gui.MainWindow}!open\_model\_dialog@{open\_model\_dialog}}
+\index{open\_model\_dialog@{open\_model\_dialog}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{open\_model\_dialog}{open\_model\_dialog}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d} 
+gui.\+Main\+Window.\+open\+\_\+model\+\_\+dialog = QPush\+Button("{}Upload Model File"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00389}{389}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}\index{gui.MainWindow@{gui.MainWindow}!output\_dir@{output\_dir}}
+\index{output\_dir@{output\_dir}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{output\_dir}{output\_dir}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998} 
+gui.\+Main\+Window.\+output\+\_\+dir = None}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00230}{230}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}\index{gui.MainWindow@{gui.MainWindow}!patience\_spin@{patience\_spin}}
+\index{patience\_spin@{patience\_spin}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{patience\_spin}{patience\_spin}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91} 
+gui.\+Main\+Window.\+patience\+\_\+spin = QSpin\+Box(self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00329}{329}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}\index{gui.MainWindow@{gui.MainWindow}!pm@{pm}}
+\index{pm@{pm}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{pm}{pm}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006} 
+gui.\+Main\+Window.\+pm}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ ParameterManager(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ energies=[0],\ batch\_size=2,\ cube\_size=64,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=5,\ learning\_rate=1e-\/4,\ patience=3}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00238}{238}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce}\index{gui.MainWindow@{gui.MainWindow}!select\_input\_folder@{select\_input\_folder}}
+\index{select\_input\_folder@{select\_input\_folder}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{select\_input\_folder}{select\_input\_folder}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce} 
+gui.\+Main\+Window.\+select\+\_\+input\+\_\+folder}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00402}{402}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}\index{gui.MainWindow@{gui.MainWindow}!show\_plots\_button@{show\_plots\_button}}
+\index{show\_plots\_button@{show\_plots\_button}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{show\_plots\_button}{show\_plots\_button}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d} 
+gui.\+Main\+Window.\+show\+\_\+plots\+\_\+button = QPush\+Button("{}Show Training Graphs"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00414}{414}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}\index{gui.MainWindow@{gui.MainWindow}!show\_training\_plots@{show\_training\_plots}}
+\index{show\_training\_plots@{show\_training\_plots}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{show\_training\_plots}{show\_training\_plots}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1} 
+gui.\+Main\+Window.\+show\+\_\+training\+\_\+plots}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00417}{417}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}\index{gui.MainWindow@{gui.MainWindow}!system\_manager@{system\_manager}}
+\index{system\_manager@{system\_manager}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{system\_manager}{system\_manager}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c} 
+gui.\+Main\+Window.\+system\+\_\+manager}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ SystemManager(}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}"{}},\ transforms=transforms\_chain,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ resolutions=self.pm.resolutions,\ energies=self.pm.energies,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ quad\_energies=self.pm.quad\_energies,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ quad\_weights=self.pm.quad\_weights,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ batch\_size=self.pm.batch\_size,\ device=device,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=self.pm.num\_epochs,\ learning\_rate=self.pm.learning\_rate,\ patience=self.pm.patience,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ cube\_size=\ self.pm.cube\_size,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ energy\_min=0.0,\ energy\_max=50.0,}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ seed=42}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ )}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00245}{245}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}\index{gui.MainWindow@{gui.MainWindow}!train\_button@{train\_button}}
+\index{train\_button@{train\_button}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{train\_button}{train\_button}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33} 
+gui.\+Main\+Window.\+train\+\_\+button = QPush\+Button("{}Train Model"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00408}{408}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a}\index{gui.MainWindow@{gui.MainWindow}!train\_model@{train\_model}}
+\index{train\_model@{train\_model}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{train\_model}{train\_model}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a} 
+gui.\+Main\+Window.\+train\+\_\+model}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00411}{411}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}\index{gui.MainWindow@{gui.MainWindow}!visualize\_button@{visualize\_button}}
+\index{visualize\_button@{visualize\_button}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{visualize\_button}{visualize\_button}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4} 
+gui.\+Main\+Window.\+visualize\+\_\+button = QPush\+Button("{}Visualize Dose Distribution"{}, self)}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00421}{421}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+\Hypertarget{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e}\index{gui.MainWindow@{gui.MainWindow}!visualize\_inference\_results@{visualize\_inference\_results}}
+\index{visualize\_inference\_results@{visualize\_inference\_results}!gui.MainWindow@{gui.MainWindow}}
+\doxysubsubsection{\texorpdfstring{visualize\_inference\_results}{visualize\_inference\_results}}
+{\footnotesize\ttfamily \label{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e} 
+gui.\+Main\+Window.\+visualize\+\_\+inference\+\_\+results}
+
+
+
+Definition at line \mbox{\hyperlink{gui_8py_source_l00424}{424}} of file \mbox{\hyperlink{gui_8py_source}{gui.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{gui_8py}{gui.\+py}}\end{DoxyCompactItemize}

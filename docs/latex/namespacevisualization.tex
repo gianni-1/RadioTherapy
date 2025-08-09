@@ -1,0 +1,84 @@
+\doxysection{visualization Namespace Reference}
+\hypertarget{namespacevisualization}{}\label{namespacevisualization}\index{visualization@{visualization}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classvisualization_1_1_mpl_canvas}{Mpl\+Canvas}}
+\item 
+class \mbox{\hyperlink{classvisualization_1_1_visualization}{Visualization}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacevisualization_a6d19a65b3e4f765fe4e3823c862d2a08}{load\+\_\+and\+\_\+visualize}} (nifti\+\_\+path, ct\+\_\+scan=None, title="{}Dose distribution -\/ Axial View"{})
+\item 
+\mbox{\hyperlink{namespacevisualization_a992a698c7ffd24b25b152afb16600253}{get\+\_\+visualization\+\_\+widget}} (figure)
+\item 
+\mbox{\hyperlink{namespacevisualization_a6ac1c1daed6c32dc047ae1299a5a256b}{interactive\+\_\+slice\+\_\+viewer}} (cube, ct\+\_\+volume=None, title="{}Interactive Slice Viewer"{}, show=True)
+\item 
+\mbox{\hyperlink{namespacevisualization_ae2629e03b9349bee6c1dd88a8d93a3ca}{volume\+\_\+rendering}} (cube, opacity=0.\+2, surface\+\_\+count=20)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacevisualization_a992a698c7ffd24b25b152afb16600253}\index{visualization@{visualization}!get\_visualization\_widget@{get\_visualization\_widget}}
+\index{get\_visualization\_widget@{get\_visualization\_widget}!visualization@{visualization}}
+\doxysubsubsection{\texorpdfstring{get\_visualization\_widget()}{get\_visualization\_widget()}}
+{\footnotesize\ttfamily \label{namespacevisualization_a992a698c7ffd24b25b152afb16600253} 
+visualization.\+get\+\_\+visualization\+\_\+widget (\begin{DoxyParamCaption}\item[{}]{figure}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Converts a matplotlib figure to a Qt widget for embedding in the GUI.
+
+Args:
+    figure: matplotlib.figure.Figure object
+
+Returns:
+    MplCanvas: A Qt widget containing the visualization
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00188}{188}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{namespacevisualization_a6ac1c1daed6c32dc047ae1299a5a256b}\index{visualization@{visualization}!interactive\_slice\_viewer@{interactive\_slice\_viewer}}
+\index{interactive\_slice\_viewer@{interactive\_slice\_viewer}!visualization@{visualization}}
+\doxysubsubsection{\texorpdfstring{interactive\_slice\_viewer()}{interactive\_slice\_viewer()}}
+{\footnotesize\ttfamily \label{namespacevisualization_a6ac1c1daed6c32dc047ae1299a5a256b} 
+visualization.\+interactive\+\_\+slice\+\_\+viewer (\begin{DoxyParamCaption}\item[{}]{cube}{, }\item[{}]{ct\+\_\+volume}{ = {\ttfamily None}, }\item[{}]{title}{ = {\ttfamily "{}Interactive~Slice~Viewer"{}}, }\item[{}]{show}{ = {\ttfamily True}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Launches an interactive Matplotlib window with a slider to browse through axial slices of a 3D volume.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00201}{201}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{namespacevisualization_a6d19a65b3e4f765fe4e3823c862d2a08}\index{visualization@{visualization}!load\_and\_visualize@{load\_and\_visualize}}
+\index{load\_and\_visualize@{load\_and\_visualize}!visualization@{visualization}}
+\doxysubsubsection{\texorpdfstring{load\_and\_visualize()}{load\_and\_visualize()}}
+{\footnotesize\ttfamily \label{namespacevisualization_a6d19a65b3e4f765fe4e3823c862d2a08} 
+visualization.\+load\+\_\+and\+\_\+visualize (\begin{DoxyParamCaption}\item[{}]{nifti\+\_\+path}{, }\item[{}]{ct\+\_\+scan}{ = {\ttfamily None}, }\item[{}]{title}{ = {\ttfamily "{}Dose~distribution~-\/~Axial~View"{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Loads a Nifti dose distribution file and visualizes its middle axial slice.
+
+Args:
+    nifti_path: Path to the NIfTI file
+    title: Title for the visualization
+
+Returns:
+    matplotlib.figure.Figure: A figure object that can be displayed
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00161}{161}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+
+\Hypertarget{namespacevisualization_ae2629e03b9349bee6c1dd88a8d93a3ca}\index{visualization@{visualization}!volume\_rendering@{volume\_rendering}}
+\index{volume\_rendering@{volume\_rendering}!visualization@{visualization}}
+\doxysubsubsection{\texorpdfstring{volume\_rendering()}{volume\_rendering()}}
+{\footnotesize\ttfamily \label{namespacevisualization_ae2629e03b9349bee6c1dd88a8d93a3ca} 
+visualization.\+volume\+\_\+rendering (\begin{DoxyParamCaption}\item[{}]{cube}{, }\item[{}]{opacity}{ = {\ttfamily 0.2}, }\item[{}]{surface\+\_\+count}{ = {\ttfamily 20}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Performs a 3D volume rendering of a normalized 3D array using Plotly.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{visualization_8py_source_l00301}{301}} of file \mbox{\hyperlink{visualization_8py_source}{visualization.\+py}}.
+

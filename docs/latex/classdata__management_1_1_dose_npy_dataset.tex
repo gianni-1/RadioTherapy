@@ -1,0 +1,125 @@
+\doxysection{data\+\_\+management.\+Dose\+Npy\+Dataset Class Reference}
+\hypertarget{classdata__management_1_1_dose_npy_dataset}{}\label{classdata__management_1_1_dose_npy_dataset}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+Inheritance diagram for data\+\_\+management.\+Dose\+Npy\+Dataset\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classdata__management_1_1_dose_npy_dataset}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a7a8e79b6371b377edc04f57d84c2b8ef}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, root\+\_\+dir, section=None, \mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}}=None)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48}{validate\+\_\+sample\+\_\+quality}} (self, dose\+\_\+path, min\+\_\+dose\+\_\+voxels=20, min\+\_\+max\+\_\+dose=0.\+01)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ad128d55ca67898987448780e0e163622}{\+\_\+\+\_\+len\+\_\+\+\_\+}} (self)
+\item 
+\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_ab8a4deda09aa7669dea99b3a34fbe248}{\+\_\+\+\_\+getitem\+\_\+\+\_\+}} (self, idx)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+list \mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}{samples}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}{transforms}} = transforms
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Dataset that loads input/output .npy cubes and parses the energy level from the folder name.
+Expects directory structure:
+  root_dir/
+    <section>/         # e.g. "training"
+      <energy_folder>/ # e.g. "11_5"
+        inputcube/     # contains input .npy files
+        outputcube/    # contains target .npy files
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00186}{186}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_a7a8e79b6371b377edc04f57d84c2b8ef}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_a7a8e79b6371b377edc04f57d84c2b8ef} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{root\+\_\+dir}{, }\item[{}]{section}{ = {\ttfamily None}, }\item[{}]{transforms}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00196}{196}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_ab8a4deda09aa7669dea99b3a34fbe248}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!\_\_getitem\_\_@{\_\_getitem\_\_}}
+\index{\_\_getitem\_\_@{\_\_getitem\_\_}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_getitem\_\_()}{\_\_getitem\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_ab8a4deda09aa7669dea99b3a34fbe248} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+\_\+\+\_\+getitem\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{idx}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00268}{268}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_ad128d55ca67898987448780e0e163622}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!\_\_len\_\_@{\_\_len\_\_}}
+\index{\_\_len\_\_@{\_\_len\_\_}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{\_\_len\_\_()}{\_\_len\_\_()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_ad128d55ca67898987448780e0e163622} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+\_\+\+\_\+len\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00265}{265}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!validate\_sample\_quality@{validate\_sample\_quality}}
+\index{validate\_sample\_quality@{validate\_sample\_quality}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{validate\_sample\_quality()}{validate\_sample\_quality()}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_ae4a4495f81a75d4c735de04467936f48} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+validate\+\_\+sample\+\_\+quality (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{dose\+\_\+path}{, }\item[{}]{min\+\_\+dose\+\_\+voxels}{ = {\ttfamily 20}, }\item[{}]{min\+\_\+max\+\_\+dose}{ = {\ttfamily 0.01}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Check if a dose sample is suitable for training.
+
+Args:
+    dose_path: Path to dose .npy file
+    min_dose_voxels: Minimum number of dose voxels required
+    min_max_dose: Minimum maximum dose value required
+    
+Returns:
+    bool: True if sample is valid for training
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00230}{230}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!samples@{samples}}
+\index{samples@{samples}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{samples}{samples}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_abbafa9672f2c8ded788abeeeb74fb6be} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+samples = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00198}{198}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+\Hypertarget{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737}\index{data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}!transforms@{transforms}}
+\index{transforms@{transforms}!data\_management.DoseNpyDataset@{data\_management.DoseNpyDataset}}
+\doxysubsubsection{\texorpdfstring{transforms}{transforms}}
+{\footnotesize\ttfamily \label{classdata__management_1_1_dose_npy_dataset_a72b57d1499152b0316dbb02a1f52b737} 
+data\+\_\+management.\+Dose\+Npy\+Dataset.\+transforms = transforms}
+
+
+
+Definition at line \mbox{\hyperlink{data__management_8py_source_l00226}{226}} of file \mbox{\hyperlink{data__management_8py_source}{data\+\_\+management.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{data__management_8py}{data\+\_\+management.\+py}}\end{DoxyCompactItemize}

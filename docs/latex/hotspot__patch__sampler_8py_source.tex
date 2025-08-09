@@ -1,0 +1,42 @@
+\doxysection{hotspot\+\_\+patch\+\_\+sampler.\+py}
+\hypertarget{hotspot__patch__sampler_8py_source}{}\label{hotspot__patch__sampler_8py_source}\index{sourcecode/hotspot\_patch\_sampler.py@{sourcecode/hotspot\_patch\_sampler.py}}
+\mbox{\hyperlink{hotspot__patch__sampler_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00001}\mbox{\hyperlink{namespacehotspot__patch__sampler}{00001}}\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00002}00002\ }
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00003}\mbox{\hyperlink{namespacehotspot__patch__sampler_abdc867bb75b609b1d6d7d60e6117e3f1}{00003}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacehotspot__patch__sampler_abdc867bb75b609b1d6d7d60e6117e3f1}{extract\_hotspot\_patches}}(volume,\ patch\_size=(32,32,32),\ min\_hotspot\_voxels=10,\ dose\_threshold=0.1,\ max\_patches=16,\ random\_patches=2):}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00004}00004\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00005}00005\ \textcolor{stringliteral}{\ \ \ \ Extracts\ patches\ from\ a\ 3D\ volume\ where\ the\ number\ of\ voxels\ above\ a\ certain\ threshold\ is\ sufficient.}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00006}00006\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00007}00007\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ volume:\ 3D\ numpy\ array\ representing\ the\ dose\ distribution}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00008}00008\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ patch\_size:\ Size\ of\ the\ patches\ to\ extract\ (z,\ y,\ x)}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00009}00009\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ min\_hotspot\_voxels:\ Minimum\ number\ of\ voxels\ in\ a\ patch\ that\ must\ be\ above\ the\ dose\ threshold}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00010}00010\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ dose\_threshold:\ Dose\ threshold\ to\ consider\ a\ voxel\ as\ part\ of\ a\ hotspot}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00011}00011\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ max\_patches:\ Maximum\ number\ of\ patches\ to\ extract}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ random\_patches:\ Number\ of\ additional\ random\ patches\ to\ add}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00013}00013\ \textcolor{stringliteral}{\ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00014}00014\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ List\ of\ Patch-\/Start-\/Indices\ (e.g.\ [(z,y,x),\ ...])}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00015}00015\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00016}00016\ \ \ \ \ D,\ H,\ W\ =\ volume.shape}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00017}00017\ \ \ \ \ dz,\ dy,\ dx\ =\ patch\_size}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00018}00018\ \ \ \ \ patches\ =\ []}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00019}00019\ \ \ \ \ \textcolor{comment}{\#\ Iterate\ over\ the\ volume\ with\ a\ step\ size\ of\ half\ the\ patch\ size}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00020}00020\ \ \ \ \ \textcolor{keywordflow}{for}\ z\ \textcolor{keywordflow}{in}\ range(0,\ D-\/dz+1,\ dz//2):}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00021}00021\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ y\ \textcolor{keywordflow}{in}\ range(0,\ H-\/dy+1,\ dy//2):}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ x\ \textcolor{keywordflow}{in}\ range(0,\ W-\/dx+1,\ dx//2):}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\ =\ volume[z:z+dz,\ y:y+dy,\ x:x+dx]}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ np.count\_nonzero(patch\ >\ dose\_threshold)\ >=\ min\_hotspot\_voxels:}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00025}00025\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patches.append((z,\ y,\ x))}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00026}00026\ \ \ \ \ \textcolor{comment}{\#\ if\ there\ are\ too\ many\ patches,\ randomly\ sample}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00027}00027\ \ \ \ \ \textcolor{keywordflow}{if}\ len(patches)\ >\ max\_patches:}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ random}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ patches\ =\ random.sample(patches,\ min(max\_patches,\ len(patches)))}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00030}00030\ \ \ \ \ \textcolor{comment}{\#\ Add\ some\ random\ patches}}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00031}00031\ \ \ \ \ \textcolor{keywordflow}{for}\ \_\ \textcolor{keywordflow}{in}\ range(random\_patches):}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ z\ =\ np.random.randint(0,\ D-\/dz+1)}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ y\ =\ np.random.randint(0,\ H-\/dy+1)}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ x\ =\ np.random.randint(0,\ W-\/dx+1)}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ patches.append((z,\ y,\ x))}
+\DoxyCodeLine{\Hypertarget{hotspot__patch__sampler_8py_source_l00036}00036\ \ \ \ \ \textcolor{keywordflow}{return}\ patches}
+
+\end{DoxyCode}

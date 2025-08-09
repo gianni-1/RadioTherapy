@@ -1,0 +1,285 @@
+\doxysection{simple\+\_\+inference\+\_\+test.\+py}
+\hypertarget{simple__inference__test_8py_source}{}\label{simple__inference__test_8py_source}\index{tests/simple\_inference\_test.py@{tests/simple\_inference\_test.py}}
+\mbox{\hyperlink{simple__inference__test_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00001}\mbox{\hyperlink{namespacesimple__inference__test}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00003}00003\ \textcolor{stringliteral}{Simple\ test\ to\ compare\ inference\ output\ with\ ground\ truth\ data.}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00006}00006\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00007}00007\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00008}00008\ \textcolor{keyword}{import}\ torch.nn.functional\ \textcolor{keyword}{as}\ F}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00009}00009\ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00010}00010\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00011}00011\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00013}00013\ \textcolor{comment}{\#\ Setup\ logging}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00014}\mbox{\hyperlink{namespacesimple__inference__test_ac39cf923bcdfbf43008f54e98dd5b6db}{00014}}\ logging.basicConfig(level=logging.INFO)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00015}\mbox{\hyperlink{namespacesimple__inference__test_a9bd5d223ce5cab2c7e23edef78cf4798}{00015}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00017}\mbox{\hyperlink{namespacesimple__inference__test_adfffeb27738fb94b2db6bcfa14a4bae7}{00017}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacesimple__inference__test_adfffeb27738fb94b2db6bcfa14a4bae7}{main}}():}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00018}00018\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ Simple\ comparison\ between\ inference\ and\ ground\ truth.}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00021}00021\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ SIMPLE\ INFERENCE\ TEST\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00022}00022\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00023}00023\ \ \ \ \ \textcolor{comment}{\#\ 1.\ Load\ ground\ truth\ data}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00024}00024\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ ground\ truth\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00025}00025\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00026}00026\ \ \ \ \ \textcolor{comment}{\#\ Load\ input\ and\ output\ from\ 11.5\ keV\ energy}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00027}00027\ \ \ \ \ input\_file\ =\ Path(\textcolor{stringliteral}{"{}traindata/11\_5/inputcube/235101017859661465075472232303048949736\_0.npy"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00028}00028\ \ \ \ \ output\_file\ =\ Path(\textcolor{stringliteral}{"{}traindata/11\_5/outputcube/235101017859661465075472232303048949736\_0.npy"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00029}00029\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00030}00030\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ input\_file.exists()\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ output\_file.exists():}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Files\ not\ found:\ \{input\_file\},\ \{output\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00033}00033\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00034}00034\ \ \ \ \ input\_data\ =\ np.load(input\_file)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00035}00035\ \ \ \ \ output\_data\ =\ np.load(output\_file)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00036}00036\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00037}00037\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Input\ shape:\ \{input\_data.shape\},\ range:\ \{input\_data.min():.3f\}\ to\ \{input\_data.max():.3f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00038}00038\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ shape:\ \{output\_data.shape\},\ range:\ \{output\_data.min():.6f\}\ to\ \{output\_data.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00039}00039\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00040}00040\ \ \ \ \ \textcolor{comment}{\#\ 2.\ Load\ the\ trained\ model}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00041}00041\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ model..."{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00042}00042\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00043}00043\ \ \ \ \ model\_path\ =\ \textcolor{stringliteral}{"{}unified\_energy\_conditioned\_model\_res16.0\_energies3.ckpt"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00044}00044\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ Path(model\_path).exists():}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Model\ not\ found:\ \{model\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00047}00047\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00048}00048\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ checkpoint\ =\ torch.load(model\_path,\ map\_location=\textcolor{stringliteral}{'cpu'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Checkpoint\ keys:\ \{list(checkpoint.keys())\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ to\ understand\ the\ model\ structure}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'unet'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ unet\_state\ =\ checkpoint[\textcolor{stringliteral}{'unet'}]}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ autoencoder\_state\ =\ checkpoint.get(\textcolor{stringliteral}{'autoencoder'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ scheduler\_state\ =\ checkpoint.get(\textcolor{stringliteral}{'scheduler'},\ \{\})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ separate\ components:\ unet,\ autoencoder,\ scheduler"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}UNet\ state\ keys\ (first\ 10):\ \{list(unet\_state.keys())[:10]\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ UNet\ architecture}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ input\_layer\_found\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key\ \textcolor{keywordflow}{in}\ unet\_state.keys():}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'conv'}\ \textcolor{keywordflow}{in}\ key.lower()\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{'weight'}\ \textcolor{keywordflow}{in}\ key:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ weight\_shape\ =\ unet\_state[key].shape}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}UNet\ layer\ \{key\}:\ weight\ shape\ \{weight\_shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ input\_layer\_found:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}First\ conv\ layer\ appears\ to\ expect\ \{weight\_shape[1]\}\ input\ channels"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_layer\_found\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ model\_state\ =\ unet\_state}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ \textcolor{stringliteral}{'model\_state\_dict'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ model\_state\ =\ checkpoint[\textcolor{stringliteral}{'model\_state\_dict'}]}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ model\_state\ =\ checkpoint}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Print\ some\ keys\ to\ understand\ the\ model}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ state\_keys\ =\ list(model\_state.keys())[:10]\ \ \textcolor{comment}{\#\ First\ 10\ keys}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Model\ state\ keys\ (first\ 10):\ \{state\_keys\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Error\ loading\ model:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00086}00086\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00087}00087\ \ \ \ \ \textcolor{comment}{\#\ 3.\ Simple\ direct\ comparison\ -\/\ can\ we\ even\ load\ the\ model?}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00088}00088\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Attempting\ to\ create\ and\ load\ model..."{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00089}00089\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00090}00090\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ to\ create\ a\ simple\ model\ that\ matches\ the\ architecture}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ generative.networks.nets\ \textcolor{keyword}{import}\ DiffusionModelUNet}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ the\ EXACT\ configuration\ from\ the\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ configs\ =\ [}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}in\_channels"{}}:\ 2,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}out\_channels"{}}:\ 2,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}cross\_attention\_dim"{}}:\ 2,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}num\_channels"{}}:\ (32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}name"{}}:\ \textcolor{stringliteral}{"{}EXACT\ match\ from\ checkpoint"{}}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \},}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ config\ \textcolor{keywordflow}{in}\ configs:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Testing\ \{config['name']\}\ configuration..."{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ model\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=config[\textcolor{stringliteral}{"{}in\_channels"{}}],}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=config[\textcolor{stringliteral}{"{}out\_channels"{}}],}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,\ \ \textcolor{comment}{\#\ From\ SystemManager}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=config[\textcolor{stringliteral}{"{}num\_channels"{}}],}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 32,\ 32),\ \ \textcolor{comment}{\#\ From\ SystemManager}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{True},}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ transformer\_num\_layers=1,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cross\_attention\_dim=config[\textcolor{stringliteral}{"{}cross\_attention\_dim"{}}],}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ upcast\_attention=\textcolor{keyword}{True},}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ to\ load\ state\ dict}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ missing\_keys,\ unexpected\_keys\ =\ model.load\_state\_dict(model\_state,\ strict=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Missing\ keys:\ \{len(missing\_keys)\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Unexpected\ keys:\ \{len(unexpected\_keys)\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(missing\_keys)\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ \{config['name']\}\ configuration\ loaded\ successfully!"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Test\ inference}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ model.eval()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Prepare\ input}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_tensor\ =\ torch.from\_numpy(input\_data).float().unsqueeze(0).unsqueeze(0)\ \ \textcolor{comment}{\#\ [1,\ 1,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Resize\ to\ model\ expected\ size\ (64x64x64)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ input\_tensor.shape[2:]\ !=\ (64,\ 64,\ 64):}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_tensor\ =\ F.interpolate(input\_tensor,\ size=(64,\ 64,\ 64),\ mode=\textcolor{stringliteral}{'trilinear'},\ align\_corners=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ config[\textcolor{stringliteral}{"{}in\_channels"{}}]\ ==\ 2:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ energy\ channel}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_value\ =\ 11.5}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_normalized\ =\ energy\_value\ /\ 100.0\ \ \textcolor{comment}{\#\ Normalize}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_channel\ =\ torch.full\_like(input\_tensor,\ energy\_normalized)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_tensor\ =\ torch.cat([input\_tensor,\ energy\_channel],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Input\ tensor\ shape:\ \{input\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ context\ for\ cross-\/attention\ (2D\ context)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ torch.tensor([[energy\_value\ /\ 100.0,\ 1.0]],\ dtype=torch.float32)\ \ \textcolor{comment}{\#\ [1,\ 2]}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ context\ =\ energy\_tensor.unsqueeze(1)\ \ \textcolor{comment}{\#\ [1,\ 1,\ 2]\ -\/\ Add\ sequence\ dimension}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ timestep}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timestep\ =\ torch.tensor([0],\ dtype=torch.long)}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\ =\ model(}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x=input\_tensor,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ timesteps=timestep,}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ context=context}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ Inference\ successful!\ Output\ shape:\ \{output.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Output\ range:\ \{output.min():.6f\}\ to\ \{output.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ If\ model\ outputs\ 2\ channels,\ take\ the\ first\ one}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ output.shape[1]\ ==\ 2:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\ =\ output[:,\ :1]\ \ \textcolor{comment}{\#\ Take\ first\ channel}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Took\ first\ channel,\ new\ shape:\ \{output.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Resize\ back\ to\ original\ size}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ output.shape[2:]\ !=\ output\_data.shape:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\ =\ F.interpolate(output,\ size=output\_data.shape,\ mode=\textcolor{stringliteral}{'trilinear'},\ align\_corners=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Compare\ with\ ground\ truth}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ output\_np\ =\ output[0,\ 0].cpu().numpy()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Statistical\ comparison}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ===\ COMPARISON\ WITH\ GROUND\ TRUTH\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Ground\ truth\ range:\ \{output\_data.min():.6f\}\ to\ \{output\_data.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Inference\ range:\ \{output\_np.min():.6f\}\ to\ \{output\_np.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ ranges\ are\ reasonable}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ gt\_max\ =\ output\_data.max()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ inf\_max\ =\ output\_np.max()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ gt\_max\ >\ 0:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_ratio\ =\ inf\_max\ /\ gt\_max}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Scale\ ratio\ (inference/ground\_truth):\ \{scale\_ratio:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Correlation}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ correlation\ =\ np.corrcoef(output\_data.flatten(),\ output\_np.flatten())[0,\ 1]}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Correlation:\ \{correlation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ abs(correlation)\ <\ 0.1:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ 🚨\ VERY\ LOW\ CORRELATION!"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ abs(correlation)\ <\ 0.3:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ⚠️\ \ LOW\ CORRELATION"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ Reasonable\ correlation"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Could\ not\ compute\ correlation"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Save\ visualization}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fig,\ axes\ =\ plt.subplots(2,\ 3,\ figsize=(15,\ 10))}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Take\ middle\ slices}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ slice\_idx\ =\ output\_data.shape[2]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Ground\ truth}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im1\ =\ axes[0,\ 0].imshow(output\_data[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_title(f\textcolor{stringliteral}{'Ground\ Truth\(\backslash\)nMax:\ \{output\_data.max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im1,\ ax=axes[0,\ 0])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Inference}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im2\ =\ axes[0,\ 1].imshow(output\_np[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_title(f\textcolor{stringliteral}{'Inference\(\backslash\)nMax:\ \{output\_np.max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im2,\ ax=axes[0,\ 1])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Difference}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diff\ =\ output\_np\ -\/\ output\_data}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im3\ =\ axes[0,\ 2].imshow(diff[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'RdBu\_r'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 2].set\_title(f\textcolor{stringliteral}{'Difference\(\backslash\)nMax:\ \{abs(diff).max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im3,\ ax=axes[0,\ 2])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Show\ different\ slice\ (axial)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ slice\_idx\_y\ =\ output\_data.shape[1]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Ground\ truth\ (axial)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im4\ =\ axes[1,\ 0].imshow(output\_data[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].set\_title(\textcolor{stringliteral}{'Ground\ Truth\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im4,\ ax=axes[1,\ 0])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Inference\ (axial)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im5\ =\ axes[1,\ 1].imshow(output\_np[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].set\_title(\textcolor{stringliteral}{'Inference\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im5,\ ax=axes[1,\ 1])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Difference\ (axial)}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ im6\ =\ axes[1,\ 2].imshow(diff[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'RdBu\_r'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 2].set\_title(\textcolor{stringliteral}{'Difference\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im6,\ ax=axes[1,\ 2])}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ plt.savefig(f\textcolor{stringliteral}{'comparison\_correct\_model.png'},\ dpi=150,\ bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Saved\ comparison\ as\ comparison\_correct\_model.png"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}\ \ \textcolor{comment}{\#\ Success}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✗\ Inference\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✗\ \{config['name']\}\ configuration\ has\ missing\ keys"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✗\ Error\ with\ \{config['name']\}\ configuration:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00272}00272\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Error\ creating\ model:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00275}00275\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00276}00276\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ TEST\ COMPLETED\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00277}00277\ }
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00278}00278\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{simple__inference__test_8py_source_l00279}00279\ \ \ \ \ \mbox{\hyperlink{namespacesimple__inference__test_adfffeb27738fb94b2db6bcfa14a4bae7}{main}}()}
+
+\end{DoxyCode}

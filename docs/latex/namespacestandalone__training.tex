@@ -1,0 +1,154 @@
+\doxysection{standalone\+\_\+training Namespace Reference}
+\hypertarget{namespacestandalone__training}{}\label{namespacestandalone__training}\index{standalone\_training@{standalone\_training}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff}{parse\+\_\+arguments}} ()
+\item 
+\mbox{\hyperlink{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26}{validate\+\_\+input\+\_\+folder}} (input\+\_\+folder)
+\item 
+\mbox{\hyperlink{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa}{determine\+\_\+cube\+\_\+size}} (input\+\_\+folder)
+\item 
+\mbox{\hyperlink{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4}{get\+\_\+energy\+\_\+list}} (dataset\+\_\+root)
+\item 
+\mbox{\hyperlink{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13}{setup\+\_\+device}} (device\+\_\+arg)
+\item 
+\mbox{\hyperlink{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6}{main}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacestandalone__training_a2dc4cb61949c478cdbe710af0946a845}{project\+\_\+root}} = os.\+path.\+abspath(os.\+path.\+join(os.\+path.\+dirname(\+\_\+\+\_\+file\+\_\+\+\_\+), \textquotesingle{}..\textquotesingle{}))
+\item 
+\mbox{\hyperlink{namespacestandalone__training_ad0f3b9ad73c6cd9b0d87f6b41bb8b0a9}{logger}} = logging.\+get\+Logger(\+\_\+\+\_\+name\+\_\+\+\_\+)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Standalone Training Script for RadioTherapy Project
+
+This script allows you to run training without the GUI. It provides the same
+functionality as the training feature in the GUI but can be run from command line.
+
+Usage:
+    python standalone_training.py --input_folder /path/to/energy/folder [options]
+
+Example:
+    python standalone_training.py --input_folder /path/to/dataset/62_0 --epochs 10 --batch_size 4
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa}\index{standalone\_training@{standalone\_training}!determine\_cube\_size@{determine\_cube\_size}}
+\index{determine\_cube\_size@{determine\_cube\_size}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{determine\_cube\_size()}{determine\_cube\_size()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa} 
+standalone\+\_\+training.\+determine\+\_\+cube\+\_\+size (\begin{DoxyParamCaption}\item[{}]{input\+\_\+folder}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Determine cube size from the first available cube file.
+
+Args:
+    input_folder (str): Path to input cube folder
+    
+Returns:
+    tuple: Cube size dimensions
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00140}{140}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4}\index{standalone\_training@{standalone\_training}!get\_energy\_list@{get\_energy\_list}}
+\index{get\_energy\_list@{get\_energy\_list}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{get\_energy\_list()}{get\_energy\_list()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4} 
+standalone\+\_\+training.\+get\+\_\+energy\+\_\+list (\begin{DoxyParamCaption}\item[{}]{dataset\+\_\+root}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Get list of available energies from dataset root directory.
+
+Args:
+    dataset_root (str): Path to dataset root containing energy folders
+    
+Returns:
+    list: List of energy values
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00178}{178}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6}\index{standalone\_training@{standalone\_training}!main@{main}}
+\index{main@{main}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6} 
+standalone\+\_\+training.\+main (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Main training function.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00216}{216}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff}\index{standalone\_training@{standalone\_training}!parse\_arguments@{parse\_arguments}}
+\index{parse\_arguments@{parse\_arguments}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{parse\_arguments()}{parse\_arguments()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff} 
+standalone\+\_\+training.\+parse\+\_\+arguments (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Parse command line arguments for training configuration.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00043}{43}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13}\index{standalone\_training@{standalone\_training}!setup\_device@{setup\_device}}
+\index{setup\_device@{setup\_device}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{setup\_device()}{setup\_device()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13} 
+standalone\+\_\+training.\+setup\+\_\+device (\begin{DoxyParamCaption}\item[{}]{device\+\_\+arg}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Setup compute device based on argument.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00205}{205}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26}\index{standalone\_training@{standalone\_training}!validate\_input\_folder@{validate\_input\_folder}}
+\index{validate\_input\_folder@{validate\_input\_folder}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{validate\_input\_folder()}{validate\_input\_folder()}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26} 
+standalone\+\_\+training.\+validate\+\_\+input\+\_\+folder (\begin{DoxyParamCaption}\item[{}]{input\+\_\+folder}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Validate that the input folder structure is correct.
+
+Args:
+    input_folder (str): Path to the energy folder
+    
+Returns:
+    tuple: (input_cube_path, output_cube_path, dataset_root)
+    
+Raises:
+    ValueError: If folder structure is invalid
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00105}{105}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacestandalone__training_ad0f3b9ad73c6cd9b0d87f6b41bb8b0a9}\index{standalone\_training@{standalone\_training}!logger@{logger}}
+\index{logger@{logger}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{logger}{logger}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_ad0f3b9ad73c6cd9b0d87f6b41bb8b0a9} 
+standalone\+\_\+training.\+logger = logging.\+get\+Logger(\+\_\+\+\_\+name\+\_\+\+\_\+)}
+
+
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00040}{40}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+
+\Hypertarget{namespacestandalone__training_a2dc4cb61949c478cdbe710af0946a845}\index{standalone\_training@{standalone\_training}!project\_root@{project\_root}}
+\index{project\_root@{project\_root}!standalone\_training@{standalone\_training}}
+\doxysubsubsection{\texorpdfstring{project\_root}{project\_root}}
+{\footnotesize\ttfamily \label{namespacestandalone__training_a2dc4cb61949c478cdbe710af0946a845} 
+standalone\+\_\+training.\+project\+\_\+root = os.\+path.\+abspath(os.\+path.\+join(os.\+path.\+dirname(\+\_\+\+\_\+file\+\_\+\+\_\+), \textquotesingle{}..\textquotesingle{}))}
+
+
+
+Definition at line \mbox{\hyperlink{standalone__training_8py_source_l00026}{26}} of file \mbox{\hyperlink{standalone__training_8py_source}{standalone\+\_\+training.\+py}}.
+

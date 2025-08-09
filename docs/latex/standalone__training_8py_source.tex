@@ -1,0 +1,316 @@
+\doxysection{standalone\+\_\+training.\+py}
+\hypertarget{standalone__training_8py_source}{}\label{standalone__training_8py_source}\index{sourcecode/standalone\_training.py@{sourcecode/standalone\_training.py}}
+\mbox{\hyperlink{standalone__training_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00001}\mbox{\hyperlink{namespacestandalone__training}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00003}00003\ \textcolor{stringliteral}{Standalone\ Training\ Script\ for\ RadioTherapy\ Project}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00004}00004\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00005}00005\ \textcolor{stringliteral}{This\ script\ allows\ you\ to\ run\ training\ without\ the\ GUI.\ It\ provides\ the\ same}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00006}00006\ \textcolor{stringliteral}{functionality\ as\ the\ training\ feature\ in\ the\ GUI\ but\ can\ be\ run\ from\ command\ line.}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00007}00007\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00008}00008\ \textcolor{stringliteral}{Usage:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00009}00009\ \textcolor{stringliteral}{\ \ \ \ python\ standalone\_training.py\ -\/-\/input\_folder\ /path/to/energy/folder\ [options]}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00010}00010\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00011}00011\ \textcolor{stringliteral}{Example:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ python\ standalone\_training.py\ -\/-\/input\_folder\ /path/to/dataset/62\_0\ -\/-\/epochs\ 10\ -\/-\/batch\_size\ 4}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00013}00013\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00015}00015\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00016}00016\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00017}00017\ \textcolor{keyword}{import}\ argparse}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00018}00018\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00019}00019\ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00020}00020\ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00021}00021\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00022}00022\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00023}00023\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00025}00025\ \textcolor{comment}{\#\ Add\ project\ root\ to\ Python\ path}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00026}\mbox{\hyperlink{namespacestandalone__training_a2dc4cb61949c478cdbe710af0946a845}{00026}}\ project\_root\ =\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'..'}))}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00027}00027\ sys.path.insert(0,\ project\_root)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00029}00029\ \textcolor{comment}{\#\ Import\ project\ modules}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00030}00030\ \textcolor{keyword}{import}\ log\_config\ \ \textcolor{comment}{\#\ Initialize\ logging\ config}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00031}00031\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00032}00032\ \textcolor{keyword}{from}\ parameter\_manager\ \textcolor{keyword}{import}\ ParameterManager}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00033}00033\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00034}00034\ \ \ \ \ Compose,\ LoadImaged,\ EnsureChannelFirstd,\ Lambdad,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00035}00035\ \ \ \ \ EnsureTyped,\ Orientationd,\ Spacingd,\ SpatialPadd,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00036}00036\ \ \ \ \ CenterSpatialCropd,\ ScaleIntensityRangePercentilesd,\ ToTensord,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00037}00037\ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00038}00038\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NumpyReader}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00040}\mbox{\hyperlink{namespacestandalone__training_ad0f3b9ad73c6cd9b0d87f6b41bb8b0a9}{00040}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00043}\mbox{\hyperlink{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff}{00043}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff}{parse\_arguments}}():}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00044}00044\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Parse\ command\ line\ arguments\ for\ training\ configuration."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00045}00045\ \ \ \ \ parser\ =\ argparse.ArgumentParser(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ description=\textcolor{stringliteral}{"{}Standalone\ training\ script\ for\ RadioTherapy\ project"{}},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ formatter\_class=argparse.ArgumentDefaultsHelpFormatter}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00048}00048\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00049}00049\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00050}00050\ \ \ \ \ \textcolor{comment}{\#\ Required\ arguments}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00051}00051\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/input\_folder'},\ \textcolor{stringliteral}{'-\/i'},\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ type=str,\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ required=\textcolor{keyword}{True},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Path\ to\ energy\ folder\ containing\ inputcube\ and\ outputcube\ subdirectories'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00056}00056\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00057}00057\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00058}00058\ \ \ \ \ \textcolor{comment}{\#\ Training\ parameters}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00059}00059\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/batch\_size'},\ \textcolor{stringliteral}{'-\/b'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ type=int,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ default=2,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Batch\ size\ for\ training'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00064}00064\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00065}00065\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00066}00066\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/epochs'},\ \textcolor{stringliteral}{'-\/e'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ type=int,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ default=5,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Number\ of\ training\ epochs'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00071}00071\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00072}00072\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00073}00073\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/learning\_rate'},\ \textcolor{stringliteral}{'-\/lr'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ type=float,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ default=1e-\/5,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Learning\ rate\ for\ training'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00078}00078\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00079}00079\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00080}00080\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/patience'},\ \textcolor{stringliteral}{'-\/p'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ type=int,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ default=20,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Early\ stopping\ patience'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00085}00085\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00086}00086\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00087}00087\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/device'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ type=str,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ default=\textcolor{stringliteral}{'auto'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ choices=[\textcolor{stringliteral}{'auto'},\ \textcolor{stringliteral}{'cpu'},\ \textcolor{stringliteral}{'cuda'}],}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Device\ to\ use\ for\ training\ (auto\ selects\ GPU\ if\ available)'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00093}00093\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00094}00094\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00095}00095\ \ \ \ \ parser.add\_argument(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'-\/-\/seed'},}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ type=int,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ default=42,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Random\ seed\ for\ reproducibility'}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00100}00100\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00101}00101\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00102}00102\ \ \ \ \ \textcolor{keywordflow}{return}\ parser.parse\_args()}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00103}00103\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00105}\mbox{\hyperlink{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26}{00105}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26}{validate\_input\_folder}}(input\_folder):}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00106}00106\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00107}00107\ \textcolor{stringliteral}{\ \ \ \ Validate\ that\ the\ input\ folder\ structure\ is\ correct.}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00108}00108\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00109}00109\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00110}00110\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ input\_folder\ (str):\ Path\ to\ the\ energy\ folder}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00111}00111\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00112}00112\ \textcolor{stringliteral}{\ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00113}00113\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ tuple:\ (input\_cube\_path,\ output\_cube\_path,\ dataset\_root)}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00114}00114\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00115}00115\ \textcolor{stringliteral}{\ \ \ \ Raises:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00116}00116\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ ValueError:\ If\ folder\ structure\ is\ invalid}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00117}00117\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00118}00118\ \ \ \ \ input\_folder\ =\ Path(input\_folder)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00119}00119\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00120}00120\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ input\_folder.exists():}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Input\ folder\ does\ not\ exist:\ \{input\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00122}00122\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00123}00123\ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ it's\ an\ energy\ folder\ with\ inputcube\ and\ outputcube\ subdirectories}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00124}00124\ \ \ \ \ input\_cube\_path\ =\ input\_folder\ /\ \textcolor{stringliteral}{"{}inputcube"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00125}00125\ \ \ \ \ output\_cube\_path\ =\ input\_folder\ /\ \textcolor{stringliteral}{"{}outputcube"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00126}00126\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00127}00127\ \ \ \ \ \textcolor{keywordflow}{if}\ input\_cube\_path.exists()\ \textcolor{keywordflow}{and}\ output\_cube\_path.exists():}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ This\ is\ an\ energy\ folder}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ dataset\_root\ =\ input\_folder.parent}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ energy\ folder\ structure:\ \{input\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Input\ cubes:\ \{input\_cube\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ cubes:\ \{output\_cube\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ str(input\_cube\_path),\ str(output\_cube\_path),\ str(dataset\_root)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00134}00134\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Treat\ as\ direct\ input\ cube\ directory}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Treating\ as\ direct\ input\ cube\ directory:\ \{input\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ str(input\_folder),\ \textcolor{keywordtype}{None},\ str(input\_folder.parent)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00140}\mbox{\hyperlink{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa}{00140}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa}{determine\_cube\_size}}(input\_folder):}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00141}00141\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00142}00142\ \textcolor{stringliteral}{\ \ \ \ Determine\ cube\ size\ from\ the\ first\ available\ cube\ file.}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00143}00143\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00144}00144\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00145}00145\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ input\_folder\ (str):\ Path\ to\ input\ cube\ folder}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00146}00146\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00147}00147\ \textcolor{stringliteral}{\ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00148}00148\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ tuple:\ Cube\ size\ dimensions}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00149}00149\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00150}00150\ \ \ \ \ \textcolor{comment}{\#\ Look\ for\ .npy,\ .nii,\ or\ .nii.gz\ files}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00151}00151\ \ \ \ \ patterns\ =\ [\textcolor{stringliteral}{"{}*.npy"{}},\ \textcolor{stringliteral}{"{}*.nii"{}},\ \textcolor{stringliteral}{"{}*.nii.gz"{}}]}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00152}00152\ \ \ \ \ files\ =\ []}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00153}00153\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00154}00154\ \ \ \ \ \textcolor{keywordflow}{for}\ pattern\ \textcolor{keywordflow}{in}\ patterns:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ files.extend(glob.glob(os.path.join(input\_folder,\ pattern)))}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00156}00156\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00157}00157\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ files:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}No\ cube\ files\ found\ in\ \{input\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00159}00159\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00160}00160\ \ \ \ \ sample\_file\ =\ files[0]}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00161}00161\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Determining\ cube\ size\ from:\ \{sample\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00162}00162\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00163}00163\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sample\_file.lower().endswith(\textcolor{stringliteral}{"{}.npy"{}}):}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.load(sample\_file)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.asarray(nib.load(sample\_file).dataobj)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ cube\_size\ =\ arr.shape}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Detected\ cube\ size:\ \{cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ cube\_size[0]}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00174}00174\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Failed\ to\ determine\ cube\ size\ from\ \{sample\_file\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00176}00176\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00178}\mbox{\hyperlink{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4}{00178}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4}{get\_energy\_list}}(dataset\_root):}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00179}00179\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00180}00180\ \textcolor{stringliteral}{\ \ \ \ Get\ list\ of\ available\ energies\ from\ dataset\ root\ directory.}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00181}00181\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00182}00182\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00183}00183\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ dataset\_root\ (str):\ Path\ to\ dataset\ root\ containing\ energy\ folders}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00184}00184\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00185}00185\ \textcolor{stringliteral}{\ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00186}00186\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ list:\ List\ of\ energy\ values}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00187}00187\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00188}00188\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ List\ all\ energy\ subfolder\ names\ (skip\ hidden\ files)}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ energy\_names\ =\ [}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ d\ \textcolor{keywordflow}{for}\ d\ \textcolor{keywordflow}{in}\ os.listdir(dataset\_root)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.isdir(os.path.join(dataset\_root,\ d))\ \textcolor{keywordflow}{and}\ \textcolor{keywordflow}{not}\ d.startswith(\textcolor{stringliteral}{'.'})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ numeric\ energy\ values\ from\ folder\ names\ and\ sort\ numerically}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ energies\_list\ =\ sorted([float(name.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))\ \textcolor{keywordflow}{for}\ name\ \textcolor{keywordflow}{in}\ energy\_names])}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ energies:\ \{energies\_list\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ energies\_list}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00200}00200\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Could\ not\ determine\ energies\ from\ dataset\ root:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ [0.0]\ \ \textcolor{comment}{\#\ Default\ fallback}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00203}00203\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00204}00204\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00205}\mbox{\hyperlink{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13}{00205}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13}{setup\_device}}(device\_arg):}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00206}00206\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Setup\ compute\ device\ based\ on\ argument."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00207}00207\ \ \ \ \ \textcolor{keywordflow}{if}\ device\_arg\ ==\ \textcolor{stringliteral}{'auto'}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ device\ =\ torch.device(\textcolor{stringliteral}{"{}cuda"{}}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}cpu"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00209}00209\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ device\ =\ torch.device(device\_arg)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00211}00211\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00212}00212\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ device:\ \{device\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00213}00213\ \ \ \ \ \textcolor{keywordflow}{return}\ device}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00214}00214\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00215}00215\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00216}\mbox{\hyperlink{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6}{00216}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6}{main}}():}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00217}00217\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Main\ training\ function."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00218}00218\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ command\ line\ arguments}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ args\ =\ \mbox{\hyperlink{namespacestandalone__training_ad844d1c80ee9df978f10c3179dd303ff}{parse\_arguments}}()}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ RadioTherapy\ Standalone\ Training\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Input\ folder:\ \{args.input\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Batch\ size:\ \{args.batch\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Epochs:\ \{args.epochs\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Learning\ rate:\ \{args.learning\_rate\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Patience:\ \{args.patience\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Seed:\ \{args.seed\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ input\ folder\ structure}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ input\_cube\_path,\ output\_cube\_path,\ dataset\_root\ =\ \mbox{\hyperlink{namespacestandalone__training_a66032ede4080f3b286f2db6ea8b33a26}{validate\_input\_folder}}(args.input\_folder)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Determine\ cube\ size}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ cube\_size\ =\ \mbox{\hyperlink{namespacestandalone__training_a0f33f6287ea9548c7ffd743b2d71f5aa}{determine\_cube\_size}}(input\_cube\_path)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00235}00235\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Get\ ALL\ available\ energies\ for\ proper\ training\ (not\ just\ folder\ energy)}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ energies\ =\ \mbox{\hyperlink{namespacestandalone__training_a79a19cd6b456fce9a33cd86aa688b5d4}{get\_energy\_list}}(dataset\_root)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ with\ ALL\ energies:\ \{energies\}\ (proper\ multi-\/energy\ training)"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Setup\ device}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ device\ =\ \mbox{\hyperlink{namespacestandalone__training_aebe46235ec49d7e73bd0bbd91f081d13}{setup\_device}}(args.device)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ parameter\ manager}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ pm\ =\ \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager}{ParameterManager}}(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ energies=energies,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size=args.batch\_size,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size=cube\_size,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=args.epochs,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ learning\_rate=args.learning\_rate,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ patience=args.patience}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Setup\ transforms}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ transforms\_chain\ =\ Compose([}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ LoadImaged(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ reader=NumpyReader),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureChannelFirstd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ Spacingd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ pixdim=(2.4,\ 2.4,\ 2.4),\ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ SpatialPadd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ spatial\_size=pm.cube\_size,\ method=\textcolor{stringliteral}{"{}symmetric"{}}),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ CenterSpatialCropd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ roi\_size=pm.cube\_size),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ keys=\textcolor{stringliteral}{"{}input"{}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ ),}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}])}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Resolutions:\ \{\}"{}}.format(pm.resolutions))}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ SystemManager}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ system\_manager\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=dataset\_root,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ transforms=transforms\_chain,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ \ \ \ \ resolutions=pm.resolutions,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ energies=pm.energies,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_min=pm.energy\_min,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_max=pm.energy\_max,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_energies=pm.quad\_energies,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_weights=pm.quad\_weights,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size=pm.batch\_size,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ device=device,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=pm.num\_epochs,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ learning\_rate=pm.learning\_rate,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ patience=pm.patience,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size=pm.cube\_size,}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ seed=args.seed}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Start\ training}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ training..."{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ system\_manager.run\_training()}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ Training\ completed\ successfully!\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Look\ for\ generated\ plots}}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ plot\_patterns\ =\ [\textcolor{stringliteral}{"{}loss\_curves\_res*.png"{}},\ \textcolor{stringliteral}{"{}learning\_curve.png"{}},\ \textcolor{stringliteral}{"{}adv\_curves.png"{}}]}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ pattern\ \textcolor{keywordflow}{in}\ plot\_patterns:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00296}00296\ \ \ \ \ \ \ \ \ \ \ \ \ plots\ =\ glob.glob(pattern)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ plots:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Generated\ plots:\ \{plots\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00300}00300\ \ \ \ \ \textcolor{keywordflow}{except}\ KeyboardInterrupt:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ interrupted\ by\ user."{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ sys.exit(1)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00303}00303\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Training\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ sys.exit(1)}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00307}00307\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00308}00308\ }
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00309}00309\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{standalone__training_8py_source_l00310}00310\ \ \ \ \ \mbox{\hyperlink{namespacestandalone__training_adbd0c8660ee135f65a8bbe4d0d8b23e6}{main}}()}
+
+\end{DoxyCode}

@@ -1,0 +1,177 @@
+\doxysection{test\+\_\+pipeline\+\_\+fixes.\+py}
+\hypertarget{test__pipeline__fixes_8py_source}{}\label{test__pipeline__fixes_8py_source}\index{tests/test\_pipeline\_fixes.py@{tests/test\_pipeline\_fixes.py}}
+\mbox{\hyperlink{test__pipeline__fixes_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00001}\mbox{\hyperlink{namespacetest__pipeline__fixes}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00003}00003\ \textcolor{stringliteral}{Test\ script\ to\ validate\ pipeline\ fixes\ for\ RadioTherapy\ dose\ prediction.}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00004}00004\ \textcolor{stringliteral}{This\ script\ tests\ the\ key\ fixes\ applied\ to\ resolve\ the\ 30-\/50x\ too\ low\ dose\ values.}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00005}00005\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00007}00007\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00008}00008\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00009}00009\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00010}00010\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00012}00012\ \textcolor{comment}{\#\ Setup\ logging}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00013}\mbox{\hyperlink{namespacetest__pipeline__fixes_af66b562e8c10a7eb6333cec0c8df5044}{00013}}\ logging.basicConfig(level=logging.INFO,\ format=\textcolor{stringliteral}{'\%(asctime)s\ \%(levelname)s:\%(name)s:\ \%(message)s'})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00014}\mbox{\hyperlink{namespacetest__pipeline__fixes_a5cbb1fb21a984abc2f1b2aa33234351a}{00014}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00016}\mbox{\hyperlink{namespacetest__pipeline__fixes_a4a1e1719dfac6dc8f67123ecb8f1faf0}{00016}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__pipeline__fixes_a4a1e1719dfac6dc8f67123ecb8f1faf0}{test\_transforms\_consistency}}():}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00017}00017\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ that\ transforms\ produce\ consistent\ 64x64x64\ outputs."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00018}00018\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔍\ Testing\ transform\ consistency..."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00019}00019\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00020}00020\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00021}00021\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ sourcecode.system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00022}00022\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00023}00023\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ minimal\ SystemManager\ to\ test\ transforms}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00024}00024\ \ \ \ \ \ \ \ \ system\ =\ SystemManager(}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00025}00025\ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}/home/mpalm/RadioTherapy/traindata"{}},}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00026}00026\ \ \ \ \ \ \ \ \ \ \ \ \ transforms=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ \ \ \ \ resolutions=[(64,\ 64,\ 64)],}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \ \ \ \ energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_min=3.47,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00030}00030\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_max=46.53,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_energies=[11.5],}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_weights=[1.0],}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size=2,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ \ \ \ \ device=\textcolor{stringliteral}{"{}cpu"{}},}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=1,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ \ \ \ \ learning\_rate=1e-\/5,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ \ \ \ \ patience=5,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size=100,}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ seed=42}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ transforms\ for\ resolution\ 64x64x64}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ system.\_prepare\_training(target\_resolution=(64,\ 64,\ 64),\ energy=11.5)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Transform\ initialization\ successful"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Target\ resolution:\ (64,\ 64,\ 64)"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Cube\ size:\ \{system.cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ the\ problematic\ SpatialPadd\ is\ removed}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ transform\_str\ =\ str(system.transforms)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ has\_spatial\_padd\ =\ \textcolor{stringliteral}{"{}SpatialPadd"{}}\ \textcolor{keywordflow}{in}\ transform\_str}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ has\_resized\ =\ \textcolor{stringliteral}{"{}Resized"{}}\ \textcolor{keywordflow}{in}\ transform\_str}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Contains\ Resized:\ \{has\_resized\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Contains\ SpatialPadd:\ \{has\_spatial\_padd\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ has\_spatial\_padd:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}\ SpatialPadd\ still\ present!\ This\ will\ cause\ resolution\ mismatch."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ has\_resized:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Pipeline\ uses\ Resized\ without\ SpatialPadd\ -\/\ correct!"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}\ \ No\ Resized\ found\ -\/\ check\ pipeline\ configuration"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00067}00067\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}\ Transform\ test\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00071}\mbox{\hyperlink{namespacetest__pipeline__fixes_a682f96fa0d686cec3861133fded188b9}{00071}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__pipeline__fixes_a682f96fa0d686cec3861133fded188b9}{test\_dose\_range\_detection}}():}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00072}00072\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ dose\ range\ detection\ logic."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00073}00073\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Testing\ dose\ range\ detection..."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00074}00074\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ sourcecode.training\_pipeline\ \textcolor{keyword}{import}\ AutoencoderTrainer}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ synthetic\ dose\ data\ with\ realistic\ ranges}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ realistic\_dose\ =\ np.random.exponential(scale=15.0,\ size=(1000,\ 64,\ 64,\ 64))}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ realistic\_dose[realistic\_dose\ >\ 60]\ =\ 60\ \ \textcolor{comment}{\#\ Cap\ at\ reasonable\ max}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ problematically\ low\ dose\ data\ (like\ what\ we\ observed)}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ low\_dose\ =\ realistic\_dose\ *\ 0.02\ \ \textcolor{comment}{\#\ Scale\ down\ by\ \string~50x}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Realistic\ dose\ stats:"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Min:\ \{realistic\_dose.min():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Max:\ \{realistic\_dose.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Mean:\ \{realistic\_dose.mean():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Problematic\ low\ dose\ stats:"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Min:\ \{low\_dose.min():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Max:\ \{low\_dose.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Mean:\ \{low\_dose.mean():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ The\ enhanced\ detection\ should\ flag\ low\_dose\ as\ problematic}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ low\_dose.max()\ <\ 5.0:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Enhanced\ detection\ would\ flag\ this\ as\ problematic\ (max\ <\ 5.0)"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}\ Detection\ logic\ may\ not\ catch\ this\ issue"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00103}00103\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}\ Dose\ range\ test\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00107}\mbox{\hyperlink{namespacetest__pipeline__fixes_a4a524c17c44c06b0374e2be14e20ce5b}{00107}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__pipeline__fixes_a4a524c17c44c06b0374e2be14e20ce5b}{test\_learning\_rate\_adjustment}}():}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00108}00108\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ learning\ rate\ is\ properly\ adjusted\ after\ fixes."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00109}00109\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔍\ Testing\ learning\ rate\ adjustment..."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00110}00110\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00111}00111\ \ \ \ \ original\_lr\ =\ 1e-\/5}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00112}00112\ \ \ \ \ ultra\_conservative\_lr\ =\ original\_lr\ *\ 0.1\ \ \textcolor{comment}{\#\ Old:\ 1e-\/6}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00113}00113\ \ \ \ \ balanced\_lr\ =\ original\_lr\ *\ 0.5\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ New:\ 5e-\/6}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00114}00114\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00115}00115\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Original\ LR:\ \{original\_lr\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00116}00116\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Old\ ultra-\/conservative\ LR:\ \{ultra\_conservative\_lr\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00117}00117\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}New\ balanced\ LR:\ \{balanced\_lr\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00118}00118\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00119}00119\ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ the\ new\ LR\ is\ reasonable\ (between\ old\ and\ original)}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00120}00120\ \ \ \ \ \textcolor{keywordflow}{if}\ ultra\_conservative\_lr\ <\ balanced\_lr\ <\ original\_lr:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Learning\ rate\ properly\ balanced"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00123}00123\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}\ Learning\ rate\ not\ properly\ adjusted"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00126}00126\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00127}\mbox{\hyperlink{namespacetest__pipeline__fixes_ad8261ff0cfca92fe14a0fbcc060230ba}{00127}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacetest__pipeline__fixes_ad8261ff0cfca92fe14a0fbcc060230ba}{run\_comprehensive\_test}}():}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00128}00128\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Run\ all\ tests\ and\ summarize\ results."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00129}00129\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ Starting\ comprehensive\ pipeline\ fix\ validation..."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00130}00130\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00131}00131\ \ \ \ \ tests\ =\ [}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ (\textcolor{stringliteral}{"{}Transform\ Consistency"{}},\ test\_transforms\_consistency),}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ (\textcolor{stringliteral}{"{}Dose\ Range\ Detection"{}},\ test\_dose\_range\_detection),}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ (\textcolor{stringliteral}{"{}Learning\ Rate\ Adjustment"{}},\ test\_learning\_rate\_adjustment),}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00135}00135\ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00136}00136\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00137}00137\ \ \ \ \ results\ =\ []}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00138}00138\ \ \ \ \ \textcolor{keywordflow}{for}\ test\_name,\ test\_func\ \textcolor{keywordflow}{in}\ tests:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)n📋\ Running\ \{test\_name\}..."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ test\_func()}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ results.append((test\_name,\ result))}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \ Result:\ \{'\ PASS'\ if\ result\ else\ '\ FAIL'\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}\ \ \ Result:\ \ ERROR\ -\/\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ results.append((test\_name,\ \textcolor{keyword}{False}))}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00147}00147\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00148}00148\ \ \ \ \ \textcolor{comment}{\#\ Summary}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00149}00149\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\(\backslash\)n"{}}\ +\ \textcolor{stringliteral}{"{}="{}}*60)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00150}00150\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ TEST\ SUMMARY"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00151}00151\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}*60)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00152}00152\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00153}00153\ \ \ \ \ passed\ =\ sum(1\ \textcolor{keywordflow}{for}\ \_,\ result\ \textcolor{keywordflow}{in}\ results\ \textcolor{keywordflow}{if}\ result)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00154}00154\ \ \ \ \ total\ =\ len(results)}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00155}00155\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00156}00156\ \ \ \ \ \textcolor{keywordflow}{for}\ test\_name,\ result\ \textcolor{keywordflow}{in}\ results:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ status\ =\ \textcolor{stringliteral}{"{}\ PASS"{}}\ \textcolor{keywordflow}{if}\ result\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}\ FAIL"{}}}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{test\_name:<25\}\ \{status\}"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00159}00159\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00160}00160\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\(\backslash\)nOverall:\ \{passed\}/\{total\}\ tests\ passed"{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00161}00161\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00162}00162\ \ \ \ \ \textcolor{keywordflow}{if}\ passed\ ==\ total:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ All\ tests\ passed!\ Pipeline\ fixes\ should\ resolve\ the\ dose\ scaling\ issue."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00164}00164\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}\ \ \{total-\/passed\}\ test(s)\ failed.\ Additional\ fixes\ may\ be\ needed."{}})}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00166}00166\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00167}00167\ \ \ \ \ \textcolor{keywordflow}{return}\ passed\ ==\ total}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00168}00168\ }
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00169}00169\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00170}\mbox{\hyperlink{namespacetest__pipeline__fixes_a685b3b874d4b69e327608c580926297b}{00170}}\ \ \ \ \ success\ =\ \mbox{\hyperlink{namespacetest__pipeline__fixes_ad8261ff0cfca92fe14a0fbcc060230ba}{run\_comprehensive\_test}}()}
+\DoxyCodeLine{\Hypertarget{test__pipeline__fixes_8py_source_l00171}00171\ \ \ \ \ exit(0\ \textcolor{keywordflow}{if}\ success\ \textcolor{keywordflow}{else}\ 1)}
+
+\end{DoxyCode}

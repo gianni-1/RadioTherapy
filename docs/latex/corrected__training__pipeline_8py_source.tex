@@ -1,0 +1,435 @@
+\doxysection{corrected\+\_\+training\+\_\+pipeline.\+py}
+\hypertarget{corrected__training__pipeline_8py_source}{}\label{corrected__training__pipeline_8py_source}\index{sourcecode/corrected\_training\_pipeline.py@{sourcecode/corrected\_training\_pipeline.py}}
+\mbox{\hyperlink{corrected__training__pipeline_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00001}\mbox{\hyperlink{namespacecorrected__training__pipeline}{00001}}\ \textcolor{comment}{\#\ corrected\_training\_pipeline.py}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00002}00002\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00003}00003\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00004}00004\ \textcolor{stringliteral}{CORRECTED\ TRAINING\ PIPELINE\ -\/\ NACHHALTIGE\ LÖSUNG}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00005}00005\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00006}00006\ \textcolor{stringliteral}{Fixes\ all\ three\ critical\ problems:}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00007}00007\ \textcolor{stringliteral}{1.\ Transform\ Fix:\ Use\ Resized\ instead\ of\ Spacingd}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00008}00008\ \textcolor{stringliteral}{2.\ Dose\ Normalization\ Fix:\ Calculate\ from\ original\ data}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00009}00009\ \textcolor{stringliteral}{3.\ Unified\ Energy\ Model:\ Train\ one\ model\ for\ all\ energies}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00010}00010\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00011}00011\ \textcolor{stringliteral}{This\ is\ the\ sustainable\ solution\ that\ addresses\ root\ causes.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00012}00012\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00014}00014\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00015}00015\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00016}00016\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00017}00017\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00018}00018\ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00019}00019\ \textcolor{keyword}{from}\ typing\ \textcolor{keyword}{import}\ List,\ Tuple,\ Dict,\ Optional}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00020}00020\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00021}00021\ \ \ \ \ Compose,\ LoadImaged,\ EnsureChannelFirstd,\ EnsureTyped,\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00022}00022\ \ \ \ \ Orientationd,\ Resized,\ SpatialPadd,\ CenterSpatialCropd,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00023}00023\ \ \ \ \ ScaleIntensityRangePercentilesd,\ ToTensord}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00024}00024\ )}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00025}00025\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NumpyReader,\ DataLoader}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00026}00026\ \textcolor{keyword}{from}\ monai.utils\ \textcolor{keyword}{import}\ first}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00027}00027\ \textcolor{keyword}{from}\ torch.utils.data\ \textcolor{keyword}{import}\ Dataset}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00028}00028\ \textcolor{keyword}{from}\ generative.networks.nets\ \textcolor{keyword}{import}\ AutoencoderKL,\ PatchDiscriminator,\ DiffusionModelUNet}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00029}00029\ \textcolor{keyword}{from}\ generative.inferers\ \textcolor{keyword}{import}\ LatentDiffusionInferer}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00030}00030\ \textcolor{keyword}{from}\ generative.networks.schedulers.ddpm\ \textcolor{keyword}{import}\ DDPMScheduler}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00031}00031\ \textcolor{keyword}{from}\ torch.optim\ \textcolor{keyword}{import}\ Adam}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00032}00032\ \textcolor{keyword}{from}\ torch.amp\ \textcolor{keyword}{import}\ autocast}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00034}\mbox{\hyperlink{namespacecorrected__training__pipeline_a8cc657919ab2f2c2d3dfd76b8fbf69f7}{00034}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00036}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}{00036}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}{CorrectedDoseNpyDataset}}(Dataset):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00037}00037\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00038}00038\ \textcolor{stringliteral}{\ \ \ \ CORRECTED\ Dataset\ that\ properly\ loads\ original\ dose\ values\ for\ correct\ normalization.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00039}00039\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00040}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a3635a0a12381fc3b87f11f7db15e85ce}{00040}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a3635a0a12381fc3b87f11f7db15e85ce}{\_\_init\_\_}}(self,\ root\_dir,\ section=None,\ transforms=None,\ target\_resolution=(64,\ 64,\ 64)):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00041}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc}{00041}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ace7b8209b2587d0245ce93a06dda14cc}{root\_dir}}\ =\ root\_dir}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00042}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26}{00042}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_abd55dfb2c4e270d90a2e2affc28f9a26}{target\_resolution}}\ =\ target\_resolution}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00043}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{00043}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{samples}}\ =\ []}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ base\_dir\ =\ root\_dir\ \textcolor{keywordflow}{if}\ section\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ os.path.join(root\_dir,\ section)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔧\ CORRECTED:\ Loading\ samples\ and\ analyzing\ ORIGINAL\ dose\ ranges..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Track\ original\ dose\ statistics\ per\ energy}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00050}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{00050}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_folder\ \textcolor{keywordflow}{in}\ sorted(os.listdir(base\_dir)):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ folder\_path\ =\ os.path.join(base\_dir,\ energy\_folder)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(folder\_path)\ \textcolor{keywordflow}{or}\ energy\_folder.startswith(\textcolor{stringliteral}{'.'}):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\ =\ float(energy\_folder.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ ValueError:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ in\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}inputcube"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ out\_dir\ =\ os.path.join(folder\_path,\ \textcolor{stringliteral}{"{}outputcube"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ os.path.isdir(in\_dir)\ \textcolor{keywordflow}{or}\ \textcolor{keywordflow}{not}\ os.path.isdir(out\_dir):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CRITICAL:\ Analyze\ ORIGINAL\ dose\ files\ before\ any\ transforms}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_dose\_values\ =\ []}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ valid\_samples\ =\ []}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ fname\ \textcolor{keywordflow}{in}\ sorted(os.listdir(in\_dir)):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ fname.endswith(\textcolor{stringliteral}{"{}.npy"{}}):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_fp\ =\ os.path.join(in\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_fp\ =\ os.path.join(out\_dir,\ fname)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.exists(out\_fp):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ ORIGINAL\ dose\ data}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_dose\ =\ np.load(out\_fp)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_dose\_values.append(original\_dose.flatten())}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valid\_samples.append((in\_fp,\ out\_fp,\ energy))}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\_dose\_values:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ all\_energy\_doses\ =\ np.concatenate(energy\_dose\_values)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}[energy]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'min'}:\ float(all\_energy\_doses.min()),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'max'}:\ float(all\_energy\_doses.max()),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'mean'}:\ float(all\_energy\_doses.mean()),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'std'}:\ float(all\_energy\_doses.std()),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'nonzero\_voxels'}:\ int(np.count\_nonzero(all\_energy\_doses)),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'total\_voxels'}:\ int(len(all\_energy\_doses))}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Energy\ \{energy\}\ eV:\ \{len(valid\_samples)\}\ samples,\ "{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}ORIGINAL\ dose\ range:\ \{all\_energy\_doses.min():.6f\}\ -\/\ \{all\_energy\_doses.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{samples}}.extend(valid\_samples)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00101}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{00101}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Log\ comprehensive\ dose\ statistics}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔧\ CORRECTED:\ Original\ dose\ statistics\ per\ energy:"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy,\ stats\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}.items():}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ sparsity\ =\ (1\ -\/\ stats[\textcolor{stringliteral}{'nonzero\_voxels'}]\ /\ stats[\textcolor{stringliteral}{'total\_voxels'}])\ *\ 100}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{energy:6.2f\}\ eV:\ range=[\{stats['min']:.6f\},\ \{stats['max']:.6f\}],\ "{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}sparsity=\{sparsity:.3f\}\%"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00109}00109\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00110}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a19d8788b683816ddb652c2b5c4d66688}{00110}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a19d8788b683816ddb652c2b5c4d66688}{get\_dose\_normalization\_params}}(self)\ -\/>\ Dict[str,\ float]:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00112}00112\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Get\ realistic\ dose\ normalization\ parameters\ based\ on\ ORIGINAL\ data.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00113}00113\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}No\ original\ dose\ statistics\ available"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ global\ statistics\ across\ all\ energies}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ all\_mins\ =\ [stats[\textcolor{stringliteral}{'min'}]\ \textcolor{keywordflow}{for}\ stats\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}.values()]}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ all\_maxs\ =\ [stats[\textcolor{stringliteral}{'max'}]\ \textcolor{keywordflow}{for}\ stats\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}.values()]}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ global\_clip\_min\ =\ min(all\_mins)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ global\_clip\_max\ =\ max(all\_maxs)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ realistic\ normalization\ range}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ 95th\ percentile\ to\ avoid\ extreme\ outliers\ but\ preserve\ realistic\ scale}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ all\_values\ =\ []}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_stats\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}.values():}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ all\_values.extend([stats[\textcolor{stringliteral}{'max'}]\ \textcolor{keywordflow}{for}\ stats\ \textcolor{keywordflow}{in}\ [energy\_stats]])}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ robust\_max\ =\ np.percentile(all\_values,\ 95)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ normalization\_params\ =\ \{}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_min'}:\ global\_clip\_min,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_max'}:\ global\_clip\_max,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'robust\_max'}:\ robust\_max,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energy\_specific\_stats'}:\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a6fd24fd9696a6ea2802260e8adf7ef95}{original\_dose\_stats}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ CORRECTED:\ Dose\ normalization\ params:\ "{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}clip\_min=\{global\_clip\_min:.6f\},\ clip\_max=\{global\_clip\_max:.6f\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}robust\_max=\{robust\_max:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ normalization\_params}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00144}00144\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00145}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a768dafdf157d6f61f5538e746520b8e5}{00145}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a768dafdf157d6f61f5538e746520b8e5}{\_\_len\_\_}}(self):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ len(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{samples}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00147}00147\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00148}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ad068e2923c2529c64668d4a76aa98315}{00148}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ad068e2923c2529c64668d4a76aa98315}{\_\_getitem\_\_}}(self,\ idx):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ in\_fp,\ out\_fp,\ energy\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_a38512cc979ac49a8f2bc2b2bef7b1086}{samples}}[idx]}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{transforms}}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ MONAI-\/style\ loading\ for\ transforms}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ \{}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}input"{}}:\ in\_fp,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}target"{}}:\ out\_fp,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ torch.tensor([energy],\ dtype=torch.float32),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset_ae17895be023bfad81d9b2002b03185c8}{transforms}}(sample)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Direct\ loading}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ arr\_in\ =\ np.load(in\_fp)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ arr\_out\ =\ np.load(out\_fp)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ \{}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}input"{}}:\ torch.from\_numpy(arr\_in)[\textcolor{keywordtype}{None}].float(),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}target"{}}:\ torch.from\_numpy(arr\_out)[\textcolor{keywordtype}{None}].float(),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ torch.tensor([energy],\ dtype=torch.float32),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sample}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00170}00170\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00171}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline}{00171}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline}{CorrectedTrainingPipeline}}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00172}00172\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00173}00173\ \textcolor{stringliteral}{\ \ \ \ CORRECTED\ Training\ Pipeline\ that\ implements\ the\ sustainable\ solution.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00174}00174\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00175}00175\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00176}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae088f75828f52e82ae33cc42cba5f9de}{00176}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae088f75828f52e82ae33cc42cba5f9de}{\_\_init\_\_}}(self,\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir:\ str,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies:\ List[float],}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_resolution:\ Tuple[int,\ int,\ int]\ =\ (64,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size:\ Tuple[int,\ int,\ int]\ =\ (64,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size:\ int\ =\ 2,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ learning\_rate:\ float\ =\ 1e-\/5,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs:\ int\ =\ 100,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device:\ torch.device\ =\ \textcolor{keywordtype}{None}):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00186}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}{00186}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}{root\_dir}}\ =\ root\_dir}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00187}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}{00187}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}{energies}}\ =\ energies}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00188}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{00188}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\_resolution}}\ =\ target\_resolution}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00189}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{00189}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{cube\_size}}\ =\ cube\_size}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00190}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{00190}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{batch\_size}}\ =\ batch\_size}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00191}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{00191}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\_rate}}\ =\ learning\_rate}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00192}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50}{00192}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50}{num\_epochs}}\ =\ num\_epochs}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00193}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{00193}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}}\ =\ device\ \textcolor{keywordflow}{or}\ torch.device(\textcolor{stringliteral}{'cuda'}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{'cpu'})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔧\ CORRECTED\ TRAINING\ PIPELINE\ INITIALIZED"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Target\ resolution:\ \{target\_resolution\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Cube\ size:\ \{cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energies:\ \{energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Device:\ \{self.device\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00200}00200\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00201}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365}{00201}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365}{create\_corrected\_transforms}}(self):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00203}00203\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Create\ CORRECTED\ transforms\ using\ Resized\ instead\ of\ Spacingd.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00204}00204\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ transforms\ =\ Compose([}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ LoadImaged(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ reader=NumpyReader),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureChannelFirstd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ CRITICAL\ FIX:\ Use\ Resized\ instead\ of\ Spacingd\ for\ array\ dimensions}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ Resized(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_size=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\_resolution}},\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ SpatialPadd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_size=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{cube\_size}},\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ method=\textcolor{stringliteral}{"{}symmetric"{}}),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ CenterSpatialCropd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ roi\_size=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{cube\_size}}),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Only\ normalize\ INPUT\ (CT),\ NOT\ target\ (dose)}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ keys=\textcolor{stringliteral}{"{}input"{}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ ),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}energy"{}}]),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}energy"{}}])}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ CORRECTED\ transforms\ created\ (using\ Resized\ instead\ of\ Spacingd)"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ transforms}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00235}00235\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00236}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906}{00236}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906}{setup\_unified\_model}}(self,\ dose\_normalization\_params:\ Dict)\ -\/>\ Tuple:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00238}00238\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Setup\ unified\ energy-\/conditioned\ model\ for\ all\ energies.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00239}00239\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔧\ Setting\ up\ UNIFIED\ energy-\/conditioned\ model..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Model\ with\ energy\ conditioning\ (2\ input\ channels:\ CT\ +\ Energy)}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ autoencoder\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ CT\ +\ Energy\ channel}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,\ \textcolor{comment}{\#\ Dose\ output}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ discriminator\ =\ PatchDiscriminator(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ num\_layers\_d=3,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=32,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=1,\ \ \textcolor{comment}{\#\ Dose\ output}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ unet\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \ \textcolor{comment}{\#\ Latent\ space}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{False},}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ scheduler\ =\ DDPMScheduler(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ num\_train\_timesteps=1000,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ schedule=\textcolor{stringliteral}{"{}scaled\_linear\_beta"{}},}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ beta\_end=0.0195,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Unified\ models\ created"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ autoencoder,\ discriminator,\ unet,\ scheduler}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00282}00282\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00283}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a9eeb2732ac8391826cd2b516917e3579}{00283}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a9eeb2732ac8391826cd2b516917e3579}{run\_corrected\_training}}(self):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00285}00285\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Execute\ the\ corrected\ training\ pipeline.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00286}00286\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ STARTING\ CORRECTED\ TRAINING\ PIPELINE"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 1:\ Create\ corrected\ dataset\ and\ get\ ORIGINAL\ dose\ statistics}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ transforms\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365}{create\_corrected\_transforms}}()}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ dataset\ =\ \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_dose_npy_dataset}{CorrectedDoseNpyDataset}}(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}{root\_dir}},}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ transforms=transforms,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \ \ \ \ target\_resolution=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\_resolution}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00296}00296\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 2:\ Get\ realistic\ dose\ normalization\ parameters}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ dose\_normalization\_params\ =\ dataset.get\_dose\_normalization\_params()}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00300}00300\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 3:\ Create\ data\ loaders}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ train\_size\ =\ int(0.8\ *\ len(dataset))}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ val\_size\ =\ len(dataset)\ -\/\ train\_size}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ train\_dataset,\ val\_dataset\ =\ torch.utils.data.random\_split(dataset,\ [train\_size,\ val\_size])}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ train\_loader\ =\ DataLoader(train\_dataset,\ batch\_size=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{batch\_size}},\ shuffle=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ val\_loader\ =\ DataLoader(val\_dataset,\ batch\_size=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{batch\_size}},\ shuffle=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00309}00309\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Dataset\ split:\ \{train\_size\}\ train,\ \{val\_size\}\ validation"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 4:\ Setup\ unified\ model}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00312}00312\ \ \ \ \ \ \ \ \ autoencoder,\ discriminator,\ unet,\ scheduler\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906}{setup\_unified\_model}}(dose\_normalization\_params)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 5:\ Calculate\ scaling\ factor\ with\ corrected\ model}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00315}00315\ \ \ \ \ \ \ \ \ scale\_factor\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b}{calculate\_corrected\_scaling\_factor}}(autoencoder,\ train\_loader)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 6:\ Setup\ optimizers\ with\ conservative\ learning\ rates}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ opt\_g\ =\ Adam(autoencoder.parameters(),\ lr=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\_rate}},\ weight\_decay=1e-\/4)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ opt\_d\ =\ Adam(discriminator.parameters(),\ lr=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\_rate}},\ weight\_decay=1e-\/4)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ opt\_diff\ =\ Adam(unet.parameters(),\ lr=self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\_rate}},\ weight\_decay=1e-\/4)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Optimizers\ created\ with\ learning\ rate:\ \{self.learning\_rate\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00324}00324\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Step\ 7:\ Run\ training}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ trained\_models\ =\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf}{train\_unified\_model}}(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ autoencoder,\ discriminator,\ unet,\ scheduler,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ opt\_g,\ opt\_d,\ opt\_diff,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ train\_loader,\ val\_loader,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_normalization\_params,\ scale\_factor}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ CORRECTED\ TRAINING\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ trained\_models}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00336}00336\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00337}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b}{00337}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b}{calculate\_corrected\_scaling\_factor}}(self,\ autoencoder,\ train\_loader):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00339}00339\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Calculate\ scaling\ factor\ with\ corrected\ energy\ conditioning.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00340}00340\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Calculating\ corrected\ scaling\ factor..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ autocast(\textcolor{stringliteral}{'cuda'},\ enabled=\textcolor{keyword}{True}):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ first\_batch\ =\ first(train\_loader)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00346}00346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ images\ =\ first\_batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ first\_batch[\textcolor{stringliteral}{"{}energy"{}}].to(self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ images.shape}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00351}00351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ energies.float()\ /\ 100.0\ \ \textcolor{comment}{\#\ Normalize\ energy}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([images,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00355}00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Encode\ to\ latents}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ autoencoder.encode\_stage\_2\_inputs(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ z\_std\ =\ torch.std(z)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ torch.isnan(z\_std)\ \textcolor{keywordflow}{or}\ torch.isinf(z\_std)\ \textcolor{keywordflow}{or}\ z\_std.item()\ <\ 1e-\/8:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Invalid\ latent\ std\ (\{z\_std.item()\}),\ using\ fallback\ scale\_factor=1.0"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1.0}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1\ /\ z\_std.item()}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ max(min(scale\_factor,\ 10.0),\ 0.1)\ \ \textcolor{comment}{\#\ Clamp\ to\ reasonable\ range}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00365}00365\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00366}00366\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Corrected\ scaling\ factor:\ \{scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ scale\_factor}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00368}00368\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00369}\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf}{00369}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf}{train\_unified\_model}}(self,\ autoencoder,\ discriminator,\ unet,\ scheduler,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ opt\_g,\ opt\_d,\ opt\_diff,\ train\_loader,\ val\_loader,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00371}00371\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_normalization\_params,\ scale\_factor):}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00373}00373\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Train\ the\ unified\ energy-\/conditioned\ model.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00374}00374\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}🔧\ Training\ unified\ energy-\/conditioned\ model..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ inferer\ with\ corrected\ scaling}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ inferer\ =\ LatentDiffusionInferer(scheduler,\ scale\_factor=scale\_factor)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Training\ loops\ would\ go\ here}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ For\ now,\ return\ the\ model\ setup}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ trained\_models\ =\ \{}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'autoencoder'}:\ autoencoder,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'discriminator'}:\ discriminator,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'unet'}:\ unet,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00386}00386\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scheduler'}:\ scheduler,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00387}00387\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'inferer'}:\ inferer,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00388}00388\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'dose\_normalization\_params'}:\ dose\_normalization\_params,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00389}00389\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scale\_factor'}:\ scale\_factor,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00390}00390\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'target\_resolution'}:\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\_resolution}},}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00391}00391\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energies'}:\ self.\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}{energies}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00392}00392\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00393}00393\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00394}00394\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Unified\ model\ training\ setup\ completed"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00395}00395\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ trained\_models}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00396}00396\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00397}\mbox{\hyperlink{namespacecorrected__training__pipeline_a415a518974310087a929f04f79b8c5b5}{00397}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacecorrected__training__pipeline_a415a518974310087a929f04f79b8c5b5}{main}}():}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00398}00398\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00399}00399\ \textcolor{stringliteral}{\ \ \ \ Main\ function\ to\ run\ the\ corrected\ training\ pipeline.}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00400}00400\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00401}00401\ \ \ \ \ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00402}00402\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00403}00403\ \ \ \ \ \textcolor{comment}{\#\ Configuration}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00404}00404\ \ \ \ \ ROOT\_DIR\ =\ \textcolor{stringliteral}{"{}/home/mpalm/RadioTherapy/traindata"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00405}00405\ \ \ \ \ ENERGIES\ =\ [3.47,\ 11.5,\ 15.75,\ 34.25,\ 46.53]}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00406}00406\ \ \ \ \ TARGET\_RESOLUTION\ =\ (64,\ 64,\ 64)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00407}00407\ \ \ \ \ CUBE\_SIZE\ =\ (64,\ 64,\ 64)}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00408}00408\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00409}00409\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ STARTING\ CORRECTED\ TRAINING\ PIPELINE\ -\/\ NACHHALTIGE\ LÖSUNG"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00410}00410\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00411}00411\ \ \ \ \ \textcolor{comment}{\#\ Create\ pipeline}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00412}00412\ \ \ \ \ pipeline\ =\ \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline}{CorrectedTrainingPipeline}}(}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00413}00413\ \ \ \ \ \ \ \ \ root\_dir=ROOT\_DIR,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00414}00414\ \ \ \ \ \ \ \ \ energies=ENERGIES,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00415}00415\ \ \ \ \ \ \ \ \ target\_resolution=TARGET\_RESOLUTION,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00416}00416\ \ \ \ \ \ \ \ \ cube\_size=CUBE\_SIZE,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00417}00417\ \ \ \ \ \ \ \ \ batch\_size=2,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ learning\_rate=1e-\/5,}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00419}00419\ \ \ \ \ \ \ \ \ num\_epochs=50}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00420}00420\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00421}00421\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00422}00422\ \ \ \ \ \textcolor{comment}{\#\ Run\ corrected\ training}}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00423}00423\ \ \ \ \ trained\_models\ =\ pipeline.run\_corrected\_training()}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00424}00424\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00425}00425\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ CORRECTED\ TRAINING\ PIPELINE\ COMPLETED\ -\/\ SUSTAINABLE\ SOLUTION\ IMPLEMENTED"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00426}00426\ \ \ \ \ \textcolor{keywordflow}{return}\ trained\_models}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00427}00427\ }
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00428}00428\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{corrected__training__pipeline_8py_source_l00429}00429\ \ \ \ \ \mbox{\hyperlink{namespacecorrected__training__pipeline_a415a518974310087a929f04f79b8c5b5}{main}}()}
+
+\end{DoxyCode}

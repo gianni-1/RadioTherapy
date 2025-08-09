@@ -1,0 +1,175 @@
+\chapter{Radio\+Therapy Dose Prediction}
+\hypertarget{index}{}\label{index}\index{RadioTherapy Dose Prediction@{RadioTherapy Dose Prediction}}
+\label{index_md__r_e_a_d_m_e}%
+\Hypertarget{index_md__r_e_a_d_m_e}%
+
+
+A Py\+Torch/\+MONAI-\/based application for training and running latent diffusion models to predict radiation dose distributions from CT scans, with support for Gaussian quadrature over multiple energy levels.
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md2}{}\doxysection{\texorpdfstring{Project Structure}{Project Structure}}\label{index_autotoc_md2}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{RadioTherapy/}
+\DoxyCodeLine{├──\ sourcecode/}
+\DoxyCodeLine{│\ \ \ ├──\ gui.py\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ PyQt5\ GUI\ entry\ point}
+\DoxyCodeLine{│\ \ \ ├──\ system\_manager.py\ \ \ \ \ \ \ \ \#\ Orchestrates\ training\ \&\ inference}
+\DoxyCodeLine{│\ \ \ ├──\ data\_management.py\ \ \ \ \ \ \ \#\ Dataset\ \&\ DataLoader\ logic}
+\DoxyCodeLine{│\ \ \ ├──\ inference\_module.py\ \ \ \ \ \ \#\ Gaussian‐quadrature\ inference\ pipeline}
+\DoxyCodeLine{│\ \ \ ├──\ training\_pipeline.py\ \ \ \ \ \#\ Trainer\ classes\ for\ AE\ \&\ diffusion}
+\DoxyCodeLine{│\ \ \ └──\ generative/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Prebuilt\ architectures\ \&\ inferers}
+\DoxyCodeLine{├──\ testdata/\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Sample\ input/output\ cubes\ by\ energy}
+\DoxyCodeLine{├──\ Master\_thesis\_Hagedorn.pdf\ \ \ \#\ Hagedorn\ master’s\ thesis\ (Gaussian\ quadrature)}
+\DoxyCodeLine{├──\ requirements.txt\ \ \ \ \ \ \ \ \ \ \ \ \ \#\ Python\ dependencies}
+\DoxyCodeLine{└──\ README.md\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#\ You\ are\ here}
+
+\end{DoxyCode}
+
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md4}{}\doxysection{\texorpdfstring{Quickstart}{Quickstart}}\label{index_autotoc_md4}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Clone repo}} ~\newline
+ 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{git\ clone\ https://github.com/<your-\/username>/RadioTherapy.git}
+\DoxyCodeLine{cd\ RadioTherapy}
+
+\end{DoxyCode}
+
+\item {\bfseries{Install dependencies}} ~\newline
+ 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{pip\ install\ -\/r\ requirements.txt}
+
+\end{DoxyCode}
+
+\item {\bfseries{Run GUI}} ~\newline
+ 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{python\ sourcecode/gui.py}
+
+\end{DoxyCode}
+
+\item {\bfseries{Run Tests}} ~\newline
+ 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{cd\ sourcecode}
+\DoxyCodeLine{pytest\ -\/q}
+
+\end{DoxyCode}
+
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md6}{}\doxysection{\texorpdfstring{GUI Workflow}{GUI Workflow}}\label{index_autotoc_md6}
+
+\begin{DoxyEnumerate}
+\item {\bfseries{Select a model checkpoint (only for inference)}} ~\newline
+
+\begin{DoxyItemize}
+\item Pretrained autoencoder + UNet {\ttfamily .ckpt} file. ~\newline
+
+\end{DoxyItemize}
+\item {\bfseries{Choose an energy folder}} ~\newline
+
+\begin{DoxyItemize}
+\item Point to one of the {\ttfamily traindata/\texorpdfstring{$<$}{<}energy\+\_\+ev\texorpdfstring{$>$}{>}/} directories. ~\newline
+
+\end{DoxyItemize}
+\item {\bfseries{Train or infer}} ~\newline
+
+\begin{DoxyItemize}
+\item {\bfseries{Train}} runs AE + diffusion training for that energy, logging “\+Expected input channels” and “\+UNet-\/\+Forward” debug info. ~\newline
+
+\item {\bfseries{Calculate Dose}} loads CT {\ttfamily .npy}, picks Gaussian quadrature points/weights from your GUI input, then runs inference over all energies and aggregates results. ~\newline
+
+\end{DoxyItemize}
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md8}{}\doxysection{\texorpdfstring{Core Components}{Core Components}}\label{index_autotoc_md8}
+\hypertarget{index_autotoc_md9}{}\doxysubsection{\texorpdfstring{1. {\ttfamily Parameter\+Manager}}{1. {\ttfamily Parameter\+Manager}}}\label{index_autotoc_md9}
+
+\begin{DoxyItemize}
+\item Loads/stores list of quadrature energies \& weights (dynamically from GUI selection).
+\item Passes them to {\ttfamily System\+Manager}.
+\end{DoxyItemize}\hypertarget{index_autotoc_md10}{}\doxysubsection{\texorpdfstring{2. {\ttfamily System\+Manager}}{2. {\ttfamily System\+Manager}}}\label{index_autotoc_md10}
+
+\begin{DoxyItemize}
+\item {\bfseries{train\+\_\+training()}} ~\newline
+
+\begin{DoxyItemize}
+\item Iterates each epoch for AE \& diffusion, per selected energy.
+\end{DoxyItemize}
+\item {\bfseries{run\+\_\+inference(ct\+\_\+path, checkpoint)}} ~\newline
+
+\begin{DoxyItemize}
+\item Preprocesses CT → tensor → runs {\ttfamily Inference\+Module}.
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{index_autotoc_md11}{}\doxysubsection{\texorpdfstring{3. {\ttfamily Inference\+Module}}{3. {\ttfamily Inference\+Module}}}\label{index_autotoc_md11}
+
+\begin{DoxyItemize}
+\item {\bfseries{preprocess\+\_\+ct()}} ~\newline
+
+\begin{DoxyItemize}
+\item Resizes CT to a fixed cube (default {\ttfamily 64³}).
+\end{DoxyItemize}
+\item {\bfseries{run\+\_\+inference\+\_\+over\+\_\+energies()}} ~\newline
+
+\begin{DoxyItemize}
+\item Loops Gaussian quadrature energies \& weights.
+\item Calls {\ttfamily run\+\_\+inference\+\_\+conditioned\+\_\+on\+\_\+energy()} per energy.
+\item Stacks \& weighted‐sums dose outputs.
+\end{DoxyItemize}
+\item {\bfseries{run\+\_\+inference\+\_\+conditioned\+\_\+on\+\_\+energy()}} ~\newline
+
+\begin{DoxyItemize}
+\item Concatenates a normalized energy channel to CT.
+\item Encodes latent via AE, then samples with {\ttfamily Latent\+Diffusion\+Inferer}.
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md13}{}\doxysection{\texorpdfstring{Gaussian Quadrature}{Gaussian Quadrature}}\label{index_autotoc_md13}
+Based on Hagedorn’s Master’s Thesis (Chapter 4.\+4.\+3), we choose 8 optimal energy/weight pairs for integrating over the dose spectrum. ~\newline
+
+\begin{DoxyItemize}
+\item {\bfseries{Quadrature energies}}\+: e.\+g. {\ttfamily \mbox{[}11.\+5, 20.\+0, …\mbox{]}} keV ~\newline
+
+\item {\bfseries{Weights}}\+: corresponding integration weights ~\newline
+
+\end{DoxyItemize}
+
+The GUI lets you pick an {\bfseries{energy range}}; we then compute the 8 quadrature points \& weights on the fly and feed them into {\ttfamily Inference\+Module}.
+
+\DoxyHorRuler{0}
+\hypertarget{index_autotoc_md15}{}\doxysection{\texorpdfstring{Training \& Debug}{Training \& Debug}}\label{index_autotoc_md15}
+
+\begin{DoxyItemize}
+\item {\bfseries{Autoencoder}} ~\newline
+
+\begin{DoxyItemize}
+\item Logs “\+Expected input channels\+: 2, Actual input channels\+: 1” if your AE-\/\+UNet coupling is misconfigured.
+\end{DoxyItemize}
+\item {\bfseries{Diffusion}} ~\newline
+
+\begin{DoxyItemize}
+\item Prints {\ttfamily \mbox{[}DIFF DEBUG\mbox{]} UNet-\/\+Forward-\/\+Fehler\+: …} when dimensions mismatch in cross-\/attention.
+\end{DoxyItemize}
+\item Common errors often stem from mismatched channel counts or missing {\ttfamily cross\+\_\+attention\+\_\+dim}.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+
+
+
+
+\DoxyHorRuler{0}
+
+
+
+
+\DoxyHorRuler{0}
+ 

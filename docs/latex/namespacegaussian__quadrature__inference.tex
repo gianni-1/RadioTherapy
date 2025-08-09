@@ -1,0 +1,147 @@
+\doxysection{gaussian\+\_\+quadrature\+\_\+inference Namespace Reference}
+\hypertarget{namespacegaussian__quadrature__inference}{}\label{namespacegaussian__quadrature__inference}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee}{setup\+\_\+logging}} ()
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064}{load\+\_\+combined\+\_\+checkpoint}} (str checkpoint\+\_\+path)
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f}{load\+\_\+ct}} (Path path)
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28}{extract\+\_\+energy\+\_\+models}} (dict models\+\_\+by\+\_\+energy, list target\+\_\+energies)
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f}{run\+\_\+gaussian\+\_\+quadrature\+\_\+inference}} (ct\+\_\+array, checkpoint\+\_\+path, quad\+\_\+energies, quad\+\_\+weights, device=\textquotesingle{}cpu\textquotesingle{}, cube\+\_\+size=(64, 64, 64))
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd}{save\+\_\+dose}} (Path path, np.\+ndarray dose, affine=None)
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a}{create\+\_\+visualization}} (integrated\+\_\+dose, energy\+\_\+results, output\+\_\+dir)
+\item 
+\mbox{\hyperlink{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df}{main}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{namespacegaussian__quadrature__inference_ae832d543b514867eb04493c27c7122b8}{has\+\_\+nibabel}} = True
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Gaussian Quadrature Inference for Radiotherapie Dose Prediction.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!create\_visualization@{create\_visualization}}
+\index{create\_visualization@{create\_visualization}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{create\_visualization()}{create\_visualization()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a} 
+gaussian\+\_\+quadrature\+\_\+inference.\+create\+\_\+visualization (\begin{DoxyParamCaption}\item[{}]{integrated\+\_\+dose}{, }\item[{}]{energy\+\_\+results}{, }\item[{}]{output\+\_\+dir}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Create visualization of quadrature integration results.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00258}{258}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!extract\_energy\_models@{extract\_energy\_models}}
+\index{extract\_energy\_models@{extract\_energy\_models}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{extract\_energy\_models()}{extract\_energy\_models()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28} 
+gaussian\+\_\+quadrature\+\_\+inference.\+extract\+\_\+energy\+\_\+models (\begin{DoxyParamCaption}\item[{dict}]{models\+\_\+by\+\_\+energy}{, }\item[{list}]{target\+\_\+energies}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Extract models for specific energies.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00087}{87}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!load\_combined\_checkpoint@{load\_combined\_checkpoint}}
+\index{load\_combined\_checkpoint@{load\_combined\_checkpoint}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{load\_combined\_checkpoint()}{load\_combined\_checkpoint()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064} 
+gaussian\+\_\+quadrature\+\_\+inference.\+load\+\_\+combined\+\_\+checkpoint (\begin{DoxyParamCaption}\item[{str}]{checkpoint\+\_\+path}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Load combined checkpoint with all energy models.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00037}{37}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!load\_ct@{load\_ct}}
+\index{load\_ct@{load\_ct}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{load\_ct()}{load\_ct()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f} 
+gaussian\+\_\+quadrature\+\_\+inference.\+load\+\_\+ct (\begin{DoxyParamCaption}\item[{Path}]{path}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Load CT data from .npy or .nii/.nii.gz file.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00068}{68}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!main@{main}}
+\index{main@{main}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df} 
+gaussian\+\_\+quadrature\+\_\+inference.\+main (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Main function.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00319}{319}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!run\_gaussian\_quadrature\_inference@{run\_gaussian\_quadrature\_inference}}
+\index{run\_gaussian\_quadrature\_inference@{run\_gaussian\_quadrature\_inference}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{run\_gaussian\_quadrature\_inference()}{run\_gaussian\_quadrature\_inference()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f} 
+gaussian\+\_\+quadrature\+\_\+inference.\+run\+\_\+gaussian\+\_\+quadrature\+\_\+inference (\begin{DoxyParamCaption}\item[{}]{ct\+\_\+array}{, }\item[{}]{checkpoint\+\_\+path}{, }\item[{}]{quad\+\_\+energies}{, }\item[{}]{quad\+\_\+weights}{, }\item[{}]{device}{ = {\ttfamily \textquotesingle{}cpu\textquotesingle{}}, }\item[{}]{cube\+\_\+size}{ = {\ttfamily (64,~64,~64)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Run 4-point Gaussian Quadrature Inference.
+
+Args:
+    ct_array: Input CT array
+    checkpoint_path: Path to combined checkpoint
+    quad_energies: List of 4 quadrature energies [x1, x2, x3, x4]
+    quad_weights: List of 4 quadrature weights [w1, w2, w3, w4] 
+    device: PyTorch device
+    cube_size: Target cube size
+
+Returns:
+    integrated_dose: Final integrated dose distribution
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00125}{125}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!save\_dose@{save\_dose}}
+\index{save\_dose@{save\_dose}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{save\_dose()}{save\_dose()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd} 
+gaussian\+\_\+quadrature\+\_\+inference.\+save\+\_\+dose (\begin{DoxyParamCaption}\item[{Path}]{path}{, }\item[{np.\+ndarray}]{dose}{, }\item[{}]{affine}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Save dose array to file.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00244}{244}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+\Hypertarget{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!setup\_logging@{setup\_logging}}
+\index{setup\_logging@{setup\_logging}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{setup\_logging()}{setup\_logging()}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee} 
+gaussian\+\_\+quadrature\+\_\+inference.\+setup\+\_\+logging (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Setup logging configuration.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00028}{28}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacegaussian__quadrature__inference_ae832d543b514867eb04493c27c7122b8}\index{gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}!has\_nibabel@{has\_nibabel}}
+\index{has\_nibabel@{has\_nibabel}!gaussian\_quadrature\_inference@{gaussian\_quadrature\_inference}}
+\doxysubsubsection{\texorpdfstring{has\_nibabel}{has\_nibabel}}
+{\footnotesize\ttfamily \label{namespacegaussian__quadrature__inference_ae832d543b514867eb04493c27c7122b8} 
+bool gaussian\+\_\+quadrature\+\_\+inference.\+has\+\_\+nibabel = True}
+
+
+
+Definition at line \mbox{\hyperlink{gaussian__quadrature__inference_8py_source_l00023}{23}} of file \mbox{\hyperlink{gaussian__quadrature__inference_8py_source}{gaussian\+\_\+quadrature\+\_\+inference.\+py}}.
+

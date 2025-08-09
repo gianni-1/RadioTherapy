@@ -1,0 +1,303 @@
+\doxysection{debug\+\_\+inference\+\_\+problem Namespace Reference}
+\hypertarget{namespacedebug__inference__problem}{}\label{namespacedebug__inference__problem}\index{debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_ac3727b9e8a5f6867bcc57f3c90c05bee}{level}}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a86504f4b141bbb54e22db6e1c9681ae1}{INFO}}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a95418cb1cf16f3a59136490d2411876c}{format}}
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__problem_affba8c86423247d6b5596257369146fa}{input\+\_\+file}} = \textquotesingle{}traindata/11\+\_\+5/inputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__problem_a89cb60ae161b24ce16d40b6ac7f07c1d}{output\+\_\+file}} = \textquotesingle{}traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_ae645cb08aad3519ffd93a51e1c8bb772}{input\+\_\+data}} = np.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_affba8c86423247d6b5596257369146fa}{input\+\_\+file}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}{ground\+\_\+truth}} = np.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_a89cb60ae161b24ce16d40b6ac7f07c1d}{output\+\_\+file}})
+\item 
+str \mbox{\hyperlink{namespacedebug__inference__problem_a1a96713d06e30deebcd8191a58bff1ef}{model\+\_\+path}} = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}{device}} = torch.\+device("{}cpu"{})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_acb1ea5f30588a288e4b133a0386ccce0}{checkpoint}} = torch.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_a1a96713d06e30deebcd8191a58bff1ef}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a73345532e4ec7acf39d59476f76ee977}{autoencoder}}
+\item 
+float \mbox{\hyperlink{namespacedebug__inference__problem_a7369201f5684bf3201837037f8981af0}{energy\+\_\+value}} = 11.\+5
+\item 
+float \mbox{\hyperlink{namespacedebug__inference__problem_a8d67c56192719a8ab937b0d43f1b72ff}{energy\+\_\+normalized}} = \mbox{\hyperlink{namespacedebug__inference__problem_a7369201f5684bf3201837037f8981af0}{energy\+\_\+value}} / 40.\+0
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a9597d2aca1bc0f64b6a4a4c133cec841}{input\+\_\+2channel}} = np.\+zeros((2, \texorpdfstring{$\ast$}{*}input\+\_\+data.\+shape))
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a0f17a6e890cca9dce6e63dae6eccabb6}{input\+\_\+tensor}} = torch.\+tensor(\mbox{\hyperlink{namespacedebug__inference__problem_a9597d2aca1bc0f64b6a4a4c133cec841}{input\+\_\+2channel}}, dtype=torch.\+float32).unsqueeze(0).to(\mbox{\hyperlink{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}{device}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a3c76cd7cf6c53b9c0b646a66838ffd88}{encoded}} = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__inference__problem_a0f17a6e890cca9dce6e63dae6eccabb6}{input\+\_\+tensor}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_ac2927de5d28b95e137693883cf21203e}{latent}} = \mbox{\hyperlink{namespacedebug__inference__problem_a3c76cd7cf6c53b9c0b646a66838ffd88}{encoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a6765c353558ab7ae05413aa21572b1c3}{decoded}} = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__inference__problem_ac2927de5d28b95e137693883cf21203e}{latent}})
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_aa73a214a488ec1537594c192d63bdb19}{reconstruction}} = \mbox{\hyperlink{namespacedebug__inference__problem_a6765c353558ab7ae05413aa21572b1c3}{decoded}}\mbox{[}0\mbox{]}
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}{reconstruction\+\_\+np}} = reconstruction.\+cpu().numpy().squeeze()
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_a43f975d691231a47f7eb1acbb83b9cde}{mse}} = np.\+mean((\mbox{\hyperlink{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}{ground\+\_\+truth}}) \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} 2)
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_aa72c82d30d3d85b9976cf6db2e0794a1}{mae}} = np.\+mean(np.\+abs(\mbox{\hyperlink{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}{ground\+\_\+truth}}))
+\item 
+\mbox{\hyperlink{namespacedebug__inference__problem_af10a6cffc25e278a60b6a724e0278744}{correlation}} = np.\+corrcoef(reconstruction\+\_\+np.\+flatten(), ground\+\_\+truth.\+flatten())\mbox{[}0, 1\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Debug-Script um das Inference-Problem zu identifizieren
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{namespacedebug__inference__problem_a73345532e4ec7acf39d59476f76ee977}\index{debug\_inference\_problem@{debug\_inference\_problem}!autoencoder@{autoencoder}}
+\index{autoencoder@{autoencoder}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{autoencoder}{autoencoder}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a73345532e4ec7acf39d59476f76ee977} 
+debug\+\_\+inference\+\_\+problem.\+autoencoder}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ =\ \ AutoencoderKL(}
+\DoxyCodeLine{00002\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{00003\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{00004\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{00005\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{00006\ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{00007\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ ).to(device)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00056}{56}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_acb1ea5f30588a288e4b133a0386ccce0}\index{debug\_inference\_problem@{debug\_inference\_problem}!checkpoint@{checkpoint}}
+\index{checkpoint@{checkpoint}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{checkpoint}{checkpoint}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_acb1ea5f30588a288e4b133a0386ccce0} 
+debug\+\_\+inference\+\_\+problem.\+checkpoint = torch.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_a1a96713d06e30deebcd8191a58bff1ef}{model\+\_\+path}}, map\+\_\+location=\mbox{\hyperlink{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}{device}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00052}{52}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_af10a6cffc25e278a60b6a724e0278744}\index{debug\_inference\_problem@{debug\_inference\_problem}!correlation@{correlation}}
+\index{correlation@{correlation}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{correlation}{correlation}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_af10a6cffc25e278a60b6a724e0278744} 
+debug\+\_\+inference\+\_\+problem.\+correlation = np.\+corrcoef(reconstruction\+\_\+np.\+flatten(), ground\+\_\+truth.\+flatten())\mbox{[}0, 1\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00122}{122}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a6765c353558ab7ae05413aa21572b1c3}\index{debug\_inference\_problem@{debug\_inference\_problem}!decoded@{decoded}}
+\index{decoded@{decoded}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{decoded}{decoded}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a6765c353558ab7ae05413aa21572b1c3} 
+debug\+\_\+inference\+\_\+problem.\+decoded = autoencoder.\+decode(\mbox{\hyperlink{namespacedebug__inference__problem_ac2927de5d28b95e137693883cf21203e}{latent}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00106}{106}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}\index{debug\_inference\_problem@{debug\_inference\_problem}!device@{device}}
+\index{device@{device}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731} 
+debug\+\_\+inference\+\_\+problem.\+device = torch.\+device("{}cpu"{})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00051}{51}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a3c76cd7cf6c53b9c0b646a66838ffd88}\index{debug\_inference\_problem@{debug\_inference\_problem}!encoded@{encoded}}
+\index{encoded@{encoded}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{encoded}{encoded}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a3c76cd7cf6c53b9c0b646a66838ffd88} 
+debug\+\_\+inference\+\_\+problem.\+encoded = autoencoder.\+encode(\mbox{\hyperlink{namespacedebug__inference__problem_a0f17a6e890cca9dce6e63dae6eccabb6}{input\+\_\+tensor}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00096}{96}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a8d67c56192719a8ab937b0d43f1b72ff}\index{debug\_inference\_problem@{debug\_inference\_problem}!energy\_normalized@{energy\_normalized}}
+\index{energy\_normalized@{energy\_normalized}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{energy\_normalized}{energy\_normalized}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a8d67c56192719a8ab937b0d43f1b72ff} 
+float debug\+\_\+inference\+\_\+problem.\+energy\+\_\+normalized = \mbox{\hyperlink{namespacedebug__inference__problem_a7369201f5684bf3201837037f8981af0}{energy\+\_\+value}} / 40.\+0}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00077}{77}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a7369201f5684bf3201837037f8981af0}\index{debug\_inference\_problem@{debug\_inference\_problem}!energy\_value@{energy\_value}}
+\index{energy\_value@{energy\_value}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{energy\_value}{energy\_value}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a7369201f5684bf3201837037f8981af0} 
+float debug\+\_\+inference\+\_\+problem.\+energy\+\_\+value = 11.\+5}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00076}{76}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a95418cb1cf16f3a59136490d2411876c}\index{debug\_inference\_problem@{debug\_inference\_problem}!format@{format}}
+\index{format@{format}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{format}{format}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a95418cb1cf16f3a59136490d2411876c} 
+debug\+\_\+inference\+\_\+problem.\+format}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00017}{17}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}\index{debug\_inference\_problem@{debug\_inference\_problem}!ground\_truth@{ground\_truth}}
+\index{ground\_truth@{ground\_truth}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{ground\_truth}{ground\_truth}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8} 
+debug\+\_\+inference\+\_\+problem.\+ground\+\_\+truth = np.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_a89cb60ae161b24ce16d40b6ac7f07c1d}{output\+\_\+file}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00033}{33}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a86504f4b141bbb54e22db6e1c9681ae1}\index{debug\_inference\_problem@{debug\_inference\_problem}!INFO@{INFO}}
+\index{INFO@{INFO}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{INFO}{INFO}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a86504f4b141bbb54e22db6e1c9681ae1} 
+debug\+\_\+inference\+\_\+problem.\+INFO}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00017}{17}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a9597d2aca1bc0f64b6a4a4c133cec841}\index{debug\_inference\_problem@{debug\_inference\_problem}!input\_2channel@{input\_2channel}}
+\index{input\_2channel@{input\_2channel}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{input\_2channel}{input\_2channel}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a9597d2aca1bc0f64b6a4a4c133cec841} 
+debug\+\_\+inference\+\_\+problem.\+input\+\_\+2channel = np.\+zeros((2, \texorpdfstring{$\ast$}{*}input\+\_\+data.\+shape))}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00080}{80}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_ae645cb08aad3519ffd93a51e1c8bb772}\index{debug\_inference\_problem@{debug\_inference\_problem}!input\_data@{input\_data}}
+\index{input\_data@{input\_data}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{input\_data}{input\_data}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_ae645cb08aad3519ffd93a51e1c8bb772} 
+debug\+\_\+inference\+\_\+problem.\+input\+\_\+data = np.\+load(\mbox{\hyperlink{namespacedebug__inference__problem_affba8c86423247d6b5596257369146fa}{input\+\_\+file}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00032}{32}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_affba8c86423247d6b5596257369146fa}\index{debug\_inference\_problem@{debug\_inference\_problem}!input\_file@{input\_file}}
+\index{input\_file@{input\_file}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{input\_file}{input\_file}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_affba8c86423247d6b5596257369146fa} 
+str debug\+\_\+inference\+\_\+problem.\+input\+\_\+file = \textquotesingle{}traindata/11\+\_\+5/inputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00023}{23}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a0f17a6e890cca9dce6e63dae6eccabb6}\index{debug\_inference\_problem@{debug\_inference\_problem}!input\_tensor@{input\_tensor}}
+\index{input\_tensor@{input\_tensor}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{input\_tensor}{input\_tensor}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a0f17a6e890cca9dce6e63dae6eccabb6} 
+debug\+\_\+inference\+\_\+problem.\+input\+\_\+tensor = torch.\+tensor(\mbox{\hyperlink{namespacedebug__inference__problem_a9597d2aca1bc0f64b6a4a4c133cec841}{input\+\_\+2channel}}, dtype=torch.\+float32).unsqueeze(0).to(\mbox{\hyperlink{namespacedebug__inference__problem_a5a8354086deee0ff233b263d83213731}{device}})}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00085}{85}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_ac2927de5d28b95e137693883cf21203e}\index{debug\_inference\_problem@{debug\_inference\_problem}!latent@{latent}}
+\index{latent@{latent}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{latent}{latent}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_ac2927de5d28b95e137693883cf21203e} 
+debug\+\_\+inference\+\_\+problem.\+latent = \mbox{\hyperlink{namespacedebug__inference__problem_a3c76cd7cf6c53b9c0b646a66838ffd88}{encoded}}\mbox{[}0\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00098}{98}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_ac3727b9e8a5f6867bcc57f3c90c05bee}\index{debug\_inference\_problem@{debug\_inference\_problem}!level@{level}}
+\index{level@{level}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{level}{level}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_ac3727b9e8a5f6867bcc57f3c90c05bee} 
+debug\+\_\+inference\+\_\+problem.\+level}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00017}{17}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_aa72c82d30d3d85b9976cf6db2e0794a1}\index{debug\_inference\_problem@{debug\_inference\_problem}!mae@{mae}}
+\index{mae@{mae}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{mae}{mae}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_aa72c82d30d3d85b9976cf6db2e0794a1} 
+debug\+\_\+inference\+\_\+problem.\+mae = np.\+mean(np.\+abs(\mbox{\hyperlink{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}{ground\+\_\+truth}}))}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00121}{121}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a1a96713d06e30deebcd8191a58bff1ef}\index{debug\_inference\_problem@{debug\_inference\_problem}!model\_path@{model\_path}}
+\index{model\_path@{model\_path}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{model\_path}{model\_path}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a1a96713d06e30deebcd8191a58bff1ef} 
+str debug\+\_\+inference\+\_\+problem.\+model\+\_\+path = \textquotesingle{}/Users/giannigagliardi/Documents/Git/Radio\+Therapy/unified\+\_\+energy\+\_\+conditioned\+\_\+model\+\_\+res16.\+0\+\_\+energies2.\+ckpt\textquotesingle{}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00046}{46}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a43f975d691231a47f7eb1acbb83b9cde}\index{debug\_inference\_problem@{debug\_inference\_problem}!mse@{mse}}
+\index{mse@{mse}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{mse}{mse}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a43f975d691231a47f7eb1acbb83b9cde} 
+debug\+\_\+inference\+\_\+problem.\+mse = np.\+mean((\mbox{\hyperlink{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}{reconstruction\+\_\+np}} -\/ \mbox{\hyperlink{namespacedebug__inference__problem_acf6c7d8acbe6f9038671ebaf9e6302b8}{ground\+\_\+truth}}) \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*} 2)}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00120}{120}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a89cb60ae161b24ce16d40b6ac7f07c1d}\index{debug\_inference\_problem@{debug\_inference\_problem}!output\_file@{output\_file}}
+\index{output\_file@{output\_file}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{output\_file}{output\_file}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a89cb60ae161b24ce16d40b6ac7f07c1d} 
+str debug\+\_\+inference\+\_\+problem.\+output\+\_\+file = \textquotesingle{}traindata/11\+\_\+5/outputcube/235101017859661465075472232303048949736\+\_\+0.\+npy\textquotesingle{}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00024}{24}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_aa73a214a488ec1537594c192d63bdb19}\index{debug\_inference\_problem@{debug\_inference\_problem}!reconstruction@{reconstruction}}
+\index{reconstruction@{reconstruction}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{reconstruction}{reconstruction}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_aa73a214a488ec1537594c192d63bdb19} 
+debug\+\_\+inference\+\_\+problem.\+reconstruction = \mbox{\hyperlink{namespacedebug__inference__problem_a6765c353558ab7ae05413aa21572b1c3}{decoded}}\mbox{[}0\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00108}{108}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+
+\Hypertarget{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7}\index{debug\_inference\_problem@{debug\_inference\_problem}!reconstruction\_np@{reconstruction\_np}}
+\index{reconstruction\_np@{reconstruction\_np}!debug\_inference\_problem@{debug\_inference\_problem}}
+\doxysubsubsection{\texorpdfstring{reconstruction\_np}{reconstruction\_np}}
+{\footnotesize\ttfamily \label{namespacedebug__inference__problem_a08b19c3759bb3fb16f1bca71a9dd5ac7} 
+debug\+\_\+inference\+\_\+problem.\+reconstruction\+\_\+np = reconstruction.\+cpu().numpy().squeeze()}
+
+
+
+Definition at line \mbox{\hyperlink{debug__inference__problem_8py_source_l00112}{112}} of file \mbox{\hyperlink{debug__inference__problem_8py_source}{debug\+\_\+inference\+\_\+problem.\+py}}.
+

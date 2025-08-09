@@ -1,0 +1,402 @@
+\doxysection{gaussian\+\_\+quadrature\+\_\+inference.\+py}
+\hypertarget{gaussian__quadrature__inference_8py_source}{}\label{gaussian__quadrature__inference_8py_source}\index{sourcecode/gaussian\_quadrature\_inference.py@{sourcecode/gaussian\_quadrature\_inference.py}}
+\mbox{\hyperlink{gaussian__quadrature__inference_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00001}\mbox{\hyperlink{namespacegaussian__quadrature__inference}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00003}00003\ \textcolor{stringliteral}{Gaussian\ Quadrature\ Inference\ for\ Radiotherapie\ Dose\ Prediction.}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00006}00006\ \textcolor{keyword}{import}\ argparse}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00007}00007\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00008}00008\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00009}00009\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00010}00010\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00011}00011\ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00012}00012\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00013}00013\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00015}00015\ \textcolor{comment}{\#\ Add\ sourcecode\ to\ path}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00016}00016\ sys.path.append(\textcolor{stringliteral}{'sourcecode'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00018}00018\ \textcolor{keyword}{from}\ inference\_module\ \textcolor{keyword}{import}\ InferenceModule}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00020}00020\ \textcolor{comment}{\#\ Optional\ nibabel\ support\ for\ NIfTI\ files}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00021}00021\ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00022}00022\ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00023}\mbox{\hyperlink{namespacegaussian__quadrature__inference_ae832d543b514867eb04493c27c7122b8}{00023}}\ \ \ \ \ has\_nibabel\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00024}00024\ \textcolor{keywordflow}{except}\ ImportError:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00025}00025\ \ \ \ \ has\_nibabel\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00028}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee}{00028}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee}{setup\_logging}}():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00029}00029\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Setup\ logging\ configuration."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00030}00030\ \ \ \ \ logging.basicConfig(}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ level=logging.INFO,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ format=\textcolor{stringliteral}{'\%(asctime)s\ -\/\ \%(levelname)s\ -\/\ \%(name)s\ -\/\ \%(message)s'}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00033}00033\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00034}00034\ \ \ \ \ \textcolor{keywordflow}{return}\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00037}\mbox{\hyperlink{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064}{00037}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064}{load\_combined\_checkpoint}}(checkpoint\_path:\ str):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00038}00038\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Load\ combined\ checkpoint\ with\ all\ energy\ models."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00039}00039\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00040}00040\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loading\ combined\ checkpoint\ from:\ \{checkpoint\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00041}00041\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00042}00042\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ checkpoint\ =\ torch.load(checkpoint\_path,\ map\_location=\textcolor{stringliteral}{'cpu'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Checkpoint\ loaded\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'models\_by\_energy'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy\ =\ checkpoint[\textcolor{stringliteral}{'models\_by\_energy'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ \{len(models\_by\_energy)\}\ energy-\/specific\ models"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key\ \textcolor{keywordflow}{in}\ models\_by\_energy.keys():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/\ \{key\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'dose\_normalization\_params'}\ \textcolor{keywordflow}{in}\ checkpoint:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ checkpoint[\textcolor{stringliteral}{'dose\_normalization\_params'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Found\ dose\ normalization\ parameters\ for\ \{len(dose\_params)\}\ energy/resolution\ combinations"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ params\ \textcolor{keywordflow}{in}\ dose\_params.items():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ \{key\}:\ clip\_min=\{params.get('clip\_min',\ 0.0):.6f\},\ clip\_max=\{params.get('clip\_max',\ 1.0):.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ dose\ normalization\ parameters\ found\ in\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_params\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ checkpoint,\ models\_by\_energy,\ dose\_params}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00063}00063\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ load\ checkpoint:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00068}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f}{00068}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f}{load\_ct}}(path:\ Path):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00069}00069\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Load\ CT\ data\ from\ .npy\ or\ .nii/.nii.gz\ file."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00070}00070\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00071}00071\ \ \ \ \ suffix\ =\ path.suffix.lower()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00072}00072\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00073}00073\ \ \ \ \ \textcolor{keywordflow}{if}\ suffix\ \textcolor{keywordflow}{in}\ [\textcolor{stringliteral}{'.nii'},\ \textcolor{stringliteral}{'.gz'}]\ \textcolor{keywordflow}{and}\ has\_nibabel:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ nii\ =\ nib.load(str(path))}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ arr\ =\ nii.get\_fdata().astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ affine\ =\ nii.affine}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loaded\ NIfTI:\ shape=\{arr.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00078}00078\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ arr\ =\ np.load(str(path)).astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ affine\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loaded\ NPY:\ shape=\{arr.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00083}00083\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ range:\ \{arr.min():.2f\}\ to\ \{arr.max():.2f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00084}00084\ \ \ \ \ \textcolor{keywordflow}{return}\ arr,\ affine}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00087}\mbox{\hyperlink{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28}{00087}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28}{extract\_energy\_models}}(models\_by\_energy:\ dict,\ target\_energies:\ list):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00088}00088\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Extract\ models\ for\ specific\ energies."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00089}00089\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00090}00090\ \ \ \ \ extracted\_models\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00091}00091\ \ \ \ \ available\_energies\ =\ []}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00092}00092\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00093}00093\ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ model\_data\ \textcolor{keywordflow}{in}\ models\_by\_energy.items():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ energy\ from\ key\ (e.g.,\ "{}res64x64x64\_e46.53"{})}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'\_e'}\ \textcolor{keywordflow}{in}\ key:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_str\ =\ key.split(\textcolor{stringliteral}{'\_e'})[1]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\ =\ float(energy\_str)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies.append(energy)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ this\ energy\ is\ in\ our\ target\ list}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ target\_energy\ \textcolor{keywordflow}{in}\ target\_energies:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ abs(energy\ -\/\ target\_energy)\ <\ 0.01:\ \ \textcolor{comment}{\#\ Close\ enough}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ extracted\_models[target\_energy]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'key'}:\ key,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energy'}:\ energy,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'models'}:\ model\_data}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Found\ model\ for\ energy\ \{target\_energy:.4f\}\ keV\ (key:\ \{key\})"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Could\ not\ parse\ energy\ from\ key\ \{key\}:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00113}00113\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00114}00114\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Available\ energies:\ \{sorted(available\_energies)\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00115}00115\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Extracted\ models\ for\ \{len(extracted\_models)\}\ target\ energies"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00116}00116\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00117}00117\ \ \ \ \ missing\_energies\ =\ [e\ \textcolor{keywordflow}{for}\ e\ \textcolor{keywordflow}{in}\ target\_energies\ \textcolor{keywordflow}{if}\ e\ \textcolor{keywordflow}{not}\ \textcolor{keywordflow}{in}\ extracted\_models]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00118}00118\ \ \ \ \ \textcolor{keywordflow}{if}\ missing\_energies:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Missing\ models\ for\ energies:\ \{missing\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Models\ not\ found\ for\ energies:\ \{missing\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00121}00121\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00122}00122\ \ \ \ \ \textcolor{keywordflow}{return}\ extracted\_models}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00124}00124\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00125}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f}{00125}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f}{run\_gaussian\_quadrature\_inference}}(ct\_array,\ checkpoint\_path,\ quad\_energies,\ quad\_weights,\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device='cpu',\ cube\_size=(64,\ 64,\ 64)):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00127}00127\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00128}00128\ \textcolor{stringliteral}{\ \ \ \ Run\ 4-\/point\ Gaussian\ Quadrature\ Inference.}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00129}00129\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00130}00130\ \textcolor{stringliteral}{\ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00131}00131\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ ct\_array:\ Input\ CT\ array}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00132}00132\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ checkpoint\_path:\ Path\ to\ combined\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00133}00133\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ quad\_energies:\ List\ of\ 4\ quadrature\ energies\ [x1,\ x2,\ x3,\ x4]}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00134}00134\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ quad\_weights:\ List\ of\ 4\ quadrature\ weights\ [w1,\ w2,\ w3,\ w4]\ }}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00135}00135\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ device:\ PyTorch\ device}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00136}00136\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ cube\_size:\ Target\ cube\ size}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00137}00137\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00138}00138\ \textcolor{stringliteral}{\ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00139}00139\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ integrated\_dose:\ Final\ integrated\ dose\ distribution}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00140}00140\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00141}00141\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00142}00142\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00143}00143\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00144}00144\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}GAUSSIAN\ QUADRATURE\ INFERENCE"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00145}00145\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00146}00146\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ energies:\ \{quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00147}00147\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ weights:\ \{quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00148}00148\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Device:\ \{device\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00149}00149\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Target\ cube\ size:\ \{cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00150}00150\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00151}00151\ \ \ \ \ \textcolor{comment}{\#\ Load\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00152}00152\ \ \ \ \ checkpoint,\ models\_by\_energy,\ dose\_params\ =\ \mbox{\hyperlink{namespacegaussian__quadrature__inference_ae9cbfaae590989332889451a58929064}{load\_combined\_checkpoint}}(checkpoint\_path)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00153}00153\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00154}00154\ \ \ \ \ \textcolor{comment}{\#\ Extract\ models\ for\ quadrature\ energies}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00155}00155\ \ \ \ \ extracted\_models\ =\ \mbox{\hyperlink{namespacegaussian__quadrature__inference_ac8d36b9594cd04dd5afd285f1417aa28}{extract\_energy\_models}}(models\_by\_energy,\ quad\_energies)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00156}00156\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00157}00157\ \ \ \ \ \textcolor{comment}{\#\ Initialize\ results\ storage}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00158}00158\ \ \ \ \ energy\_results\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00159}00159\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00160}00160\ \ \ \ \ \textcolor{comment}{\#\ Run\ inference\ for\ each\ quadrature\ energy}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ (energy,\ weight)\ \textcolor{keywordflow}{in}\ enumerate(zip(quad\_energies,\ quad\_weights)):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}QUADRATURE\ POINT\ \{i+1\}/4:\ Energy\ \{energy:.4f\}\ keV,\ Weight\ \{weight:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ model\_info\ =\ extracted\_models[energy]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ model\_key\ =\ model\_info[\textcolor{stringliteral}{'key'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ energy-\/specific\ models\ dict}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ energy\_models\ =\ \{energy:\ extracted\_models[energy][\textcolor{stringliteral}{'models'}]\}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Get\ scale\ factor}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ scale\_factor\ =\ extracted\_models[energy][\textcolor{stringliteral}{'models'}].get(\textcolor{stringliteral}{'scale\_factor'},\ 1.0)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ scale\ factor:\ \{scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ InferenceModule\ for\ this\ energy}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ inference\_module\ =\ \mbox{\hyperlink{classinference__module_1_1_inference_module}{InferenceModule}}(}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy=energy\_models,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ energies=[energy],}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_weights=[1.0],\ \ \textcolor{comment}{\#\ Single\ energy,\ so\ weight=1}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ device=device,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=scale\_factor,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_normalization\_params=dose\_params}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Running\ inference\ for\ energy\ \{energy:.4f\}\ keV..."{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ dose\_result\ =\ inference\_module.run\_inference\_conditioned\_on\_energy(}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor=torch.from\_numpy(ct\_array).unsqueeze(0),\ \ \textcolor{comment}{\#\ Add\ batch\ dimension}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_value=energy}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Store\ result}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(dose\_result,\ torch.Tensor):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_result.cpu().numpy()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ np.array(dose\_result,\ dtype=np.float32)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Remove\ batch\ dimension\ if\ present}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_np.ndim\ ==\ 5\ \textcolor{keywordflow}{and}\ dose\_np.shape[0]\ ==\ 1:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_np[0,\ 0]\ \ \textcolor{comment}{\#\ Remove\ batch\ and\ channel\ dims}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ dose\_np.ndim\ ==\ 4\ \textcolor{keywordflow}{and}\ dose\_np.shape[0]\ ==\ 1:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_np[0]\ \ \textcolor{comment}{\#\ Remove\ batch\ dim}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ energy\_results[energy]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'dose'}:\ dose\_np,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'weight'}:\ weight}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Energy\ \{energy:.4f\}:\ dose\ shape=\{dose\_np.shape\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}range=[\{dose\_np.min():.6f\},\ \{dose\_np.max():.6f\}],\ weight=\{weight:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00212}00212\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00213}00213\ \ \ \ \ \textcolor{comment}{\#\ Gaussian\ Quadrature\ Integration}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00214}00214\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00215}00215\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}GAUSSIAN\ QUADRATURE\ INTEGRATION"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00216}00216\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00217}00217\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00218}00218\ \ \ \ \ integrated\_dose\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00219}00219\ \ \ \ \ total\_weight\ =\ 0.0}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00220}00220\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00221}00221\ \ \ \ \ \textcolor{keywordflow}{for}\ energy,\ weight\ \textcolor{keywordflow}{in}\ zip(quad\_energies,\ quad\_weights):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ dose\ =\ energy\_results[energy][\textcolor{stringliteral}{'dose'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ integrated\_dose\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ integrated\_dose\ =\ weight\ *\ dose}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ integrated\_dose\ +=\ weight\ *\ dose}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ total\_weight\ +=\ weight}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Added\ energy\ \{energy:.4f\}\ with\ weight\ \{weight:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00231}00231\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00232}00232\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Total\ weight\ sum:\ \{total\_weight:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00233}00233\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ integrated\ dose:\ shape=\{integrated\_dose.shape\},\ "{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}range=[\{integrated\_dose.min():.6f\},\ \{integrated\_dose.max():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00235}00235\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00236}00236\ \ \ \ \ \textcolor{comment}{\#\ Normalize\ by\ total\ weight\ (should\ be\ close\ to\ 1\ for\ proper\ quadrature)}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00237}00237\ \ \ \ \ \textcolor{keywordflow}{if}\ abs(total\_weight\ -\/\ 1.0)\ >\ 0.001:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Total\ weight\ \{total\_weight:.6f\}\ !=\ 1.0,\ normalizing..."{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ integrated\_dose\ /=\ total\_weight}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00240}00240\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00241}00241\ \ \ \ \ \textcolor{keywordflow}{return}\ integrated\_dose,\ energy\_results}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00242}00242\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00243}00243\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00244}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd}{00244}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd}{save\_dose}}(path:\ Path,\ dose:\ np.ndarray,\ affine=\textcolor{keywordtype}{None}):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00245}00245\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Save\ dose\ array\ to\ file."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00246}00246\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00247}00247\ \ \ \ \ suffix\ =\ path.suffix.lower()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00248}00248\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00249}00249\ \ \ \ \ \textcolor{keywordflow}{if}\ suffix\ \textcolor{keywordflow}{in}\ [\textcolor{stringliteral}{'.nii'},\ \textcolor{stringliteral}{'.gz'}]\ \textcolor{keywordflow}{and}\ affine\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ has\_nibabel:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ out\_nii\ =\ nib.Nifti1Image(dose,\ affine)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ out\_nii.to\_filename(str(path))}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Saved\ NIfTI:\ \{path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00253}00253\ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ np.save(str(path),\ dose)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Saved\ NPY:\ \{path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00257}00257\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00258}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a}{00258}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a}{create\_visualization}}(integrated\_dose,\ energy\_results,\ output\_dir):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00259}00259\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Create\ visualization\ of\ quadrature\ integration\ results."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00260}00260\ \ \ \ \ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00261}00261\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00262}00262\ \ \ \ \ fig,\ axes\ =\ plt.subplots(2,\ 3,\ figsize=(18,\ 12))}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00263}00263\ \ \ \ \ fig.suptitle(\textcolor{stringliteral}{'Gaussian\ Quadrature\ Dose\ Integration'},\ fontsize=16)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00264}00264\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00265}00265\ \ \ \ \ \textcolor{comment}{\#\ Individual\ energy\ results}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00266}00266\ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ (energy,\ data)\ \textcolor{keywordflow}{in}\ enumerate(energy\_results.items()):}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ i\ >=\ 4:\ \ \textcolor{comment}{\#\ Only\ show\ first\ 4}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ row\ =\ i\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ col\ =\ i\ \%\ 2}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ dose\ =\ data[\textcolor{stringliteral}{'dose'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ weight\ =\ data[\textcolor{stringliteral}{'weight'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Show\ middle\ slice}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ mid\_slice\ =\ dose.shape[2]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ slice\_data\ =\ dose[:,\ :,\ mid\_slice]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ im\ =\ axes[row,\ col].imshow(slice\_data,\ cmap=\textcolor{stringliteral}{'hot'},\ origin=\textcolor{stringliteral}{'lower'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ axes[row,\ col].set\_title(f\textcolor{stringliteral}{'Energy\ \{energy:.2f\}\ keV\(\backslash\)nWeight:\ \{weight:.4f\}'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ axes[row,\ col].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ plt.colorbar(im,\ ax=axes[row,\ col],\ shrink=0.8)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00283}00283\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00284}00284\ \ \ \ \ \textcolor{comment}{\#\ Integrated\ result}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00285}00285\ \ \ \ \ mid\_slice\ =\ integrated\_dose.shape[2]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00286}00286\ \ \ \ \ integrated\_slice\ =\ integrated\_dose[:,\ :,\ mid\_slice]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00287}00287\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00288}00288\ \ \ \ \ im\ =\ axes[0,\ 2].imshow(integrated\_slice,\ cmap=\textcolor{stringliteral}{'hot'},\ origin=\textcolor{stringliteral}{'lower'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00289}00289\ \ \ \ \ axes[0,\ 2].set\_title(\textcolor{stringliteral}{'Integrated\ Dose\(\backslash\)n(Gaussian\ Quadrature)'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00290}00290\ \ \ \ \ axes[0,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00291}00291\ \ \ \ \ plt.colorbar(im,\ ax=axes[0,\ 2],\ shrink=0.8)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00292}00292\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00293}00293\ \ \ \ \ \textcolor{comment}{\#\ Statistics}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00294}00294\ \ \ \ \ axes[1,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00295}00295\ \ \ \ \ stats\_text\ =\ f\textcolor{stringliteral}{"{}"{}"{}Quadrature\ Integration\ Stats:}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00296}00296\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00297}00297\ \textcolor{stringliteral}{\ \ \ \ Final\ dose\ range:\ [\{integrated\_dose.min():.3f\},\ \{integrated\_dose.max():.3f\}]}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00298}00298\ \textcolor{stringliteral}{\ \ \ \ Final\ dose\ mean:\ \{integrated\_dose.mean():.3f\}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00299}00299\ \textcolor{stringliteral}{\ \ \ \ Final\ dose\ std:\ \{integrated\_dose.std():.3f\}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00300}00300\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00301}00301\ \textcolor{stringliteral}{\ \ \ \ Individual\ contributions:"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00302}00302\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00303}00303\ \ \ \ \ \textcolor{keywordflow}{for}\ energy,\ data\ \textcolor{keywordflow}{in}\ energy\_results.items():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ dose\ =\ data[\textcolor{stringliteral}{'dose'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ weight\ =\ data[\textcolor{stringliteral}{'weight'}]}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ contribution\ =\ (weight\ *\ dose).max()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ stats\_text\ +=\ f\textcolor{stringliteral}{"{}\(\backslash\)n\ \ \ \ E=\{energy:.2f\}:\ max\_contrib=\{contribution:.3f\}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00308}00308\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00309}00309\ \ \ \ \ axes[1,\ 2].text(0.1,\ 0.9,\ stats\_text,\ transform=axes[1,\ 2].transAxes,\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fontsize=10,\ verticalalignment=\textcolor{stringliteral}{'top'},\ fontfamily=\textcolor{stringliteral}{'monospace'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00311}00311\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00312}00312\ \ \ \ \ plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00313}00313\ \ \ \ \ viz\_path\ =\ os.path.join(output\_dir,\ \textcolor{stringliteral}{'gaussian\_quadrature\_results.png'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00314}00314\ \ \ \ \ plt.savefig(viz\_path,\ dpi=300,\ bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00315}00315\ \ \ \ \ plt.close()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00316}00316\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Visualization\ saved:\ \{viz\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00317}00317\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00318}00318\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00319}\mbox{\hyperlink{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df}{00319}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df}{main}}():}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00320}00320\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Main\ function."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00321}00321\ \ \ \ \ parser\ =\ argparse.ArgumentParser(}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ description=\textcolor{stringliteral}{"{}Gaussian\ Quadrature\ Inference\ for\ Radiotherapy\ Dose\ Prediction"{}}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00323}00323\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00324}00324\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/m'},\ \textcolor{stringliteral}{'-\/-\/model'},\ required=\textcolor{keyword}{True},\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Path\ to\ combined\ model\ checkpoint'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00326}00326\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/i'},\ \textcolor{stringliteral}{'-\/-\/input'},\ required=\textcolor{keyword}{True},\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Input\ CT\ file\ (.npy\ or\ .nii/.nii.gz)'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00328}00328\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/o'},\ \textcolor{stringliteral}{'-\/-\/output'},\ required=\textcolor{keyword}{True},\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Output\ dose\ file\ (.npy\ or\ .nii/.nii.gz)'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00330}00330\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/energies'},\ nargs=4,\ type=float,\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ default=[3.4716,\ 15.7505,\ 34.2495,\ 46.5284],}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'4\ Gaussian\ quadrature\ energies'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00333}00333\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/weights'},\ nargs=4,\ type=float,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ default=[8.6964,\ 16.3036,\ 16.3036,\ 8.6964],}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'4\ Gaussian\ quadrature\ weights\ (will\ be\ normalized)'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00336}00336\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/d'},\ \textcolor{stringliteral}{'-\/-\/device'},\ default=\textcolor{stringliteral}{'cpu'},\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'PyTorch\ device\ (cpu\ or\ cuda)'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00338}00338\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/cube-\/size'},\ nargs=3,\ type=int,\ default=[64,\ 64,\ 64],}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Target\ cube\ size\ [D,\ H,\ W]'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00340}00340\ \ \ \ \ parser.add\_argument(\textcolor{stringliteral}{'-\/-\/visualize'},\ action=\textcolor{stringliteral}{'store\_true'},}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ help=\textcolor{stringliteral}{'Create\ visualization\ of\ results'})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00342}00342\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00343}00343\ \ \ \ \ args\ =\ parser.parse\_args()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00344}00344\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00345}00345\ \ \ \ \ logger\ =\ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a4d50918e234468bead545f9caae55bee}{setup\_logging}}()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00346}00346\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00347}00347\ \ \ \ \ \textcolor{comment}{\#\ Normalize\ weights\ to\ sum\ to\ 1}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00348}00348\ \ \ \ \ weights\ =\ np.array(args.weights)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00349}00349\ \ \ \ \ weights\ =\ weights\ /\ weights.sum()}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00350}00350\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00351}00351\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00352}00352\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}GAUSSIAN\ QUADRATURE\ INFERENCE\ PIPELINE"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00353}00353\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00354}00354\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Model:\ \{args.model\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00355}00355\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Input:\ \{args.input\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00356}00356\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output:\ \{args.output\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00357}00357\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energies:\ \{args.energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00358}00358\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Weights\ (normalized):\ \{weights.tolist()\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00359}00359\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Device:\ \{args.device\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00360}00360\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00361}00361\ \ \ \ \ \textcolor{comment}{\#\ Load\ CT}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00362}00362\ \ \ \ \ input\_path\ =\ Path(args.input)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00363}00363\ \ \ \ \ ct\_array,\ affine\ =\ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a70d7160fe5acbb188a41f211b810d67f}{load\_ct}}(input\_path)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00364}00364\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00365}00365\ \ \ \ \ \textcolor{comment}{\#\ Run\ Gaussian\ Quadrature\ Inference}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00366}00366\ \ \ \ \ integrated\_dose,\ energy\_results\ =\ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a95abe920c84015093a13a16f83b3552f}{run\_gaussian\_quadrature\_inference}}(}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ ct\_array=ct\_array,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ checkpoint\_path=args.model,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ quad\_energies=args.energies,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ quad\_weights=weights.tolist(),}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00371}00371\ \ \ \ \ \ \ \ \ device=args.device,}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ cube\_size=tuple(args.cube\_size)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00373}00373\ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00374}00374\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00375}00375\ \ \ \ \ \textcolor{comment}{\#\ Save\ result}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00376}00376\ \ \ \ \ output\_path\ =\ Path(args.output)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00377}00377\ \ \ \ \ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a21e879c934cc0c9744821b6de5260efd}{save\_dose}}(output\_path,\ integrated\_dose,\ affine)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00378}00378\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00379}00379\ \ \ \ \ \textcolor{comment}{\#\ Create\ visualization\ if\ requested}}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00380}00380\ \ \ \ \ \textcolor{keywordflow}{if}\ args.visualize:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ output\_dir\ =\ output\_path.parent}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a1e7af5522c30326f55dcfaf71044622a}{create\_visualization}}(integrated\_dose,\ energy\_results,\ output\_dir)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00383}00383\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00384}00384\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00385}00385\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}INFERENCE\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00386}00386\ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00387}00387\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ integrated\ dose\ saved\ to:\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00388}00388\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ statistics:"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00389}00389\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Shape:\ \{integrated\_dose.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00390}00390\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Range:\ [\{integrated\_dose.min():.6f\},\ \{integrated\_dose.max():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00391}00391\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Mean:\ \{integrated\_dose.mean():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00392}00392\ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Std:\ \{integrated\_dose.std():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00393}00393\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00394}00394\ }
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00395}00395\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{gaussian__quadrature__inference_8py_source_l00396}00396\ \ \ \ \ \mbox{\hyperlink{namespacegaussian__quadrature__inference_a5170c725db2cde71c6bb739dd9d4e6df}{main}}()}
+
+\end{DoxyCode}

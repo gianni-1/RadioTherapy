@@ -1,0 +1,119 @@
+\doxysection{parameter\+\_\+manager.\+py}
+\hypertarget{parameter__manager_8py_source}{}\label{parameter__manager_8py_source}\index{sourcecode/parameter\_manager.py@{sourcecode/parameter\_manager.py}}
+\mbox{\hyperlink{parameter__manager_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00001}\mbox{\hyperlink{namespaceparameter__manager}{00001}}\ \textcolor{comment}{\#\ parameter\_manager.py}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00002}00002\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00003}00003\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00004}00004\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00005}\mbox{\hyperlink{namespaceparameter__manager_a33e18555bb12e227216decc311def557}{00005}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00007}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager}{00007}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager}{ParameterManager}}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00008}00008\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00009}00009\ \textcolor{stringliteral}{\ \ \ \ The\ ParameterManager\ class\ centralizes\ configuration\ parameters\ for\ the\ RadioTherapy\ project.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00010}00010\ \textcolor{stringliteral}{\ \ \ \ It\ stores\ key\ settings\ such\ as\ spatial\ resolutions,\ energy\ levels,\ batch\ size,\ cube\ size,}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00011}00011\ \textcolor{stringliteral}{\ \ \ \ learning\ rate,\ number\ of\ epochs,\ and\ additional\ parameters.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00012}00012\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00014}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a5f67f70f895dc13f0966c6352c737867}{00014}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a5f67f70f895dc13f0966c6352c737867}{\_\_init\_\_}}(self,\ energies,\ batch\_size,\ cube\_size,\ learning\_rate,\ num\_epochs,\ patience,\ other\_parameters=None):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00015}00015\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Initializes\ the\ ParameterManager\ with\ the\ required\ configuration\ parameters.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00018}00018\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00019}00019\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ resolutions\ (list\ of\ tuple):\ List\ of\ spatial\ resolutions,\ e.g.\ [(64,\ 64,\ 64),\ (32,\ 32,\ 32)].}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00020}00020\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ energies\ (list\ of\ int):\ List\ of\ energy\ levels\ (in\ keV)\ for\ which\ separate\ training\ might\ be\ executed.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ batch\_size\ (int):\ The\ batch\ size\ used\ during\ training.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00022}00022\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ cube\_size\ (tuple):\ The\ cube\ size\ to\ which\ CT\ data\ will\ be\ resized\ (e.g.,\ (64,\ 64,\ 64)).}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00023}00023\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ learning\_rate\ (float):\ The\ learning\ rate\ used\ during\ training.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00024}00024\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ num\_epochs\ (int):\ The\ number\ of\ epochs\ for\ training.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00025}00025\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ other\_parameters\ (dict,\ optional):\ Any\ additional\ parameters\ to\ store.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00026}00026\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Convert\ energies\ to\ tensor\ if\ it's\ a\ list}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(energies,\ list):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00030}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{00030}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}\ =\ torch.tensor(energies,\ dtype=torch.float32)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00031}00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00032}00032\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}\ =\ energies}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00034}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4da4ccee0a20a2a78888b9138c11c966}{00034}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4da4ccee0a20a2a78888b9138c11c966}{quad\_energies}}\ =\ []}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00035}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a2f29a0bbef48a68ed4d08943db98fec8}{00035}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a2f29a0bbef48a68ed4d08943db98fec8}{quad\_weights}}\ =\ []}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00036}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}{00036}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}{batch\_size}}\ =\ batch\_size}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ and\ constrain\ cube\_size\ for\ optimal\ performance}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00039}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{00039}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}}\ =\ cube\_size}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00041}00041\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CORRECTED:\ Use\ SINGLE\ resolution\ (64x64x64)\ instead\ of\ multi-\/resolution\ for\ stability}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}},\ tuple):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ only\ the\ original\ cube\_size\ resolution\ for\ stability}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00044}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{00044}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}}\ =\ [self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}}]\ \ \textcolor{comment}{\#\ Only\ one\ resolution}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}🔧\ CORRECTED:\ Using\ SINGLE\ resolution\ \{self.cube\_size\}\ for\ stability\ (was\ multi-\/resolution)"{}})}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Handle\ single\ integer\ cube\_size\ (backward\ compatibility)\ }}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}}\ =\ [self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}}]\ \ \textcolor{comment}{\#\ Only\ one\ resolution}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}🔧\ CORRECTED:\ Using\ SINGLE\ resolution\ \{self.cube\_size\}\ for\ stability\ (was\ multi-\/resolution)"{}})}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00051}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}{00051}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}{learning\_rate}}\ =\ learning\_rate}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00052}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}{00052}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}{num\_epochs}}\ =\ num\_epochs}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00053}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848}{00053}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848}{patience}}\ =\ patience}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00054}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{00054}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{other\_parameters}}\ =\ other\_parameters\ \textcolor{keywordflow}{if}\ other\_parameters\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{else}\ \{\}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00056}00056\ \ \ \ \ \ \ \ \ min\_e,\ max\_e\ =\ float(\textcolor{stringliteral}{'inf'}),\ float(\textcolor{stringliteral}{'-\/inf'})}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00057}00057\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Energies:"{}}\ ,\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}})}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ min\_e\ =\ min(min\_e,\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}.min().item())}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ max\_e\ =\ max(max\_e,\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}.max().item())}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Min\ energy:"{}},\ min\_e,\ \textcolor{stringliteral}{"{}Max\ energy:"{}},\ max\_e)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Store\ as\ instance\ attributes}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00063}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409}{00063}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409}{energy\_min}}\ =\ min\_e}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00064}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634}{00064}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634}{energy\_max}}\ =\ max\_e}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00065}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af}{00065}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af}{energy\_normalization}}\ =\ (self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}.float()\ -\/\ min\_e)\ /\ (max\_e\ -\/\ min\_e)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00066}00066\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00068}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a69795f6076f97db38b435b5ce2078370}{00068}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a69795f6076f97db38b435b5ce2078370}{get\_parameters}}(self):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00070}00070\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns\ all\ configuration\ parameters\ as\ a\ dictionary.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00071}00071\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00072}00072\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00073}00073\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ dict:\ A\ dictionary\ containing\ resolutions,\ energies,\ batch\_size,\ and\ any\ additional\ parameters.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00074}00074\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ params\ =\ \{}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}resolutions"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energies"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy\_min"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409}{energy\_min}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy\_max"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634}{energy\_max}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy\_normalization"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af}{energy\_normalization}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}quadrature\_weights"{}}:\ self.quadrature\_weights,}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}batch\_size"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}{batch\_size}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}cube\_size"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}learning\_rate"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}{learning\_rate}},}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}num\_epochs"{}}:\ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}{num\_epochs}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ params.update(self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{other\_parameters}})}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ params}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00090}\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a94cbd4027d798e37fa784877de9e6d7f}{00090}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a94cbd4027d798e37fa784877de9e6d7f}{update\_parameter}}(self,\ key,\ value):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00092}00092\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Updates\ a\ specific\ parameter.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00093}00093\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00094}00094\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00095}00095\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ key\ (str):\ The\ parameter\ name\ to\ update.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00096}00096\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ value:\ The\ new\ value\ for\ the\ parameter.}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00097}00097\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ key\ ==\ \textcolor{stringliteral}{"{}cube\_size"{}}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ value\ =\ self.\_validate\_cube\_size(value)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\_size}}\ =\ value}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Update\ resolutions\ based\ on\ new\ cube\_size}}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(value,\ tuple):}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}}\ =\ [}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tuple(dim\ //\ 4\ \textcolor{keywordflow}{for}\ dim\ \textcolor{keywordflow}{in}\ value),}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tuple(dim\ //\ 2\ \textcolor{keywordflow}{for}\ dim\ \textcolor{keywordflow}{in}\ value),}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ value}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}}\ =\ [value//4,\ value//2,\ value]}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ key\ \textcolor{keywordflow}{in}\ [\textcolor{stringliteral}{"{}resolutions"{}},\ \textcolor{stringliteral}{"{}energies"{}},\ \textcolor{stringliteral}{"{}quadrature\_weights"{}},\ \textcolor{stringliteral}{"{}batch\_size"{}},\ \textcolor{stringliteral}{"{}learning\_rate"{}},\ \textcolor{stringliteral}{"{}num\_epochs"{}}]:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ setattr(self,\ key,\ value)}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{parameter__manager_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{other\_parameters}}[key]\ =\ value}
+
+\end{DoxyCode}

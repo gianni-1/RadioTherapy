@@ -1,0 +1,939 @@
+\doxysection{gui.\+py}
+\hypertarget{gui_8py_source}{}\label{gui_8py_source}\index{sourcecode/gui.py@{sourcecode/gui.py}}
+\mbox{\hyperlink{gui_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00001}\mbox{\hyperlink{namespacegui}{00001}}\ \textcolor{comment}{\#\ Add\ glob\ import\ for\ file\ searching}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00002}00002\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00003}00003\ \textcolor{keyword}{import}\ sys}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00004}00004\ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00005}00005\ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00006}00006\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00007}00007\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00008}00008\ \textcolor{comment}{\#\ Import\ log\_config\ first\ to\ set\ up\ the\ base\ logging\ configuration}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00009}00009\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00010}00010\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00011}00011\ \textcolor{comment}{\#\ Get\ the\ logger\ for\ this\ module}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00012}\mbox{\hyperlink{namespacegui_aa420b4b324393bc0cef6465997505d5a}{00012}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00014}00014\ \textcolor{comment}{\#\ Ensure\ logging\ is\ properly\ configured\ for\ GUI}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00015}00015\ \textcolor{comment}{\#\ Don't\ add\ additional\ handlers\ if\ they\ already\ exist}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00016}\mbox{\hyperlink{namespacegui_aeeeb0ae72920705a8acf199ffc8ae504}{00016}}\ root\_logger\ =\ logging.getLogger()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00018}00018\ \textcolor{comment}{\#\ Only\ add\ console\ handler\ if\ GUI\ is\ being\ run\ directly\ (not\ through\ another\ script)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00019}00019\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{'\_\_main\_\_'}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00020}\mbox{\hyperlink{namespacegui_a7dece6da5fa81a3e4bc5e003e123b8ec}{00020}}\ \ \ \ \ console\_handler\ =\ logging.StreamHandler()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00021}00021\ \ \ \ \ console\_handler.setLevel(logging.INFO)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00022}\mbox{\hyperlink{namespacegui_a3c1b7ea506da69ee8bca041699944c78}{00022}}\ \ \ \ \ formatter\ =\ logging.Formatter(\textcolor{stringliteral}{'\%(asctime)s\ \%(levelname)s:\%(name)s:\ \%(message)s'})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00023}00023\ \ \ \ \ console\_handler.setFormatter(formatter)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00024}00024\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00025}00025\ \ \ \ \ \textcolor{comment}{\#\ Only\ add\ console\ handler\ if\ not\ already\ present}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00026}00026\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ any(isinstance(h,\ logging.StreamHandler)\ \textcolor{keywordflow}{for}\ h\ \textcolor{keywordflow}{in}\ root\_logger.handlers):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ root\_logger.addHandler(console\_handler)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00029}00029\ logger.info(\textcolor{stringliteral}{"{}GUI\ module\ loaded\ with\ logging\ configured"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00030}00030\ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00031}00031\ \ \textcolor{comment}{\#\ ensure\ the\ project\ root\ (parent\ of\ sourcecode/)\ is\ on\ the\ Python\ path}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00032}00032\ sys.path.insert(0,\ os.path.abspath(os.path.join(os.path.dirname(\_\_file\_\_),\ \textcolor{stringliteral}{'..'})))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00033}00033\ \textcolor{keyword}{from}\ monai.data.image\_reader\ \textcolor{keyword}{import}\ NibabelReader}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00034}00034\ \textcolor{keyword}{from}\ PySide6.QtWidgets\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00035}00035\ \ \ \ \ QApplication,\ QMainWindow,\ QPushButton,\ QVBoxLayout,\ QWidget,\ QFileDialog,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00036}00036\ \ \ \ \ QMessageBox,\ QGroupBox,\ QToolButton,\ QRadioButton,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00037}00037\ \ \ \ \ QLabel,\ QSpinBox,\ QDoubleSpinBox,\ QProgressDialog,\ QScrollArea}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00038}00038\ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00039}00039\ \textcolor{keyword}{from}\ PySide6.QtCore\ \textcolor{keyword}{import}\ Qt,\ QObject,\ Signal,\ QThread,\ Slot}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00040}00040\ \textcolor{keyword}{from}\ PySide6.QtGui\ \textcolor{keyword}{import}\ QAction,\ QPixmap,\ QGuiApplication}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00041}00041\ \textcolor{keyword}{import}\ visualization}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00042}00042\ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib\ \ \textcolor{comment}{\#\ for\ handling\ NIfTI\ files}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00043}00043\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np\ \ \textcolor{comment}{\#\ for\ numerical\ operations}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00044}00044\ \textcolor{keyword}{from}\ system\_manager\ \textcolor{keyword}{import}\ SystemManager}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00045}00045\ \textcolor{keyword}{from}\ parameter\_manager\ \textcolor{keyword}{import}\ ParameterManager}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00046}00046\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00047}00047\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00048}00048\ \ \ \ \ Compose,\ LoadImaged,\ EnsureChannelFirstd,\ Lambdad,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00049}00049\ \ \ \ \ EnsureTyped,\ Orientationd,\ Spacingd,\ SpatialPadd,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00050}00050\ \ \ \ \ CenterSpatialCropd,\ ScaleIntensityRangePercentilesd,\ ToTensord,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00051}00051\ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00052}00052\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NumpyReader}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00054}\mbox{\hyperlink{namespacegui_a2c6bcf4c139f57bf306cd0bb930d9304}{00054}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacegui_a2c6bcf4c139f57bf306cd0bb930d9304}{handle\_exception}}(exc\_type,\ exc\_value,\ exc\_tb):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00055}00055\ \ \ \ \ \textcolor{comment}{\#\ Print\ full\ traceback\ for\ uncaught\ exceptions}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00056}00056\ \ \ \ \ traceback.print\_exception(exc\_type,\ exc\_value,\ exc\_tb)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00058}\mbox{\hyperlink{namespacegui_a563a3a900f7e09bd108b02092322185c}{00058}}\ sys.excepthook\ =\ handle\_exception}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00060}\mbox{\hyperlink{classgui_1_1_training_worker}{00060}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classgui_1_1_training_worker}{TrainingWorker}}(QObject):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00061}00061\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00062}00062\ \textcolor{stringliteral}{\ \ \ \ Worker\ object\ to\ run\ the\ training\ in\ a\ separate\ thread.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00063}00063\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00064}\mbox{\hyperlink{classgui_1_1_training_worker_a56f6d2c4fd14480fb36cdfb4413c6ece}{00064}}\ \ \ \ \ finished\ =\ Signal()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00065}\mbox{\hyperlink{classgui_1_1_training_worker_aba3411dae2294cfa417ba39818b83c82}{00065}}\ \ \ \ \ error\ =\ Signal(str)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00066}\mbox{\hyperlink{classgui_1_1_training_worker_a475e81fd5991f20fc3c16756be9b133b}{00066}}\ \ \ \ \ progress\ =\ Signal(int,\ int)\ \ \textcolor{comment}{\#\ current\ epoch,\ total\ epochs}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00067}00067\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00068}\mbox{\hyperlink{classgui_1_1_training_worker_a04cb3df95f073c5efa8f73d0a229995a}{00068}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_training_worker_a04cb3df95f073c5efa8f73d0a229995a}{\_\_init\_\_}}(self,\ manager):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ super().\mbox{\hyperlink{classgui_1_1_training_worker_a04cb3df95f073c5efa8f73d0a229995a}{\_\_init\_\_}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00070}\mbox{\hyperlink{classgui_1_1_training_worker_a0a6e4169ab0923768b4f1eb89cf1b365}{00070}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_training_worker_a0a6e4169ab0923768b4f1eb89cf1b365}{manager}}\ =\ manager}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00072}\mbox{\hyperlink{classgui_1_1_training_worker_ad96156e024291c6908ac66dde6586376}{00072}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_training_worker_ad96156e024291c6908ac66dde6586376}{run}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ legacy\ training\ method"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_training_worker_a0a6e4169ab0923768b4f1eb89cf1b365}{manager}}.run\_training()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_training_worker_a56f6d2c4fd14480fb36cdfb4413c6ece}{finished}}.emit()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ ex:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Training\ failed:\ \{ex\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Training\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Emit\ error\ signal\ instead\ of\ showing\ QMessageBox\ in\ worker\ thread}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_training_worker_aba3411dae2294cfa417ba39818b83c82}{error}}.emit(str(ex))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00084}\mbox{\hyperlink{classgui_1_1_inference_worker}{00084}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classgui_1_1_inference_worker}{InferenceWorker}}(QObject):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00085}00085\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00086}00086\ \textcolor{stringliteral}{\ \ \ \ Worker\ to\ run\ inference\ in\ a\ separate\ thread,\ mirroring\ the\ standalone\ approach.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00087}00087\ \textcolor{stringliteral}{\ \ \ \ Emits\ finished(output\_path:\ str)\ on\ success,\ error(message:\ str)\ on\ failure.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00088}00088\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00089}\mbox{\hyperlink{classgui_1_1_inference_worker_a599a7c1ce9419d48d3aec4c3c0900983}{00089}}\ \ \ \ \ finished\ =\ Signal(str)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00090}\mbox{\hyperlink{classgui_1_1_inference_worker_ac980aaaa23c5c7004f07683f519db8a8}{00090}}\ \ \ \ \ error\ =\ Signal(str)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00092}\mbox{\hyperlink{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c}{00092}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c}{\_\_init\_\_}}(self,\ ct\_file:\ str,\ model\_checkpoint:\ str,\ min\_e:\ float,\ max\_e:\ float):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ super().\mbox{\hyperlink{classgui_1_1_inference_worker_ae355226832be2fda1388e0ed9108087c}{\_\_init\_\_}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00094}\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{00094}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\_file}}\ =\ ct\_file}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00095}\mbox{\hyperlink{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}{00095}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}{model\_checkpoint}}\ =\ model\_checkpoint}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00096}\mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{00096}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{min\_e}}\ =\ min\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00097}\mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{00097}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{max\_e}}\ =\ max\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00098}00098\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00099}\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{00099}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ QThread.currentThread().isInterruptionRequested():}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}Inference\ canceled\ by\ user"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ If\ called\ outside\ a\ QThread\ context,\ ignore}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{pass}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00107}\mbox{\hyperlink{classgui_1_1_inference_worker_a5684b12112b69e4b723abb987d39ac23}{00107}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_inference_worker_a5684b12112b69e4b723abb987d39ac23}{run}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ background\ inference\ worker"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Import\ standalone\ inference\ components}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ inference\_module\ \textcolor{keyword}{import}\ InferenceModule}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ inference\_module\_standalone\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ load\_models\_from\_checkpoint,\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ get\_gaussian\_quadrature\_4point,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ save\_dose,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ save\_nifti\_with\_manifest,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00118}00118\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Quadrature\ setup}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_energies,\ quad\_weights\ =\ get\_gaussian\_quadrature\_4point(self.\mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{min\_e}},\ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{max\_e}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quad\ energies:\ \{quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ CT\ data}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ path\_lower\ =\ self.\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\_file}}.lower()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ path\_lower.endswith(\textcolor{stringliteral}{'.nii'})\ \textcolor{keywordflow}{or}\ path\_lower.endswith(\textcolor{stringliteral}{'.nii.gz'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ nii\ =\ nib.load(self.\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\_file}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ct\_array\ =\ nii.get\_fdata().astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ affine\ =\ nii.affine}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ path\_lower.endswith(\textcolor{stringliteral}{'.npy'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ct\_array\ =\ np.load(self.\mbox{\hyperlink{classgui_1_1_inference_worker_ad7e84f3b38c9a00f8778e90f8591481c}{ct\_file}}).astype(np.float32)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ affine\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Unsupported\ CT\ file\ format:\ \{self.ct\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ loaded:\ shape=\{ct\_array.shape\},\ dtype=\{ct\_array.dtype\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ To\ tensor}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ torch.from\_numpy(ct\_array).unsqueeze(0).float()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ tensor\ shape:\ \{ct\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ models}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ device\ =\ torch.device(\textcolor{stringliteral}{"{}cuda"{}}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}cpu"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy,\ scale\_factor,\ clip\_min\_dict,\ clip\_max\_dict,\ dose\_normalization\_params\ =\ load\_models\_from\_checkpoint(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a622d408b16d2a91d00062712572ae939}{model\_checkpoint}},}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ quad\_energies,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=str(device),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Models\ loaded\ from\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00152}00152\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Build\ inference\ module}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ infer\_mod\ =\ InferenceModule(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy=models\_by\_energy,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies=quad\_energies,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_weights=quad\_weights,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=str(device),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=scale\_factor,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_min=self.\mbox{\hyperlink{classgui_1_1_inference_worker_adf9ba8eb120466aa2a9aca3892ba19c9}{min\_e}},}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_max=self.\mbox{\hyperlink{classgui_1_1_inference_worker_a4e3ad46fad89e0ff0732c228293608ce}{max\_e}},}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min=clip\_min\_dict,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max=clip\_max\_dict,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_normalization\_params=dose\_normalization\_params,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}InferenceModule\ constructed"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00168}00168\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size\ =\ (64,\ 64,\ 64)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(quad\_energies)\ >\ 1:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\ =\ infer\_mod.run\_inference(ct\_tensor,\ target\_cube\_size=target\_cube\_size)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\ =\ quad\_energies[0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\ =\ infer\_mod.run\_inference\_conditioned\_on\_energy(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_value=energy,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size=target\_cube\_size,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Inference\ call\ finished"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a0a1c7447c188388907357ac0be4a91bc}{\_check\_canceled}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00182}00182\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ To\ numpy}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(dose,\ torch.Tensor):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose.detach().cpu().numpy()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ np.array(dose,\ dtype=np.float32)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_np.ndim\ ==\ 4\ \textcolor{keywordflow}{and}\ dose\_np.shape[0]\ ==\ 1:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_np[0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_np.ndim\ ==\ 4\ \textcolor{keywordflow}{and}\ dose\_np.shape[0]\ ==\ 1:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_np[0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ stats:\ shape=\{dose\_np.shape\},\ min=\{dose\_np.min():.6f\},\ max=\{dose\_np.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00193}00193\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Save\ outputs}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ output\_path\ =\ Path(f\textcolor{stringliteral}{"{}dose\_output\_standalone\_gui\_\{Path(self.ct\_file).stem\}.npy"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ save\_dose(output\_path,\ dose\_np,\ affine)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ saved\ to\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ save\_nifti\_with\_manifest(dose\_np,\ output\_path,\ root\_dir=\textcolor{stringliteral}{"{}."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Failed\ to\ create\ NIfTI:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00203}00203\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Emit\ success}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_a599a7c1ce9419d48d3aec4c3c0900983}{finished}}.emit(str(output\_path))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Inference\ failed"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_inference_worker_ac980aaaa23c5c7004f07683f519db8a8}{error}}.emit(str(e))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00209}00209\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00210}\mbox{\hyperlink{classgui_1_1_main_window}{00210}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classgui_1_1_main_window}{MainWindow}}(QMainWindow):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00211}00211\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00212}00212\ \textcolor{stringliteral}{\ \ \ \ Main\ entry\ point\ for\ the\ RadioTherapy\ project.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00213}00213\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00214}00214\ \textcolor{stringliteral}{\ \ \ \ This\ function\ sets\ up\ the\ configuration\ parameters,\ initializes\ the\ SystemManager,}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00215}00215\ \textcolor{stringliteral}{\ \ \ \ and\ triggers\ the\ training\ and\ inference\ processes.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00216}00216\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00217}00217\ \textcolor{stringliteral}{\ \ \ \ MainWindow\ is\ the\ primary\ GUI\ window\ for\ the\ RadioTherapy\ project.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00218}00218\ \textcolor{stringliteral}{\ \ \ \ It\ provides\ a\ menu\ bar\ with\ file\ actions\ and\ a\ central\ widget\ containing\ buttons\ for\ CT\ upload,\ dose\ calculation,\ and\ visualization.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00219}00219\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00220}00220\ \ \ \ \ \textcolor{comment}{\#\ Define\ constants\ for\ dictionary\ keys\ to\ avoid\ magic\ strings}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00221}\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{00221}}\ \ \ \ \ KEY\_INPUT\ =\ \textcolor{stringliteral}{"{}input"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00222}\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{00222}}\ \ \ \ \ KEY\_TARGET\ =\ \textcolor{stringliteral}{"{}target"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00223}00223\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00224}\mbox{\hyperlink{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5}{00224}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5}{\_\_init\_\_}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ super().\mbox{\hyperlink{classgui_1_1_main_window_a149317ed8c74d7b11d9a17ea552aeba5}{\_\_init\_\_}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ self.setWindowTitle(\textcolor{stringliteral}{"{}RadioTherapy\ Project"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ self.setMinimumSize(800,\ 800)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00229}\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{00229}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}}\ =\ \textcolor{keywordtype}{None}\ \ \textcolor{comment}{\#\ store\ the\ input\ directory\ for\ training\ inputs}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00230}\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{00230}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\_dir}}\ =\ \textcolor{keywordtype}{None}\ \textcolor{comment}{\#\ store\ the\ output\ directory\ for\ training\ outputs}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00231}\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{00231}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{ct\_file}}\ =\ \textcolor{keywordtype}{None}\ \ \textcolor{comment}{\#\ store\ imported\ CT\ file\ (inference)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00232}\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{00232}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{model\_checkpoint}}\ =\ \textcolor{keywordtype}{None}\ \ \textcolor{comment}{\#\ store\ imported\ model\ file\ path\ (inference)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00233}\mbox{\hyperlink{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}{00233}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}{model\_file\_bool}}\ =\ \textcolor{keyword}{False}\ \ \textcolor{comment}{\#\ flag\ to\ check\ if\ model\ file\ is\ loaded}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00234}\mbox{\hyperlink{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}{00234}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}{ct\_file\_bool}}\ =\ \textcolor{keyword}{False}\ \ \textcolor{comment}{\#\ flag\ to\ check\ if\ CT\ file\ is\ loaded}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00235}00235\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ prepare\ parameters\ and\ transforms\ with\ default\ values}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ These\ values\ will\ be\ updated\ based\ on\ user\ input\ in\ the\ GUI}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00238}\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{00238}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}\ =\ \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager}{ParameterManager}}(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ energies=[0],\ batch\_size=2,\ cube\_size=64,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=5,\ learning\_rate=1e-\/4,\ patience=3}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ transforms\_chain\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{\_create\_transforms}}(self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ device\ =\ torch.device(\textcolor{stringliteral}{"{}cuda"{}}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}cpu"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ instantiate\ SystemManager\ here\ –\ no\ main.py\ needed}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00245}\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{00245}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}\ =\ \mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=\textcolor{stringliteral}{"{}"{}},\ transforms=transforms\_chain,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ resolutions=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.resolutions,\ energies=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.energies,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_energies=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.quad\_energies,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ quad\_weights=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.quad\_weights,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ batch\_size=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.batch\_size,\ device=device,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ num\_epochs=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.num\_epochs,\ learning\_rate=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.learning\_rate,\ patience=self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.patience,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size=\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_min=0.0,\ energy\_max=50.0,}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ seed=42}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00257}00257\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ the\ central\ widget\ with\ buttons}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6}{\_create\_central\_widget}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ adjust\ window\ size\ to\ fit\ expanded\ widgets}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ self.adjustSize()}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ optionally\ enforce\ minimum\ size\ to\ current\ content}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ self.setMinimumSize(self.size())}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00264}00264\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00265}\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{00265}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{\_create\_transforms}}(self,\ cube\_size):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Creates\ the\ MONAI\ transforms\ pipeline."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Compose([}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ LoadImaged(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}],\ reader=NumpyReader),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureChannelFirstd(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}]),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}]),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ \ \ \ \ Spacingd(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}],\ pixdim=(2.4,\ 2.4,\ 2.4),\ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ SpatialPadd(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}],\ spatial\_size=cube\_size,\ method=\textcolor{stringliteral}{"{}symmetric"{}}),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ CenterSpatialCropd(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}],\ roi\_size=cube\_size),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ keys=self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ ),}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[self.\mbox{\hyperlink{classgui_1_1_main_window_a21ccaf53d108e1b49311b5a1ade85c59}{KEY\_INPUT}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a47c1fab2aaaeae1b084dae03f61ca411}{KEY\_TARGET}}])}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00280}00280\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00281}\mbox{\hyperlink{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6}{00281}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a024f5f7c39414222a9883044e11f8bb6}{\_create\_central\_widget}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00283}00283\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Sets\ up\ the\ central\ widget\ with\ a\ vertical\ layout\ and\ adds\ buttons\ for\ CT\ upload,\ dose\ calculation,\ and\ visualization.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00284}00284\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ scroll\ area}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ scroll\_area\ =\ QScrollArea(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ scroll\_area.setWidgetResizable(\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ self.setCentralWidget(scroll\_area)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00289}00289\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ a\ container\ widget\ for\ the\ layout}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ central\_widget\ =\ QWidget()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ scroll\_area.setWidget(central\_widget)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00293}00293\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ layout\ =\ QVBoxLayout(central\_widget)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ layout.setAlignment(Qt.AlignmentFlag.AlignTop)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00296}00296\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Training\ section}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ training\_group\ =\ QGroupBox(\textcolor{stringliteral}{"{}Training"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ training\_layout\ =\ QVBoxLayout()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00300}00300\ \ \ \ \ \ \ \ \ training\_layout.setAlignment(Qt.AlignmentFlag.AlignTop)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ training\_group.setLayout(training\_layout)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ layout.addWidget(training\_group)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00303}00303\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Paremeter\ inputs\ for\ training\ }}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Advanced\ training\ parameters\ in\ checkable\ group\ box}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ advanced\_group\ =\ QGroupBox(\textcolor{stringliteral}{"{}Advanced\ Settings"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ advanced\_group.setCheckable(\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ advanced\_group.setChecked(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00309}00309\ \ \ \ \ \ \ \ \ adv\_layout\ =\ QVBoxLayout()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ advanced\_group.setLayout(adv\_layout)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ training\_layout.addWidget(advanced\_group)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Advanced\ training\ parameters}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ batch\_label\ =\ QLabel(\textcolor{stringliteral}{"{}Batch\ Size:"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00315}\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{00315}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}}\ =\ QSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}}.setRange(1,\ 128)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}}.setValue(2)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}}.setSingleStep(1)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(batch\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ epochs\_label\ =\ QLabel(\textcolor{stringliteral}{"{}Number\ of\ Epochs:"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00322}\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{00322}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}}\ =\ QSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}}.setRange(1,\ 1000)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00324}00324\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}}.setValue(5)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}}.setSingleStep(1)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(epochs\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ patience\_label\ =\ QLabel(\textcolor{stringliteral}{"{}Early\ stopping\ patience:"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00329}\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{00329}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\_spin}}\ =\ QSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\_spin}}.setRange(1,\ 100)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\_spin}}.setValue(3)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(patience\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ learning\_rate\_label\ =\ QLabel(\textcolor{stringliteral}{"{}Learning\ Rate:"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00335}\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{00335}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}\ =\ QDoubleSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00336}00336\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}.setRange(0.0,\ 1.0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}.setSingleStep(1e-\/5)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}.setDecimals(6)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}.setValue(1e-\/4)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(learning\_rate\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ adv\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00342}00342\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ a\ spacer\ to\ the\ advanced\ layout\ to\ push\ the\ widgets\ to\ the\ top}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ idx\ \textcolor{keywordflow}{in}\ range(adv\_layout.count()):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ adv\_layout.itemAt(idx).widget().setVisible(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00346}00346\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ toggle\ visibility\ of\ advanced\ parameters\ when\ the\ group\ box\ is\ checked/unchecked}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ advanced\_group.toggled.connect(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{lambda}\ chk:\ (}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [adv\_layout.itemAt(i).widget().setVisible(chk)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00351}00351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i\ \textcolor{keywordflow}{in}\ range(adv\_layout.count())]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ self.adjustSize()\ \#\ Removed\ to\ allow\ scrolling}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00355}00355\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Inference\ section}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ inference\_group\ =\ QGroupBox(\textcolor{stringliteral}{"{}Inference"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ inference\_layout\ =\ QVBoxLayout()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ inference\_layout.setAlignment(Qt.AlignmentFlag.AlignTop)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ inference\_group.setLayout(inference\_layout)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ layout.addWidget(inference\_group)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00362}00362\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#Energy\ spectrum\ inputs(eV)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00364}00364\ \ \ \ \ \ \ \ \ energy\_min\_label\ =\ QLabel(\textcolor{stringliteral}{"{}Energy\ Min\ (eV):"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00365}\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{00365}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}}\ =\ QDoubleSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00366}00366\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}}.setRange(0.0,\ 10000.0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}}.setDecimals(2)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}}.setValue(0.0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(energy\_min\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00371}00371\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ energy\_max\_label=\ QLabel(\textcolor{stringliteral}{"{}Energy\ Max\ (eV):"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00373}\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{00373}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}}\ =\ QDoubleSpinBox(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}}.setRange(0.0,\ 10000.0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}}.setDecimals(2)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}}.setValue(50.0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(energy\_max\_label)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00379}00379\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Upload\ button\ for\ CT\ scan}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ upload\_button\ =\ QPushButton(\textcolor{stringliteral}{"{}Upload\ CT\ Scan"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ upload\_button.setToolTip(\textcolor{stringliteral}{"{}Click\ to\ upload\ a\ CT\ scan\ (NIfTI\ file)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00383}\mbox{\hyperlink{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6}{00383}}\ \ \ \ \ \ \ \ \ upload\_button.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6}{open\_file\_dialog}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00384}00384\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(upload\_button)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00385}00385\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00386}00386\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Upload\ button\ for\ model\ file}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00387}00387\ \ \ \ \ \ \ \ \ model\_button\ =\ QPushButton(\textcolor{stringliteral}{"{}Upload\ Model\ File"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00388}00388\ \ \ \ \ \ \ \ \ model\_button.setToolTip(\textcolor{stringliteral}{"{}Click\ to\ upload\ a\ model\ file\ (.ckpt)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00389}\mbox{\hyperlink{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d}{00389}}\ \ \ \ \ \ \ \ \ model\_button.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d}{open\_model\_dialog}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00390}00390\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(model\_button)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00391}00391\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00392}00392\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Dose\ calculation\ button\ (disabled\ until\ CT\ file\ is\ uploaded)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00393}\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{00393}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}}\ =\ QPushButton(\textcolor{stringliteral}{"{}Calculate\ Dose"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00394}00394\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}}.setToolTip(\textcolor{stringliteral}{"{}Calculate\ dose\ distribution\ (requires\ CT\ scan)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00395}00395\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}}.setEnabled(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00396}\mbox{\hyperlink{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0}{00396}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}}.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0}{calculate\_dose}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00397}00397\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00398}00398\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00399}00399\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Training\ folder\ selection\ buttons}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00400}\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{00400}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{input\_button}}\ =\ QPushButton(\textcolor{stringliteral}{"{}Select\ one\ Energy\ Folder\ for\ Training"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00401}00401\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{input\_button}}.setToolTip(\textcolor{stringliteral}{"{}Select\ the\ folder\ containing\ input\ cubes\ for\ training"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00402}\mbox{\hyperlink{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce}{00402}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{input\_button}}.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce}{select\_input\_folder}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00403}00403\ \ \ \ \ \ \ \ \ training\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_aa82efe26dec280e64fe721aa9559785c}{input\_button}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00404}00404\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Input\ path\ label}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00405}\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{00405}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{input\_label}}\ =\ QLabel(\textcolor{stringliteral}{"{}No\ input\ folder\ selected"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00406}00406\ \ \ \ \ \ \ \ \ training\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{input\_label}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00407}00407\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00408}\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{00408}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}}\ =\ QPushButton(\textcolor{stringliteral}{"{}Train\ Model"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00409}00409\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}}.setToolTip(\textcolor{stringliteral}{"{}Train\ the\ model\ with\ the\ selected\ input\ and\ output\ folders"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00410}00410\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}}.setEnabled(\textcolor{keyword}{False})\ \ \textcolor{comment}{\#\ Initially\ disabled}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00411}\mbox{\hyperlink{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a}{00411}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}}.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a}{train\_model}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00412}00412\ \ \ \ \ \ \ \ \ training\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00413}00413\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Button\ to\ show\ training\ graphs\ in-\/app}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00414}\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{00414}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}}\ =\ QPushButton(\textcolor{stringliteral}{"{}Show\ Training\ Graphs"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00415}00415\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}}.setToolTip(\textcolor{stringliteral}{"{}Display\ loss\ and\ adversarial\ curves\ inside\ GUI"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00416}00416\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}}.setEnabled(\textcolor{keyword}{False})\ \ \textcolor{comment}{\#\ Initially\ disabled}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00417}\mbox{\hyperlink{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}{00417}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}}.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}{show\_training\_plots}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ training\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00419}00419\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00420}00420\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Visualization\ button\ for\ inference\ results}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00421}\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{00421}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\_button}}\ =\ QPushButton(\textcolor{stringliteral}{"{}Visualize\ Dose\ Distribution"{}},\ self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00422}00422\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\_button}}.setToolTip(\textcolor{stringliteral}{"{}Visualize\ the\ calculated\ dose\ distribution"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00423}00423\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\_button}}.setEnabled(\textcolor{keyword}{True})\ \ \textcolor{comment}{\#\ Disabled\ until\ inference\ is\ complete}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00424}\mbox{\hyperlink{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e}{00424}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\_button}}.clicked.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e}{visualize\_inference\_results}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00425}00425\ \ \ \ \ \ \ \ \ inference\_layout.addWidget(self.\mbox{\hyperlink{classgui_1_1_main_window_acadc47e7e1fc485b3c3c75c42775ded4}{visualize\_button}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00426}00426\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00427}00427\ \ \ \ \ \ \ \ \ central\_widget.setLayout(layout)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00428}00428\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00429}00429\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00430}00430\ \ \ \ \ \textcolor{comment}{\#\ Select\ input\ and\ output\ folders\ for\ training}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00431}\mbox{\hyperlink{classgui_1_1_main_window_ad43897c3af129d947ff2f2c2771ab335}{00431}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_aaf7680a7b0caf9ea3bf67f80c3d81bce}{select\_input\_folder}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00432}00432\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00433}00433\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Opens\ a\ directory\ dialog\ to\ select\ the\ output\ cubes\ folder\ for\ training.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00434}00434\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Enables\ the\ Train\ button\ if\ both\ folders\ are\ selected.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00435}00435\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00436}00436\ \ \ \ \ \ \ \ \ folder\ =\ QFileDialog.getExistingDirectory(self,\ \textcolor{stringliteral}{"{}Select\ Input\ Cubes\ Directory"{}},\ \textcolor{stringliteral}{"{}"{}},\ QFileDialog.Option.ShowDirsOnly)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00437}00437\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ folder:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ If\ the\ user\ selected\ an\ energy\ folder\ containing\ both\ 'inputcube'\ and\ 'outputcube',\ derive\ both\ paths}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_folder\ =\ folder}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00440}00440\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Determine\ dataset\ root\ containing\ all\ energy\ subfolders}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ dataset\_root\ =\ os.path.dirname(energy\_folder)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ List\ all\ energy\ subfolder\ names\ (skip\ hidden\ files)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_names\ =\ sorted([}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ d\ \textcolor{keywordflow}{for}\ d\ \textcolor{keywordflow}{in}\ os.listdir(dataset\_root)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.isdir(os.path.join(dataset\_root,\ d))\ \textcolor{keywordflow}{and}\ \textcolor{keywordflow}{not}\ d.startswith(\textcolor{stringliteral}{'.'})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ numeric\ energy\ values\ from\ folder\ names}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ energies\_list\ =\ [float(name.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))\ \textcolor{keywordflow}{for}\ name\ \textcolor{keywordflow}{in}\ energy\_names]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00449}00449\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Update\ GUI\ and\ SystemManager\ energies\ and\ root\_dir}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00450}00450\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.energies\ =\ energies\_list}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.energies\ =\ energies\_list}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00452}00452\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.root\_dir\ =\ dataset\_root}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00453}00453\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ input\_cube\_path\ =\ os.path.join(energy\_folder,\ \textcolor{stringliteral}{"{}inputcube"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ output\_cube\_path\ =\ os.path.join(energy\_folder,\ \textcolor{stringliteral}{"{}outputcube"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.isdir(input\_cube\_path)\ \textcolor{keywordflow}{and}\ os.path.isdir(output\_cube\_path):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00457}00457\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ the\ energy-\/specific\ subfolders\ directly}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00458}00458\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}}\ =\ input\_cube\_path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{input\_label}}.setText(f\textcolor{stringliteral}{"{}Input\ cube\ folder:\ \{self.input\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\_dir}}\ =\ output\_cube\_path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00461}00461\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Determine\ cube\ size\ from\ one\ of\ the\ input\ .npy\ files\ (same\ as\ standalone\_training.py)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00462}00462\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ files\ =\ glob.glob(os.path.join(self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}},\ \textcolor{stringliteral}{"{}*.npy"{}}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ files:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00464}00464\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.load(files[0])}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size\ =\ arr.shape[0]\ \ \textcolor{comment}{\#\ Take\ only\ first\ dimension\ (same\ as\ standalone)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size\ =\ cube\_size}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.cube\_size\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.transforms\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{\_create\_transforms}}(self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Detected\ cube\ size:\ \{cube\_size\}\ (same\ as\ standalone\_training.py)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\_update\_ui\_state}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00472}00472\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00473}00473\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Otherwise\ treat\ folder\ as\ the\ direct\ input-\/cube\ directory}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00474}00474\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}}\ =\ folder}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00475}00475\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a103bbc296dfd53c0ccddf3027f91e628}{input\_label}}.setText(f\textcolor{stringliteral}{"{}Input\ folder:\ \{folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ determine\ cube\ size\ from\ first\ cube\ file\ in\ folder\ (same\ as\ standalone\_training.py)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ files\ =\ glob.glob(os.path.join(folder,\ \textcolor{stringliteral}{"{}*.npy"{}}))\ +\ glob.glob(os.path.join(folder,\ \textcolor{stringliteral}{"{}*.nii"{}}))\ +\ glob.glob(os.path.join(folder,\ \textcolor{stringliteral}{"{}*.nii.gz"{}}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ files:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sample\ =\ files[0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sample.lower().endswith(\textcolor{stringliteral}{"{}.npy"{}}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.load(sample)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.asarray(nib.load(sample).dataobj)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cube\_size\ =\ arr.shape[0]\ \ \textcolor{comment}{\#\ Take\ only\ first\ dimension\ (same\ as\ standalone)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00486}00486\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size\ =\ cube\_size}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00487}00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ update\ transforms\ in\ system\_manager}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00488}00488\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.cube\_size\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.transforms\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a638037d9aad162902ed37d4825f3103c}{\_create\_transforms}}(self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.cube\_size)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00490}00490\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Detected\ cube\ size:\ \{cube\_size\}\ (same\ as\ standalone\_training.py)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Warning"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ determine\ cube\ size:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Cube\ size\ set\ to:\ \{self.pm.cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\_update\_ui\_state}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00495}00495\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00496}00496\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00497}\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{00497}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\_update\_ui\_state}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00498}00498\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Centralized\ method\ to\ update\ the\ state\ of\ UI\ elements."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00499}00499\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Enable\ dose\ calculation\ if\ both\ CT\ and\ model\ files\ are\ loaded}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00500}00500\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ad0d9c0c2213a384b710ef9549fe301cf}{dose\_button}}.setEnabled(self.\mbox{\hyperlink{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}{ct\_file\_bool}}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}{model\_file\_bool}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00501}00501\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00502}00502\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Enable\ training\ if\ input\ and\ output\ directories\ are\ selected}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00503}00503\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a70ad3c3df03693b445035ddd48960a33}{train\_button}}.setEnabled(bool(self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}}\ \textcolor{keywordflow}{and}\ self.\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\_dir}}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00504}00504\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00505}00505\ \ \ \ \ \textcolor{comment}{\#\ Train\ the\ model\ using\ the\ selected\ input\ and\ output\ folders}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00506}\mbox{\hyperlink{classgui_1_1_main_window_a20e63bfec1754dfc7491107d29cc7c6f}{00506}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_afb1fdf64da3e43b798eb2302e7b95a7a}{train\_model}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00507}00507\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00508}00508\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Calls\ the\ training\ pipeline\ using\ the\ selected\ input\ and\ output\ folders.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00509}00509\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Expects\ both\ folders\ to\ be\ subdirectories\ of\ the\ same\ parent\ (root)\ folder.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00510}00510\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00511}00511\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00512}00512\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}TRAINING\ STARTED\ VIA\ GUI"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00513}00513\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00514}00514\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00515}00515\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}No\ input\ directory\ selected\ for\ training"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}Please\ select\ the\ Energy\ folder\ containing\ input\ cubes\ and\ output\ cubes."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00519}00519\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00520}00520\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#Check\ that\ both\ directories\ are\ subdirectories\ of\ the\ same\ parent\ (root)\ folder}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00521}00521\ \ \ \ \ \ \ \ \ parent\_in\ =\ os.path.dirname(self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00522}00522\ \ \ \ \ \ \ \ \ parent\_out\ =\ os.path.dirname(self.\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\_dir}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00523}00523\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ parent\_in\ !=\ parent\_out:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00524}00524\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Input\ and\ output\ directories\ not\ in\ same\ parent:\ \{parent\_in\}\ vs\ \{parent\_out\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00525}00525\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}Input\ and\ output\ folders\ must\ be\ subdirectories\ of\ the\ same\ parent\ folder."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00527}00527\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00528}00528\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Get\ training\ parameters\ from\ GUI}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00529}00529\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.batch\_size\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_ac77cc57faef27ecbfa6d73a5d938daec}{batch\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00530}00530\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.num\_epochs\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a2f066969e523ea4925fe8463796c3ff9}{epochs\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00531}00531\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.patience\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a5b53e71ba059ffe984246436bd9c4d91}{patience\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00532}00532\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.learning\_rate\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a882bfb58dca3db4d1f3a95e1cbc6ce16}{learning\_rate\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00533}00533\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00534}00534\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ parameters\ from\ GUI:"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00535}00535\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ batch\_size=\{self.pm.batch\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00536}00536\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ num\_epochs=\{self.pm.num\_epochs\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00537}00537\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ patience=\{self.pm.patience\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00538}00538\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ learning\_rate=\{self.pm.learning\_rate\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00539}00539\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00540}00540\ \ \ \ \ \ \ \ \ energy\_folder\ =\ parent\_in}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00541}00541\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ parent\ of\ energy\_folder\ is\ the\ dataset\ root\ containing\ all\ energy\ subfolders\ \ }}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00542}00542\ \ \ \ \ \ \ \ \ dataset\_root\ =\ os.path.dirname(energy\_folder)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00543}00543\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00544}00544\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Debug\ logging:\ Check\ the\ directory\ structure\ (same\ as\ standalone\_training.py)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00545}00545\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Selected\ energy\ folder:\ \{energy\_folder\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00546}00546\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dataset\ root:\ \{dataset\_root\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00547}00547\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Input\ cube\ path:\ \{self.input\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00548}00548\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ cube\ path:\ \{self.output\_dir\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00549}00549\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00550}00550\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ if\ we\ have\ data\ files}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00551}00551\ \ \ \ \ \ \ \ \ input\_files\ =\ glob.glob(os.path.join(self.\mbox{\hyperlink{classgui_1_1_main_window_a376eb140490fa6f8b7fd500e20c9b066}{input\_dir}},\ \textcolor{stringliteral}{"{}*.npy"{}}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00552}00552\ \ \ \ \ \ \ \ \ output\_files\ =\ glob.glob(os.path.join(self.\mbox{\hyperlink{classgui_1_1_main_window_a009af3c21e897aa74e9f43888ea00998}{output\_dir}},\ \textcolor{stringliteral}{"{}*.npy"{}}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00553}00553\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ \{len(input\_files)\}\ input\ files\ and\ \{len(output\_files)\}\ output\ files"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00554}00554\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00555}00555\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(input\_files)\ ==\ 0\ \textcolor{keywordflow}{or}\ len(output\_files)\ ==\ 0:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00556}00556\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}No\ training\ data\ found!\(\backslash\)nInput\ files:\ \{len(input\_files)\}\(\backslash\)nOutput\ files:\ \{len(output\_files)\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00557}00557\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00558}00558\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00559}00559\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.root\_dir\ =\ dataset\_root}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00560}00560\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00561}00561\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ update\ training\ parameters\ from\ GUI}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00562}00562\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.batch\_size\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.batch\_size}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00563}00563\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.num\_epochs\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.num\_epochs}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00564}00564\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.patience\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.patience}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00565}00565\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.learning\_rate\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.learning\_rate}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00566}00566\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00567}00567\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ LEGACY\ training\ method\ (same\ as\ standalone\_training.py)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00568}00568\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ method:\ Legacy\ (same\ as\ standalone\_training.py)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00569}00569\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00570}00570\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Get\ ALL\ available\ energies\ for\ proper\ multi-\/energy\ training\ (same\ as\ standalone\_training.py)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00571}00571\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00572}00572\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ List\ all\ energy\ subfolder\ names\ (skip\ hidden\ files)\ -\/\ same\ logic\ as\ standalone}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00573}00573\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_names\ =\ [}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00574}00574\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ d\ \textcolor{keywordflow}{for}\ d\ \textcolor{keywordflow}{in}\ os.listdir(dataset\_root)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ os.path.isdir(os.path.join(dataset\_root,\ d))\ \textcolor{keywordflow}{and}\ \textcolor{keywordflow}{not}\ d.startswith(\textcolor{stringliteral}{'.'})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00576}00576\ \ \ \ \ \ \ \ \ \ \ \ \ ]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00577}00577\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Parse\ numeric\ energy\ values\ from\ folder\ names\ and\ sort\ numerically}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00578}00578\ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies\ =\ sorted([float(name.replace(\textcolor{stringliteral}{"{}\_"{}},\ \textcolor{stringliteral}{"{}."{}}))\ \textcolor{keywordflow}{for}\ name\ \textcolor{keywordflow}{in}\ energy\_names])}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00579}00579\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ energies:\ \{available\_energies\}\ (same\ as\ standalone\_training.py)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00580}00580\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00581}00581\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ available\_energies:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00582}00582\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Update\ ParameterManager\ with\ detected\ energies\ (same\ as\ standalone)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00583}00583\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.energies\ =\ torch.tensor(available\_energies)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00584}00584\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Recalculate\ energy\_min\ and\ energy\_max\ from\ actual\ energies\ (same\ as\ standalone)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00585}00585\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ min\_e\ =\ min(available\_energies)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00586}00586\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_e\ =\ max(available\_energies)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00587}00587\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.energy\_min\ =\ min\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00588}00588\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.energy\_max\ =\ max\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00589}00589\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.quad\_energies\ =\ available\_energies}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00590}00590\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.quad\_weights\ =\ [1.0/len(available\_energies)]\ *\ len(available\_energies)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00591}00591\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00592}00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Update\ SystemManager\ with\ new\ parameters\ (same\ as\ standalone)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00593}00593\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.energies\ =\ available\_energies}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.energy\_min\ =\ min\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.energy\_max\ =\ max\_e}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00596}00596\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.quad\_energies\ =\ available\_energies}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00597}00597\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.quad\_weights\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a00b64bc11a5b3a052457abe6eaf9c006}{pm}}.quad\_weights}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00598}00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ with\ ALL\ energies:\ \{available\_energies\}\ (proper\ multi-\/energy\ training)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00600}00600\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy\ range:\ \{min\_e\}\ to\ \{max\_e\}\ (calculated\ from\ data)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00601}00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quad\ weights:\ \{self.pm.quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00602}00602\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00603}00603\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(\textcolor{stringliteral}{"{}No\ energies\ detected,\ using\ fallback"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00604}00604\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies\ =\ [0.0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00605}00605\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00606}00606\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00607}00607\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Error\ detecting\ energies:\ \{e\},\ using\ fallback"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00608}00608\ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies\ =\ [0.0]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00609}00609\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00610}00610\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ reset\ stop\_training\ flag}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00611}00611\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}}.stop\_training\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00612}00612\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00613}00613\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ run\ training\ in\ background\ thread\ to\ avoid\ freezing\ GUI}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00614}00614\ \ \ \ \ \ \ \ \ progress\ =\ QProgressDialog(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00615}00615\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Training\ in\ progress...\ Please\ wait."{}},}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00616}00616\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Cancel"{}},\ 0,\ 0,\ self}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00617}00617\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00618}00618\ \ \ \ \ \ \ \ \ progress.setWindowModality(Qt.ApplicationModal)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00619}00619\ \ \ \ \ \ \ \ \ progress.setCancelButtonText(\textcolor{stringliteral}{"{}Cancel"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00620}00620\ \ \ \ \ \ \ \ \ progress.setMinimumDuration(0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00621}00621\ \ \ \ \ \ \ \ \ progress.setAutoClose(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00622}00622\ \ \ \ \ \ \ \ \ progress.setAutoReset(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00623}00623\ \ \ \ \ \ \ \ \ progress.show()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00624}00624\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00625}00625\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ create\ worker\ and\ thread}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00626}00626\ \ \ \ \ \ \ \ \ thread\ =\ QThread(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00627}00627\ \ \ \ \ \ \ \ \ worker\ =\ \mbox{\hyperlink{classgui_1_1_training_worker}{TrainingWorker}}(self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00628}00628\ \ \ \ \ \ \ \ \ worker.moveToThread(thread)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00629}00629\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00630}00630\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ cancel\ training\ if\ user\ cancels\ dialog}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00631}00631\ \ \ \ \ \ \ \ \ progress.canceled.connect(thread.requestInterruption)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00632}00632\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ signal\ SystemManager\ to\ stop\ training\ loops}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00633}00633\ \ \ \ \ \ \ \ \ progress.canceled.connect(\textcolor{keyword}{lambda}:\ setattr(self.\mbox{\hyperlink{classgui_1_1_main_window_ab64d09c983ec14bb31e3815d7cbc695c}{system\_manager}},\ \textcolor{stringliteral}{'stop\_training'},\ \textcolor{keyword}{True}))}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00634}00634\ \ \ \ \ \ \ \ \ thread.started.connect(worker.run)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00635}00635\ \ \ \ \ \ \ \ \ worker.finished.connect(thread.quit)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00636}00636\ \ \ \ \ \ \ \ \ worker.finished.connect(worker.deleteLater)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00637}00637\ \ \ \ \ \ \ \ \ thread.finished.connect(thread.deleteLater)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00638}00638\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ handle\ completion\ and\ errors\ on\ main\ thread}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00639}\mbox{\hyperlink{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715}{00639}}\ \ \ \ \ \ \ \ \ worker.finished.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715}{on\_training\_finished}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00640}\mbox{\hyperlink{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f}{00640}}\ \ \ \ \ \ \ \ \ worker.error.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f}{on\_training\_error}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00641}00641\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ keep\ references\ to\ prevent\ garbage\ collection}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00642}\mbox{\hyperlink{classgui_1_1_main_window_acf5d08ed8d7644198cb86e0b17ca7dea}{00642}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_acf5d08ed8d7644198cb86e0b17ca7dea}{\_train\_thread}}\ =\ thread}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00643}\mbox{\hyperlink{classgui_1_1_main_window_a23d7e3f6071b10a90c645d06a7c19a60}{00643}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a23d7e3f6071b10a90c645d06a7c19a60}{\_train\_worker}}\ =\ worker}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00644}\mbox{\hyperlink{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}{00644}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}{\_train\_progress}}\ =\ progress}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00645}00645\ \ \ \ \ \ \ \ \ thread.start()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00646}00646\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00647}00647\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ thread\ started"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00648}00648\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00649}00649\ \ \ \ \ \textcolor{comment}{\#\ Open\ a\ file\ dialog\ to\ select\ a\ CT\ scan\ file\ (inference)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00650}\mbox{\hyperlink{classgui_1_1_main_window_af94494bbc7c38ba1fd0518415db0b9f5}{00650}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a9ebd2b9337d929331ec501eb8920a8f6}{open\_file\_dialog}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00651}00651\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00652}00652\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Opens\ a\ file\ dialog\ for\ selecting\ a\ CT\ scan\ file\ in\ NIfTI\ format.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00653}00653\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ If\ a\ file\ is\ selected,\ its\ path\ is\ stored\ and\ the\ dose\ calculation\ button\ is\ enabled.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00654}00654\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00655}00655\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Opening\ CT\ file\ selection\ dialog..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00656}00656\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00657}00657\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ support\ both\ NIfTI\ and\ NumPy\ formats}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00658}00658\ \ \ \ \ \ \ \ \ file\_path,\ \_\ =\ QFileDialog.getOpenFileName(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00659}00659\ \ \ \ \ \ \ \ \ \ \ \ \ self,\ \textcolor{stringliteral}{"{}Select\ CT\ Scan"{}},\ \textcolor{stringliteral}{"{}"{}},\ \textcolor{stringliteral}{"{}CT\ Files\ (*.nii\ *.nii.gz\ *.npy)"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00660}00660\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00661}00661\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ file\_path:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00662}00662\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}User\ selected\ CT\ file:\ \{file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00663}00663\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{ct\_file}}\ =\ file\_path\ \ \textcolor{comment}{\#\ store\ the\ imported\ CT\ file}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00664}00664\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00665}00665\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ file:\ NIfTI\ or\ NumPy}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00667}00667\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ fp\ =\ file\_path.lower()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00668}00668\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ fp.endswith(\textcolor{stringliteral}{'.npy'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00669}00669\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ NumPy\ file..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00670}00670\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ data\ =\ np.load(file\_path)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00671}00671\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00672}00672\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ NIfTI\ file..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00673}00673\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ img\ =\ nib.load(file\_path)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00674}00674\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ data\ =\ np.asarray(img.dataobj)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00675}00675\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00676}00676\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ store\ CT\ volume\ for\ overlay}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00677}\mbox{\hyperlink{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}{00677}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}{ct\_volume}}\ =\ data}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00678}00678\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ CT\ file\ loaded\ successfully:\ shape=\{data.shape\},\ dtype=\{data.dtype\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00679}00679\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ CT\ data\ range:\ [\{data.min():.3f\},\ \{data.max():.3f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00680}00680\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00681}00681\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_af5af1a8bb13687f22ddc1a30237d5401}{ct\_file\_bool}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00682}00682\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\_update\_ui\_state}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00683}00683\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ CT\ file\ loaded,\ UI\ state\ updated."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00684}00684\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00685}00685\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00686}00686\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ load\ CT\ file:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00687}00687\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}CT\ file\ loading\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00688}00688\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.critical(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ load\ the\ selected\ file:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00689}00689\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00690}00690\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}CT\ file\ selection\ cancelled\ by\ user"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00691}00691\ \ \ \ \ \textcolor{comment}{\#\ Open\ a\ file\ dialog\ to\ select\ a\ model\ file\ (inference)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00692}\mbox{\hyperlink{classgui_1_1_main_window_a0a364fac0a66a92e34c462dcb4d0eb97}{00692}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_aab0c92d7a48d6eeda1c39faea906659d}{open\_model\_dialog}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00693}00693\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00694}00694\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Opens\ a\ file\ dialog\ for\ selecting\ a\ model\ file\ in\ .ckpt\ format.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00695}00695\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ If\ a\ file\ is\ selected,\ its\ path\ is\ stored\ and\ the\ dose\ calculation\ button\ is\ enabled.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00696}00696\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00697}00697\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Opening\ model\ file\ selection\ dialog..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00698}00698\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00699}00699\ \ \ \ \ \ \ \ \ file\_path,\ \_\ =\ QFileDialog.getOpenFileName(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00700}00700\ \ \ \ \ \ \ \ \ \ \ \ \ self,\ \textcolor{stringliteral}{"{}Select\ Model\ File"{}},\ \textcolor{stringliteral}{"{}"{}},\ \textcolor{stringliteral}{"{}Model\ Files\ (*.ckpt)"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00701}00701\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00702}00702\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ file\_path:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00703}00703\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}User\ selected\ model\ file:\ \{file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00704}00704\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00705}00705\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00706}00706\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ that\ the\ Model\ file\ (.ckpt)\ can\ be\ loaded}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00707}00707\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Validating\ model\ checkpoint..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00708}00708\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device\ =\ torch.device(\textcolor{stringliteral}{"{}cuda"{}}\ \textcolor{keywordflow}{if}\ torch.cuda.is\_available()\ \textcolor{keywordflow}{else}\ \textcolor{stringliteral}{"{}cpu"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00709}00709\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ test\_checkpoint\ =\ torch.load(file\_path,\ map\_location=device,\ weights\_only=\textcolor{keyword}{False})\ \ \textcolor{comment}{\#\ Test\ load\ to\ validate}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00710}00710\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Model\ checkpoint\ validated\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00711}00711\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Checkpoint\ keys:\ \{list(test\_checkpoint.keys())\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00712}00712\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00713}00713\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Store\ the\ file\ path,\ not\ the\ loaded\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00714}00714\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{model\_checkpoint}}\ =\ file\_path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00715}00715\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a54d57a20a8dae8ecedc8ed459031e175}{model\_file\_bool}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00716}00716\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae258833b7ef9824e8b7b264025853775}{\_update\_ui\_state}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00717}00717\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Model\ file\ successfully\ selected\ and\ validated,\ UI\ state\ updated."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00718}00718\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00719}00719\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00720}00720\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ load\ model\ file:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00721}00721\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Model\ file\ loading\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00722}00722\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.critical(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ load\ the\ selected\ file:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00723}00723\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00724}00724\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Model\ file\ selection\ cancelled\ by\ user"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00725}00725\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00726}00726\ \ \ \ \ \textcolor{comment}{\#\ Calculate\ the\ dose\ distribution\ using\ the\ standalone\ inference\ module\ (like\ standalone\ script)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00727}\mbox{\hyperlink{classgui_1_1_main_window_a999be86b05866efa13552a01e5baf63a}{00727}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_abb1008fb07c4929dcea9b193c3782df0}{calculate\_dose}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00728}00728\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00729}00729\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Calculate\ dose\ distribution\ using\ the\ original\ InferenceModule\ directly\ (standalone\ approach).}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00730}00730\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Now\ runs\ in\ a\ background\ thread\ with\ a\ progress\ dialog.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00731}00731\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00732}00732\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00733}00733\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}DOSE\ CALCULATION\ STARTED\ VIA\ GUI\ (STANDALONE\ APPROACH)"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00734}00734\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00735}00735\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00736}00736\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{ct\_file}}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00737}00737\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}No\ CT\ file\ selected\ for\ dose\ calculation"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00738}00738\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}Please\ upload\ a\ CT\ scan\ first."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00739}00739\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00740}00740\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00741}00741\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{model\_checkpoint}}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00742}00742\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}No\ model\ checkpoint\ selected\ for\ dose\ calculation"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00743}00743\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}Please\ upload\ a\ model\ file\ first."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00744}00744\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00745}00745\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00746}00746\ \ \ \ \ \ \ \ \ min\_e\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a6d76d47f7ac6e5b31137d2bc1cefe33b}{energy\_min\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00747}00747\ \ \ \ \ \ \ \ \ max\_e\ =\ self.\mbox{\hyperlink{classgui_1_1_main_window_a88799791734b92308c3b364c7a234061}{energy\_max\_spin}}.value()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00748}00748\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Energy\ range:\ \{min\_e\}\ to\ \{max\_e\}\ eV"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00749}00749\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00750}00750\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ validate\ energy\ range}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00751}00751\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ min\_e\ >\ max\_e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00752}00752\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Invalid\ energy\ range:\ min\_e=\{min\_e\}\ >\ max\_e=\{max\_e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00753}00753\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.warning(self,\ \textcolor{stringliteral}{"{}Error"{}},\ \textcolor{stringliteral}{"{}Minimum\ energy\ must\ be\ less\ than\ maximum\ energy."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00754}00754\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00755}00755\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00756}00756\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Show\ a\ modal\ progress\ dialog\ and\ run\ inference\ in\ background}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00757}00757\ \ \ \ \ \ \ \ \ progress\ =\ QProgressDialog(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00758}00758\ \ \ \ \ \ \ \ \ \ \ \ \ f\textcolor{stringliteral}{"{}Inference\ in\ progress...\ Please\ wait."{}},}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00759}00759\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}Cancel"{}},\ 0,\ 0,\ self}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00760}00760\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00761}00761\ \ \ \ \ \ \ \ \ progress.setWindowModality(Qt.ApplicationModal)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00762}00762\ \ \ \ \ \ \ \ \ progress.setCancelButtonText(\textcolor{stringliteral}{"{}Cancel"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00763}00763\ \ \ \ \ \ \ \ \ progress.setMinimumDuration(0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00764}00764\ \ \ \ \ \ \ \ \ progress.setAutoClose(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00765}00765\ \ \ \ \ \ \ \ \ progress.setAutoReset(\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00766}00766\ \ \ \ \ \ \ \ \ progress.show()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00767}00767\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00768}00768\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Thread\ +\ worker}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00769}00769\ \ \ \ \ \ \ \ \ thread\ =\ QThread(self)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00770}00770\ \ \ \ \ \ \ \ \ worker\ =\ \mbox{\hyperlink{classgui_1_1_inference_worker}{InferenceWorker}}(self.\mbox{\hyperlink{classgui_1_1_main_window_ab1f795b260745d63a29ca6005a008fd0}{ct\_file}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_ac531564a8294a0554899e43f93763dd5}{model\_checkpoint}},\ min\_e,\ max\_e)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00771}00771\ \ \ \ \ \ \ \ \ worker.moveToThread(thread)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00772}00772\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00773}00773\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Cancellation\ support}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00774}00774\ \ \ \ \ \ \ \ \ progress.canceled.connect(thread.requestInterruption)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00775}00775\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00776}00776\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Start/finish\ wiring}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00777}00777\ \ \ \ \ \ \ \ \ thread.started.connect(worker.run)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00778}00778\ \ \ \ \ \ \ \ \ worker.finished.connect(thread.quit)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00779}00779\ \ \ \ \ \ \ \ \ worker.finished.connect(worker.deleteLater)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00780}00780\ \ \ \ \ \ \ \ \ thread.finished.connect(thread.deleteLater)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00781}00781\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00782}00782\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Handle\ completion\ and\ errors\ in\ main\ thread}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00783}\mbox{\hyperlink{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af}{00783}}\ \ \ \ \ \ \ \ \ worker.finished.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af}{on\_inference\_finished}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00784}\mbox{\hyperlink{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7}{00784}}\ \ \ \ \ \ \ \ \ worker.error.connect(self.\mbox{\hyperlink{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7}{on\_inference\_error}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00785}00785\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00786}00786\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Keep\ refs}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00787}\mbox{\hyperlink{classgui_1_1_main_window_adac5660d51ade7ab449367272bf57a58}{00787}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_adac5660d51ade7ab449367272bf57a58}{\_infer\_thread}}\ =\ thread}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00788}\mbox{\hyperlink{classgui_1_1_main_window_aa5fb998f98f5998cb88fb33dfe122e00}{00788}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_aa5fb998f98f5998cb88fb33dfe122e00}{\_infer\_worker}}\ =\ worker}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00789}\mbox{\hyperlink{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}{00789}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}{\_infer\_progress}}\ =\ progress}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00790}00790\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00791}00791\ \ \ \ \ \ \ \ \ thread.start()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00792}00792\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Inference\ thread\ started"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00793}00793\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00794}00794\ \ \ \ \ \textcolor{preprocessor}{@Slot(str)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00795}\mbox{\hyperlink{classgui_1_1_main_window_a5bc61970054cad6e01eb729df3bfc649}{00795}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a52a7ffd17e587ec354d351bbbc3aa8af}{on\_inference\_finished}}(self,\ output\_path:\ str):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00796}00796\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Close\ dialog}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00797}00797\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(self,\ \textcolor{stringliteral}{'\_infer\_progress'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00798}00798\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}{\_infer\_progress}}.close()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00799}00799\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Store\ and\ notify}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00800}\mbox{\hyperlink{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}{00800}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}{dose\_result\_path}}\ =\ output\_path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00801}00801\ \ \ \ \ \ \ \ \ QMessageBox.information(self,\ \textcolor{stringliteral}{"{}Success"{}},\ f\textcolor{stringliteral}{"{}Dose\ distribution\ calculated\ successfully.\(\backslash\)nSaved\ to:\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00802}00802\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Visualization}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00803}00803\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00804}00804\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ visualization..."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00805}00805\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacevisualization_a6d19a65b3e4f765fe4e3823c862d2a08}{visualization.load\_and\_visualize}}(str(output\_path),\ self.\mbox{\hyperlink{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}{ct\_volume}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00806}00806\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Visualization\ completed"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00807}00807\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00808}00808\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Visualization\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00809}00809\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00810}00810\ \ \ \ \ \textcolor{preprocessor}{@Slot(str)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00811}\mbox{\hyperlink{classgui_1_1_main_window_a94598dc1295b81610a996eea69a4d333}{00811}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_aa90f9740918e9b5c247b108dc929e6f7}{on\_inference\_error}}(self,\ message:\ str):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00812}00812\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(self,\ \textcolor{stringliteral}{'\_infer\_progress'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00813}00813\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a31a9c7a8dbcbae0e892e4ac8ac458585}{\_infer\_progress}}.close()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00814}00814\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Inference\ error:\ \{message\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00815}00815\ \ \ \ \ \ \ \ \ QMessageBox.critical(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ calculate\ dose\ distribution:\ \{message\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00816}00816\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00817}00817\ \ \ \ \ \textcolor{comment}{\#\ Visualize\ the\ dose\ distribution\ from\ inference\ results}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00818}\mbox{\hyperlink{classgui_1_1_main_window_ac16a891ae6f97dfb8f04064ba07a3ff8}{00818}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_ab54b854dd958ac369253f62ab363972e}{visualize\_inference\_results}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00819}00819\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00820}00820\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Visualizes\ the\ calculated\ dose\ distribution\ from\ inference\ results\ and\ embeds\ it\ in\ the\ GUI\ window.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00821}00821\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00822}00822\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00823}00823\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ prompt\ user\ to\ select\ a\ NIfTI/NumPy\ file\ for\ inference\ results}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00824}00824\ \ \ \ \ \ \ \ \ \ \ \ \ file\_path,\ \_\ =\ QFileDialog.getOpenFileName(}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00825}00825\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self,\ \textcolor{stringliteral}{"{}Select\ Dose\ Result\ File"{}},\ \textcolor{stringliteral}{"{}"{}},\ \textcolor{stringliteral}{"{}Dose\ Files\ (*.nii\ *.nii.gz\ *.npy)"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00827}00827\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ file\_path:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00828}00828\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00829}00829\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}{dose\_result\_path}}\ =\ file\_path}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00830}00830\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00831}00831\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ dose\ distribution\ from\ the\ result\ file}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00832}00832\ \ \ \ \ \ \ \ \ \ \ \ \ fig\ =\ \mbox{\hyperlink{namespacevisualization_a6d19a65b3e4f765fe4e3823c862d2a08}{visualization.load\_and\_visualize}}(self.\mbox{\hyperlink{classgui_1_1_main_window_af20dcdb29a920fd33bca36acbd40f3c1}{dose\_result\_path}},\ self.\mbox{\hyperlink{classgui_1_1_main_window_a0b30f7f4eaad993fc5c27f6b7549c676}{ct\_volume}},\ title=\textcolor{stringliteral}{"{}Calculated\ Dose\ Distribution"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00833}00833\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00834}00834\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00835}00835\ \ \ \ \ \ \ \ \ \ \ \ \ QMessageBox.critical(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ visualize\ dose\ distribution:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00836}00836\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00837}00837\ \ \ \ \ \textcolor{preprocessor}{@Slot()}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00838}\mbox{\hyperlink{classgui_1_1_main_window_ae2dff578f5c7a0fed8182c4893d1076f}{00838}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_ad89feac482bd62b3ec059213bc198715}{on\_training\_finished}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00839}00839\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Slot\ to\ close\ progress\ dialog\ and\ show\ success\ message\ on\ main\ thread"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00840}00840\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(self,\ \textcolor{stringliteral}{'\_train\_progress'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00841}00841\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}{\_train\_progress}}.close()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00842}00842\ \ \ \ \ \ \ \ \ QMessageBox.information(self,\ \textcolor{stringliteral}{"{}Success"{}},\ \textcolor{stringliteral}{"{}Training\ completed."{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00843}00843\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ show\ plots\ in-\/app}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00844}00844\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}{show\_training\_plots}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00845}00845\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ enable\ the\ button\ to\ show\ training\ plots}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00846}00846\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a05e7ba5630c9b5e6a511a960c7fb909d}{show\_plots\_button}}.setEnabled(\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00847}00847\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00848}00848\ \ \ \ \ \textcolor{preprocessor}{@Slot(str)}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00849}\mbox{\hyperlink{classgui_1_1_main_window_a16a3869377ff51fcfa4c3c14c4e8bf12}{00849}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a4e8535fe23d72bb114b619cbaf51dd9f}{on\_training\_error}}(self,\ msg):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00850}00850\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Slot\ to\ close\ progress\ dialog\ and\ show\ error\ message\ on\ main\ thread"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00851}00851\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(self,\ \textcolor{stringliteral}{'\_train\_progress'}):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00852}00852\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_ae3cdf6f41544e23d84556140810bced1}{\_train\_progress}}.close()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00853}00853\ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Training\ error:\ \{msg\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00854}00854\ \ \ \ \ \ \ \ \ QMessageBox.critical(self,\ \textcolor{stringliteral}{"{}Error"{}},\ f\textcolor{stringliteral}{"{}Failed\ to\ train\ the\ model:\ \{msg\}"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00855}00855\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00856}00856\ \ \ \ \ \textcolor{preprocessor}{@Slot()}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00857}\mbox{\hyperlink{classgui_1_1_main_window_aa4c2a020dbb733877892b047bd847e23}{00857}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a64c619b7794214586dcce36a45dea4d1}{show\_training\_plots}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00858}00858\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Open\ a\ window\ showing\ the\ three\ training\ plot\ images\ together."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00859}00859\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00860}00860\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ PySide6.QtWidgets\ \textcolor{keyword}{import}\ QScrollArea}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00861}00861\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ PySide6.QtGui\ \textcolor{keyword}{import}\ QGuiApplication}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00862}00862\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ compute\ screen\ geometry}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00863}00863\ \ \ \ \ \ \ \ \ screen\_rect\ =\ QGuiApplication.primaryScreen().availableGeometry()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00864}00864\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ use\ up\ to\ 80\%\ of\ screen}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00865}00865\ \ \ \ \ \ \ \ \ max\_w\_screen\ =\ int(screen\_rect.width()\ *\ 0.8)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00866}00866\ \ \ \ \ \ \ \ \ max\_h\_screen\ =\ int(screen\_rect.height()\ *\ 0.8)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00867}00867\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ divide\ screen\ into\ two\ rows:\ top\ row\ height,\ bottom\ row\ height}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00868}00868\ \ \ \ \ \ \ \ \ row\_height\ =\ max\_h\_screen\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00869}00869\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ divide\ width:\ top\ two\ share\ row,\ bottom\ spans}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00870}00870\ \ \ \ \ \ \ \ \ top\_w\ =\ max\_w\_screen\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00871}00871\ \ \ \ \ \ \ \ \ bottom\_w\ =\ max\_w\_screen}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00872}00872\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00873}00873\ \ \ \ \ \ \ \ \ patterns\ =\ [\textcolor{stringliteral}{"{}loss\_curves\_res*.png"{}},\ \textcolor{stringliteral}{"{}learning\_curve.png"{}},\ \textcolor{stringliteral}{"{}adv\_curves.png"{}}]}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00874}00874\ \ \ \ \ \ \ \ \ plots\_window\ =\ QWidget()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00875}00875\ \ \ \ \ \ \ \ \ plots\_window.setWindowTitle(\textcolor{stringliteral}{"{}Training\ Graphs"{}})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00876}00876\ \ \ \ \ \ \ \ \ labels\ =\ []}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00877}00877\ \ \ \ \ \ \ \ \ idx\ =\ 0}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00878}00878\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ pattern\ \textcolor{keywordflow}{in}\ patterns:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00879}00879\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ fname\ \textcolor{keywordflow}{in}\ glob.glob(pattern):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00880}00880\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lbl\ =\ QLabel()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00881}00881\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pix\ =\ QPixmap(fname)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00882}00882\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ pick\ target\ dims\ by\ position}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00883}00883\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ idx\ <\ 2:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00884}00884\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_w,\ target\_h\ =\ top\_w,\ row\_height}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00885}00885\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00886}00886\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_w,\ target\_h\ =\ bottom\_w,\ row\_height}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00887}00887\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pix\ =\ pix.scaled(target\_w,\ target\_h,\ Qt.KeepAspectRatio,\ Qt.SmoothTransformation)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00888}00888\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lbl.setPixmap(pix)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00889}00889\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00890}00890\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ labels.append(lbl)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00891}00891\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ idx\ +=\ 1}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00892}00892\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ PySide6.QtWidgets\ \textcolor{keyword}{import}\ QGridLayout}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00893}00893\ \ \ \ \ \ \ \ \ grid\ =\ QGridLayout()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00894}00894\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(labels)\ >=\ 2:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00895}00895\ \ \ \ \ \ \ \ \ \ \ \ \ grid.addWidget(labels[0],\ 0,\ 0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00896}00896\ \ \ \ \ \ \ \ \ \ \ \ \ grid.addWidget(labels[1],\ 0,\ 1)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00897}00897\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ len(labels)\ >=\ 3:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00898}00898\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ grid.addWidget(labels[2],\ 1,\ 0,\ 1,\ 2)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00899}00899\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00900}00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ lbl\ \textcolor{keywordflow}{in}\ enumerate(labels):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00901}00901\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ grid.addWidget(lbl,\ i,\ 0)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00902}00902\ \ \ \ \ \ \ \ \ scroll\ =\ QScrollArea()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00903}00903\ \ \ \ \ \ \ \ \ container\ =\ QWidget()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00904}00904\ \ \ \ \ \ \ \ \ container.setLayout(grid)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00905}00905\ \ \ \ \ \ \ \ \ scroll.setWidget(container)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00906}00906\ \ \ \ \ \ \ \ \ scroll.setWidgetResizable(\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00907}00907\ \ \ \ \ \ \ \ \ main\_layout\ =\ QVBoxLayout()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00908}00908\ \ \ \ \ \ \ \ \ main\_layout.addWidget(scroll)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00909}00909\ \ \ \ \ \ \ \ \ plots\_window.setLayout(main\_layout)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00910}00910\ \ \ \ \ \ \ \ \ plots\_window.resize(max\_w\_screen,\ max\_h\_screen)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00911}00911\ \ \ \ \ \ \ \ \ plots\_window.show()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00912}\mbox{\hyperlink{classgui_1_1_main_window_a369deb12f3b8152ebd1093ebca8ec922}{00912}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classgui_1_1_main_window_a369deb12f3b8152ebd1093ebca8ec922}{\_plots\_window}}\ =\ plots\_window}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00913}00913\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00914}\mbox{\hyperlink{classgui_1_1_main_window_a1b659bc3f95c814888fb276530e3bb2e}{00914}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classgui_1_1_main_window_a1b659bc3f95c814888fb276530e3bb2e}{center}}(self):}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00915}00915\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00916}00916\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Center\ the\ window\ on\ the\ screen.}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00917}00917\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00918}00918\ \ \ \ \ \ \ \ \ screen\ =\ QGuiApplication.primaryScreen()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00919}00919\ \ \ \ \ \ \ \ \ screen\_rect\ =\ screen.availableGeometry()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00920}00920\ \ \ \ \ \ \ \ \ x\ =\ (screen\_rect.width()\ -\/\ self.width())\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00921}00921\ \ \ \ \ \ \ \ \ y\ =\ (screen\_rect.height()\ -\/\ self.height())\ //\ 2}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00922}00922\ \ \ \ \ \ \ \ \ self.move(x,\ y)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00923}00923\ }
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00924}00924\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00925}00925\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00926}\mbox{\hyperlink{namespacegui_af263120175dda5fb802cbe5ce9490b93}{00926}}\ \ \ \ \ \ \ \ \ app\ =\ QApplication(sys.argv)}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00927}\mbox{\hyperlink{namespacegui_a0d018849665fe7c4f792bf9478f11182}{00927}}\ \ \ \ \ \ \ \ \ window\ =\ \mbox{\hyperlink{classgui_1_1_main_window}{MainWindow}}()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00928}00928\ \ \ \ \ \ \ \ \ window.show()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00929}00929\ \ \ \ \ \ \ \ \ window.center()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00930}00930\ \ \ \ \ \ \ \ \ sys.exit(app.exec())}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00931}00931\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception:}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00932}00932\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{gui_8py_source_l00933}00933\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}}
+
+\end{DoxyCode}

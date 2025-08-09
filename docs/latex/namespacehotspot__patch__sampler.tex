@@ -1,0 +1,31 @@
+\doxysection{hotspot\+\_\+patch\+\_\+sampler Namespace Reference}
+\hypertarget{namespacehotspot__patch__sampler}{}\label{namespacehotspot__patch__sampler}\index{hotspot\_patch\_sampler@{hotspot\_patch\_sampler}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacehotspot__patch__sampler_abdc867bb75b609b1d6d7d60e6117e3f1}{extract\+\_\+hotspot\+\_\+patches}} (volume, patch\+\_\+size=(32, 32, 32), min\+\_\+hotspot\+\_\+voxels=10, dose\+\_\+threshold=0.\+1, max\+\_\+patches=16, random\+\_\+patches=2)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacehotspot__patch__sampler_abdc867bb75b609b1d6d7d60e6117e3f1}\index{hotspot\_patch\_sampler@{hotspot\_patch\_sampler}!extract\_hotspot\_patches@{extract\_hotspot\_patches}}
+\index{extract\_hotspot\_patches@{extract\_hotspot\_patches}!hotspot\_patch\_sampler@{hotspot\_patch\_sampler}}
+\doxysubsubsection{\texorpdfstring{extract\_hotspot\_patches()}{extract\_hotspot\_patches()}}
+{\footnotesize\ttfamily \label{namespacehotspot__patch__sampler_abdc867bb75b609b1d6d7d60e6117e3f1} 
+hotspot\+\_\+patch\+\_\+sampler.\+extract\+\_\+hotspot\+\_\+patches (\begin{DoxyParamCaption}\item[{}]{volume}{, }\item[{}]{patch\+\_\+size}{ = {\ttfamily (32,32,32)}, }\item[{}]{min\+\_\+hotspot\+\_\+voxels}{ = {\ttfamily 10}, }\item[{}]{dose\+\_\+threshold}{ = {\ttfamily 0.1}, }\item[{}]{max\+\_\+patches}{ = {\ttfamily 16}, }\item[{}]{random\+\_\+patches}{ = {\ttfamily 2}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Extracts patches from a 3D volume where the number of voxels above a certain threshold is sufficient.
+Args:
+    volume: 3D numpy array representing the dose distribution
+    patch_size: Size of the patches to extract (z, y, x)
+    min_hotspot_voxels: Minimum number of voxels in a patch that must be above the dose threshold
+    dose_threshold: Dose threshold to consider a voxel as part of a hotspot
+    max_patches: Maximum number of patches to extract
+    random_patches: Number of additional random patches to add
+Returns:
+    List of Patch-Start-Indices (e.g. [(z,y,x), ...])
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{hotspot__patch__sampler_8py_source_l00003}{3}} of file \mbox{\hyperlink{hotspot__patch__sampler_8py_source}{hotspot\+\_\+patch\+\_\+sampler.\+py}}.
+

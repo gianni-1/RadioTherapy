@@ -1,0 +1,115 @@
+\doxysection{training\+\_\+pipeline.\+Early\+Stopping Class Reference}
+\hypertarget{classtraining__pipeline_1_1_early_stopping}{}\label{classtraining__pipeline_1_1_early_stopping}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a7d88ba83466ed9c2d470eb6a0a625b09}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}{patience}}=5)
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_aa4244a4be5c9cb31a846c91996bd2edd}{update}} (self, val\+\_\+loss)
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a712055ca21cb5f5604e308c83ced2101}{reset}} (self)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}{patience}} = patience
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}{best\+\_\+val\+\_\+loss}} = float(\textquotesingle{}inf\textquotesingle{})
+\item 
+int \mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}{epochs\+\_\+no\+\_\+improvement}} = 0
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Monitors the validation loss and triggers early stopping if the loss
+the loss does not improve over a defined number of epochs.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00029}{29}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_a7d88ba83466ed9c2d470eb6a0a625b09}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_a7d88ba83466ed9c2d470eb6a0a625b09} 
+training\+\_\+pipeline.\+Early\+Stopping.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{patience}{ = {\ttfamily 5}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    patience (int): Number of epochs permitted without improvement.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00034}{34}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_a712055ca21cb5f5604e308c83ced2101}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!reset@{reset}}
+\index{reset@{reset}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{reset()}{reset()}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_a712055ca21cb5f5604e308c83ced2101} 
+training\+\_\+pipeline.\+Early\+Stopping.\+reset (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Resets the early stopping parameters.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00059}{59}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_aa4244a4be5c9cb31a846c91996bd2edd}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!update@{update}}
+\index{update@{update}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_aa4244a4be5c9cb31a846c91996bd2edd} 
+training\+\_\+pipeline.\+Early\+Stopping.\+update (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{val\+\_\+loss}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Compares the current validation loss with the best loss to date.
+Args:
+    val_loss (float): Current loss of validation.
+Returns:
+    bool: If Early Stopping is triggered true otherwise False.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00043}{43}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!best\_val\_loss@{best\_val\_loss}}
+\index{best\_val\_loss@{best\_val\_loss}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{best\_val\_loss}{best\_val\_loss}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_a4f87b3fe38651b46e20795193935d0b8} 
+training\+\_\+pipeline.\+Early\+Stopping.\+best\+\_\+val\+\_\+loss = float(\textquotesingle{}inf\textquotesingle{})}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00040}{40}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!epochs\_no\_improvement@{epochs\_no\_improvement}}
+\index{epochs\_no\_improvement@{epochs\_no\_improvement}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{epochs\_no\_improvement}{epochs\_no\_improvement}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_a0299849ddcad6a630131deb9bd996d40} 
+int training\+\_\+pipeline.\+Early\+Stopping.\+epochs\+\_\+no\+\_\+improvement = 0}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00041}{41}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89}\index{training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}!patience@{patience}}
+\index{patience@{patience}!training\_pipeline.EarlyStopping@{training\_pipeline.EarlyStopping}}
+\doxysubsubsection{\texorpdfstring{patience}{patience}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_early_stopping_a9922effa7a4b495facf80281b4de2d89} 
+training\+\_\+pipeline.\+Early\+Stopping.\+patience = patience}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00039}{39}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{training__pipeline_8py}{training\+\_\+pipeline.\+py}}\end{DoxyCompactItemize}

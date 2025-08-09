@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['mae_0',['mae',['../namespacedebug__inference__problem.html#aa72c82d30d3d85b9976cf6db2e0794a1',1,'debug_inference_problem.mae'],['../namespacedebug__inference__systematic.html#ad0a63016d16bba1a36f37ba8f679b41e',1,'debug_inference_systematic.mae'],['../namespacevalidate__energy__conditioning.html#a71bbcdb7331dd0bcafa6b9f7f940bf95',1,'validate_energy_conditioning.mae']]],
+  ['manager_1',['manager',['../classgui_1_1_training_worker.html#a0a6e4169ab0923768b4f1eb89cf1b365',1,'gui::TrainingWorker']]],
+  ['max_5fdiff_2',['max_diff',['../namespacevalidate__energy__conditioning.html#a1258c9f356e4ec553f3e8093cecb5a08',1,'validate_energy_conditioning']]],
+  ['max_5fe_3',['max_e',['../classgui_1_1_inference_worker.html#a4e3ad46fad89e0ff0732c228293608ce',1,'gui::InferenceWorker']]],
+  ['max_5fmse_4',['max_mse',['../namespacevalidate__energy__conditioning.html#ab5e0d67e3e9d2a8cbfd098e9ad79c602',1,'validate_energy_conditioning']]],
+  ['max_5fpatches_5fper_5fenergy_5',['max_patches_per_energy',['../classdata__management_1_1_hotspot_patch_dataset.html#a2a461eeff10ce8f2b90f548e1135164c',1,'data_management::HotspotPatchDataset']]],
+  ['mean_5fvariation_6',['mean_variation',['../namespacevalidate__energy__conditioning.html#a00415200f60d47738834e92a3ec47915',1,'validate_energy_conditioning']]],
+  ['means_7',['means',['../namespacevalidate__energy__conditioning.html#af9b68e974ff61248661442fb89b43581',1,'validate_energy_conditioning']]],
+  ['min_5fcorrelation_8',['min_correlation',['../namespacevalidate__energy__conditioning.html#a78eff7cbb1c9b887d2dcfbec2ccadfa3',1,'validate_energy_conditioning']]],
+  ['min_5fe_9',['min_e',['../classgui_1_1_inference_worker.html#adf9ba8eb120466aa2a9aca3892ba19c9',1,'gui::InferenceWorker']]],
+  ['model_5fcheckpoint_10',['model_checkpoint',['../classgui_1_1_inference_worker.html#a622d408b16d2a91d00062712572ae939',1,'gui.InferenceWorker.model_checkpoint'],['../classgui_1_1_main_window.html#ac531564a8294a0554899e43f93763dd5',1,'gui.MainWindow.model_checkpoint']]],
+  ['model_5fdir_11',['model_dir',['../classstorage_1_1_storage.html#abc532f4db338709f2491b88f215da202',1,'storage::Storage']]],
+  ['model_5ffile_5fbool_12',['model_file_bool',['../classgui_1_1_main_window.html#a54d57a20a8dae8ecedc8ed459031e175',1,'gui::MainWindow']]],
+  ['model_5fpath_13',['model_path',['../classcorrected__inference_1_1_corrected_inference_module.html#a4e833e4d6f9ea474b3edaf815b342500',1,'corrected_inference.CorrectedInferenceModule.model_path'],['../namespacedebug__inference__problem.html#a1a96713d06e30deebcd8191a58bff1ef',1,'debug_inference_problem.model_path'],['../namespacedebug__inference__systematic.html#a822bf668920081cfa527bb12d0e49bbb',1,'debug_inference_systematic.model_path'],['../namespacedebug__training__data.html#ae529477a3d857c570be723100878514b',1,'debug_training_data.model_path']]],
+  ['models_5fby_5fenergy_14',['models_by_energy',['../classinference__module_1_1_inference_module.html#a834f31a348379cd626d2b9a3cdd7ecfc',1,'inference_module.InferenceModule.models_by_energy'],['../classsystem__manager_1_1_system_manager.html#aabd86d280854bc5a261b90aa9fe04085',1,'system_manager.SystemManager.models_by_energy']]],
+  ['mse_15',['mse',['../namespacedebug__inference__problem.html#a43f975d691231a47f7eb1acbb83b9cde',1,'debug_inference_problem.mse'],['../namespacedebug__inference__systematic.html#addfd22a9c18f841403e62495ba254406',1,'debug_inference_systematic.mse'],['../namespacevalidate__energy__conditioning.html#a62e50fe0b163bbff824a2cd387dca818',1,'validate_energy_conditioning.mse']]]
+];

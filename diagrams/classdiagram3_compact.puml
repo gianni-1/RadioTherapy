@@ -1,0 +1,154 @@
+@startuml classdiagram3_compact
+title RadioTherapy System Architecture 
+
+!theme plain
+' Prefer vector/SVG export or control PNG size by scaling the overall width
+scale 1400 width
+
+' skinparam dpi 300  ' removed – high DPI bloats PNGs and can cause viewers to clip the right side
+skinparam packageStyle rectangle
+skinparam wrapWidth 180
+skinparam minClassWidth 120
+top to bottom direction
+
+' ========== Oberste Ebene: GUI ==========
+package "GUI Layer" {
+    class MainWindow {
+        +train_model()
+        +calculate_dose()
+        +visualize_results()
+    }
+    
+    class TrainingWorker {
+        +run()
+    }
+    
+    class InferenceWorker {
+        +run()
+    }
+}
+
+' ========== Zentrale Verwaltung ==========
+package "Core Management" {
+    class SystemManager {
+        +run_training()
+        +save_models()
+        +load_models()
+        -models_by_energy: Dict
+    }
+    
+    class ParameterManager {
+        +getParameter()
+        +energies: List[float]
+        +quad_weights: List[float]
+    }
+}
+
+' ========== Datenverarbeitung ==========
+package "Data & Training" {
+    class DataLoaderModule {
+        +load_dataset()
+        +create_dataloader()
+    }
+    
+    class HotspotPatchDataset {
+        +__getitem__()
+        -patch_records: List
+    }
+    
+    class AutoencoderTrainer {
+        +train_one_epoch()
+        +normalize_dose_batch()
+    }
+    
+    class DiffusionTrainer {
+        +train_one_epoch()
+        +sample()
+    }
+}
+
+' ========== Neuronale Netze ==========
+package "Neural Networks" {
+    class AutoencoderKL {
+        +encode()
+        +decode()
+    }
+    
+    class DiffusionModelUNet {
+        +forward()
+    }
+    
+    class PatchDiscriminator {
+        +forward()
+    }
+    
+    class DDPMScheduler {
+        +add_noise()
+        +step()
+    }
+}
+
+' ========== Inferenz ==========
+package "Inference" {
+    class InferenceModule {
+        +run_inference()
+        +compute_4_point_gaussian_quadrature()
+    }
+    
+    class InferenceModuleStandalone {
+        +main()
+        +load_ct()
+    }
+    
+    class LatentDiffusionInferer {
+        +sample()
+    }
+}
+
+' ========== Utilities ==========
+package "Utilities" {
+    class Visualization {
+        +plot_learning_curve()
+        +volume_rendering()
+    }
+    
+    class Storage {
+        +save_nifti_with_manifest()
+        +load_nifti_or_numpy()
+    }
+    
+    class HotspotPatchSampler {
+        +extract_hotspot_patches()
+        +calculate_adaptive_threshold()
+    }
+}
+
+' ========== Hauptbeziehungen ==========
+MainWindow --> SystemManager
+MainWindow --> TrainingWorker
+MainWindow --> InferenceWorker
+MainWindow --> Visualization
+
+SystemManager --> DataLoaderModule
+SystemManager --> AutoencoderTrainer
+SystemManager --> DiffusionTrainer
+SystemManager --> ParameterManager
+
+DataLoaderModule --> HotspotPatchDataset
+HotspotPatchDataset --> HotspotPatchSampler
+
+AutoencoderTrainer --> AutoencoderKL
+AutoencoderTrainer --> PatchDiscriminator
+DiffusionTrainer --> DiffusionModelUNet
+DiffusionTrainer --> DDPMScheduler
+DiffusionTrainer --> LatentDiffusionInferer
+
+InferenceModule --> AutoencoderKL
+InferenceModule --> DiffusionModelUNet
+InferenceWorker --> InferenceModuleStandalone
+
+note top of SystemManager : Separate Modelle\nfür jede Energie:\n3.47, 15.75, 34.25, 46.53 eV
+
+note top of InferenceModule : 4-Punkt Gauß-Quadratur\nfür finale Dosisberechnung
+
+@enduml

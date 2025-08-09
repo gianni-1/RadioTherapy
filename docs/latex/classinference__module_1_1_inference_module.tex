@@ -1,0 +1,321 @@
+\doxysection{inference\+\_\+module.\+Inference\+Module Class Reference}
+\hypertarget{classinference__module_1_1_inference_module}{}\label{classinference__module_1_1_inference_module}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a2090d94138f9f105b49a8c5e062857bf}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, dict \mbox{\hyperlink{classinference__module_1_1_inference_module_a834f31a348379cd626d2b9a3cdd7ecfc}{models\+\_\+by\+\_\+energy}}, list \mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}}, list \mbox{\hyperlink{classinference__module_1_1_inference_module_a4292fba3089ff0c8704ae8b1cb5d1b8c}{energy\+\_\+weights}}, \mbox{\hyperlink{classinference__module_1_1_inference_module_ac22781e2621f00fcf3165a34f5ef2d26}{device}}, \mbox{\hyperlink{classinference__module_1_1_inference_module_a4d782d9a3c6bfb882ebe0af03ee60f59}{scale\+\_\+factor}}, \mbox{\hyperlink{classinference__module_1_1_inference_module_a449c5fce181e04e3c51552fef35b3bfd}{energy\+\_\+min}}=None, \mbox{\hyperlink{classinference__module_1_1_inference_module_afbd31d5d20481e9f5a547f61edd751d8}{energy\+\_\+max}}=None, \mbox{\hyperlink{classinference__module_1_1_inference_module_a43b4c62d70607723ca31c30bb985a015}{clip\+\_\+min}}=None, \mbox{\hyperlink{classinference__module_1_1_inference_module_a27cbceb5ab2bfc9273de0aed2f29fcb5}{clip\+\_\+max}}=None, \mbox{\hyperlink{classinference__module_1_1_inference_module_aea63dfce84e6cf9ff5510c930130b2fb}{dose\+\_\+normalization\+\_\+params}}=None)
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a95aac4b23c95aa727ad978340484db39}{get\+\_\+energy\+\_\+normalization\+\_\+params}} (self, energy\+\_\+value, resolution=100)
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a5b432fc3167f0dcfa46e754a0b1480b9}{preprocess\+\_\+ct}} (self, ct\+\_\+tensor, target\+\_\+cube\+\_\+size=(100, 100, 100))
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a136744e8bb239725b1902a841d6bc1eb}{run\+\_\+inference}} (self, ct\+\_\+tensor, target\+\_\+cube\+\_\+size=(100, 100, 100))
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a97dc62a1b8937a2caef2d88e6e42d613}{run\+\_\+inference\+\_\+conditioned\+\_\+on\+\_\+energy}} (self, ct\+\_\+tensor, energy\+\_\+value, target\+\_\+cube\+\_\+size=(100, 100, 100))
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a5407037a4a36d5c9cd5efc89f81d8d1b}{run\+\_\+inference\+\_\+over\+\_\+energies}} (self, ct\+\_\+tensor, target\+\_\+cube\+\_\+size, \mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}}, \mbox{\hyperlink{classinference__module_1_1_inference_module_a4292fba3089ff0c8704ae8b1cb5d1b8c}{energy\+\_\+weights}})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a834f31a348379cd626d2b9a3cdd7ecfc}{models\+\_\+by\+\_\+energy}} = models\+\_\+by\+\_\+energy
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}} = energies
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a4292fba3089ff0c8704ae8b1cb5d1b8c}{energy\+\_\+weights}} = energy\+\_\+weights
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_ac22781e2621f00fcf3165a34f5ef2d26}{device}} = device
+\item 
+int \mbox{\hyperlink{classinference__module_1_1_inference_module_a4d782d9a3c6bfb882ebe0af03ee60f59}{scale\+\_\+factor}} = scale\+\_\+factor
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a449c5fce181e04e3c51552fef35b3bfd}{energy\+\_\+min}} = energy\+\_\+min if energy\+\_\+min is not None else min(\mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}})
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_afbd31d5d20481e9f5a547f61edd751d8}{energy\+\_\+max}} = energy\+\_\+max if energy\+\_\+max is not None else max(\mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}})
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a43b4c62d70607723ca31c30bb985a015}{clip\+\_\+min}} = clip\+\_\+min
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_a27cbceb5ab2bfc9273de0aed2f29fcb5}{clip\+\_\+max}} = clip\+\_\+max
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_aea63dfce84e6cf9ff5510c930130b2fb}{dose\+\_\+normalization\+\_\+params}} = dose\+\_\+normalization\+\_\+params or \{\}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classinference__module_1_1_inference_module_ac20dae7b4791794c67cb2cfb8be1632b}{\+\_\+compute\+\_\+scale\+\_\+factor}} (self)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}The InferenceModule performs the dose inference process using the trained autoencoder 
+and diffusion model. It computes the dose distribution from the uploaded patient CT data.
+
+The process is as follows:
+  1. Preprocess the input CT scan by resizing or cropping it to a specified cube size.
+  2. Optionally encode the CT scan with the autoencoder to obtain a latent representation.
+  3. Pass the (latent) representation through the diffusion model to generate a voxel-wise dose distribution.
+  
+Additional parameters (e.g. cube size) are taken into account during preprocessing.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00010}{10}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classinference__module_1_1_inference_module_a2090d94138f9f105b49a8c5e062857bf}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a2090d94138f9f105b49a8c5e062857bf} 
+inference\+\_\+module.\+Inference\+Module.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{dict}]{models\+\_\+by\+\_\+energy}{, }\item[{list}]{energies}{, }\item[{list}]{energy\+\_\+weights}{, }\item[{}]{device}{, }\item[{}]{scale\+\_\+factor}{, }\item[{}]{energy\+\_\+min}{ = {\ttfamily None}, }\item[{}]{energy\+\_\+max}{ = {\ttfamily None}, }\item[{}]{clip\+\_\+min}{ = {\ttfamily None}, }\item[{}]{clip\+\_\+max}{ = {\ttfamily None}, }\item[{}]{dose\+\_\+normalization\+\_\+params}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    models_by_energy (dict): Mapping from energy value (float) to tuple (autoencoder, diffusion_model, scheduler).
+    energies (list of float): List of quadrature energy levels.
+    energy_weights (list of float): Corresponding quadrature weights.
+    device (torch.device): Device for inference.
+    scale_factor (float): Scale factor used during training. If None, will try to extract from training.
+    energy_min (float): Minimum energy value for normalization. If None, computed from energies.
+    energy_max (float): Maximum energy value for normalization. If None, computed from energies.
+    clip_min (float): Minimum dose value for denormalization. If None, no denormalization.
+    clip_max (float): Maximum dose value for denormalization. If None, no denormalization.
+    dose_normalization_params (dict): Energy-specific normalization parameters from checkpoint.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00022}{22}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classinference__module_1_1_inference_module_ac20dae7b4791794c67cb2cfb8be1632b}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!\_compute\_scale\_factor@{\_compute\_scale\_factor}}
+\index{\_compute\_scale\_factor@{\_compute\_scale\_factor}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{\_compute\_scale\_factor()}{\_compute\_scale\_factor()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_ac20dae7b4791794c67cb2cfb8be1632b} 
+inference\+\_\+module.\+Inference\+Module.\+\_\+compute\+\_\+scale\+\_\+factor (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}}
+
+\begin{DoxyVerb}Compute scale factor by running a sample through the autoencoder.
+This matches the training procedure.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00373}{373}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a95aac4b23c95aa727ad978340484db39}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!get\_energy\_normalization\_params@{get\_energy\_normalization\_params}}
+\index{get\_energy\_normalization\_params@{get\_energy\_normalization\_params}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{get\_energy\_normalization\_params()}{get\_energy\_normalization\_params()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a95aac4b23c95aa727ad978340484db39} 
+inference\+\_\+module.\+Inference\+Module.\+get\+\_\+energy\+\_\+normalization\+\_\+params (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{energy\+\_\+value}{, }\item[{}]{resolution}{ = {\ttfamily 100}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Get energy-specific normalization parameters for denormalization.
+
+Args:
+    energy_value (float): Energy in keV
+    resolution (int): Spatial resolution
+    
+Returns:
+    dict: Dictionary with clip_min, clip_max, etc.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00050}{50}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a5b432fc3167f0dcfa46e754a0b1480b9}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!preprocess\_ct@{preprocess\_ct}}
+\index{preprocess\_ct@{preprocess\_ct}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{preprocess\_ct()}{preprocess\_ct()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a5b432fc3167f0dcfa46e754a0b1480b9} 
+inference\+\_\+module.\+Inference\+Module.\+preprocess\+\_\+ct (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (100,~100,~100)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Preprocesses the input CT scan to match the required cube size.
+This includes resizing the volume using trilinear interpolation.
+
+Args:
+    ct_tensor (torch.Tensor): Input CT scan as a tensor. Expected shape: [C, D, H, W].
+    target_cube_size (tuple): The desired spatial dimensions (D, H, W).
+
+Returns:
+    torch.Tensor: The preprocessed CT scan, with a batch dimension added. Shape: [1, C, D, H, W].
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00096}{96}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a136744e8bb239725b1902a841d6bc1eb}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!run\_inference@{run\_inference}}
+\index{run\_inference@{run\_inference}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{run\_inference()}{run\_inference()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a136744e8bb239725b1902a841d6bc1eb} 
+inference\+\_\+module.\+Inference\+Module.\+run\+\_\+inference (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (100,~100,~100)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs the complete dose inference on the provided CT scan.
+
+The process includes aggregating the dose distributions over the Gaussian quadrature energies and weights.
+
+Args:
+    ct_tensor (torch.Tensor): The input CT scan with shape [C, D, H, W].
+    target_cube_size (tuple): The target spatial dimensions (D, H, W) for inference.
+
+Returns:
+    torch.Tensor: The aggregated predicted dose distribution as a tensor.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00121}{121}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a97dc62a1b8937a2caef2d88e6e42d613}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!run\_inference\_conditioned\_on\_energy@{run\_inference\_conditioned\_on\_energy}}
+\index{run\_inference\_conditioned\_on\_energy@{run\_inference\_conditioned\_on\_energy}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{run\_inference\_conditioned\_on\_energy()}{run\_inference\_conditioned\_on\_energy()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a97dc62a1b8937a2caef2d88e6e42d613} 
+inference\+\_\+module.\+Inference\+Module.\+run\+\_\+inference\+\_\+conditioned\+\_\+on\+\_\+energy (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{energy\+\_\+value}{, }\item[{}]{target\+\_\+cube\+\_\+size}{ = {\ttfamily (100,~100,~100)}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs inference on the given CT scan while conditioning on a specified energy value.
+
+The conditioning is achieved by creating an additional channel that is filled with a normalized
+energy value and concatenating it to the CT scan data. The autoencoder and diffusion model should be 
+adapted to accept an extra input channel.
+
+Args:
+    ct_tensor (torch.Tensor): Input CT scan with shape [C, D, H, W]. Typically C=1.
+    target_cube_size (tuple): Desired spatial dimensions (D, H, W).
+    energy_value (float): The energy level (in keV) to condition the inference on.
+
+Returns:
+    torch.Tensor: The predicted dose distribution based on the energy-conditioned input.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00139}{139}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a5407037a4a36d5c9cd5efc89f81d8d1b}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!run\_inference\_over\_energies@{run\_inference\_over\_energies}}
+\index{run\_inference\_over\_energies@{run\_inference\_over\_energies}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{run\_inference\_over\_energies()}{run\_inference\_over\_energies()}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a5407037a4a36d5c9cd5efc89f81d8d1b} 
+inference\+\_\+module.\+Inference\+Module.\+run\+\_\+inference\+\_\+over\+\_\+energies (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{ct\+\_\+tensor}{, }\item[{}]{target\+\_\+cube\+\_\+size}{, }\item[{}]{energies}{, }\item[{}]{energy\+\_\+weights}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Runs inference on the input CT scan for multiple energy levels and aggregates the results.
+
+For each energy value provided, this method performs inference (using the conditioned inference
+method, if available) and then computes a weighted sum of the dose distributions according to the
+provided energy weights.
+
+Args:
+    ct_tensor (torch.Tensor): Input CT scan tensor with shape [C, D, H, W].
+    target_cube_size (tuple): Desired spatial dimensions for inference.
+    energies (list of float): A list of energy levels (e.g., [62, 75, 90]).
+    energy_weights (list of float): Corresponding weights for each energy level.
+
+Returns:
+    torch.Tensor: The aggregated dose distribution computed as:
+                  dose_distribution = sum_i (weight_i * N(E_i))
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00326}{326}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classinference__module_1_1_inference_module_a27cbceb5ab2bfc9273de0aed2f29fcb5}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!clip\_max@{clip\_max}}
+\index{clip\_max@{clip\_max}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{clip\_max}{clip\_max}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a27cbceb5ab2bfc9273de0aed2f29fcb5} 
+inference\+\_\+module.\+Inference\+Module.\+clip\+\_\+max = clip\+\_\+max}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00046}{46}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a43b4c62d70607723ca31c30bb985a015}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!clip\_min@{clip\_min}}
+\index{clip\_min@{clip\_min}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{clip\_min}{clip\_min}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a43b4c62d70607723ca31c30bb985a015} 
+inference\+\_\+module.\+Inference\+Module.\+clip\+\_\+min = clip\+\_\+min}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00045}{45}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_ac22781e2621f00fcf3165a34f5ef2d26}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!device@{device}}
+\index{device@{device}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_ac22781e2621f00fcf3165a34f5ef2d26} 
+inference\+\_\+module.\+Inference\+Module.\+device = device}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00039}{39}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_aea63dfce84e6cf9ff5510c930130b2fb}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!dose\_normalization\_params@{dose\_normalization\_params}}
+\index{dose\_normalization\_params@{dose\_normalization\_params}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{dose\_normalization\_params}{dose\_normalization\_params}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_aea63dfce84e6cf9ff5510c930130b2fb} 
+inference\+\_\+module.\+Inference\+Module.\+dose\+\_\+normalization\+\_\+params = dose\+\_\+normalization\+\_\+params or \{\}}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00048}{48}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!energies@{energies}}
+\index{energies@{energies}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{energies}{energies}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f} 
+inference\+\_\+module.\+Inference\+Module.\+energies = energies}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00037}{37}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_afbd31d5d20481e9f5a547f61edd751d8}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!energy\_max@{energy\_max}}
+\index{energy\_max@{energy\_max}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{energy\_max}{energy\_max}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_afbd31d5d20481e9f5a547f61edd751d8} 
+inference\+\_\+module.\+Inference\+Module.\+energy\+\_\+max = energy\+\_\+max if energy\+\_\+max is not None else max(\mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}})}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00043}{43}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a449c5fce181e04e3c51552fef35b3bfd}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!energy\_min@{energy\_min}}
+\index{energy\_min@{energy\_min}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{energy\_min}{energy\_min}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a449c5fce181e04e3c51552fef35b3bfd} 
+inference\+\_\+module.\+Inference\+Module.\+energy\+\_\+min = energy\+\_\+min if energy\+\_\+min is not None else min(\mbox{\hyperlink{classinference__module_1_1_inference_module_af1b7b139b4b8a53f5aa50be92830b15f}{energies}})}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00042}{42}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a4292fba3089ff0c8704ae8b1cb5d1b8c}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!energy\_weights@{energy\_weights}}
+\index{energy\_weights@{energy\_weights}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{energy\_weights}{energy\_weights}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a4292fba3089ff0c8704ae8b1cb5d1b8c} 
+inference\+\_\+module.\+Inference\+Module.\+energy\+\_\+weights = energy\+\_\+weights}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00038}{38}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a834f31a348379cd626d2b9a3cdd7ecfc}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!models\_by\_energy@{models\_by\_energy}}
+\index{models\_by\_energy@{models\_by\_energy}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{models\_by\_energy}{models\_by\_energy}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a834f31a348379cd626d2b9a3cdd7ecfc} 
+inference\+\_\+module.\+Inference\+Module.\+models\+\_\+by\+\_\+energy = models\+\_\+by\+\_\+energy}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00036}{36}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+\Hypertarget{classinference__module_1_1_inference_module_a4d782d9a3c6bfb882ebe0af03ee60f59}\index{inference\_module.InferenceModule@{inference\_module.InferenceModule}!scale\_factor@{scale\_factor}}
+\index{scale\_factor@{scale\_factor}!inference\_module.InferenceModule@{inference\_module.InferenceModule}}
+\doxysubsubsection{\texorpdfstring{scale\_factor}{scale\_factor}}
+{\footnotesize\ttfamily \label{classinference__module_1_1_inference_module_a4d782d9a3c6bfb882ebe0af03ee60f59} 
+int inference\+\_\+module.\+Inference\+Module.\+scale\+\_\+factor = scale\+\_\+factor}
+
+
+
+Definition at line \mbox{\hyperlink{inference__module_8py_source_l00040}{40}} of file \mbox{\hyperlink{inference__module_8py_source}{inference\+\_\+module.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{inference__module_8py}{inference\+\_\+module.\+py}}\end{DoxyCompactItemize}

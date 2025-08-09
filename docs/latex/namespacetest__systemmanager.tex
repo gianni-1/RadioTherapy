@@ -1,0 +1,77 @@
+\doxysection{test\+\_\+systemmanager Namespace Reference}
+\hypertarget{namespacetest__systemmanager}{}\label{namespacetest__systemmanager}\index{test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520}{temp\+\_\+root}} (tmp\+\_\+path)
+\item 
+\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{manager}} (\mbox{\hyperlink{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520}{temp\+\_\+root}})
+\item 
+\mbox{\hyperlink{namespacetest__systemmanager_a84d1deb418e2b7cc3af083a1b0351303}{test\+\_\+run\+\_\+inference\+\_\+no\+\_\+models\+\_\+and\+\_\+no\+\_\+checkpoint}} (\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{manager}})
+\item 
+\mbox{\hyperlink{namespacetest__systemmanager_a07c6d3cc748678c7de545fcfe659782f}{test\+\_\+run\+\_\+inference\+\_\+invalid\+\_\+checkpoint\+\_\+type}} (\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{manager}})
+\item 
+\mbox{\hyperlink{namespacetest__systemmanager_a8e9098fa3fa916269d47a910f04459de}{test\+\_\+run\+\_\+inference\+\_\+unsupported\+\_\+ct\+\_\+extension}} (\mbox{\hyperlink{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}{manager}})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9}\index{test\_systemmanager@{test\_systemmanager}!manager@{manager}}
+\index{manager@{manager}!test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection{\texorpdfstring{manager()}{manager()}}
+{\footnotesize\ttfamily \label{namespacetest__systemmanager_a043598ef041976e3a0d0ef09d8e1f5d9} 
+test\+\_\+systemmanager.\+manager (\begin{DoxyParamCaption}\item[{}]{temp\+\_\+root}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initialize a SystemManager with minimal settings.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__systemmanager_8py_source_l00014}{14}} of file \mbox{\hyperlink{test__systemmanager_8py_source}{test\+\_\+systemmanager.\+py}}.
+
+\Hypertarget{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520}\index{test\_systemmanager@{test\_systemmanager}!temp\_root@{temp\_root}}
+\index{temp\_root@{temp\_root}!test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection{\texorpdfstring{temp\_root()}{temp\_root()}}
+{\footnotesize\ttfamily \label{namespacetest__systemmanager_a2a940afd924d2764f827ca4a3e103520} 
+test\+\_\+systemmanager.\+temp\+\_\+root (\begin{DoxyParamCaption}\item[{}]{tmp\+\_\+path}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Create a temporary root directory.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__systemmanager_8py_source_l00009}{9}} of file \mbox{\hyperlink{test__systemmanager_8py_source}{test\+\_\+systemmanager.\+py}}.
+
+\Hypertarget{namespacetest__systemmanager_a07c6d3cc748678c7de545fcfe659782f}\index{test\_systemmanager@{test\_systemmanager}!test\_run\_inference\_invalid\_checkpoint\_type@{test\_run\_inference\_invalid\_checkpoint\_type}}
+\index{test\_run\_inference\_invalid\_checkpoint\_type@{test\_run\_inference\_invalid\_checkpoint\_type}!test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection{\texorpdfstring{test\_run\_inference\_invalid\_checkpoint\_type()}{test\_run\_inference\_invalid\_checkpoint\_type()}}
+{\footnotesize\ttfamily \label{namespacetest__systemmanager_a07c6d3cc748678c7de545fcfe659782f} 
+test\+\_\+systemmanager.\+test\+\_\+run\+\_\+inference\+\_\+invalid\+\_\+checkpoint\+\_\+type (\begin{DoxyParamCaption}\item[{}]{manager}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Providing a checkpoint of unsupported type should raise ValueError.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__systemmanager_8py_source_l00042}{42}} of file \mbox{\hyperlink{test__systemmanager_8py_source}{test\+\_\+systemmanager.\+py}}.
+
+\Hypertarget{namespacetest__systemmanager_a84d1deb418e2b7cc3af083a1b0351303}\index{test\_systemmanager@{test\_systemmanager}!test\_run\_inference\_no\_models\_and\_no\_checkpoint@{test\_run\_inference\_no\_models\_and\_no\_checkpoint}}
+\index{test\_run\_inference\_no\_models\_and\_no\_checkpoint@{test\_run\_inference\_no\_models\_and\_no\_checkpoint}!test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection{\texorpdfstring{test\_run\_inference\_no\_models\_and\_no\_checkpoint()}{test\_run\_inference\_no\_models\_and\_no\_checkpoint()}}
+{\footnotesize\ttfamily \label{namespacetest__systemmanager_a84d1deb418e2b7cc3af083a1b0351303} 
+test\+\_\+systemmanager.\+test\+\_\+run\+\_\+inference\+\_\+no\+\_\+models\+\_\+and\+\_\+no\+\_\+checkpoint (\begin{DoxyParamCaption}\item[{}]{manager}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}If no models_by_energy are loaded and no checkpoint is provided,
+run_inference should raise RuntimeError.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__systemmanager_8py_source_l00032}{32}} of file \mbox{\hyperlink{test__systemmanager_8py_source}{test\+\_\+systemmanager.\+py}}.
+
+\Hypertarget{namespacetest__systemmanager_a8e9098fa3fa916269d47a910f04459de}\index{test\_systemmanager@{test\_systemmanager}!test\_run\_inference\_unsupported\_ct\_extension@{test\_run\_inference\_unsupported\_ct\_extension}}
+\index{test\_run\_inference\_unsupported\_ct\_extension@{test\_run\_inference\_unsupported\_ct\_extension}!test\_systemmanager@{test\_systemmanager}}
+\doxysubsubsection{\texorpdfstring{test\_run\_inference\_unsupported\_ct\_extension()}{test\_run\_inference\_unsupported\_ct\_extension()}}
+{\footnotesize\ttfamily \label{namespacetest__systemmanager_a8e9098fa3fa916269d47a910f04459de} 
+test\+\_\+systemmanager.\+test\+\_\+run\+\_\+inference\+\_\+unsupported\+\_\+ct\+\_\+extension (\begin{DoxyParamCaption}\item[{}]{manager}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Providing an unsupported CT file extension should raise ValueError.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{test__systemmanager_8py_source_l00051}{51}} of file \mbox{\hyperlink{test__systemmanager_8py_source}{test\+\_\+systemmanager.\+py}}.
+

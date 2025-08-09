@@ -1,0 +1,247 @@
+\doxysection{parameter\+\_\+manager.\+Parameter\+Manager Class Reference}
+\hypertarget{classparameter__manager_1_1_parameter_manager}{}\label{classparameter__manager_1_1_parameter_manager}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a5f67f70f895dc13f0966c6352c737867}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}{batch\+\_\+size}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\+\_\+size}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}{learning\+\_\+rate}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}{num\+\_\+epochs}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848}{patience}}, \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{other\+\_\+parameters}}=None)
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a69795f6076f97db38b435b5ce2078370}{get\+\_\+parameters}} (self)
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a94cbd4027d798e37fa784877de9e6d7f}{update\+\_\+parameter}} (self, key, value)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}{energies}} = torch.\+tensor(energies, dtype=torch.\+float32)
+\item 
+list \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4da4ccee0a20a2a78888b9138c11c966}{quad\+\_\+energies}} = \mbox{[}$\,$\mbox{]}
+\item 
+list \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a2f29a0bbef48a68ed4d08943db98fec8}{quad\+\_\+weights}} = \mbox{[}$\,$\mbox{]}
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}{batch\+\_\+size}} = batch\+\_\+size
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}{cube\+\_\+size}} = cube\+\_\+size
+\item 
+list \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}{resolutions}} = \mbox{[}self.\+cube\+\_\+size\mbox{]}
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}{learning\+\_\+rate}} = learning\+\_\+rate
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}{num\+\_\+epochs}} = num\+\_\+epochs
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848}{patience}} = patience
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}{other\+\_\+parameters}} = other\+\_\+parameters if other\+\_\+parameters is not None else \{\}
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409}{energy\+\_\+min}} = min\+\_\+e
+\item 
+\mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634}{energy\+\_\+max}} = max\+\_\+e
+\item 
+tuple \mbox{\hyperlink{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af}{energy\+\_\+normalization}} = (self.\+energies.\+float() -\/ min\+\_\+e) / (max\+\_\+e -\/ min\+\_\+e)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}The ParameterManager class centralizes configuration parameters for the RadioTherapy project.
+It stores key settings such as spatial resolutions, energy levels, batch size, cube size,
+learning rate, number of epochs, and additional parameters.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00007}{7}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a5f67f70f895dc13f0966c6352c737867}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a5f67f70f895dc13f0966c6352c737867} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{energies}{, }\item[{}]{batch\+\_\+size}{, }\item[{}]{cube\+\_\+size}{, }\item[{}]{learning\+\_\+rate}{, }\item[{}]{num\+\_\+epochs}{, }\item[{}]{patience}{, }\item[{}]{other\+\_\+parameters}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Initializes the ParameterManager with the required configuration parameters.
+
+Args:
+    resolutions (list of tuple): List of spatial resolutions, e.g. [(64, 64, 64), (32, 32, 32)].
+    energies (list of int): List of energy levels (in keV) for which separate training might be executed.
+    batch_size (int): The batch size used during training.
+    cube_size (tuple): The cube size to which CT data will be resized (e.g., (64, 64, 64)).
+    learning_rate (float): The learning rate used during training.
+    num_epochs (int): The number of epochs for training.
+    other_parameters (dict, optional): Any additional parameters to store.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00014}{14}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a69795f6076f97db38b435b5ce2078370}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!get\_parameters@{get\_parameters}}
+\index{get\_parameters@{get\_parameters}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{get\_parameters()}{get\_parameters()}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a69795f6076f97db38b435b5ce2078370} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+get\+\_\+parameters (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Returns all configuration parameters as a dictionary.
+
+Returns:
+    dict: A dictionary containing resolutions, energies, batch_size, and any additional parameters.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00068}{68}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a94cbd4027d798e37fa784877de9e6d7f}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!update\_parameter@{update\_parameter}}
+\index{update\_parameter@{update\_parameter}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{update\_parameter()}{update\_parameter()}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a94cbd4027d798e37fa784877de9e6d7f} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+update\+\_\+parameter (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{key}{, }\item[{}]{value}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Updates a specific parameter.
+
+Args:
+    key (str): The parameter name to update.
+    value: The new value for the parameter.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00090}{90}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!batch\_size@{batch\_size}}
+\index{batch\_size@{batch\_size}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{batch\_size}{batch\_size}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_ac6427cf4c13e4abf297ae91e415617e3} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+batch\+\_\+size = batch\+\_\+size}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00036}{36}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!cube\_size@{cube\_size}}
+\index{cube\_size@{cube\_size}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{cube\_size}{cube\_size}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_aef78ca1954ed70cc3c914220a59d6792} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+cube\+\_\+size = cube\+\_\+size}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00039}{39}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!energies@{energies}}
+\index{energies@{energies}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{energies}{energies}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a594ef2bd76cdc3e6dd4f2190eba7dca5} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+energies = torch.\+tensor(energies, dtype=torch.\+float32)}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00030}{30}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!energy\_max@{energy\_max}}
+\index{energy\_max@{energy\_max}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{energy\_max}{energy\_max}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a89f4f0fb2cb55b2786d48c0f739f4634} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+energy\+\_\+max = max\+\_\+e}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00064}{64}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!energy\_min@{energy\_min}}
+\index{energy\_min@{energy\_min}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{energy\_min}{energy\_min}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_ab93d6ce1ea18acbf2868597525a57409} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+energy\+\_\+min = min\+\_\+e}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00063}{63}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!energy\_normalization@{energy\_normalization}}
+\index{energy\_normalization@{energy\_normalization}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{energy\_normalization}{energy\_normalization}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a1fba47ea7f7c70b29a4803d328c3a0af} 
+tuple parameter\+\_\+manager.\+Parameter\+Manager.\+energy\+\_\+normalization = (self.\+energies.\+float() -\/ min\+\_\+e) / (max\+\_\+e -\/ min\+\_\+e)}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00065}{65}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!learning\_rate@{learning\_rate}}
+\index{learning\_rate@{learning\_rate}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{learning\_rate}{learning\_rate}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a912b02eeda2682abf57b1853de1c84e2} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+learning\+\_\+rate = learning\+\_\+rate}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00051}{51}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!num\_epochs@{num\_epochs}}
+\index{num\_epochs@{num\_epochs}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{num\_epochs}{num\_epochs}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a085d4c59a79e3f4e022beb8b9991496e} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+num\+\_\+epochs = num\+\_\+epochs}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00052}{52}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!other\_parameters@{other\_parameters}}
+\index{other\_parameters@{other\_parameters}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{other\_parameters}{other\_parameters}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a7502eb683adaad25aed573f818a57e25} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+other\+\_\+parameters = other\+\_\+parameters if other\+\_\+parameters is not None else \{\}}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00054}{54}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!patience@{patience}}
+\index{patience@{patience}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{patience}{patience}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a4a292c72e5bf638ab2c5331010d96848} 
+parameter\+\_\+manager.\+Parameter\+Manager.\+patience = patience}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00053}{53}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a4da4ccee0a20a2a78888b9138c11c966}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!quad\_energies@{quad\_energies}}
+\index{quad\_energies@{quad\_energies}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{quad\_energies}{quad\_energies}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a4da4ccee0a20a2a78888b9138c11c966} 
+list parameter\+\_\+manager.\+Parameter\+Manager.\+quad\+\_\+energies = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00034}{34}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_a2f29a0bbef48a68ed4d08943db98fec8}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!quad\_weights@{quad\_weights}}
+\index{quad\_weights@{quad\_weights}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{quad\_weights}{quad\_weights}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_a2f29a0bbef48a68ed4d08943db98fec8} 
+list parameter\+\_\+manager.\+Parameter\+Manager.\+quad\+\_\+weights = \mbox{[}$\,$\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00035}{35}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+\Hypertarget{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6}\index{parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}!resolutions@{resolutions}}
+\index{resolutions@{resolutions}!parameter\_manager.ParameterManager@{parameter\_manager.ParameterManager}}
+\doxysubsubsection{\texorpdfstring{resolutions}{resolutions}}
+{\footnotesize\ttfamily \label{classparameter__manager_1_1_parameter_manager_af0798e3440e17efd95cb4afdc174feb6} 
+list parameter\+\_\+manager.\+Parameter\+Manager.\+resolutions = \mbox{[}self.\+cube\+\_\+size\mbox{]}}
+
+
+
+Definition at line \mbox{\hyperlink{parameter__manager_8py_source_l00044}{44}} of file \mbox{\hyperlink{parameter__manager_8py_source}{parameter\+\_\+manager.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{parameter__manager_8py}{parameter\+\_\+manager.\+py}}\end{DoxyCompactItemize}

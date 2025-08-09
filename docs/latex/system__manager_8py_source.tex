@@ -1,0 +1,1009 @@
+\doxysection{system\+\_\+manager.\+py}
+\hypertarget{system__manager_8py_source}{}\label{system__manager_8py_source}\index{sourcecode/system\_manager.py@{sourcecode/system\_manager.py}}
+\mbox{\hyperlink{system__manager_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00001}\mbox{\hyperlink{namespacesystem__manager}{00001}}\ \textcolor{comment}{\#\ system\_manager.py}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00002}00002\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00003}00003\ \textcolor{keyword}{import}\ shutil}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00004}00004\ \textcolor{keyword}{import}\ os}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00005}00005\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00006}00006\ \textcolor{keyword}{import}\ log\_config}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00007}00007\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00008}00008\ \textcolor{keyword}{import}\ glob}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00009}00009\ \textcolor{keyword}{import}\ json}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00010}00010\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00011}\mbox{\hyperlink{namespacesystem__manager_a9ed5d6b44269d1dde24d995df9e3b635}{00011}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00013}00013\ \textcolor{keyword}{from}\ data\_management\ \textcolor{keyword}{import}\ DataLoaderModule,\ HotspotPatchDataset}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00014}00014\ \textcolor{keyword}{from}\ training\_pipeline\ \textcolor{keyword}{import}\ AutoencoderTrainer,\ DiffusionTrainer,\ EarlyStopping}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00015}00015\ \textcolor{keyword}{from}\ inference\_module\ \textcolor{keyword}{import}\ InferenceModule}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00016}00016\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ Compose,\ LoadImaged,\ EnsureChannelFirstd,\ ToTensord}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00017}00017\ \textcolor{keyword}{from}\ visualization\ \textcolor{keyword}{import}\ Visualization}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00018}00018\ \textcolor{keyword}{from}\ monai.utils\ \textcolor{keyword}{import}\ first,\ set\_determinism}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00019}00019\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NibabelReader}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00020}00020\ \textcolor{keyword}{from}\ generative.networks.nets\ \textcolor{keyword}{import}\ AutoencoderKL,\ PatchDiscriminator,\ DiffusionModelUNet}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00021}00021\ \textcolor{keyword}{from}\ generative.inferers\ \textcolor{keyword}{import}\ LatentDiffusionInferer}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00022}00022\ \textcolor{keyword}{from}\ torch.optim\ \textcolor{keyword}{import}\ Adam}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00023}00023\ \textcolor{keyword}{from}\ torch.amp\ \textcolor{keyword}{import}\ autocast}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00024}00024\ \textcolor{keyword}{from}\ generative.networks.schedulers.ddpm\ \textcolor{keyword}{import}\ DDPMScheduler}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00025}00025\ \textcolor{keyword}{from}\ monai.transforms\ \textcolor{keyword}{import}\ (}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00026}00026\ \ \ \ \ Compose,\ LoadImaged,\ EnsureChannelFirstd,\ Lambdad,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00027}00027\ \ \ \ \ EnsureTyped,\ Orientationd,\ Resized,\ SpatialPadd,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00028}00028\ \ \ \ \ CenterSpatialCropd,\ ScaleIntensityRangePercentilesd,\ ToTensord,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00029}00029\ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00030}00030\ \textcolor{keyword}{from}\ monai.data\ \textcolor{keyword}{import}\ NumpyReader}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00032}\mbox{\hyperlink{classsystem__manager_1_1_system_manager}{00032}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager}{SystemManager}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00033}00033\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00034}00034\ \textcolor{stringliteral}{\ \ \ \ The\ SystemManager\ class\ orchestrates\ the\ complete\ training\ and\ inference\ workflow.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00035}00035\ \textcolor{stringliteral}{\ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00036}00036\ \textcolor{stringliteral}{\ \ \ \ It\ iterates\ over\ each\ combination\ of\ spatial\ resolution\ and\ energy\ level:}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00037}00037\ \textcolor{stringliteral}{\ \ \ \ \ \ -\/\ Loads\ the\ dataset\ using\ the\ DataLoaderModule.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00038}00038\ \textcolor{stringliteral}{\ \ \ \ \ \ -\/\ Splits\ the\ data\ into\ training\ and\ validation\ sets.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00039}00039\ \textcolor{stringliteral}{\ \ \ \ \ \ -\/\ Initializes\ and\ trains\ the\ autoencoder\ (and\ optionally\ diffusion\ model)\ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00040}00040\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ using\ early\ stopping\ based\ on\ validation\ loss.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00041}00041\ \textcolor{stringliteral}{\ \ \ \ \ \ -\/\ Sets\ a\ training-\/completion\ flag\ for\ subsequent\ inference.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00042}00042\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00043}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a79fb6e93058a6f02b4f7bcc8d93f2547}{00043}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a79fb6e93058a6f02b4f7bcc8d93f2547}{\_\_init\_\_}}(self,\ root\_dir,\ transforms,\ resolutions,\ energies,\ energy\_min,\ energy\_max,\ quad\_energies,\ quad\_weights,\ batch\_size,\ device,\ num\_epochs,\ learning\_rate,\ patience,\ cube\_size,\ seed=42):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00045}00045\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Initializes\ the\ SystemManager\ with\ configuration\ parameters.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00046}00046\ \textcolor{stringliteral}{}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00047}00047\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00048}00048\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ root\_dir\ (str):\ Root\ directory\ of\ the\ dataset.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00049}00049\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ transforms\ (monai.transforms.Compose):\ Preprocessing\ transforms\ to\ apply.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00050}00050\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ resolutions\ (list\ of\ tuple):\ List\ of\ resolutions\ (e.g.,\ [(64,\ 64,\ 64),\ (32,\ 32,\ 32)]).}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00051}00051\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ energies\ (list\ of\ int):\ List\ of\ energy\ levels\ (e.g.,\ [62,\ 75,\ 90]).}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00052}00052\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ batch\_size\ (int):\ Batch\ size\ for\ DataLoader.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00053}00053\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device\ (torch.device):\ Device\ (CPU\ or\ GPU)\ for\ computations.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00054}00054\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ seed\ (int):\ Random\ seed\ for\ reproducibility.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00055}00055\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00056}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{00056}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}}\ =\ root\_dir}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00057}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a48cf570f09f71ab7f9c12dbfe17a6198}{00057}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a48cf570f09f71ab7f9c12dbfe17a6198}{transforms}}\ =\ transforms}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00058}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a17c8e29db9c15be9078369f94d9a81db}{00058}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a17c8e29db9c15be9078369f94d9a81db}{resolutions}}\ =\ resolutions}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00059}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a8fce39d4c3b9e2f1eda7a9bcd03dd7d2}{00059}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a8fce39d4c3b9e2f1eda7a9bcd03dd7d2}{energies}}\ =\ energies}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00060}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6e88f0a7b81861fd5b89ce2191f24258}{00060}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6e88f0a7b81861fd5b89ce2191f24258}{energy\_min}}\ =\ energy\_min}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00061}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a557c84dea69ccc926c47d0c33f4e0652}{00061}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a557c84dea69ccc926c47d0c33f4e0652}{energy\_max}}\ =\ energy\_max}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00062}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{00062}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}}\ =\ batch\_size}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00063}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{00063}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}}\ =\ device}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00064}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae19ac87927b4ea2fe0f7630c598dc89f}{00064}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae19ac87927b4ea2fe0f7630c598dc89f}{seed}}\ =\ seed}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00065}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{00065}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}}\ =\ num\_epochs}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00066}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{00066}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}}\ =\ learning\_rate}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00067}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab3757642aaced79e51c245a0ca12a350}{00067}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab3757642aaced79e51c245a0ca12a350}{patience}}\ =\ patience}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00068}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad0e5c2e1e345c74be5c69a9467250f41}{00068}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad0e5c2e1e345c74be5c69a9467250f41}{training\_complete}}\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00069}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{00069}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}\ =\ \textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ placeholders\ for\ trained\ models}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00071}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab1dc26b3ee7f53ba8ea49e19b3ca7764}{00071}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab1dc26b3ee7f53ba8ea49e19b3ca7764}{autoencoder}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00072}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a70f5d96743ede7ac412d30d11e4b159a}{00072}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a70f5d96743ede7ac412d30d11e4b159a}{unet}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00073}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a367293403c8336feea463cd5ccb50dd7}{00073}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a367293403c8336feea463cd5ccb50dd7}{scheduler}}\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00074}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad9333806c46f535ef094dd9cd9ae4878}{00074}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad9333806c46f535ef094dd9cd9ae4878}{cube\_size}}\ =\ cube\_size}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00075}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{00075}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}\ =\ quad\_energies}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00076}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a23d834e4c26433aaaa2265e93582520f}{00076}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a23d834e4c26433aaaa2265e93582520f}{quad\_weights}}\ =\ quad\_weights}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#keep\ models\ per\ energy\ for\ quadrature\ inference}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00078}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{00078}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ track\ individual\ checkpoints\ in\ memory}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00080}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1667a4f402b4ad96534676e37d5e8557}{00080}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1667a4f402b4ad96534676e37d5e8557}{saved\_ckpts}}\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00082}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1819f25b2fbfcf96f58f6c29cc2b674a}{00082}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1819f25b2fbfcf96f58f6c29cc2b674a}{save\_models}}(self,\ autoencoder,\ unet,\ optimizer\_diff,\ optimizer\_g,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_d,\ epoch,\ res,\ energy,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mean=None,\ dose\_std=None,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=None,\ clip\_min=0.0,\ clip\_max=None,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernel=0):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ build\ checkpoint\ dict\ in\ memory\ (no\ file\ I/O)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ ckpt\ =\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}autoencoder"{}}:\ autoencoder.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}unet"{}}:\ unet.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}optimizer\_diff"{}}:\ optimizer\_diff.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}optimizer\_g"{}}:\ optimizer\_g.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}optimizer\_d"{}}:\ optimizer\_d.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}epoch"{}}:\ epoch,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}scale\_factor"{}}:\ scale\_factor,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}clip\_min"{}}:\ clip\_min,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}clip\_max"{}}:\ clip\_max,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}smoothing\_kernel"{}}:\ smoothing\_kernel,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}dose\_mean"{}}:\ dose\_mean,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}dose\_std"{}}:\ dose\_std,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}resolution"{}}:\ res,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}energy"{}}:\ energy,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}learning\_rate"{}}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}batch\_size"{}}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}cube\_size"{}}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad9333806c46f535ef094dd9cd9ae4878}{cube\_size}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ build\ a\ resolution\ string\ for\ the\ key}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(res,\ (tuple,\ list)):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ res\_str\ =\ \textcolor{stringliteral}{"{}x"{}}.join(str(r)\ \textcolor{keywordflow}{for}\ r\ \textcolor{keywordflow}{in}\ res)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ res\_str\ =\ str(res)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ key\ =\ f\textcolor{stringliteral}{"{}res\{res\_str\}\_e\{energy:.2f\}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1667a4f402b4ad96534676e37d5e8557}{saved\_ckpts}}[key]\ =\ ckpt}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00114}00114\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00115}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aeda60348b1752d230f92b6b739c231dc}{00115}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aeda60348b1752d230f92b6b739c231dc}{save\_combined\_checkpoint}}(self,\ output\_filename="{}combined\_models.ckpt"{}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00117}00117\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Save\ all\ in-\/memory\ checkpoints\ into\ a\ single\ combined\ file.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00118}00118\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ dose\ normalization\ parameters\ for\ each\ energy/resolution\ combination}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ dose\_normalization\_params\ =\ \{\}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ key,\ ckpt\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1667a4f402b4ad96534676e37d5e8557}{saved\_ckpts}}.items():}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ energy\ and\ resolution\ from\ key\ (e.g.,\ "{}res25\_e46.53"{})}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{'clip\_min'}\ \textcolor{keywordflow}{in}\ ckpt\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{'clip\_max'}\ \textcolor{keywordflow}{in}\ ckpt\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{'energy'}\ \textcolor{keywordflow}{in}\ ckpt:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_normalization\_params[key]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_min'}:\ ckpt[\textcolor{stringliteral}{'clip\_min'}],}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'clip\_max'}:\ ckpt[\textcolor{stringliteral}{'clip\_max'}],}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energy'}:\ ckpt[\textcolor{stringliteral}{'energy'}],}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'resolution'}:\ ckpt.get(\textcolor{stringliteral}{'resolution'},\ \textcolor{keywordtype}{None}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scale\_factor'}:\ ckpt.get(\textcolor{stringliteral}{'scale\_factor'},\ 1.0),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'dose\_mean'}:\ ckpt.get(\textcolor{stringliteral}{'dose\_mean'},\ \textcolor{keywordtype}{None}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'dose\_std'}:\ ckpt.get(\textcolor{stringliteral}{'dose\_std'},\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Dose\ params\ for\ \{key\}:\ clip\_min=\{ckpt['clip\_min']:.6f\},\ clip\_max=\{ckpt['clip\_max']:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ combined\ =\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}models\_by\_energy"{}}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1667a4f402b4ad96534676e37d5e8557}{saved\_ckpts}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}dose\_normalization\_params"{}}:\ dose\_normalization\_params}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00140}00140\ \ \ \ \ \ \ \ \ output\_path\ =\ os.path.join(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},\ output\_filename)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ torch.save(combined,\ output\_path)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Combined\ checkpoint\ saved\ to\ \{output\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Saved\ dose\ normalization\ parameters\ for\ \{len(dose\_normalization\_params)\}\ energy/resolution\ combinations"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ output\_path}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00145}00145\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00146}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a3f14b2c189dd0442023a457397b518d5}{00146}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a3f14b2c189dd0442023a457397b518d5}{run\_training}}(self):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00148}00148\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Executes\ the\ full\ training\ pipeline\ over\ all\ resolution\ and\ energy\ combinations.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00149}00149\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00150}00150\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ For\ each\ combination,\ the\ following\ steps\ are\ executed:}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00151}00151\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 1.\ Load\ and\ split\ the\ dataset\ filtered\ by\ the\ current\ energy.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00152}00152\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 2.\ Create\ DataLoaders\ for\ training\ and\ validation.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00153}00153\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 3.\ Initialize\ the\ autoencoder,\ discriminator,\ and\ diffusion\ models.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00154}00154\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 4.\ Run\ the\ autoencoder\ training\ loop\ with\ early\ stopping\ based\ on\ validation\ loss.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00155}00155\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 5.\ Run\ the\ diffusion\ model\ training\ loop.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00156}00156\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 6.\ Save\ the\ models\ for\ the\ current\ configuration.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00157}00157\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00158}00158\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ After\ all\ configurations\ have\ been\ processed,\ a\ flag\ is\ set\ to\ indicate\ that\ training\ is\ complete.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00159}00159\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00160}00160\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Print\ hyperparameters\ for\ verification}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00161}00161\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ CORRECTED\ training\ with\ hyperparameters:"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00162}00162\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ batch\_size=\{self.batch\_size\},\ num\_epochs=\{self.num\_epochs\},\ learning\_rate=\{self.learning\_rate\},\ patience=\{self.patience\},\ cube\_size=\{self.cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00163}00163\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ resolutions=\{self.resolutions\},\ energies=\{self.energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00164}00164\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CORRECTED\ TRAINING\ STRATEGY:\ Use\ single\ resolution\ (64x64x64)\ for\ all\ energies}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ target\_resolution\ =\ (64,\ 64,\ 64)\ \ \textcolor{comment}{\#\ Fixed\ single\ resolution\ for\ stability}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ CORRECTED:\ Using\ SINGLE\ resolution\ \{target\_resolution\}\ for\ ALL\ energies\ (instead\ of\ multi-\/resolution)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ CORRECTED:\ Energy\ Loop\ -\/>\ Resolution\ Loop\ (proper\ architecture)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ instantiate\ models\ -\/\ before\ the\ loop\ to\ avoid\ re-\/instantiation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ autoencoder\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ discriminator\ =\ PatchDiscriminator(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ num\_layers\_d=3,\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=32,\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=1,\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ unet\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{False},\ \ \textcolor{comment}{\#\ Disabled\ cross-\/attention\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00195}00195\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00197}00197\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00198}00198\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00199}00199\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ initialize\ history\ lists\ for\ plotting}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00200}00200\ \ \ \ \ \ \ \ \ ae\_train\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00201}00201\ \ \ \ \ \ \ \ \ ae\_val\_losses\ \ \ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00202}00202\ \ \ \ \ \ \ \ \ gen\_losses\ \ \ \ \ \ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00203}00203\ \ \ \ \ \ \ \ \ disc\_losses\ \ \ \ \ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00204}00204\ \ \ \ \ \ \ \ \ diff\_losses\ \ \ \ \ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00205}00205\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CORRECTED\ TRAINING\ LOOP:\ Energy\ as\ Outer\ Loop,\ Single\ Resolution}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a8fce39d4c3b9e2f1eda7a9bcd03dd7d2}{energies}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ aborted\ by\ user."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ -\/-\/-\/\ CORRECTED:\ Training\ energy=\{energy\}\ eV\ at\ resolution=\{target\_resolution\}\ -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ CORRECTED:\ Pipeline\ uses\ consistent\ resolution:\ \{target\_resolution\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Separate\ transforms\ for\ patch-\/based\ training\ and\ validation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ patch\_transforms\ =\ Compose([}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Resized(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ spatial\_size=target\_resolution,\ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(keys=\textcolor{stringliteral}{"{}input"{}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}energy"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}energy"{}}])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ val\_transforms\ =\ Compose([}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ LoadImaged(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ reader=NumpyReader),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EnsureChannelFirstd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Resized(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ spatial\_size=target\_resolution,\ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(keys=\textcolor{stringliteral}{"{}input"{}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}energy"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}energy"{}}])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00235}00235\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ HotspotPatchDataset\ for\ patch-\/based\ training}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ HotspotPatchDataset\ for\ patch-\/based\ training."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ train\_ds\ =\ \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset}{HotspotPatchDataset}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ section=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\_size=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ min\_hotspot\_voxels=100,\ \ \textcolor{comment}{\#\ REDUCED:\ Was\ 1000,\ now\ 100\ for\ low-\/dose\ data}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_threshold=0.001,\ \ \ \ \textcolor{comment}{\#\ REDUCED:\ Was\ 0.5,\ now\ 0.001\ for\ low-\/dose\ data}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_patches=6,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ random\_patches=0,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ transforms=patch\_transforms,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy=energy,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_patches\_per\_energy=80\ \textcolor{keywordflow}{if}\ energy\ <=\ 40.0\ \textcolor{keywordflow}{else}\ 60\ \ \textcolor{comment}{\#\ Less\ patches\ for\ high\ energy}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validation\ dataset}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ val\_ds\ =\ \mbox{\hyperlink{classdata__management_1_1_hotspot_patch_dataset}{HotspotPatchDataset}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ section=\textcolor{keywordtype}{None},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ patch\_size=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ min\_hotspot\_voxels=100,\ \ \textcolor{comment}{\#\ REDUCED:\ Was\ 1000,\ now\ 100\ for\ low-\/dose\ data}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_threshold=0.001,\ \ \ \ \textcolor{comment}{\#\ REDUCED:\ Was\ 0.5,\ now\ 0.001\ for\ low-\/dose\ data}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_patches=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ random\_patches=0,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ transforms=patch\_transforms,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy=energy,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ max\_patches\_per\_energy=20\ \textcolor{keywordflow}{if}\ energy\ <=\ 40.0\ \textcolor{keywordflow}{else}\ 15\ \ \textcolor{comment}{\#\ Less\ patches\ for\ high\ energy\ validation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ DataLoader\ as\ before}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ data\_management\ \textcolor{keyword}{import}\ DataLoaderModule}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ data\_module\ =\ \mbox{\hyperlink{classdata__management_1_1_data_loader_module}{DataLoaderModule}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ transforms=patch\_transforms}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ train\_loader\ =\ data\_module.create\_data\_loader(train\_ds,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},\ shuffle=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ val\_loader\ \ \ =\ data\_module.create\_data\_loader(val\_ds,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},\ shuffle=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Found\ \{len(val\_ds)\}\ validation\ patches\ for\ energy=\{energy\},\ resolution=\{target\_resolution\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00272}00272\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ scheduler\ =\ DDPMScheduler(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_train\_timesteps=1000,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ schedule=\textcolor{stringliteral}{"{}scaled\_linear\_beta"{}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_end=0.0195,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \#\#\#\ Scaling\ factor}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ As\ mentioned\ in\ Rombach\ et\ al.\ [1]\ Section\ 4.3.2\ and\ D.1,\ the\ signal-\/to-\/noise\ ratio\ (induced\ by\ the\ scale\ of\ the\ latent\ space)\ can\ affect\ the\ results\ obtained\ with\ the\ LDM,\ if\ the\ standard\ deviation\ of\ the\ latent\ space\ distribution\ drifts\ too\ much\ from\ that\ of\ a\ Gaussian.\ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ For\ this\ reason,\ it\ is\ best\ practice\ to\ use\ a\ scaling\ factor\ to\ adapt\ this\ standard\ deviation.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \_Note:\ In\ case\ where\ the\ latent\ space\ is\ close\ to\ a\ Gaussian\ distribution,\ the\ scaling\ factor\ will\ be\ close\ to\ one,\ and\ the\ results\ will\ not\ differ\ from\ those\ obtained\ when\ it\ is\ not\ used.\_}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00287}00287\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ +}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ autocast(\textcolor{stringliteral}{'cuda'},\ enabled=\textcolor{keyword}{True}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ first\_batch\ =\ first(train\_loader)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Build\ conditioned\ input\ for\ autoencoder\ with\ energy\ channel\ if\ available}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ images\ =\ first\_batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ first\_batch.get(\textcolor{stringliteral}{"{}energy"{}},\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energies\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00296}00296\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies\ =\ energies.to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ energies.float()\ /\ 100.0\ \ \textcolor{comment}{\#\ match\ training\ normalization}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ images.shape}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00300}00300\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\ =\ torch.cat([images,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\ =\ images}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Encode\ to\ latents\ using\ conditioned\ input}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ autoencoder.encode\_stage\_2\_inputs(conditioned)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00305}00305\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Handle\ NaN\ in\ scale\ factor\ calculation**}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ \ \ \ \ z\_std\ =\ torch.std(z)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Latent\ std:\ \{z\_std.item():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00309}00309\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ torch.isnan(z\_std)\ \textcolor{keywordflow}{or}\ torch.isinf(z\_std)\ \textcolor{keywordflow}{or}\ z\_std.item()\ <\ 1e-\/8:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Invalid\ latent\ std\ (\{z\_std.item()\}),\ using\ fallback\ scale\_factor=1.0"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00312}00312\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1\ /\ z\_std.item()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00315}00315\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Clamp\ scale\ factor\ to\ reasonable\ range}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ max(min(scale\_factor,\ 10.0),\ 0.1)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Scaling\ factor\ set\ to\ \{scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **Additional\ validation**}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ np.isfinite(scale\_factor):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Scale\ factor\ is\ not\ finite:\ \{scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00324}00324\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ inferer\ =\ LatentDiffusionInferer(scheduler,\ scale\_factor=scale\_factor)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00326}00326\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ AGGRESSIVE\ learning\ rate\ for\ faster\ convergence\ (problems\ identified)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Current\ signal\ ratios\ 0.03-\/0.08\ too\ low,\ need\ stronger\ learning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ aggressive\_lr\ =\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}}\ *\ 1.0\ \ \textcolor{comment}{\#\ Use\ full\ original\ LR\ (1e-\/5)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ AGGRESSIVE\ learning\ rate:\ \{aggressive\_lr\}\ (original:\ \{self.learning\_rate\})\ for\ faster\ convergence"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ opt\_g\ =\ Adam(autoencoder.parameters(),\ lr=aggressive\_lr,\ weight\_decay=1e-\/5)\ \ \textcolor{comment}{\#\ Reduced\ weight\ decay}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ opt\_d\ =\ Adam(discriminator.parameters(),\ lr=aggressive\_lr,\ weight\_decay=1e-\/5)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ opt\_diff\ =\ Adam(unet.parameters(),\ lr=aggressive\_lr,\ weight\_decay=1e-\/5)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00336}00336\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ trainers\ and\ early\ stopping}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ ae\_trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{AutoencoderTrainer}}(autoencoder,\ discriminator,\ opt\_g,\ opt\_d,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6e88f0a7b81861fd5b89ce2191f24258}{energy\_min}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a557c84dea69ccc926c47d0c33f4e0652}{energy\_max}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **CRITICAL\ FIX:\ Calculate\ dose\ normalization\ parameters\ before\ training**}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Calculating\ dose\ normalization\ parameters\ from\ training\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\_trainer.calculate\_dose\_normalization\_params(train\_loader,\ energy=energy)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ calculate\ dose\ normalization\ parameters:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}This\ usually\ indicates\ problems\ with\ the\ training\ data."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00346}00346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ that\ normalization\ parameters\ are\ reasonable}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ae\_trainer.clip\_min\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{or}\ ae\_trainer.clip\_max\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}clip\_min\ or\ clip\_max\ is\ None\ after\ calculation"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00351}00351\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ae\_trainer.clip\_max\ <=\ ae\_trainer.clip\_min:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(f\textcolor{stringliteral}{"{}Invalid\ dose\ range:\ clip\_max\ (\{ae\_trainer.clip\_max\})\ <=\ clip\_min\ (\{ae\_trainer.clip\_min\})"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00355}00355\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ loss\ functions\ after\ normalization\ parameters\ are\ set}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \ \ \ \ ae\_trainer.setup\_loss\_functions()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Starting\ autoencoder\ training\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ \ \ \ \ stopper\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping}{EarlyStopping}}(patience=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab3757642aaced79e51c245a0ca12a350}{patience}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ autoencoder\ training\ loop}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ epoch\ \textcolor{keywordflow}{in}\ range(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Autoencoder\ training\ aborted\ by\ user\ at\ epoch\ \{epoch\}\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ train\_loss,\ gen\_loss,\ disc\_loss\ =\ ae\_trainer.train\_one\_epoch(train\_loader,\ epoch)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00366}00366\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ val\_loss\ =\ ae\_trainer.validate(val\_loader)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ record\ losses}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\_train\_losses.append(train\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\_val\_losses.append(val\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ gen\_losses.append(gen\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00371}00371\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ disc\_losses.append(disc\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ stopper.update(val\_loss):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00373}00373\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Early\ stopping\ autoencoder\ at\ epoch\ \{epoch+1\}\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ now\ diffusion\ training}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Starting\ diffusion\ training\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ diff\_trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer}{DiffusionTrainer}}(unet,\ opt\_diff,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6e88f0a7b81861fd5b89ce2191f24258}{energy\_min}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a557c84dea69ccc926c47d0c33f4e0652}{energy\_max}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ diffusion\ (UNet)\ training\ loop}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ epoch\ \textcolor{keywordflow}{in}\ range(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00382}00382\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00383}00383\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Diffusion\ training\ aborted\ by\ user\ at\ epoch\ \{epoch\}\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00384}00384\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00385}00385\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diff\_loss\ =\ diff\_trainer.train\_one\_epoch(train\_loader,\ epoch,\ inferer,\ autoencoder)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00386}00386\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ record\ diffusion\ loss}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00387}00387\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diff\_losses.append(diff\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00388}00388\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00389}00389\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ plot\ loss\ curves\ for\ this\ config}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00390}00390\ \ \ \ \ \ \ \ \ \ \ \ \ Visualization.plot\_loss\_curves(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00391}00391\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\_train\_losses,\ ae\_val\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00392}00392\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ gen\_losses,\ disc\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00393}00393\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diff\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00394}00394\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ resolution=target\_resolution,\ energy=energy}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00395}00395\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00396}00396\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00397}00397\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ **THIS\ IS\ THE\ CRUCIAL\ ADDITION:**}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00398}00398\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Save\ individual\ model\ checkpoint\ to\ memory\ after\ training\ each\ configuration}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00399}00399\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1819f25b2fbfcf96f58f6c29cc2b674a}{save\_models}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00400}00400\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ autoencoder=autoencoder,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00401}00401\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ unet=unet,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00402}00402\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_diff=opt\_diff,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00403}00403\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_g=opt\_g,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00404}00404\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_d=opt\_d,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00405}00405\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ epoch=epoch,\ \ \textcolor{comment}{\#\ last\ epoch}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00406}00406\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ res=target\_resolution,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00407}00407\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy=energy,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00408}00408\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mean=getattr(ae\_trainer,\ \textcolor{stringliteral}{'dose\_mean'},\ \textcolor{keywordtype}{None}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00409}00409\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_std=getattr(ae\_trainer,\ \textcolor{stringliteral}{'dose\_std'},\ \textcolor{keywordtype}{None}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00410}00410\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=scale\_factor,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00411}00411\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min=getattr(ae\_trainer,\ \textcolor{stringliteral}{'clip\_min'},\ 0.0),\ \ \textcolor{comment}{\#\ FIX:\ Get\ from\ trainer}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max=getattr(ae\_trainer,\ \textcolor{stringliteral}{'clip\_max'},\ \textcolor{keywordtype}{None}),\ \ \textcolor{comment}{\#\ FIX:\ Get\ from\ trainer}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernel=0,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00414}00414\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00415}00415\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Model\ checkpoint\ saved\ to\ memory\ for\ resolution=\{target\_resolution\},\ energy=\{energy\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00416}00416\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00417}00417\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ after\ all\ individual\ trainings,\ save\ a\ single\ combined\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aeda60348b1752d230f92b6b739c231dc}{save\_combined\_checkpoint}}()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00419}00419\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad0e5c2e1e345c74be5c69a9467250f41}{training\_complete}}\ =\ \textcolor{keyword}{True}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00420}00420\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}All\ training\ finished\ for\ all\ configurations."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00422}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a454fee1ebfdb8beb7e9cb16762a99976}{00422}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a454fee1ebfdb8beb7e9cb16762a99976}{run\_inference}}(self,\ ct\_file\_path,\ model\_checkpoint=None):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00423}00423\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00424}00424\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Load\ a\ CT\ scan\ and\ run\ inference\ to\ compute\ dose\ distribution.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00425}00425\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00426}00426\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00427}00427\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}STARTING\ INFERENCE\ WORKFLOW"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00428}00428\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00429}00429\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ file\ path:\ \{ct\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00430}00430\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Model\ checkpoint:\ \{model\_checkpoint\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00431}00431\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Device:\ \{self.device\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00432}00432\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00433}00433\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ determine\ model\ sources\ and\ load\ checkpoint\ dict\ if\ needed}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00434}00434\ \ \ \ \ \ \ \ \ ckpt\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00435}00435\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ model\_checkpoint\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00436}00436\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00437}00437\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}No\ trained\ models\ found\ and\ no\ checkpoint\ provided"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ RuntimeError(\textcolor{stringliteral}{"{}No\ trained\ models\ found.\ Train\ the\ models\ first."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ pre-\/trained\ models\ from\ training\ session"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00440}00440\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ isinstance(model\_checkpoint,\ str):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loading\ checkpoint\ from\ file:\ \{model\_checkpoint\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ torch\ \textcolor{keyword}{as}\ \_torch}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ckpt\ =\ \_torch.load(model\_checkpoint,\ map\_location=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}},\ weights\_only=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Checkpoint\ loaded\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Direct\ load\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Attempting\ to\ load\ via\ file\ handle..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00449}00449\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(model\_checkpoint,\ \textcolor{stringliteral}{'rb'})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00450}00450\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ckpt\ =\ \_torch.load(f,\ map\_location=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}},\ weights\_only=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Checkpoint\ loaded\ via\ file\ handle"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00452}00452\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ isinstance(model\_checkpoint,\ dict)\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{'autoencoder'}\ \textcolor{keywordflow}{in}\ model\_checkpoint\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{'unet'}\ \textcolor{keywordflow}{in}\ model\_checkpoint:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ provided\ checkpoint\ dictionary"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ ckpt\ =\ model\_checkpoint}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00455}00455\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Invalid\ model\ checkpoint\ provided"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00457}00457\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(\textcolor{stringliteral}{"{}Invalid\ model\ checkpoint.\ Provide\ a\ path\ or\ a\ dict\ with\ 'autoencoder'\ and\ 'unet'\ keys."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00458}00458\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ if\ we\ have\ a\ checkpoint\ dict,\ rebuild\ models\ from\ state\_dict}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00459}00459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ckpt\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/\ Combined\ checkpoint\ support\ -\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00461}00461\ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy\_ckpt\ =\ ckpt.get(\textcolor{stringliteral}{"{}models\_by\_energy"{}},\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00462}00462\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ models\_by\_energy\_ckpt\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Detected\ combined\ checkpoint\ with\ per-\/energy\ models,\ loading\ all\ energies"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00464}00464\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}.clear()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_str,\ model\_dict\ \textcolor{keywordflow}{in}\ models\_by\_energy\_ckpt.items():}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ energy\ from\ key\ format\ like\ "{}res16x16x16\_e46.53"{}\ or\ "{}res16\_e46.53"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{stringliteral}{"{}\_e"{}}\ \textcolor{keywordflow}{in}\ energy\_str:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_val\ =\ float(energy\_str.split(\textcolor{stringliteral}{"{}\_e"{}})[1])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Fallback:\ try\ to\ convert\ the\ whole\ string\ (for\ backward\ compatibility)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energy\_val\ =\ float(energy\_str)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00472}00472\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Using\ fallback\ energy\ extraction\ for\ key:\ \{energy\_str\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00473}00473\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ instantiate\ autoencoder}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00474}00474\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00475}00475\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00476}00476\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00484}00484\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae.load\_state\_dict(model\_dict[\textcolor{stringliteral}{"{}autoencoder"{}}])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00485}00485\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00486}00486\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ instantiate\ unet}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00487}00487\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ un\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00488}00488\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00490}00490\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{False},\ \ \textcolor{comment}{\#\ Disabled\ cross-\/attention\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00496}00496\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00497}00497\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ un.load\_state\_dict(model\_dict[\textcolor{stringliteral}{"{}unet"{}}],\ strict=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00498}00498\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ scheduler}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00499}00499\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sched\ =\ DDPMScheduler(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00500}00500\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_train\_timesteps=1000,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00501}00501\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ schedule=\textcolor{stringliteral}{"{}scaled\_linear\_beta"{}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00502}00502\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00503}00503\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_end=0.0195,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00504}00504\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00505}00505\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}[energy\_val]\ =\ (ae,\ un,\ sched)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00506}00506\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Loaded\ combined\ models\ for\ all\ energies"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00508}00508\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Update\ quad\_energies\ and\ quad\_weights\ based\ on\ available\ models}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00509}00509\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ available\_energies\ =\ sorted(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}.keys())}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00510}00510\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Available\ energies\ in\ checkpoint:\ \{available\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00511}00511\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00512}00512\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Validate\ that\ all\ required\ quad\_energies\ are\ available\ in\ the\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00513}00513\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ missing\_energies\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00514}00514\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00515}00515\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\ \textcolor{keywordflow}{not}\ \textcolor{keywordflow}{in}\ available\_energies:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ missing\_energies.append(energy)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ missing\_energies:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00519}00519\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Missing\ energies\ in\ checkpoint:\ \{missing\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Available\ energies:\ \{available\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Requested\ energies:\ \{self.quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Filter\ out\ missing\ energies\ and\ adjust\ weights}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00523}00523\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_energies\ =\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}.copy()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00524}00524\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_weights\ =\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a23d834e4c26433aaaa2265e93582520f}{quad\_weights}}.copy()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00525}00525\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filtered\_energies\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00527}00527\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filtered\_weights\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00528}00528\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ energy\ \textcolor{keywordflow}{in}\ enumerate(original\_energies):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00529}00529\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ energy\ \textcolor{keywordflow}{in}\ available\_energies:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00530}00530\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filtered\_energies.append(energy)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00531}00531\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filtered\_weights.append(original\_weights[i])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00532}00532\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00533}00533\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ filtered\_energies:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00534}00534\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Renormalize\ weights}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00535}00535\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_weight\ =\ sum(filtered\_weights)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00536}00536\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}\ =\ filtered\_energies}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00537}00537\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a23d834e4c26433aaaa2265e93582520f}{quad\_weights}}\ =\ [w/total\_weight\ \textcolor{keywordflow}{for}\ w\ \textcolor{keywordflow}{in}\ filtered\_weights]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00538}00538\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Filtered\ quad\_energies:\ \{self.quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00539}00539\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Renormalized\ quad\_weights:\ \{self.quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00540}00540\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00541}00541\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}No\ quadrature\ energies\ available\ in\ checkpoint!\ Available:\ \{available\_energies\},\ Requested:\ \{original\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00542}00542\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00543}00543\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ All\ quadrature\ energies\ are\ available\ in\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00544}00544\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ quad\_energies:\ \{self.quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00545}00545\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ quad\_weights:\ \{self.quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00546}00546\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00547}00547\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00548}00548\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ common\ parameters\ by\ averaging\ over\ all\ energy\ checkpoints}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00549}00549\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ models\_by\_energy\_ckpt:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00550}00550\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factors\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00551}00551\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_means\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00552}00552\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_stds\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00553}00553\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_mins\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00554}00554\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_maxs\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00555}00555\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernels\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00556}00556\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00557}00557\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ energy\_key,\ model\_dict\ \textcolor{keywordflow}{in}\ models\_by\_energy\_ckpt.items():}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00558}00558\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Only\ exclude\ None\ values,\ but\ include\ 0.0\ and\ other\ numeric\ values}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00559}00559\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sf\ =\ model\_dict.get(\textcolor{stringliteral}{"{}scale\_factor"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00560}00560\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sf\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00561}00561\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factors.append(sf)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00562}00562\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00563}00563\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dm\ =\ model\_dict.get(\textcolor{stringliteral}{"{}dose\_mean"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00564}00564\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dm\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00565}00565\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_means.append(dm)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00566}00566\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00567}00567\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ds\ =\ model\_dict.get(\textcolor{stringliteral}{"{}dose\_std"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00568}00568\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ds\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00569}00569\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_stds.append(ds)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00570}00570\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00571}00571\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cm\ =\ model\_dict.get(\textcolor{stringliteral}{"{}clip\_min"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00572}00572\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ cm\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00573}00573\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_mins.append(cm)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00574}00574\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00575}00575\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ clip\_max\ can\ legitimately\ be\ None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00576}00576\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_maxs.append(model\_dict.get(\textcolor{stringliteral}{"{}clip\_max"{}}))}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00577}00577\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00578}00578\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sk\ =\ model\_dict.get(\textcolor{stringliteral}{"{}smoothing\_kernel"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00579}00579\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ sk\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00580}00580\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernels.append(sk)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00581}00581\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00582}00582\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ averages\ with\ fallback\ defaults\ if\ no\ valid\ values\ found}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00583}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a901045b2299d2d94fec8f615c9a71f3a}{00583}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a901045b2299d2d94fec8f615c9a71f3a}{scale\_factor}}\ =\ sum(scale\_factors)\ /\ len(scale\_factors)\ \textcolor{keywordflow}{if}\ scale\_factors\ \textcolor{keywordflow}{else}\ 1.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00584}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a0866c37d05bdf16be07ebc1a4c85ce1f}{00584}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a0866c37d05bdf16be07ebc1a4c85ce1f}{dose\_mean}}\ =\ sum(dose\_means)\ /\ len(dose\_means)\ \textcolor{keywordflow}{if}\ dose\_means\ \textcolor{keywordflow}{else}\ 0.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00585}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab7515d1d0171d7fe9f0efe5703aabbc3}{00585}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab7515d1d0171d7fe9f0efe5703aabbc3}{dose\_std}}\ =\ sum(dose\_stds)\ /\ len(dose\_stds)\ \textcolor{keywordflow}{if}\ dose\_stds\ \textcolor{keywordflow}{else}\ 1.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00586}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a228e3093fbb208a909d5f847bcadc316}{00586}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a228e3093fbb208a909d5f847bcadc316}{clip\_min}}\ =\ sum(clip\_mins)\ /\ len(clip\_mins)\ \textcolor{keywordflow}{if}\ clip\_mins\ \textcolor{keywordflow}{else}\ 0.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00587}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5526e8bcf1a71155ea8d50b62feab109}{00587}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5526e8bcf1a71155ea8d50b62feab109}{smoothing\_kernel}}\ =\ sum(smoothing\_kernels)\ /\ len(smoothing\_kernels)\ \textcolor{keywordflow}{if}\ smoothing\_kernels\ \textcolor{keywordflow}{else}\ 0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00588}00588\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00589}00589\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ For\ clip\_max,\ use\ the\ average\ of\ non-\/None\ values,\ or\ None\ if\ all\ are\ None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00590}00590\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ valid\_clip\_maxs\ =\ [x\ \textcolor{keywordflow}{for}\ x\ \textcolor{keywordflow}{in}\ clip\_maxs\ \textcolor{keywordflow}{if}\ x\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00591}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a076975142bb713f8896aa549bd9c2ab8}{00591}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a076975142bb713f8896aa549bd9c2ab8}{clip\_max}}\ =\ sum(valid\_clip\_maxs)\ /\ len(valid\_clip\_maxs)\ \textcolor{keywordflow}{if}\ valid\_clip\_maxs\ \textcolor{keywordflow}{else}\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00592}00592\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00593}00593\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loaded\ averaged\ parameters\ from\ \{len(models\_by\_energy\_ckpt)\}\ energy\ models:"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ scale\_factor=\{self.scale\_factor:.6f\}\ (from\ \{len(scale\_factors)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ dose\_mean=\{self.dose\_mean:.6f\}\ (from\ \{len(dose\_means)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00596}00596\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ dose\_std=\{self.dose\_std:.6f\}\ (from\ \{len(dose\_stds)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00597}00597\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ clip\_min=\{self.clip\_min:.6f\}\ (from\ \{len(clip\_mins)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00598}00598\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ clip\_max=\{self.clip\_max\}\ (from\ \{len(valid\_clip\_maxs)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00599}00599\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ smoothing\_kernel=\{self.smoothing\_kernel:.1f\}\ (from\ \{len(smoothing\_kernels)\}\ values)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00600}00600\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00601}00601\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ switch\ to\ in-\/memory\ inference\ path}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00602}00602\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ model\_checkpoint\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00603}00603\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00604}00604\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ -\/-\/-\/\ End\ combined\ checkpoint\ support\ -\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00605}00605\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00606}00606\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Rebuilding\ models\ from\ checkpoint\ state\_dict..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00607}00607\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae\ =\ AutoencoderKL(spatial\_dims=3,\ in\_channels=2,\ out\_channels=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00608}00608\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),\ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00609}00609\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,\ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00610}00610\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True})).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00611}00611\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ae.load\_state\_dict(ckpt[\textcolor{stringliteral}{'autoencoder'}])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00612}00612\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Autoencoder\ loaded\ from\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00613}00613\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00614}00614\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ unet\_state\ =\ ckpt[\textcolor{stringliteral}{'unet'}]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00615}00615\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00616}00616\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ un\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00617}00617\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,\ in\_channels=2,\ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00618}00618\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{False},\ \ \textcolor{comment}{\#\ Disabled\ cross-\/attention\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00619}00619\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,\ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00620}00620\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00621}00621\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 64,\ 64)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00622}00622\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00623}00623\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00624}00624\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Filter\ checkpoint\ to\ only\ matching\ shapes\ before\ loading}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00625}00625\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pretrained\_dict\ =\ ckpt[\textcolor{stringliteral}{'unet'}]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00626}00626\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ model\_dict\ =\ un.state\_dict()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00627}00627\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ filtered\_dict\ =\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00628}00628\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ k:\ v\ \textcolor{keywordflow}{for}\ k,\ v\ \textcolor{keywordflow}{in}\ pretrained\_dict.items()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00629}00629\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ k\ \textcolor{keywordflow}{in}\ model\_dict\ \textcolor{keywordflow}{and}\ model\_dict[k].shape\ ==\ v.shape}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00630}00630\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00631}00631\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ missing\ =\ set(model\_dict.keys())\ -\/\ set(filtered\_dict.keys())}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00632}00632\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ unexpected\ =\ set(pretrained\_dict.keys())\ -\/\ set(filtered\_dict.keys())}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00633}00633\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ only\ matching\ parameters}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ un.load\_state\_dict(filtered\_dict,\ strict=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00635}00635\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ missing\ \textcolor{keywordflow}{or}\ unexpected:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00636}00636\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}UNet\ checkpoint\ loaded\ with\ missing\ keys:\ \{sorted(missing)\}\ and\ unexpected\ keys:\ \{sorted(unexpected)\}.\ Mismatched\ shapes\ filtered\ out."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00637}00637\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00638}00638\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ UNet\ loaded\ from\ checkpoint\ (all\ keys\ matched)"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00639}00639\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00640}00640\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sched\ =\ DDPMScheduler(num\_train\_timesteps=1000,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00641}00641\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ schedule=\textcolor{stringliteral}{"{}scaled\_linear\_beta"{}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00642}00642\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,\ beta\_end=0.0195)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00643}00643\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}}\ =\ \{energy:\ (ae,\ un,\ sched)\ \textcolor{keywordflow}{for}\ energy\ \textcolor{keywordflow}{in}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}\}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00644}00644\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab1dc26b3ee7f53ba8ea49e19b3ca7764}{autoencoder}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a70f5d96743ede7ac412d30d11e4b159a}{unet}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a367293403c8336feea463cd5ccb50dd7}{scheduler}}\ =\ ae,\ un,\ sched}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00645}00645\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Scheduler\ created\ and\ models\ assigned"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00646}00646\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00647}00647\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Retrieve\ dataset‑wide\ dose\ statistics\ for\ de‑normalisation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00648}00648\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a0866c37d05bdf16be07ebc1a4c85ce1f}{dose\_mean}}\ =\ ckpt.get(\textcolor{stringliteral}{"{}dose\_mean"{}},\ 0.0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab7515d1d0171d7fe9f0efe5703aabbc3}{dose\_std}}\ \ =\ ckpt.get(\textcolor{stringliteral}{"{}dose\_std"{}},\ \ 1.0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00650}00650\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ scaling\ loaded\ from\ checkpoint:\ mean=\{self.dose\_mean\},\ std=\{self.dose\_std\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00651}00651\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a901045b2299d2d94fec8f615c9a71f3a}{scale\_factor}}\ \ \ \ \ =\ ckpt.get(\textcolor{stringliteral}{"{}scale\_factor"{}},\ 1.0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00652}00652\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a228e3093fbb208a909d5f847bcadc316}{clip\_min}}\ \ \ \ \ \ \ \ \ =\ ckpt.get(\textcolor{stringliteral}{"{}clip\_min"{}},\ 0.0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00653}00653\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a076975142bb713f8896aa549bd9c2ab8}{clip\_max}}\ \ \ \ \ \ \ \ \ =\ ckpt.get(\textcolor{stringliteral}{"{}clip\_max"{}},\ \textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00654}00654\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5526e8bcf1a71155ea8d50b62feab109}{smoothing\_kernel}}\ =\ ckpt.get(\textcolor{stringliteral}{"{}smoothing\_kernel"{}},\ 0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00655}00655\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00656}00656\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ lazy\ import\ to\ avoid\ circular}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00657}00657\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ nibabel\ \textcolor{keyword}{as}\ nib}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00658}00658\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00659}00659\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ corrected\_inference\ \textcolor{keyword}{import}\ CorrectedInferenceModule}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00660}00660\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00661}00661\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ build\ tensor\ from\ CT\ file:\ support\ both\ NIfTI\ (.nii,\ .nii.gz)\ and\ NumPy\ (.npy)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00662}00662\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ CT\ data..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00663}00663\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ file\ path:\ \{ct\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00664}00664\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00665}00665\ \ \ \ \ \ \ \ \ path\_lower\ =\ ct\_file\_path.lower()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00666}00666\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ path\_lower.endswith(\textcolor{stringliteral}{'.nii'})\ \textcolor{keywordflow}{or}\ path\_lower.endswith(\textcolor{stringliteral}{'.nii.gz'}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00667}00667\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ NIfTI\ file..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00668}00668\ \ \ \ \ \ \ \ \ \ \ \ \ nifti\_img\ =\ nib.load(ct\_file\_path)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00669}00669\ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.asarray(nifti\_img.dataobj)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00670}00670\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ NIfTI\ loaded:\ shape=\{arr.shape\},\ dtype=\{arr.dtype\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00671}00671\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ path\_lower.endswith(\textcolor{stringliteral}{'.npy'}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00672}00672\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ NumPy\ file..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00673}00673\ \ \ \ \ \ \ \ \ \ \ \ \ arr\ =\ np.load(ct\_file\_path)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00674}00674\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ NumPy\ loaded:\ shape=\{arr.shape\},\ dtype=\{arr.dtype\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00675}00675\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00676}00676\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Unsupported\ CT\ file\ format:\ \{ct\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00677}00677\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ ValueError(f\textcolor{stringliteral}{"{}Unsupported\ CT\ file\ format:\ \{ct\_file\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00678}00678\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00679}00679\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ data\ range:\ \{arr.min():.6f\}\ to\ \{arr.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00680}00680\ \ \ \ \ \ \ \ \ ct\_tensor\ =\ torch.from\_numpy(arr).unsqueeze(0).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})\ \ \textcolor{comment}{\#\ shape\ [1,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00681}00681\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}CT\ tensor\ shape:\ \{ct\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00682}00682\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00683}00683\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ corrected\ inference\ module}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00684}00684\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Setting\ up\ corrected\ inference\ module..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00685}00685\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00686}00686\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ckpt\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{and}\ \textcolor{stringliteral}{"{}models\_by\_energy"{}}\ \textcolor{keywordflow}{in}\ ckpt:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00687}00687\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ already\ loaded\ models\ from\ combined\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00688}00688\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ already\ loaded\ models\ from\ combined\ checkpoint"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00689}00689\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ inf\_mod\ =\ CorrectedInferenceModule(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00690}00690\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00691}00691\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00692}00692\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00693}00693\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a901045b2299d2d94fec8f615c9a71f3a}{scale\_factor}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00694}00694\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mean=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a0866c37d05bdf16be07ebc1a4c85ce1f}{dose\_mean}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00695}00695\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_std=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab7515d1d0171d7fe9f0efe5703aabbc3}{dose\_std}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00696}00696\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a228e3093fbb208a909d5f847bcadc316}{clip\_min}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00697}00697\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a076975142bb713f8896aa549bd9c2ab8}{clip\_max}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00698}00698\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernel=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5526e8bcf1a71155ea8d50b62feab109}{smoothing\_kernel}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00699}00699\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00700}00700\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ model\_checkpoint\ \textcolor{keywordflow}{is}\ \textcolor{keywordflow}{not}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00701}00701\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ from\ checkpoint\ path}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00702}00702\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ models\ from\ checkpoint\ path"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00703}00703\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ inf\_mod\ =\ CorrectedInferenceModule(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00704}00704\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ checkpoint\_path=model\_checkpoint,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00705}00705\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00706}00706\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00707}00707\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00708}00708\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00709}00709\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ pre-\/trained\ models\ from\ training\ session}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00710}00710\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Using\ pre-\/trained\ models\ from\ training\ session"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00711}00711\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ inf\_mod\ =\ CorrectedInferenceModule(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00712}00712\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ models\_by\_energy=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_aabd86d280854bc5a261b90aa9fe04085}{models\_by\_energy}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00713}00713\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00714}00714\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ energies=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00715}00715\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=getattr(self,\ \textcolor{stringliteral}{'scale\_factor'},\ 1.0),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00716}00716\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_mean=getattr(self,\ \textcolor{stringliteral}{'dose\_mean'},\ 0.0),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00717}00717\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_std=getattr(self,\ \textcolor{stringliteral}{'dose\_std'},\ 1.0),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00718}00718\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_min=getattr(self,\ \textcolor{stringliteral}{'clip\_min'},\ 0.0),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00719}00719\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ clip\_max=getattr(self,\ \textcolor{stringliteral}{'clip\_max'},\ \textcolor{keywordtype}{None}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00720}00720\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ smoothing\_kernel=getattr(self,\ \textcolor{stringliteral}{'smoothing\_kernel'},\ 0)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00721}00721\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00722}00722\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ CorrectedInferenceModule\ created\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00723}00723\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00724}00724\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ create\ CorrectedInferenceModule:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00725}00725\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}CorrectedInferenceModule\ creation\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00726}00726\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00727}00727\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00728}00728\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ run\ quadrature-\/based\ inference\ over\ all\ energies}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00729}00729\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Running\ corrected\ inference..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00730}00730\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ energies:\ \{self.quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00731}00731\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ weights:\ \{self.quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00732}00732\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00733}00733\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00734}00734\ \ \ \ \ \ \ \ \ \ \ \ \ dose\ =\ inf\_mod.run\_inference(ct\_tensor,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a846de64e7ea0c513e9301130d2feb16b}{quad\_energies}},\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a23d834e4c26433aaaa2265e93582520f}{quad\_weights}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00735}00735\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Corrected\ inference\ completed\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00736}00736\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ tensor\ shape:\ \{dose.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00737}00737\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Dose\ range:\ \{dose.min():.6f\}\ to\ \{dose.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00738}00738\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00739}00739\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Corrected\ inference\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00740}00740\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Corrected\ inference\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00741}00741\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00742}00742\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ convert\ to\ numpy\ and\ remove\ batch\ dim}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00743}00743\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Converting\ output\ to\ NumPy\ and\ preparing\ NIfTI..."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00744}00744\ \ \ \ \ \ \ \ \ dose\_np\ =\ dose.detach().cpu().numpy()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00745}00745\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_np.ndim\ ==\ 4\ \textcolor{keywordflow}{and}\ dose\_np.shape[0]\ ==\ 1:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00746}00746\ \ \ \ \ \ \ \ \ \ \ \ \ dose\_np\ =\ dose\_np[0]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00747}00747\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose\ shape:\ \{dose\_np.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00748}00748\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose\ range:\ \{dose\_np.min():.6f\}\ to\ \{dose\_np.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00749}00749\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00750}00750\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ create\ affine}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00751}00751\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ \_np,\ nibabel\ \textcolor{keyword}{as}\ \_nib,\ json\ \textcolor{keyword}{as}\ \_json,\ os\ \textcolor{keyword}{as}\ \_os}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00752}00752\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ nibabel.nifti1\ \textcolor{keyword}{import}\ Nifti1Extension}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00753}00753\ \ \ \ \ \ \ \ \ affine\ =\ \_np.eye(4)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00754}00754\ \ \ \ \ \ \ \ \ img\ =\ \_nib.Nifti1Image(dose\_np,\ affine)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00755}00755\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ NIfTI\ image\ created"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00756}00756\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00757}00757\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ attach\ cubes.json\ manifest\ if\ available}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00758}00758\ \ \ \ \ \ \ \ \ manifest\_path\ =\ \_os.path.join(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},\ \textcolor{stringliteral}{'cubes.json'})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00759}00759\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ \_os.path.exists(manifest\_path):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00760}00760\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loading\ manifest\ from:\ \{manifest\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00761}00761\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(manifest\_path,\ \textcolor{stringliteral}{'r'})\ \textcolor{keyword}{as}\ mf:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00762}00762\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ manifest\ =\ \_json.load(mf)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00763}00763\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Encode\ manifest\ JSON\ to\ bytes\ for\ NIfTI\ extension}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00764}00764\ \ \ \ \ \ \ \ \ \ \ \ \ ext\ =\ Nifti1Extension(\textcolor{stringliteral}{'comment'},\ \_json.dumps(manifest).encode(\textcolor{stringliteral}{'utf-\/8'}))}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00765}00765\ \ \ \ \ \ \ \ \ \ \ \ \ img.header.extensions.append(ext)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00766}00766\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Manifest\ attached\ to\ NIfTI\ header"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00767}00767\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00768}00768\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}No\ cubes.json\ manifest\ found,\ skipping\ manifest\ attachment"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00769}00769\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00770}00770\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ save\ NIfTI\ file}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00771}00771\ \ \ \ \ \ \ \ \ out\_path\ =\ \_os.path.join(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},\ \textcolor{stringliteral}{'inference\_with\_manifest.nii.gz'})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00772}00772\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Saving\ inference\ result\ to:\ \{out\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00773}00773\ \ \ \ \ \ \ \ \ \_nib.save(img,\ out\_path)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00774}00774\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ NIfTI\ file\ saved\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00775}00775\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00776}00776\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00777}00777\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}INFERENCE\ WORKFLOW\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00778}00778\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Output\ file:\ \{out\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00779}00779\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00780}00780\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ set\ result\ path}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00781}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1c125b38653063c171db5d144abac386}{00781}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a1c125b38653063c171db5d144abac386}{dose\_result\_path}}\ =\ out\_path}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00782}00782\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ out\_path}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00783}00783\ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00784}\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a41f6a2d301af6e7ce43ddda2ed4d2f37}{00784}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a41f6a2d301af6e7ce43ddda2ed4d2f37}{run\_energy\_conditioned\_training}}(self):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00785}00785\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00786}00786\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Executes\ energy-\/conditioned\ training\ pipeline\ -\/\ trains\ a\ SINGLE\ model\ with\ ALL\ energies.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00787}00787\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00788}00788\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ This\ is\ the\ new\ approach\ that\ trains\ one\ model\ with\ energy\ conditioning,}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00789}00789\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ instead\ of\ separate\ models\ for\ each\ energy.}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00790}00790\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00791}00791\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Steps:}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00792}00792\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 1.\ Load\ dataset\ with\ ALL\ energies\ (no\ filtering\ by\ energy)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00793}00793\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 2.\ Create\ DataLoaders\ for\ training\ and\ validation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00794}00794\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 3.\ Initialize\ models\ with\ 2-\/channel\ input\ (CT\ +\ Energy)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00795}00795\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 4.\ Train\ autoencoder\ with\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00796}00796\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 5.\ Train\ diffusion\ model\ with\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00797}00797\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ 6.\ Save\ the\ unified\ model}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00798}00798\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00799}00799\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ STARTING\ ENERGY-\/CONDITIONED\ TRAINING\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00800}00800\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ a\ SINGLE\ model\ with\ ALL\ energies\ instead\ of\ separate\ models"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00801}00801\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Starting\ training\ with\ hyperparameters:"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00802}00802\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ batch\_size=\{self.batch\_size\},\ num\_epochs=\{self.num\_epochs\},\ learning\_rate=\{self.learning\_rate\},\ patience=\{self.patience\},\ cube\_size=\{self.cube\_size\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00803}00803\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ resolutions=\{self.resolutions\},\ energies=\{self.energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00804}00804\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00805}00805\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ For\ simplicity,\ use\ first\ resolution\ only\ (can\ be\ extended\ later)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00806}00806\ \ \ \ \ \ \ \ \ res\ =\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a17c8e29db9c15be9078369f94d9a81db}{resolutions}}[0]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00807}00807\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}-\/-\/-\/\ Training\ unified\ model\ at\ resolution=\{res\}\ with\ energies=\{self.energies\}\ -\/-\/-\/"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00808}00808\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00809}00809\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Setup\ transforms}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00810}00810\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ CORRECTED:\ Pipeline\ uses\ consistent\ resolution:\ \{res\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00811}00811\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a48cf570f09f71ab7f9c12dbfe17a6198}{transforms}}\ =\ Compose([}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00812}00812\ \ \ \ \ \ \ \ \ \ \ \ \ LoadImaged(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ reader=NumpyReader),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00813}00813\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureChannelFirstd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00814}00814\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00815}00815\ \ \ \ \ \ \ \ \ \ \ \ \ Orientationd(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ axcodes=\textcolor{stringliteral}{"{}RAS"{}}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00816}00816\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ CRITICAL\ FIX:\ Use\ Resized\ instead\ of\ Spacingd\ for\ array\ dimensions}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00817}00817\ \ \ \ \ \ \ \ \ \ \ \ \ Resized(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}],\ spatial\_size=res,\ mode=(\textcolor{stringliteral}{"{}bilinear"{}},\ \textcolor{stringliteral}{"{}nearest"{}})),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00818}00818\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ \ REMOVED:\ SpatialPadd\ and\ CenterSpatialCropd\ that\ destroyed\ the\ target\ resolution}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00819}00819\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ SpatialPadd(keys=["{}input"{},\ "{}target"{}],\ spatial\_size=self.cube\_size,\ method="{}symmetric"{}),}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00820}00820\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ CenterSpatialCropd(keys=["{}input"{},\ "{}target"{}],\ roi\_size=self.cube\_size),}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00821}00821\ \ \ \ \ \ \ \ \ \ \ \ \ ScaleIntensityRangePercentilesd(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00822}00822\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ keys=\textcolor{stringliteral}{"{}input"{}},\ lower=0,\ upper=99.5,\ b\_min=0,\ b\_max=1}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00823}00823\ \ \ \ \ \ \ \ \ \ \ \ \ ),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00824}00824\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}input"{}},\ \textcolor{stringliteral}{"{}target"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00825}00825\ \ \ \ \ \ \ \ \ \ \ \ \ EnsureTyped(keys=[\textcolor{stringliteral}{"{}energy"{}}]),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ ToTensord(keys=[\textcolor{stringliteral}{"{}energy"{}}])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00827}00827\ \ \ \ \ \ \ \ \ ])}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00828}00828\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00829}00829\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Initialize\ history\ lists\ for\ plotting}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00830}00830\ \ \ \ \ \ \ \ \ ae\_train\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00831}00831\ \ \ \ \ \ \ \ \ ae\_val\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00832}00832\ \ \ \ \ \ \ \ \ gen\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00833}00833\ \ \ \ \ \ \ \ \ disc\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00834}00834\ \ \ \ \ \ \ \ \ diff\_losses\ =\ []}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00835}00835\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00836}00836\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ dataset\ WITHOUT\ filtering\ by\ energy\ (this\ is\ the\ key\ change!)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00837}00837\ \ \ \ \ \ \ \ \ data\_module\ =\ \mbox{\hyperlink{classdata__management_1_1_data_loader_module}{DataLoaderModule}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \ root\_dir=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a5505aadbb36f17ee76780ebf44760f3b}{root\_dir}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00839}00839\ \ \ \ \ \ \ \ \ \ \ \ \ transforms=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a48cf570f09f71ab7f9c12dbfe17a6198}{transforms}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00840}00840\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00841}00841\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ complete\ dataset\ with\ ALL\ energies}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00842}00842\ \ \ \ \ \ \ \ \ ds\_full\ =\ data\_module.load\_dataset(section=\textcolor{keywordtype}{None})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00843}00843\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ NO\ FILTERING\ BY\ ENERGY!\ -\/\ This\ is\ the\ crucial\ difference}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00844}00844\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loaded\ \{len(ds\_full)\}\ samples\ with\ ALL\ energies:\ \{set([float(s['energy'].item())\ for\ s\ in\ ds\_full])\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00845}00845\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00846}00846\ \ \ \ \ \ \ \ \ train\_ds,\ val\_ds\ =\ data\_module.split\_dataset(ds\_full)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00847}00847\ \ \ \ \ \ \ \ \ train\_loader\ =\ data\_module.create\_data\_loader(train\_ds,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},\ shuffle=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00848}00848\ \ \ \ \ \ \ \ \ val\_loader\ =\ data\_module.create\_data\_loader(val\_ds,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},\ shuffle=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00849}00849\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00850}00850\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Training\ set:\ \{len(train\_ds)\}\ samples"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00851}00851\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Validation\ set:\ \{len(val\_ds)\}\ samples"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00852}00852\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00853}00853\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Instantiate\ models\ with\ 2-\/channel\ input\ for\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00854}00854\ \ \ \ \ \ \ \ \ autoencoder\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00855}00855\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00856}00856\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ CT\ +\ Energy\ channel}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00857}00857\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00858}00858\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00859}00859\ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00861}00861\ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00862}00862\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00863}00863\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00864}00864\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00865}00865\ \ \ \ \ \ \ \ \ discriminator\ =\ PatchDiscriminator(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00866}00866\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \ num\_layers\_d=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=32,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=1,\ \ \textcolor{comment}{\#\ Output\ is\ still\ 1\ channel}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00871}00871\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00872}00872\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00873}00873\ \ \ \ \ \ \ \ \ unet\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00874}00874\ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00875}00875\ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \ \textcolor{comment}{\#\ Latent\ space\ is\ 2\ channels}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00876}00876\ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00877}00877\ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{False},\ \ \textcolor{comment}{\#\ Disabled\ cross-\/attention\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00878}00878\ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00879}00879\ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00880}00880\ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00881}00881\ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00882}00882\ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00883}00883\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00884}00884\ \ \ \ \ \ \ \ \ scheduler\ =\ DDPMScheduler(num\_train\_timesteps=1000,\ beta\_start=0.0015,\ beta\_end=0.0195)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00885}00885\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00886}00886\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Calculate\ latent\ scaling\ factor}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00887}00887\ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00888}00888\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Take\ a\ sample\ from\ training\ data\ to\ compute\ scaling\ factor}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00889}00889\ \ \ \ \ \ \ \ \ \ \ \ \ sample\_batch\ =\ first(train\_loader)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00890}00890\ \ \ \ \ \ \ \ \ \ \ \ \ sample\_input\ =\ sample\_batch[\textcolor{stringliteral}{"{}input"{}}].to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00891}00891\ \ \ \ \ \ \ \ \ \ \ \ \ sample\_energy\ =\ sample\_batch[\textcolor{stringliteral}{"{}energy"{}}].to(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00892}00892\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00893}00893\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Apply\ energy\ conditioning\ for\ scaling\ factor\ calculation}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00894}00894\ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ sample\_input.shape}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00895}00895\ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ sample\_energy.float()\ /\ 100.0}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00896}00896\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ normalized\_energy.view(B,\ 1,\ 1,\ 1,\ 1).expand(B,\ 1,\ D,\ H,\ W)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00897}00897\ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([sample\_input,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00898}00898\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00899}00899\ \ \ \ \ \ \ \ \ \ \ \ \ encoded\ =\ autoencoder.encode(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00900}00900\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(encoded,\ tuple):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00901}00901\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ encoded[0]}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00902}00902\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00903}00903\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ z\ =\ encoded.latent\_dist.sample()}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00904}00904\ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor\ =\ 1\ /\ torch.std(z)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00905}00905\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00906}00906\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Scaling\ factor\ set\ to\ \{scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00907}00907\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00908}00908\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Train\ Autoencoder\ with\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00909}00909\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Starting\ autoencoder\ training\ for\ unified\ model"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00910}00910\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00911}00911\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ optimizers\ with\ weight\ decay\ for\ stability}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00912}00912\ \ \ \ \ \ \ \ \ optimizer\_g\ =\ torch.optim.Adam(autoencoder.parameters(),\ lr=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}},\ weight\_decay=1e-\/5)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00913}00913\ \ \ \ \ \ \ \ \ optimizer\_d\ =\ torch.optim.Adam(discriminator.parameters(),\ lr=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}},\ weight\_decay=1e-\/5)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00914}00914\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00915}00915\ \ \ \ \ \ \ \ \ ae\_trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_autoencoder_trainer}{AutoencoderTrainer}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00916}00916\ \ \ \ \ \ \ \ \ \ \ \ \ autoencoder=autoencoder,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00917}00917\ \ \ \ \ \ \ \ \ \ \ \ \ discriminator=discriminator,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00918}00918\ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_g=optimizer\_g,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00919}00919\ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_d=optimizer\_d,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00920}00920\ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00921}00921\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00922}00922\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00923}00923\ \ \ \ \ \ \ \ \ early\_stopping\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_early_stopping}{EarlyStopping}}(patience=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ab3757642aaced79e51c245a0ca12a350}{patience}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00924}00924\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00925}00925\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ epoch\ \textcolor{keywordflow}{in}\ range(self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}}):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00926}00926\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00927}00927\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ aborted\ by\ user."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00928}00928\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00929}00929\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00930}00930\ \ \ \ \ \ \ \ \ \ \ \ \ recon\_loss,\ adv\_loss,\ disc\_loss\ =\ ae\_trainer.train\_one\_epoch(train\_loader,\ epoch)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00931}00931\ \ \ \ \ \ \ \ \ \ \ \ \ ae\_train\_losses.append(recon\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00932}00932\ \ \ \ \ \ \ \ \ \ \ \ \ gen\_losses.append(adv\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00933}00933\ \ \ \ \ \ \ \ \ \ \ \ \ disc\_losses.append(disc\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00934}00934\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00935}00935\ \ \ \ \ \ \ \ \ \ \ \ \ val\_loss\ =\ ae\_trainer.validate(val\_loader)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00936}00936\ \ \ \ \ \ \ \ \ \ \ \ \ ae\_val\_losses.append(val\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00937}00937\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00938}00938\ \ \ \ \ \ \ \ \ \ \ \ \ early\_stop\ =\ early\_stopping.update(val\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00939}00939\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ early\_stop:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00940}00940\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Early\ stopping\ triggered\ at\ epoch\ \{epoch\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00941}00941\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00942}00942\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00943}00943\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Train\ Diffusion\ Model\ with\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00944}00944\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Starting\ diffusion\ training\ for\ unified\ model"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00945}00945\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00946}00946\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ optimizer\ for\ diffusion\ model}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00947}00947\ \ \ \ \ \ \ \ \ optimizer\_diff\ =\ torch.optim.Adam(unet.parameters(),\ lr=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00948}00948\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00949}00949\ \ \ \ \ \ \ \ \ diff\_trainer\ =\ \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer}{DiffusionTrainer}}(}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00950}00950\ \ \ \ \ \ \ \ \ \ \ \ \ diffusion\_model=unet,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00951}00951\ \ \ \ \ \ \ \ \ \ \ \ \ optimizer\_diff=optimizer\_diff,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00952}00952\ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a92fbcd70c1e1184352fc4a7e855e75ad}{device}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00953}00953\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00954}00954\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00955}00955\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Train\ diffusion\ for\ fewer\ epochs\ (typically\ 10-\/20)}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00956}00956\ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ generative.inferers\ \textcolor{keyword}{import}\ LatentDiffusionInferer}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00957}00957\ \ \ \ \ \ \ \ \ inferer\ =\ LatentDiffusionInferer(scheduler=scheduler,\ scale\_factor=scale\_factor)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00958}00958\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00959}00959\ \ \ \ \ \ \ \ \ diff\_epochs\ =\ max(10,\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}}\ //\ 2)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00960}00960\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ epoch\ \textcolor{keywordflow}{in}\ range(diff\_epochs):}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00961}00961\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ae109b393dfbe5719623b2da5156b391e}{stop\_training}}:}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00962}00962\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Training\ aborted\ by\ user."{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00963}00963\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00964}00964\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00965}00965\ \ \ \ \ \ \ \ \ \ \ \ \ diff\_loss\ =\ diff\_trainer.train\_one\_epoch(train\_loader,\ epoch,\ inferer=inferer,\ autoencoder=autoencoder)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00966}00966\ \ \ \ \ \ \ \ \ \ \ \ \ diff\_losses.append(diff\_loss)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00967}00967\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00968}00968\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Save\ the\ unified\ model}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00969}00969\ \ \ \ \ \ \ \ \ model\_filename\ =\ f\textcolor{stringliteral}{"{}unified\_energy\_conditioned\_model\_res\{res\}\_energies\{len(self.energies)\}.ckpt"{}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00970}00970\ \ \ \ \ \ \ \ \ model\_path\ =\ os.path.join(os.getcwd(),\ model\_filename)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00971}00971\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00972}00972\ \ \ \ \ \ \ \ \ torch.save(\{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00973}00973\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'autoencoder'}:\ autoencoder.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00974}00974\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'unet'}:\ unet.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00975}00975\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scheduler'}:\ scheduler.state\_dict(),}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00976}00976\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scale\_factor'}:\ scale\_factor,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00977}00977\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'resolutions'}:\ [res],}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00978}00978\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'energies'}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a8fce39d4c3b9e2f1eda7a9bcd03dd7d2}{energies}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00979}00979\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'training\_config'}:\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00980}00980\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'batch\_size'}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6eb3adcd2c2e7e5389e0d287f4546593}{batch\_size}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00981}00981\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'num\_epochs'}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a6120042081bbea5b5199da3f5fa62bac}{num\_epochs}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00982}00982\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'learning\_rate'}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_a907791928f3ed7285de8417d3cdf2e1c}{learning\_rate}},}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00983}00983\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'cube\_size'}:\ self.\mbox{\hyperlink{classsystem__manager_1_1_system_manager_ad9333806c46f535ef094dd9cd9ae4878}{cube\_size}}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00984}00984\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00985}00985\ \ \ \ \ \ \ \ \ \},\ model\_path)}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00986}00986\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00987}00987\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ Unified\ energy-\/conditioned\ model\ saved\ to:\ \{model\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00988}00988\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ ENERGY-\/CONDITIONED\ TRAINING\ COMPLETED\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00989}00989\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00990}00990\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00991}00991\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'model\_path'}:\ model\_path,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00992}00992\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'autoencoder'}:\ autoencoder,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00993}00993\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'unet'}:\ unet,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00994}00994\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scheduler'}:\ scheduler,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00995}00995\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'scale\_factor'}:\ scale\_factor,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00996}00996\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'losses'}:\ \{}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00997}00997\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'ae\_train'}:\ ae\_train\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00998}00998\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'ae\_val'}:\ ae\_val\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l00999}00999\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'gen'}:\ gen\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l01000}01000\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'disc'}:\ disc\_losses,}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l01001}01001\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'diff'}:\ diff\_losses}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l01002}01002\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{system__manager_8py_source_l01003}01003\ \ \ \ \ \ \ \ \ \}}
+
+\end{DoxyCode}

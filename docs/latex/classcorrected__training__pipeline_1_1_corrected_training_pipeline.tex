@@ -1,0 +1,209 @@
+\doxysection{corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline Class Reference}
+\hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline}{}\label{classcorrected__training__pipeline_1_1_corrected_training_pipeline}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae088f75828f52e82ae33cc42cba5f9de}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, str \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}{root\+\_\+dir}}, List\mbox{[}float\mbox{]} \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}{energies}}, Tuple\mbox{[}int, int, int\mbox{]} \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\+\_\+resolution}}=(64, 64, 64), Tuple\mbox{[}int, int, int\mbox{]} \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{cube\+\_\+size}}=(64, 64, 64), int \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{batch\+\_\+size}}=2, float \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\+\_\+rate}}=1e-\/5, int \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50}{num\+\_\+epochs}}=100, torch.\+device \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}}=None)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365}{create\+\_\+corrected\+\_\+transforms}} (self)
+\item 
+Tuple \mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906}{setup\+\_\+unified\+\_\+model}} (self, Dict dose\+\_\+normalization\+\_\+params)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a9eeb2732ac8391826cd2b516917e3579}{run\+\_\+corrected\+\_\+training}} (self)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b}{calculate\+\_\+corrected\+\_\+scaling\+\_\+factor}} (self, autoencoder, train\+\_\+loader)
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf}{train\+\_\+unified\+\_\+model}} (self, autoencoder, discriminator, unet, scheduler, opt\+\_\+g, opt\+\_\+d, opt\+\_\+diff, train\+\_\+loader, val\+\_\+loader, dose\+\_\+normalization\+\_\+params, scale\+\_\+factor)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}{root\+\_\+dir}} = root\+\_\+dir
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}{energies}} = energies
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}{target\+\_\+resolution}} = target\+\_\+resolution
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}{cube\+\_\+size}} = cube\+\_\+size
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}{batch\+\_\+size}} = batch\+\_\+size
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}{learning\+\_\+rate}} = learning\+\_\+rate
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50}{num\+\_\+epochs}} = num\+\_\+epochs
+\item 
+\mbox{\hyperlink{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}{device}} = device or torch.\+device(\textquotesingle{}cuda\textquotesingle{} if torch.\+cuda.\+is\+\_\+available() else \textquotesingle{}cpu\textquotesingle{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}CORRECTED Training Pipeline that implements the sustainable solution.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00171}{171}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae088f75828f52e82ae33cc42cba5f9de}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae088f75828f52e82ae33cc42cba5f9de} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{str}]{root\+\_\+dir}{, }\item[{List\mbox{[}float\mbox{]}}]{energies}{, }\item[{Tuple\mbox{[}int, int, int\mbox{]} }]{target\+\_\+resolution}{ = {\ttfamily (64,~64,~64)}, }\item[{Tuple\mbox{[}int, int, int\mbox{]} }]{cube\+\_\+size}{ = {\ttfamily (64,~64,~64)}, }\item[{int }]{batch\+\_\+size}{ = {\ttfamily 2}, }\item[{float }]{learning\+\_\+rate}{ = {\ttfamily 1e-\/5}, }\item[{int }]{num\+\_\+epochs}{ = {\ttfamily 100}, }\item[{torch.\+device }]{device}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00176}{176}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!calculate\_corrected\_scaling\_factor@{calculate\_corrected\_scaling\_factor}}
+\index{calculate\_corrected\_scaling\_factor@{calculate\_corrected\_scaling\_factor}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{calculate\_corrected\_scaling\_factor()}{calculate\_corrected\_scaling\_factor()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a410583c909ef6a2b31fb325566bae90b} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+calculate\+\_\+corrected\+\_\+scaling\+\_\+factor (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{autoencoder}{, }\item[{}]{train\+\_\+loader}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Calculate scaling factor with corrected energy conditioning.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00337}{337}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!create\_corrected\_transforms@{create\_corrected\_transforms}}
+\index{create\_corrected\_transforms@{create\_corrected\_transforms}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{create\_corrected\_transforms()}{create\_corrected\_transforms()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae51c8cb8c3e9402b47b7b41fe19fa365} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+create\+\_\+corrected\+\_\+transforms (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Create CORRECTED transforms using Resized instead of Spacingd.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00201}{201}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a9eeb2732ac8391826cd2b516917e3579}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!run\_corrected\_training@{run\_corrected\_training}}
+\index{run\_corrected\_training@{run\_corrected\_training}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{run\_corrected\_training()}{run\_corrected\_training()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a9eeb2732ac8391826cd2b516917e3579} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+run\+\_\+corrected\+\_\+training (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Execute the corrected training pipeline.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00283}{283}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!setup\_unified\_model@{setup\_unified\_model}}
+\index{setup\_unified\_model@{setup\_unified\_model}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{setup\_unified\_model()}{setup\_unified\_model()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_adb4bb156114b7488df9c5a4efb2f2906} 
+ Tuple corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+setup\+\_\+unified\+\_\+model (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{Dict}]{dose\+\_\+normalization\+\_\+params}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Setup unified energy-conditioned model for all energies.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00236}{236}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!train\_unified\_model@{train\_unified\_model}}
+\index{train\_unified\_model@{train\_unified\_model}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{train\_unified\_model()}{train\_unified\_model()}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ae0e54bd57331d70a3990758a269fbdaf} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+train\+\_\+unified\+\_\+model (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{autoencoder}{, }\item[{}]{discriminator}{, }\item[{}]{unet}{, }\item[{}]{scheduler}{, }\item[{}]{opt\+\_\+g}{, }\item[{}]{opt\+\_\+d}{, }\item[{}]{opt\+\_\+diff}{, }\item[{}]{train\+\_\+loader}{, }\item[{}]{val\+\_\+loader}{, }\item[{}]{dose\+\_\+normalization\+\_\+params}{, }\item[{}]{scale\+\_\+factor}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Train the unified energy-conditioned model.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00369}{369}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!batch\_size@{batch\_size}}
+\index{batch\_size@{batch\_size}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{batch\_size}{batch\_size}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a657487906ac7d37669bcce7be7b608d1} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+batch\+\_\+size = batch\+\_\+size}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00190}{190}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!cube\_size@{cube\_size}}
+\index{cube\_size@{cube\_size}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{cube\_size}{cube\_size}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a091d740cd7e43b99dd7f7d63d795820a} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+cube\+\_\+size = cube\+\_\+size}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00189}{189}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!device@{device}}
+\index{device@{device}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_af8c2670665493c3b4e5ba6daefd971aa} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+device = device or torch.\+device(\textquotesingle{}cuda\textquotesingle{} if torch.\+cuda.\+is\+\_\+available() else \textquotesingle{}cpu\textquotesingle{})}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00193}{193}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!energies@{energies}}
+\index{energies@{energies}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{energies}{energies}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a4924518ad69545fa725ab31da853920b} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+energies = energies}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00187}{187}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!learning\_rate@{learning\_rate}}
+\index{learning\_rate@{learning\_rate}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{learning\_rate}{learning\_rate}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aba8f3272e6b68101fad2fc61e483125a} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+learning\+\_\+rate = learning\+\_\+rate}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00191}{191}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!num\_epochs@{num\_epochs}}
+\index{num\_epochs@{num\_epochs}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{num\_epochs}{num\_epochs}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_a913f4c5b6aa491f9afb996cee5d15a50} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+num\+\_\+epochs = num\+\_\+epochs}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00192}{192}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!root\_dir@{root\_dir}}
+\index{root\_dir@{root\_dir}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{root\_dir}{root\_dir}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_aaa4cbcda0243dfb2f6e0e39cf41db990} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+root\+\_\+dir = root\+\_\+dir}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00186}{186}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07}\index{corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}!target\_resolution@{target\_resolution}}
+\index{target\_resolution@{target\_resolution}!corrected\_training\_pipeline.CorrectedTrainingPipeline@{corrected\_training\_pipeline.CorrectedTrainingPipeline}}
+\doxysubsubsection{\texorpdfstring{target\_resolution}{target\_resolution}}
+{\footnotesize\ttfamily \label{classcorrected__training__pipeline_1_1_corrected_training_pipeline_ab0dc509bb7903b93a961729038107c07} 
+corrected\+\_\+training\+\_\+pipeline.\+Corrected\+Training\+Pipeline.\+target\+\_\+resolution = target\+\_\+resolution}
+
+
+
+Definition at line \mbox{\hyperlink{corrected__training__pipeline_8py_source_l00188}{188}} of file \mbox{\hyperlink{corrected__training__pipeline_8py_source}{corrected\+\_\+training\+\_\+pipeline.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{corrected__training__pipeline_8py}{corrected\+\_\+training\+\_\+pipeline.\+py}}\end{DoxyCompactItemize}

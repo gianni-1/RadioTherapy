@@ -1,0 +1,487 @@
+\doxysection{corrected\+\_\+inference.\+py}
+\hypertarget{corrected__inference_8py_source}{}\label{corrected__inference_8py_source}\index{sourcecode/corrected\_inference.py@{sourcecode/corrected\_inference.py}}
+\mbox{\hyperlink{corrected__inference_8py}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00001}\mbox{\hyperlink{namespacecorrected__inference}{00001}}\ \textcolor{comment}{\#!/usr/bin/env\ python3}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00002}00002\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00003}00003\ \textcolor{stringliteral}{Corrected\ inference\ pipeline\ that\ properly\ uses\ the\ energy-\/conditioned\ model.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00004}00004\ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00006}00006\ \textcolor{keyword}{import}\ torch}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00007}00007\ \textcolor{keyword}{import}\ torch.nn.functional\ \textcolor{keyword}{as}\ F}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00008}00008\ \textcolor{keyword}{import}\ numpy\ \textcolor{keyword}{as}\ np}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00009}00009\ \textcolor{keyword}{from}\ pathlib\ \textcolor{keyword}{import}\ Path}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00010}00010\ \textcolor{keyword}{import}\ logging}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00012}\mbox{\hyperlink{namespacecorrected__inference_aa1d709a8f90b2bafa1b12e265bbecf6e}{00012}}\ logger\ =\ logging.getLogger(\_\_name\_\_)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00014}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module}{00014}}\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module}{CorrectedInferenceModule}}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00015}00015\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00016}00016\ \textcolor{stringliteral}{\ \ \ \ Fixed\ inference\ module\ that\ properly\ handles\ the\ energy-\/conditioned\ model.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00017}00017\ \textcolor{stringliteral}{\ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00018}00018\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00019}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ad1ba9509dbf90141e9e01db05e1ebabf}{00019}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ad1ba9509dbf90141e9e01db05e1ebabf}{\_\_init\_\_}}(self,\ model\_path,\ device='cpu'):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00020}00020\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00021}00021\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Initialize\ with\ the\ corrected\ energy-\/conditioned\ model.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00022}00022\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00023}00023\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00024}00024\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ model\_path:\ Path\ to\ the\ unified\ model\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00025}00025\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ device:\ Device\ to\ run\ inference\ on}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00026}00026\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00027}00027\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00028}00028\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}CORRECTED\ INFERENCE\ MODULE\ INITIALIZATION"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00029}00029\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00030}00030\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00031}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{00031}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}}\ =\ device}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00032}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{00032}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a4e833e4d6f9ea474b3edaf815b342500}{model\_path}}\ =\ model\_path}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00033}00033\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00034}00034\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ the\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00035}00035\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Loading\ model\ from:\ \{model\_path\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00036}00036\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Device:\ \{device\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00037}00037\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00038}00038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Try\ loading\ with\ weights\_only=False\ to\ avoid\ the\ warning\ and\ ensure\ compatibility}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00040}00040\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Attempting\ to\ load\ checkpoint..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00041}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{00041}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}\ =\ torch.load(model\_path,\ map\_location=device,\ weights\_only=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00042}00042\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Checkpoint\ loaded\ successfully\ via\ direct\ path"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00043}00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00044}00044\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ If\ that\ fails,\ try\ opening\ as\ file\ explicitly}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ logger.warning(f\textcolor{stringliteral}{"{}Direct\ load\ failed:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00046}00046\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Attempting\ to\ load\ checkpoint\ via\ file\ handle..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00048}00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ open(model\_path,\ \textcolor{stringliteral}{'rb'})\ \textcolor{keyword}{as}\ f:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}\ =\ torch.load(f,\ map\_location=device,\ weights\_only=\textcolor{keyword}{False})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Checkpoint\ loaded\ successfully\ via\ file\ handle"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00051}00051\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e2:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Both\ loading\ methods\ failed:\ \{e2\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e2}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00054}00054\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00055}00055\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Extract\ energies\ and\ scale\ factor\ from\ checkpoint}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00056}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483}{00056}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483}{energies}}\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}.get(\textcolor{stringliteral}{'energies'},\ [11.5,\ 15.75,\ 34.25])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00057}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e}{00057}}\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e}{scale\_factor}}\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}.get(\textcolor{stringliteral}{'scale\_factor'},\ 0.18215)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00058}00058\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00059}00059\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Model\ energies:\ \{self.energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00060}00060\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Scale\ factor:\ \{self.scale\_factor\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00061}00061\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Checkpoint\ keys:\ \{list(self.checkpoint.keys())\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00062}00062\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ models}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00064}00064\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Loading\ model\ components..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00065}00065\ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380}{\_load\_models}}()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00066}00066\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ Corrected\ inference\ module\ initialized\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00067}00067\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00068}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380}{00068}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af1c6d8cfc62d78ad825967da9ddec380}{\_load\_models}}(self):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00069}00069\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Load\ autoencoder,\ unet,\ and\ scheduler\ from\ checkpoint."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Loading\ required\ modules..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Import\ required\ modules}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ generative.networks.nets\ \textcolor{keyword}{import}\ AutoencoderKL,\ DiffusionModelUNet}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ generative.inferers\ \textcolor{keyword}{import}\ LatentDiffusionInferer}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ monai.utils\ \textcolor{keyword}{import}\ set\_determinism}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ Modules\ imported\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ autoencoder}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Creating\ autoencoder..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00080}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{00080}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}}\ =\ AutoencoderKL(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ CT\ +\ Energy\ channel}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=1,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latent\_channels=2,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ norm\_num\_groups=8,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{False},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ Autoencoder\ created\ (in\_channels=2,\ out\_channels=1)"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ UNet}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Creating\ UNet..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00094}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{00094}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{unet}}\ =\ DiffusionModelUNet(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ spatial\_dims=3,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ in\_channels=2,\ \ \textcolor{comment}{\#\ Latent\ space\ is\ 2\ channels}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ out\_channels=2,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with\_conditioning=\textcolor{keyword}{True},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cross\_attention\_dim=2,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00100}00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_res\_blocks=1,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00101}00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_channels=(32,\ 64,\ 64),}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ attention\_levels=(\textcolor{keyword}{False},\ \textcolor{keyword}{True},\ \textcolor{keyword}{True}),}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_head\_channels=(0,\ 32,\ 32),}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ ).to(self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ UNet\ created\ (in\_channels=2,\ out\_channels=2,\ cross\_attention\_dim=2)"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ scheduler}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Creating\ scheduler..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{from}\ generative.networks.schedulers.ddpm\ \textcolor{keyword}{import}\ DDPMScheduler}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00111}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}{00111}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}{scheduler}}\ =\ DDPMScheduler(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ num\_train\_timesteps=1000,\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_start=0.0015,\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ beta\_end=0.0195}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ DDPM\ Scheduler\ created\ (timesteps=1000)"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Load\ state\ dicts}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Loading\ model\ weights..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ autoencoder\ weights}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ ae\_state\_dict\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}[\textcolor{stringliteral}{'autoencoder'}]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ Autoencoder\ checkpoint\ keys:\ \{len(ae\_state\_dict)\}\ parameters"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}}.load\_state\_dict(ae\_state\_dict)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ Autoencoder\ weights\ loaded"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Check\ UNet\ weights}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ unet\_state\_dict\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abd0ab6ae647ab5f1df52fc3be8a7d0d3}{checkpoint}}[\textcolor{stringliteral}{'unet'}]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ UNet\ checkpoint\ keys:\ \{len(unet\_state\_dict)\}\ parameters"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{unet}}.load\_state\_dict(unet\_state\_dict)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ UNet\ weights\ loaded"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Set\ to\ eval\ mode}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}}.eval()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{unet}}.eval()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ Models\ set\ to\ evaluation\ mode"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ inferer}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ Creating\ inferer..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00140}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175}{00140}}\ \ \ \ \ \ \ \ \ \ \ \ \ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175}{inferer}}\ =\ LatentDiffusionInferer(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scheduler=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}{scheduler}},\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scale\_factor=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ae42a2df6d20529855d13d7116a8cb97e}{scale\_factor}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ LatentDiffusionInferer\ created\ (scale\_factor=\{self.scale\_factor\})"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00146}00146\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Failed\ to\ load\ models:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Model\ loading\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00150}00150\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00151}00151\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}\ \ ✓\ All\ models\ loaded\ successfully"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00152}00152\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00153}00153\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00154}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc}{00154}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc}{preprocess\_ct}}(self,\ ct\_array,\ target\_cube\_size=(64,\ 64,\ 64)):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00155}00155\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00156}00156\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Preprocess\ CT\ data\ for\ inference.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00157}00157\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00158}00158\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00159}00159\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ ct\_array:\ CT\ data\ as\ numpy\ array}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00160}00160\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size:\ Target\ size\ for\ processing}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00161}00161\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00162}00162\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00163}00163\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ Preprocessed\ CT\ tensor}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00164}00164\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00165}00165\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Convert\ to\ tensor}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00166}00166\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(ct\_array,\ np.ndarray):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ torch.from\_numpy(ct\_array).float()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00168}00168\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ ct\_array.float()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00170}00170\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00171}00171\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ batch\ and\ channel\ dimensions\ if\ needed}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00172}00172\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ct\_tensor.dim()\ ==\ 3:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ ct\_tensor.unsqueeze(0).unsqueeze(0)\ \ \textcolor{comment}{\#\ [1,\ 1,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00174}00174\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{elif}\ ct\_tensor.dim()\ ==\ 4:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ ct\_tensor.unsqueeze(0)\ \ \textcolor{comment}{\#\ [1,\ C,\ D,\ H,\ W]}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00176}00176\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00177}00177\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Resize\ to\ target\ size}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00178}00178\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ ct\_tensor.shape[2:]\ !=\ target\_cube\_size:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor\ =\ F.interpolate(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ size=target\_cube\_size,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mode=\textcolor{stringliteral}{'trilinear'},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ align\_corners=\textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00185}00185\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00186}00186\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Normalize\ CT\ values\ (similar\ to\ training\ preprocessing)}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00187}00187\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Clamp\ extreme\ values\ and\ normalize\ to\ 0-\/1\ range}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00188}00188\ \ \ \ \ \ \ \ \ ct\_tensor\ =\ torch.clamp(ct\_tensor,\ -\/1000,\ 3000)\ \ \textcolor{comment}{\#\ Typical\ CT\ range}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00189}00189\ \ \ \ \ \ \ \ \ ct\_tensor\ =\ (ct\_tensor\ +\ 1000)\ /\ 4000\ \ \textcolor{comment}{\#\ Normalize\ to\ 0-\/1}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00190}00190\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00191}00191\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ct\_tensor.to(self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00192}00192\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00193}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a0a45d088895987ac737ad825664ce89e}{00193}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a0a45d088895987ac737ad825664ce89e}{run\_inference}}(self,\ ct\_tensor,\ quad\_energies=None,\ quad\_weights=None,\ target\_cube\_size=(64,\ 64,\ 64)):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00194}00194\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00195}00195\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Run\ inference\ on\ CT\ data\ with\ quadrature\ integration\ over\ energies.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00196}00196\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00197}00197\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00198}00198\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor:\ CT\ data\ tensor\ or\ numpy\ array}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00199}00199\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ quad\_energies:\ List\ of\ quadrature\ energies\ (if\ None,\ uses\ single\ energy)}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00200}00200\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ quad\_weights:\ List\ of\ quadrature\ weights\ (if\ None,\ uses\ single\ energy)}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00201}00201\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size:\ Target\ cube\ size\ for\ processing}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00202}00202\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00203}00203\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00204}00204\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ Dose\ distribution\ tensor}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00205}00205\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00206}00206\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ quad\_energies\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}\ \textcolor{keywordflow}{or}\ quad\_weights\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Single\ energy\ inference}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}===\ RUNNING\ SINGLE\ ENERGY\ INFERENCE\ ==="{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}{run\_inference\_single\_energy}}(ct\_tensor,\ target\_cube\_size=target\_cube\_size)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00210}00210\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00211}00211\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00212}00212\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}RUNNING\ CORRECTED\ INFERENCE\ WITH\ QUADRATURE"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00213}00213\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00214}00214\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ energies:\ \{quad\_energies\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00215}00215\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Quadrature\ weights:\ \{quad\_weights\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00216}00216\ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Number\ of\ quadrature\ points:\ \{len(quad\_energies)\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00217}00217\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00218}00218\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference\ for\ each\ energy\ and\ aggregate}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ total\_dose\ =\ \textcolor{keywordtype}{None}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ i,\ (energy,\ weight)\ \textcolor{keywordflow}{in}\ enumerate(zip(quad\_energies,\ quad\_weights)):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Processing\ quadrature\ point\ \{i+1\}/\{len(quad\_energies)\}:\ energy=\{energy:.3f\}\ keV,\ weight=\{weight:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference\ for\ this\ energy}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}{run\_inference\_single\_energy}}(ct\_tensor,\ target\_energy=energy,\ target\_cube\_size=target\_cube\_size)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ Dose\ computed:\ shape=\{dose.shape\},\ range=[\{dose.min():.6f\},\ \{dose.max():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Weight\ and\ accumulate}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ total\_dose\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_dose\ =\ dose\ *\ weight}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ Initialized\ total\ dose\ (weighted\ by\ \{weight:.6f\})"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\_dose\ +=\ dose\ *\ weight}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ ✓\ Added\ to\ total\ dose\ (weighted\ by\ \{weight:.6f\})"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}QUADRATURE\ INTEGRATION\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose:\ shape=\{total\_dose.shape\},\ range=[\{total\_dose.min():.6f\},\ \{total\_dose.max():.6f\}]"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}="{}}\ *\ 60)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ total\_dose}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00243}00243\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}QUADRATURE\ INFERENCE\ FAILED"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Error:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Quadrature\ inference\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00248}00248\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00249}\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}{00249}}\ \ \ \ \ \textcolor{keyword}{def\ }\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a5f5c2d927e107b71544f98b815b9b62e}{run\_inference\_single\_energy}}(self,\ ct\_tensor,\ target\_energy=None,\ target\_cube\_size=(64,\ 64,\ 64)):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00250}00250\ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00251}00251\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Run\ inference\ on\ CT\ data\ for\ a\ single\ energy.}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00252}00252\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00253}00253\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Args:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00254}00254\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor:\ CT\ data\ tensor\ or\ numpy\ array}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00255}00255\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target\_energy:\ Target\ energy\ for\ inference\ (if\ None,\ uses\ first\ available)}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00256}00256\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size:\ Target\ cube\ size\ for\ processing}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00257}00257\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ }}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00258}00258\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ Returns:}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00259}00259\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ \ \ \ \ Dose\ distribution\ tensor}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00260}00260\ \textcolor{stringliteral}{\ \ \ \ \ \ \ \ "{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00261}00261\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00262}00262\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}SINGLE\ ENERGY\ INFERENCE\ STARTED"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00263}00263\ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00264}00264\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00265}00265\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Preprocess\ CT}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00267}00267\ \ \ \ \ \ \ \ \ \ \ \ \ original\_shape\ =\ ct\_tensor.shape\ \textcolor{keywordflow}{if}\ hasattr(ct\_tensor,\ \textcolor{stringliteral}{'shape'})\ \textcolor{keywordflow}{else}\ ct\_tensor.shape}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Original\ CT\ shape:\ \{original\_shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ input\_tensor\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a699831c78491875839c1fc718f5759dc}{preprocess\_ct}}(ct\_tensor,\ target\_cube\_size)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Input\ preprocessed:\ \{input\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00272}00272\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00273}00273\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Choose\ energy}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ target\_energy\ \textcolor{keywordflow}{is}\ \textcolor{keywordtype}{None}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ target\_energy\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a6f01efba7bdd59ebb0a0ddd32997c483}{energies}}[0]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}No\ target\ energy\ specified,\ using\ default:\ \{target\_energy\}\ keV"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00278}00278\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ specified\ energy:\ \{target\_energy\}\ keV"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00279}00279\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00280}00280\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Add\ energy\ conditioning}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00281}00281\ \ \ \ \ \ \ \ \ \ \ \ \ B,\ C,\ D,\ H,\ W\ =\ input\_tensor.shape}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00282}00282\ \ \ \ \ \ \ \ \ \ \ \ \ normalized\_energy\ =\ target\_energy\ /\ 100.0\ \ \textcolor{comment}{\#\ Normalize\ like\ in\ training}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00283}00283\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_tensor\ =\ torch.full((B,\ 1,\ D,\ H,\ W),\ normalized\_energy,\ device=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00284}00284\ \ \ \ \ \ \ \ \ \ \ \ \ conditioned\_input\ =\ torch.cat([input\_tensor,\ energy\_tensor],\ dim=1)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00285}00285\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00286}00286\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}✓\ Energy\ conditioning\ added:"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00287}00287\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/\ Input\ shape:\ \{input\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00288}00288\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/\ Energy\ tensor\ shape:\ \{energy\_tensor.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00289}00289\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/\ Conditioned\ input\ shape:\ \{conditioned\_input.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00290}00290\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}\ \ -\/\ Raw\ energy:\ \{target\_energy\},\ normalized:\ \{normalized\_energy:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00291}00291\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00292}00292\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{with}\ torch.no\_grad():}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00293}00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 1.\ Encode\ with\ autoencoder}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00294}00294\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Step\ 1:\ Encoding\ with\ autoencoder..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00295}00295\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ encoded\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}}.encode(conditioned\_input)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00296}00296\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ isinstance(encoded,\ tuple):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00297}00297\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latent\ =\ encoded[0]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00298}00298\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00299}00299\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ latent\ =\ encoded.latent\_dist.sample()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00300}00300\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00301}00301\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Latent\ shape:\ \{latent.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00302}00302\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Latent\ range:\ \{latent.min():.4f\}\ to\ \{latent.max():.4f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00303}00303\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00304}00304\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 2.\ Create\ context\ for\ cross-\/attention}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00305}00305\ \ \ \ \ \ \ \ \ \ \ \ \ energy\_weight\ =\ 1.0\ \ \textcolor{comment}{\#\ Could\ be\ adjusted\ based\ on\ energy}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00306}00306\ \ \ \ \ \ \ \ \ \ \ \ \ context\ =\ torch.tensor(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00307}00307\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [[normalized\_energy,\ energy\_weight]],\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00308}00308\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dtype=torch.float32,\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00309}00309\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ device=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00310}00310\ \ \ \ \ \ \ \ \ \ \ \ \ ).unsqueeze(1)\ \ \textcolor{comment}{\#\ [1,\ 1,\ 2]\ -\/\ Add\ sequence\ dimension}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00311}00311\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00312}00312\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Context\ shape:\ \{context.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00313}00313\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Context\ values:\ \{context\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00314}00314\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00315}00315\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 3.\ Run\ diffusion\ sampling}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00316}00316\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}Running\ diffusion\ sampling..."{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00317}00317\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00318}00318\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Create\ noise\ for\ sampling}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00319}00319\ \ \ \ \ \ \ \ \ \ \ \ \ noise\_shape\ =\ latent.shape}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00320}00320\ \ \ \ \ \ \ \ \ \ \ \ \ noise\ =\ torch.randn(noise\_shape,\ device=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_a675d8e4c8910adddd94165dabe2c9900}{device}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00321}00321\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Noise\ shape:\ \{noise\_shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Using\ context:\ \{context\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00324}00324\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Use\ the\ inferer\ for\ proper\ diffusion\ sampling}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ The\ LatentDiffusionInferer\ handles\ the\ full\ pipeline\ internally}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ sampled\_output\ =\ self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6cda00769d112cfe12493330628d175}{inferer}}.sample(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00328}00328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ input\_noise=noise,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00329}00329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ autoencoder\_model=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_ace585f86b11cdd323f7dc010cb89fe4e}{autoencoder}},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00330}00330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diffusion\_model=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_af6b42fbb911ba59a681efb81ea3e79ad}{unet}},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00331}00331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ scheduler=self.\mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module_abc35857cd72fd1417d06568162fb38fb}{scheduler}},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00332}00332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ conditioning=context,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00333}00333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mode=\textcolor{stringliteral}{"{}crossattn"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00334}00334\ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00335}00335\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00336}00336\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Sampled\ output\ shape:\ \{sampled\_output.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00337}00337\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Sampled\ output\ range:\ \{sampled\_output.min():.4f\}\ to\ \{sampled\_output.max():.4f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00338}00338\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00339}00339\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ The\ inferer\ should\ return\ the\ decoded\ output\ directly}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00340}00340\ \ \ \ \ \ \ \ \ \ \ \ \ final\_output\ =\ sampled\_output}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00341}00341\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00342}00342\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 5.\ Take\ only\ the\ dose\ channel\ (first\ channel)\ if\ multi-\/channel}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00343}00343\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ final\_output.shape[1]\ >\ 1:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00344}00344\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_output\ =\ final\_output[:,\ :1]\ \ \textcolor{comment}{\#\ Take\ first\ channel}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00345}00345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Took\ first\ channel\ for\ dose,\ shape:\ \{dose\_output.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00346}00346\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00347}00347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_output\ =\ final\_output}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00348}00348\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00349}00349\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose\ output\ shape:\ \{dose\_output.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00350}00350\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ dose\ range:\ \{dose\_output.min():.6f\}\ to\ \{dose\_output.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00351}00351\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00352}00352\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 6.\ Resize\ back\ to\ original\ size\ if\ needed}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00353}00353\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ hasattr(ct\_tensor,\ \textcolor{stringliteral}{'shape'}):}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00354}00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_spatial\ =\ ct\_tensor.shape\ \textcolor{keywordflow}{if}\ len(ct\_tensor.shape)\ ==\ 3\ \textcolor{keywordflow}{else}\ ct\_tensor.shape[-\/3:]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00355}00355\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00356}00356\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ original\_spatial\ =\ original\_shape\ \textcolor{keywordflow}{if}\ len(original\_shape)\ ==\ 3\ \textcolor{keywordflow}{else}\ original\_shape[-\/3:]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00357}00357\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00358}00358\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ dose\_output.shape[2:]\ !=\ original\_spatial:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00359}00359\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Resizing\ from\ \{dose\_output.shape[2:]\}\ to\ \{original\_spatial\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00360}00360\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_output\ =\ F.interpolate(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00361}00361\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ dose\_output,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00362}00362\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ size=original\_spatial,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00363}00363\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ mode=\textcolor{stringliteral}{'trilinear'},}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00364}00364\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ align\_corners=\textcolor{keyword}{False}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00365}00365\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00366}00366\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00367}00367\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ 7.\ Remove\ batch\ dimension}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00368}00368\ \ \ \ \ \ \ \ \ \ \ \ \ final\_dose\ =\ dose\_output[0,\ 0]\ \ \textcolor{comment}{\#\ Remove\ batch\ and\ channel\ dims}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00369}00369\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00370}00370\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ output\ shape:\ \{final\_dose.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00371}00371\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(f\textcolor{stringliteral}{"{}Final\ output\ range:\ \{final\_dose.min():.6f\}\ to\ \{final\_dose.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00372}00372\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00373}00373\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}✓\ SINGLE\ ENERGY\ INFERENCE\ COMPLETED\ SUCCESSFULLY"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00374}00374\ \ \ \ \ \ \ \ \ \ \ \ \ logger.info(\textcolor{stringliteral}{"{}-\/"{}}\ *\ 40)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00375}00375\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ final\_dose}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00376}00376\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00377}00377\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00378}00378\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}SINGLE\ ENERGY\ INFERENCE\ FAILED"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00379}00379\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(f\textcolor{stringliteral}{"{}Error:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00380}00380\ \ \ \ \ \ \ \ \ \ \ \ \ logger.error(\textcolor{stringliteral}{"{}Single\ energy\ inference\ traceback:"{}},\ exc\_info=\textcolor{keyword}{True})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00381}00381\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{raise}\ e}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00382}00382\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00383}00383\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00384}\mbox{\hyperlink{namespacecorrected__inference_a7589b65319e064ed77b53174e02d5c6f}{00384}}\ \textcolor{keyword}{def\ }\mbox{\hyperlink{namespacecorrected__inference_a7589b65319e064ed77b53174e02d5c6f}{test\_corrected\_inference}}():}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00385}00385\ \ \ \ \ \textcolor{stringliteral}{"{}"{}"{}Test\ the\ corrected\ inference\ module."{}"{}"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00386}00386\ \ \ \ \ \textcolor{keyword}{import}\ matplotlib.pyplot\ \textcolor{keyword}{as}\ plt}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00387}00387\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00388}00388\ \ \ \ \ \textcolor{comment}{\#\ Load\ test\ data}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00389}00389\ \ \ \ \ input\_file\ =\ Path(\textcolor{stringliteral}{"{}traindata/11\_5/inputcube/235101017859661465075472232303048949736\_0.npy"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00390}00390\ \ \ \ \ output\_file\ =\ Path(\textcolor{stringliteral}{"{}traindata/11\_5/outputcube/235101017859661465075472232303048949736\_0.npy"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00391}00391\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00392}00392\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keywordflow}{not}\ input\_file.exists():}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00393}00393\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Test\ input\ file\ not\ found:\ \{input\_file\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00394}00394\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00395}00395\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00396}00396\ \ \ \ \ input\_data\ =\ np.load(input\_file)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00397}00397\ \ \ \ \ ground\_truth\ =\ np.load(output\_file)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00398}00398\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00399}00399\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Input\ shape:\ \{input\_data.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00400}00400\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Ground\ truth\ shape:\ \{ground\_truth.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00401}00401\ \ \ \ \ print(f\textcolor{stringliteral}{"{}Ground\ truth\ range:\ \{ground\_truth.min():.6f\}\ to\ \{ground\_truth.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00402}00402\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00403}00403\ \ \ \ \ \textcolor{comment}{\#\ Run\ corrected\ inference}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00404}00404\ \ \ \ \ model\_path\ =\ \textcolor{stringliteral}{"{}unified\_energy\_conditioned\_model\_res16.0\_energies3.ckpt"{}}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00405}00405\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00406}00406\ \ \ \ \ \textcolor{keywordflow}{try}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00407}00407\ \ \ \ \ \ \ \ \ inference\_module\ =\ \mbox{\hyperlink{classcorrected__inference_1_1_corrected_inference_module}{CorrectedInferenceModule}}(model\_path,\ device=\textcolor{stringliteral}{'cpu'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00408}00408\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00409}00409\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Run\ inference}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00410}00410\ \ \ \ \ \ \ \ \ result\ =\ inference\_module.run\_inference\_single\_energy(}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00411}00411\ \ \ \ \ \ \ \ \ \ \ \ \ ct\_tensor=input\_data,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00412}00412\ \ \ \ \ \ \ \ \ \ \ \ \ target\_energy=11.5,}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00413}00413\ \ \ \ \ \ \ \ \ \ \ \ \ target\_cube\_size=(64,\ 64,\ 64)}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00414}00414\ \ \ \ \ \ \ \ \ )}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00415}00415\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00416}00416\ \ \ \ \ \ \ \ \ result\_np\ =\ result.cpu().numpy()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00417}00417\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Inference\ result\ shape:\ \{result\_np.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00418}00418\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Inference\ result\ range:\ \{result\_np.min():.6f\}\ to\ \{result\_np.max():.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00419}00419\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00420}00420\ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Compare\ with\ ground\ truth}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00421}00421\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ result\_np.shape\ ==\ ground\_truth.shape:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00422}00422\ \ \ \ \ \ \ \ \ \ \ \ \ correlation\ =\ np.corrcoef(result\_np.flatten(),\ ground\_truth.flatten())[0,\ 1]}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Correlation\ with\ ground\ truth:\ \{correlation:.6f\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00425}00425\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Visualize\ comparison}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00426}00426\ \ \ \ \ \ \ \ \ \ \ \ \ fig,\ axes\ =\ plt.subplots(2,\ 3,\ figsize=(15,\ 10))}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00427}00427\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00428}00428\ \ \ \ \ \ \ \ \ \ \ \ \ slice\_idx\ =\ ground\_truth.shape[2]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00429}00429\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00430}00430\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Ground\ truth}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00431}00431\ \ \ \ \ \ \ \ \ \ \ \ \ im1\ =\ axes[0,\ 0].imshow(ground\_truth[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00432}00432\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].set\_title(f\textcolor{stringliteral}{'Ground\ Truth\(\backslash\)nMax:\ \{ground\_truth.max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00433}00433\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 0].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00434}00434\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im1,\ ax=axes[0,\ 0])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00435}00435\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00436}00436\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Inference\ result}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00437}00437\ \ \ \ \ \ \ \ \ \ \ \ \ im2\ =\ axes[0,\ 1].imshow(result\_np[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00438}00438\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].set\_title(f\textcolor{stringliteral}{'Corrected\ Inference\(\backslash\)nMax:\ \{result\_np.max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00439}00439\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 1].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00440}00440\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im2,\ ax=axes[0,\ 1])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00441}00441\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00442}00442\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Difference}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00443}00443\ \ \ \ \ \ \ \ \ \ \ \ \ diff\ =\ result\_np\ -\/\ ground\_truth}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00444}00444\ \ \ \ \ \ \ \ \ \ \ \ \ im3\ =\ axes[0,\ 2].imshow(diff[:,\ :,\ slice\_idx],\ cmap=\textcolor{stringliteral}{'RdBu\_r'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00445}00445\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 2].set\_title(f\textcolor{stringliteral}{'Difference\(\backslash\)nMax:\ \{abs(diff).max():.6f\}'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00446}00446\ \ \ \ \ \ \ \ \ \ \ \ \ axes[0,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00447}00447\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im3,\ ax=axes[0,\ 2])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00448}00448\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00449}00449\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{\#\ Axial\ view}}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00450}00450\ \ \ \ \ \ \ \ \ \ \ \ \ slice\_idx\_y\ =\ ground\_truth.shape[1]\ //\ 2}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00451}00451\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00452}00452\ \ \ \ \ \ \ \ \ \ \ \ \ im4\ =\ axes[1,\ 0].imshow(ground\_truth[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].set\_title(\textcolor{stringliteral}{'Ground\ Truth\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 0].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im4,\ ax=axes[1,\ 0])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00457}00457\ \ \ \ \ \ \ \ \ \ \ \ \ im5\ =\ axes[1,\ 1].imshow(result\_np[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'hot'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00458}00458\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].set\_title(\textcolor{stringliteral}{'Corrected\ Inference\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 1].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00460}00460\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im5,\ ax=axes[1,\ 1])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00461}00461\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00462}00462\ \ \ \ \ \ \ \ \ \ \ \ \ im6\ =\ axes[1,\ 2].imshow(diff[:,\ slice\_idx\_y,\ :],\ cmap=\textcolor{stringliteral}{'RdBu\_r'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00463}00463\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 2].set\_title(\textcolor{stringliteral}{'Difference\ (Axial)'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00464}00464\ \ \ \ \ \ \ \ \ \ \ \ \ axes[1,\ 2].axis(\textcolor{stringliteral}{'off'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ plt.colorbar(im6,\ ax=axes[1,\ 2])}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ plt.tight\_layout()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ plt.savefig(\textcolor{stringliteral}{'corrected\_inference\_comparison.png'},\ dpi=150,\ bbox\_inches=\textcolor{stringliteral}{'tight'})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ print(\textcolor{stringliteral}{"{}Saved\ comparison\ as\ 'corrected\_inference\_comparison.png'"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00471}00471\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00472}00472\ \ \ \ \ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Shape\ mismatch:\ result\ \{result\_np.shape\}\ vs\ ground\ truth\ \{ground\_truth.shape\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00473}00473\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00474}00474\ \ \ \ \ \textcolor{keywordflow}{except}\ Exception\ \textcolor{keyword}{as}\ e:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00475}00475\ \ \ \ \ \ \ \ \ print(f\textcolor{stringliteral}{"{}Error\ during\ corrected\ inference:\ \{e\}"{}})}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00476}00476\ \ \ \ \ \ \ \ \ \textcolor{keyword}{import}\ traceback}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00477}00477\ \ \ \ \ \ \ \ \ traceback.print\_exc()}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00478}00478\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00479}00479\ }
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00480}00480\ \textcolor{keywordflow}{if}\ \_\_name\_\_\ ==\ \textcolor{stringliteral}{"{}\_\_main\_\_"{}}:}
+\DoxyCodeLine{\Hypertarget{corrected__inference_8py_source_l00481}00481\ \ \ \ \ \mbox{\hyperlink{namespacecorrected__inference_a7589b65319e064ed77b53174e02d5c6f}{test\_corrected\_inference}}()}
+
+\end{DoxyCode}

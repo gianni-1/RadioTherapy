@@ -1,0 +1,208 @@
+\doxysection{systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic Class Reference}
+\hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic}{}\label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a49da68772ac3c5cad5a8d7cc9a59faab}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{traindata\+\_\+dir}}="{}traindata"{}, \mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\+\_\+path}}=None)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed}{analyze\+\_\+raw\+\_\+dose\+\_\+data}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd}{analyze\+\_\+training\+\_\+normalization}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328}{analyze\+\_\+checkpoint\+\_\+parameters}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805}{analyze\+\_\+inference\+\_\+flow}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901}{perform\+\_\+data\+\_\+flow\+\_\+analysis}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385}{generate\+\_\+recommendations}} (self)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af}{save\+\_\+results}} (self, output\+\_\+path="{}dose\+\_\+diagnosis\+\_\+results.\+json"{})
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0}{create\+\_\+visualization}} (self, output\+\_\+path="{}dose\+\_\+diagnosis\+\_\+visualization.\+png"{})
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_ab30534dd1285b36c6434f7f66d7842a5}{run\+\_\+full\+\_\+diagnosis}} (self, \mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\+\_\+path}}=None)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}{traindata\+\_\+dir}} = Path(traindata\+\_\+dir)
+\item 
+\mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}{checkpoint\+\_\+path}} = checkpoint\+\_\+path
+\item 
+dict \mbox{\hyperlink{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}{results}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Comprehensive diagnosis of dose normalization pipeline.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00033}{33}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a49da68772ac3c5cad5a8d7cc9a59faab}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a49da68772ac3c5cad5a8d7cc9a59faab} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{traindata\+\_\+dir}{ = {\ttfamily "{}traindata"{}}, }\item[{}]{checkpoint\+\_\+path}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00036}{36}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!analyze\_checkpoint\_parameters@{analyze\_checkpoint\_parameters}}
+\index{analyze\_checkpoint\_parameters@{analyze\_checkpoint\_parameters}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{analyze\_checkpoint\_parameters()}{analyze\_checkpoint\_parameters()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_aa337a399237e397d97891d46f6e57328} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+analyze\+\_\+checkpoint\+\_\+parameters (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.3: Analyze checkpoint normalization parameters.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00202}{202}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!analyze\_inference\_flow@{analyze\_inference\_flow}}
+\index{analyze\_inference\_flow@{analyze\_inference\_flow}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{analyze\_inference\_flow()}{analyze\_inference\_flow()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_adbd5d221f07e34634b08836fe6a17805} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+analyze\+\_\+inference\+\_\+flow (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.4: Analyze inference denormalization flow.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00265}{265}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!analyze\_raw\_dose\_data@{analyze\_raw\_dose\_data}}
+\index{analyze\_raw\_dose\_data@{analyze\_raw\_dose\_data}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{analyze\_raw\_dose\_data()}{analyze\_raw\_dose\_data()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a425b310480c51de0a9534d462808b2ed} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+analyze\+\_\+raw\+\_\+dose\+\_\+data (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.1: Analyze raw dose data in traindata directory.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00049}{49}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!analyze\_training\_normalization@{analyze\_training\_normalization}}
+\index{analyze\_training\_normalization@{analyze\_training\_normalization}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{analyze\_training\_normalization()}{analyze\_training\_normalization()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a998062fd33ff57463b18488bdabc05dd} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+analyze\+\_\+training\+\_\+normalization (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.2: Analyze training normalization logic.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00144}{144}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!create\_visualization@{create\_visualization}}
+\index{create\_visualization@{create\_visualization}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{create\_visualization()}{create\_visualization()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a4abb3b19dcb9d8c3f714bd56ee241fc0} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+create\+\_\+visualization (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{output\+\_\+path}{ = {\ttfamily "{}dose\+\_\+diagnosis\+\_\+visualization.png"{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Create visualization of key findings.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00436}{436}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!generate\_recommendations@{generate\_recommendations}}
+\index{generate\_recommendations@{generate\_recommendations}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{generate\_recommendations()}{generate\_recommendations()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a118f7bbf03e79d35c88d6a759670e385} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+generate\+\_\+recommendations (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.6: Generate specific recommendations.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00365}{365}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!perform\_data\_flow\_analysis@{perform\_data\_flow\_analysis}}
+\index{perform\_data\_flow\_analysis@{perform\_data\_flow\_analysis}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{perform\_data\_flow\_analysis()}{perform\_data\_flow\_analysis()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a1f9a4541db76a5b49ae08ac222f6d901} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+perform\+\_\+data\+\_\+flow\+\_\+analysis (\begin{DoxyParamCaption}\item[{}]{self}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Phase 1.5: Comprehensive data flow analysis.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00310}{310}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_ab30534dd1285b36c6434f7f66d7842a5}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!run\_full\_diagnosis@{run\_full\_diagnosis}}
+\index{run\_full\_diagnosis@{run\_full\_diagnosis}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{run\_full\_diagnosis()}{run\_full\_diagnosis()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_ab30534dd1285b36c6434f7f66d7842a5} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+run\+\_\+full\+\_\+diagnosis (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{checkpoint\+\_\+path}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Run complete diagnosis pipeline.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00534}{534}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!save\_results@{save\_results}}
+\index{save\_results@{save\_results}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{save\_results()}{save\_results()}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a57f9d0baa07d67eb3fdb025c4542e7af} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+save\+\_\+results (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{output\+\_\+path}{ = {\ttfamily "{}dose\+\_\+diagnosis\+\_\+results.json"{}}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Save all analysis results to JSON file.\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00427}{427}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!checkpoint\_path@{checkpoint\_path}}
+\index{checkpoint\_path@{checkpoint\_path}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{checkpoint\_path}{checkpoint\_path}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a84f6aa6dd49eb502075eed01b3372988} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+checkpoint\+\_\+path = checkpoint\+\_\+path}
+
+
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00038}{38}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!results@{results}}
+\index{results@{results}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{results}{results}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a922b5716736a3af354bfb978f94e22d7} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+results}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \ \{}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'raw\_dose\_statistics'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'training\_normalization\_params'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'checkpoint\_normalization\_params'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'inference\_parameters'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'medical\_plausibility'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'data\_flow\_analysis'}:\ \{\},}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{'recommendations'}:\ []}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \}}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00039}{39}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+\Hypertarget{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c}\index{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}!traindata\_dir@{traindata\_dir}}
+\index{traindata\_dir@{traindata\_dir}!systematic\_dose\_diagnosis.DoseNormalizationDiagnostic@{systematic\_dose\_diagnosis.DoseNormalizationDiagnostic}}
+\doxysubsubsection{\texorpdfstring{traindata\_dir}{traindata\_dir}}
+{\footnotesize\ttfamily \label{classsystematic__dose__diagnosis_1_1_dose_normalization_diagnostic_a5d6a74efd3404a9529296455f88afd7c} 
+systematic\+\_\+dose\+\_\+diagnosis.\+Dose\+Normalization\+Diagnostic.\+traindata\+\_\+dir = Path(traindata\+\_\+dir)}
+
+
+
+Definition at line \mbox{\hyperlink{systematic__dose__diagnosis_8py_source_l00037}{37}} of file \mbox{\hyperlink{systematic__dose__diagnosis_8py_source}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+tests/\mbox{\hyperlink{systematic__dose__diagnosis_8py}{systematic\+\_\+dose\+\_\+diagnosis.\+py}}\end{DoxyCompactItemize}

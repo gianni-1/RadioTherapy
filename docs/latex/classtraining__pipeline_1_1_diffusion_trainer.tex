@@ -1,0 +1,147 @@
+\doxysection{training\+\_\+pipeline.\+Diffusion\+Trainer Class Reference}
+\hypertarget{classtraining__pipeline_1_1_diffusion_trainer}{}\label{classtraining__pipeline_1_1_diffusion_trainer}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9d895124c9c3e61a7def924d9641e1c8}{\+\_\+\+\_\+init\+\_\+\+\_\+}} (self, \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\+\_\+model}}, \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{optimizer\+\_\+diff}}, \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9}{energy\+\_\+min}}, \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046}{energy\+\_\+max}}, \mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}})
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a5b507d0375c19ba5a5ba08c8b2a42f62}{train\+\_\+one\+\_\+epoch}} (self, train\+\_\+loader, epoch, inferer=None, autoencoder=None)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}{diffusion\+\_\+model}} = diffusion\+\_\+model
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}{optimizer\+\_\+diff}} = optimizer\+\_\+diff
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9}{energy\+\_\+min}} = energy\+\_\+min
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046}{energy\+\_\+max}} = energy\+\_\+max
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}{device}} = device
+\item 
+\mbox{\hyperlink{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c}{cross\+\_\+attn\+\_\+dim}} = min(cand\+\_\+dims)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Encapsulates the training process for the diffusion model.    \end{DoxyVerb}
+
+
+\begin{DoxyVerb}Trains diffusion model for one epoch.
+
+Args:
+    train_loader (DataLoader): DataLoader for training data.
+    epoch (int): Current epoch index.
+    inferer (callable): A callable with signature
+        inferer(inputs, autoencoder_model, diffusion_model, noise, timesteps)
+        that returns predicted noise.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00808}{808}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a9d895124c9c3e61a7def924d9641e1c8}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!\_\_init\_\_@{\_\_init\_\_}}
+\index{\_\_init\_\_@{\_\_init\_\_}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{\_\_init\_\_()}{\_\_init\_\_()}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a9d895124c9c3e61a7def924d9641e1c8} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+\_\+\+\_\+init\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{diffusion\+\_\+model}{, }\item[{}]{optimizer\+\_\+diff}{, }\item[{}]{energy\+\_\+min}{, }\item[{}]{energy\+\_\+max}{, }\item[{}]{device}{}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    diffusion_model (torch.nn.Module): Das Diffusionsmodell (z. B. ein UNet).
+    optimizer_diff (torch.optim.Optimizer): Optimierer für das Diffusionsmodell.
+    device (torch.device): CPU oder GPU.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00822}{822}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a5b507d0375c19ba5a5ba08c8b2a42f62}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!train\_one\_epoch@{train\_one\_epoch}}
+\index{train\_one\_epoch@{train\_one\_epoch}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{train\_one\_epoch()}{train\_one\_epoch()}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a5b507d0375c19ba5a5ba08c8b2a42f62} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+train\+\_\+one\+\_\+epoch (\begin{DoxyParamCaption}\item[{}]{self}{, }\item[{}]{train\+\_\+loader}{, }\item[{}]{epoch}{, }\item[{}]{inferer}{ = {\ttfamily None}, }\item[{}]{autoencoder}{ = {\ttfamily None}}\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Args:
+    diffusion_model (torch.nn.Module): The diffusion model (e.g. a UNet).
+    optimizer_diff (torch.optim.Optimizer): Optimizer for the diffusion model.
+    device (torch.device): CPU or GPU.
+\end{DoxyVerb}
+ 
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00872}{872}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!cross\_attn\_dim@{cross\_attn\_dim}}
+\index{cross\_attn\_dim@{cross\_attn\_dim}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{cross\_attn\_dim}{cross\_attn\_dim}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a35f4e596f89b496aa64855d1aa7c760c} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+cross\+\_\+attn\+\_\+dim = min(cand\+\_\+dims)}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00858}{858}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!device@{device}}
+\index{device@{device}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{device}{device}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a76b1b6454b3652e9721f6d058e0fc5e8} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+device = device}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00834}{834}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!diffusion\_model@{diffusion\_model}}
+\index{diffusion\_model@{diffusion\_model}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{diffusion\_model}{diffusion\_model}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a7f0f72f8f93525bd42725b1ee76b8074} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+diffusion\+\_\+model = diffusion\+\_\+model}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00829}{829}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!energy\_max@{energy\_max}}
+\index{energy\_max@{energy\_max}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{energy\_max}{energy\_max}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_aa1038ba0dcf67a3ec3dde62f95a79046} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+energy\+\_\+max = energy\+\_\+max}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00833}{833}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!energy\_min@{energy\_min}}
+\index{energy\_min@{energy\_min}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{energy\_min}{energy\_min}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a9acecb8622b26881f623c9b4014937e9} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+energy\+\_\+min = energy\+\_\+min}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00832}{832}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+\Hypertarget{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664}\index{training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}!optimizer\_diff@{optimizer\_diff}}
+\index{optimizer\_diff@{optimizer\_diff}!training\_pipeline.DiffusionTrainer@{training\_pipeline.DiffusionTrainer}}
+\doxysubsubsection{\texorpdfstring{optimizer\_diff}{optimizer\_diff}}
+{\footnotesize\ttfamily \label{classtraining__pipeline_1_1_diffusion_trainer_a30fb3497cb9452345c508828335ca664} 
+training\+\_\+pipeline.\+Diffusion\+Trainer.\+optimizer\+\_\+diff = optimizer\+\_\+diff}
+
+
+
+Definition at line \mbox{\hyperlink{training__pipeline_8py_source_l00830}{830}} of file \mbox{\hyperlink{training__pipeline_8py_source}{training\+\_\+pipeline.\+py}}.
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+sourcecode/\mbox{\hyperlink{training__pipeline_8py}{training\+\_\+pipeline.\+py}}\end{DoxyCompactItemize}
