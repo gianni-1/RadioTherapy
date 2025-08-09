@@ -65,20 +65,14 @@ class TrainingWorker(QObject):
     error = Signal(str)
     progress = Signal(int, int)  # current epoch, total epochs
     
-    def __init__(self, manager, use_corrected_training=False):
+    def __init__(self, manager):
         super().__init__()
         self.manager = manager
-        self.use_corrected_training = use_corrected_training
         
     def run(self):
         try:
-            # Use corrected training or old training based on flag
-            if self.use_corrected_training:
-                logger.info("Using corrected energy-conditioned training")
-                self.manager.run_energy_conditioned_training()
-            else:
-                logger.info("Using legacy training method")
-                self.manager.run_training()
+            logger.info("Using legacy training method")
+            self.manager.run_training()
             self.finished.emit()
         except Exception as ex:
             logger.error(f"Training failed: {ex}")
@@ -86,6 +80,132 @@ class TrainingWorker(QObject):
             traceback.print_exc()
             # Emit error signal instead of showing QMessageBox in worker thread
             self.error.emit(str(ex))
+
+class InferenceWorker(QObject):
+    """
+    Worker to run inference in a separate thread, mirroring the standalone approach.
+    Emits finished(output_path: str) on success, error(message: str) on failure.
+    """
+    finished = Signal(str)
+    error = Signal(str)
+
+    def __init__(self, ct_file: str, model_checkpoint: str, min_e: float, max_e: float):
+        super().__init__()
+        self.ct_file = ct_file
+        self.model_checkpoint = model_checkpoint
+        self.min_e = min_e
+        self.max_e = max_e
+
+    def _check_canceled(self):
+        try:
+            if QThread.currentThread().isInterruptionRequested():
+                raise RuntimeError("Inference canceled by user")
+        except Exception:
+            # If called outside a QThread context, ignore
+            pass
+
+    def run(self):
+        try:
+            logger.info("Starting background inference worker")
+            # Import standalone inference components
+            from inference_module import InferenceModule
+            from inference_module_standalone import (
+                load_models_from_checkpoint, 
+                get_gaussian_quadrature_4point,
+                save_dose,
+                save_nifti_with_manifest,
+            )
+
+            # Quadrature setup
+            quad_energies, quad_weights = get_gaussian_quadrature_4point(self.min_e, self.max_e)
+            logger.info(f"Quad energies: {quad_energies}")
+            self._check_canceled()
+
+            # Load CT data
+            path_lower = self.ct_file.lower()
+            if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
+                nii = nib.load(self.ct_file)
+                ct_array = nii.get_fdata().astype(np.float32)
+                affine = nii.affine
+            elif path_lower.endswith('.npy'):
+                ct_array = np.load(self.ct_file).astype(np.float32)
+                affine = None
+            else:
+                raise ValueError(f"Unsupported CT file format: {self.ct_file}")
+            logger.info(f"CT loaded: shape={ct_array.shape}, dtype={ct_array.dtype}")
+            self._check_canceled()
+
+            # To tensor
+            ct_tensor = torch.from_numpy(ct_array).unsqueeze(0).float()
+            logger.info(f"CT tensor shape: {ct_tensor.shape}")
+            self._check_canceled()
+
+            # Load models
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            models_by_energy, scale_factor, clip_min_dict, clip_max_dict, dose_normalization_params = load_models_from_checkpoint(
+                self.model_checkpoint,
+                quad_energies,
+                device=str(device),
+            )
+            logger.info("Models loaded from checkpoint")
+            self._check_canceled()
+
+            # Build inference module
+            infer_mod = InferenceModule(
+                models_by_energy=models_by_energy,
+                energies=quad_energies,
+                energy_weights=quad_weights,
+                device=str(device),
+                scale_factor=scale_factor,
+                energy_min=self.min_e,
+                energy_max=self.max_e,
+                clip_min=clip_min_dict,
+                clip_max=clip_max_dict,
+                dose_normalization_params=dose_normalization_params,
+            )
+            logger.info("InferenceModule constructed")
+            self._check_canceled()
+
+            # Run inference
+            target_cube_size = (64, 64, 64)
+            if len(quad_energies) > 1:
+                dose = infer_mod.run_inference(ct_tensor, target_cube_size=target_cube_size)
+            else:
+                energy = quad_energies[0]
+                dose = infer_mod.run_inference_conditioned_on_energy(
+                    ct_tensor,
+                    energy_value=energy,
+                    target_cube_size=target_cube_size,
+                )
+            logger.info("Inference call finished")
+            self._check_canceled()
+
+            # To numpy
+            if isinstance(dose, torch.Tensor):
+                dose_np = dose.detach().cpu().numpy()
+            else:
+                dose_np = np.array(dose, dtype=np.float32)
+            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
+                dose_np = dose_np[0]
+            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
+                dose_np = dose_np[0]
+            logger.info(f"Dose stats: shape={dose_np.shape}, min={dose_np.min():.6f}, max={dose_np.max():.6f}")
+
+            # Save outputs
+            from pathlib import Path
+            output_path = Path(f"dose_output_standalone_gui_{Path(self.ct_file).stem}.npy")
+            save_dose(output_path, dose_np, affine)
+            logger.info(f"Dose saved to {output_path}")
+            try:
+                save_nifti_with_manifest(dose_np, output_path, root_dir=".")
+            except Exception as e:
+                logger.warning(f"Failed to create NIfTI: {e}")
+
+            # Emit success
+            self.finished.emit(str(output_path))
+        except Exception as e:
+            logger.error("Inference failed", exc_info=True)
+            self.error.emit(str(e))
 
 class MainWindow(QMainWindow):
     """
@@ -285,29 +405,6 @@ class MainWindow(QMainWindow):
         self.input_label = QLabel("No input folder selected", self)
         training_layout.addWidget(self.input_label)
 
-        # Training method selection
-        training_method_group = QGroupBox("Training Method", self)
-        training_method_layout = QVBoxLayout()
-        training_method_group.setLayout(training_method_layout)
-        training_layout.addWidget(training_method_group)
-        
-        # Radio buttons for training method
-        self.legacy_training_radio = QRadioButton("Legacy Training (separate model per energy)", self)
-        self.corrected_training_radio = QRadioButton("Energy-Conditioned Training (unified model)", self)
-        self.corrected_training_radio.setChecked(True)  # Default to corrected training
-        
-        training_method_layout.addWidget(self.legacy_training_radio)
-        training_method_layout.addWidget(self.corrected_training_radio)
-        
-        # Add explanation labels
-        legacy_help = QLabel("• Trains separate models for each energy (old method)", self)
-        legacy_help.setStyleSheet("color: gray; font-size: 10px;")
-        corrected_help = QLabel("• Trains one unified model with energy conditioning (recommended)", self)
-        corrected_help.setStyleSheet("color: gray; font-size: 10px;")
-        
-        training_method_layout.addWidget(legacy_help)
-        training_method_layout.addWidget(corrected_help)
-
         self.train_button = QPushButton("Train Model", self)
         self.train_button.setToolTip("Train the model with the selected input and output folders")
         self.train_button.setEnabled(False)  # Initially disabled
@@ -468,7 +565,6 @@ class MainWindow(QMainWindow):
         self.system_manager.learning_rate = self.pm.learning_rate
         
         # Use LEGACY training method (same as standalone_training.py)
-        use_corrected_training = False  # Force legacy training to match standalone
         logger.info(f"Training method: Legacy (same as standalone_training.py)")
         
         # Get ALL available energies for proper multi-energy training (same as standalone_training.py)
@@ -516,7 +612,7 @@ class MainWindow(QMainWindow):
 
         # run training in background thread to avoid freezing GUI
         progress = QProgressDialog(
-            f"Legacy Training in progress (same as standalone_training.py)... Please wait.",
+            f"Training in progress... Please wait.",
             "Cancel", 0, 0, self
         )
         progress.setWindowModality(Qt.ApplicationModal)
@@ -528,7 +624,7 @@ class MainWindow(QMainWindow):
         
         # create worker and thread
         thread = QThread(self)
-        worker = TrainingWorker(self.system_manager, use_corrected_training=use_corrected_training)
+        worker = TrainingWorker(self.system_manager)
         worker.moveToThread(thread)
         
         # cancel training if user cancels dialog
@@ -631,6 +727,7 @@ class MainWindow(QMainWindow):
     def calculate_dose(self):
         """
         Calculate dose distribution using the original InferenceModule directly (standalone approach).
+        Now runs in a background thread with a progress dialog.
         """
         logger.info("=" * 60)
         logger.info("DOSE CALCULATION STARTED VIA GUI (STANDALONE APPROACH)")
@@ -650,166 +747,72 @@ class MainWindow(QMainWindow):
         max_e = self.energy_max_spin.value()
         logger.info(f"Energy range: {min_e} to {max_e} eV")
         
-        #validate energy range
+        # validate energy range
         if min_e > max_e:
             logger.error(f"Invalid energy range: min_e={min_e} > max_e={max_e}")
             QMessageBox.warning(self, "Error", "Minimum energy must be less than maximum energy.")
             return
 
-        # Import standalone inference module functions
-        try:
-            from inference_module import InferenceModule
-            from inference_module_standalone import (
-                load_models_from_checkpoint, 
-                get_gaussian_quadrature_4point,
-                save_dose,
-                save_nifti_with_manifest
-            )
-            logger.info("✓ Standalone inference modules imported successfully")
-        except ImportError as e:
-            logger.error(f"Failed to import standalone inference modules: {e}")
-            QMessageBox.critical(self, "Error", f"Failed to import standalone modules: {e}")
-            return
+        # Show a modal progress dialog and run inference in background
+        progress = QProgressDialog(
+            f"Inference in progress... Please wait.",
+            "Cancel", 0, 0, self
+        )
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButtonText("Cancel")
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.show()
 
-        # Use 4-point Gaussian Quadrature (same as standalone) instead of 8-point
-        logger.info("Using 4-point Gaussian Quadrature (standalone approach)...")
-        quad_energies, quad_weights = get_gaussian_quadrature_4point(min_e, max_e)
+        # Thread + worker
+        thread = QThread(self)
+        worker = InferenceWorker(self.ct_file, self.model_checkpoint, min_e, max_e)
+        worker.moveToThread(thread)
+
+        # Cancellation support
+        progress.canceled.connect(thread.requestInterruption)
         
-        logger.info(f"4-point Quadrature energies: {[f'{e:.2f}' for e in quad_energies]} keV")
-        logger.info(f"4-point Quadrature weights: {[f'{w:.4f}' for w in quad_weights]}")
+        # Start/finish wiring
+        thread.started.connect(worker.run)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
 
-        logger.info(f"CT file: {self.ct_file}")
-        logger.info(f"Model checkpoint: {self.model_checkpoint}")
+        # Handle completion and errors in main thread
+        worker.finished.connect(self.on_inference_finished)
+        worker.error.connect(self.on_inference_error)
 
+        # Keep refs
+        self._infer_thread = thread
+        self._infer_worker = worker
+        self._infer_progress = progress
+
+        thread.start()
+        logger.info("Inference thread started")
+
+    @Slot(str)
+    def on_inference_finished(self, output_path: str):
+        # Close dialog
+        if hasattr(self, '_infer_progress'):
+            self._infer_progress.close()
+        # Store and notify
+        self.dose_result_path = output_path
+        QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {output_path}")
+        # Visualization
         try:
-            # Load CT data (same as standalone)
-            logger.info(f"Loading CT from {self.ct_file}")
-            path_lower = self.ct_file.lower()
-            if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
-                import nibabel as nib
-                nii = nib.load(self.ct_file)
-                ct_array = nii.get_fdata().astype(np.float32)
-                affine = nii.affine
-            elif path_lower.endswith('.npy'):
-                ct_array = np.load(self.ct_file).astype(np.float32)
-                affine = None
-            else:
-                raise ValueError(f"Unsupported CT file format: {self.ct_file}")
-            
-            logger.info(f"CT shape: {ct_array.shape}, dtype: {ct_array.dtype}")
-            logger.info(f"CT range: {ct_array.min():.2f} to {ct_array.max():.2f}")
-            
-            # Convert to tensor (same as standalone)
-            ct_tensor = torch.from_numpy(ct_array).unsqueeze(0).float()  # [1, D, H, W]
-            logger.info(f"CT tensor shape: {ct_tensor.shape}")
-            
-            # Load models from checkpoint (same as standalone)
-            logger.info(f"Loading models from checkpoint...")
-            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            models_by_energy, scale_factor, clip_min_dict, clip_max_dict, dose_normalization_params = load_models_from_checkpoint(
-                self.model_checkpoint, 
-                quad_energies,
-                device=str(device)
-            )
-            
-            # Create InferenceModule (same as standalone)
-            logger.info("Creating InferenceModule...")
-            infer_mod = InferenceModule(
-                models_by_energy=models_by_energy,
-                energies=quad_energies,
-                energy_weights=quad_weights,
-                device=str(device),
-                scale_factor=scale_factor,
-                energy_min=min_e,
-                energy_max=max_e,
-                clip_min=clip_min_dict,
-                clip_max=clip_max_dict,
-                dose_normalization_params=dose_normalization_params
-            )
-            logger.info("✓ InferenceModule created successfully")
-            logger.info(f"✓ Using scale_factor from checkpoint: {scale_factor}")
-            
-            # Run inference (same as standalone)
-            target_cube_size = (64, 64, 64)  # Default cube size
-            if len(quad_energies) > 1:
-                logger.info(f"Running 4-point Gaussian Quadrature inference with {len(quad_energies)} energies...")
-                dose = infer_mod.run_inference(ct_tensor, target_cube_size=target_cube_size)
-            else:
-                energy = quad_energies[0]
-                logger.info(f"Running single energy inference at {energy} keV...")
-                dose = infer_mod.run_inference_conditioned_on_energy(
-                    ct_tensor,
-                    energy_value=energy,
-                    target_cube_size=target_cube_size
-                )
-            
-            logger.info("✓ Inference completed successfully")
-            
-            # Convert to numpy (same as standalone)
-            if isinstance(dose, torch.Tensor):
-                dose_np = dose.cpu().numpy()
-            else:
-                dose_np = np.array(dose, dtype=np.float32)
-            
-            # Remove batch dimension if present
-            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
-                dose_np = dose_np[0]
-            
-            # Remove channel dimension if present  
-            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
-                dose_np = dose_np[0]
-            
-            logger.info(f"Output dose shape: {dose_np.shape}")
-            logger.info(f"Output dose range: {dose_np.min():.6f} to {dose_np.max():.6f}")
-            logger.info(f"Output dose mean: {dose_np.mean():.6f}")
-            logger.info(f"Output dose std: {dose_np.std():.6f}")
-            
-            # Check for realistic dose values (same as standalone)
-            max_dose = dose_np.max()
-            if max_dose < 1.0:
-                logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems low for radiotherapy")
-            elif max_dose > 100.0:
-                logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems high for radiotherapy")
-            else:
-                logger.info(f"✓ Max dose {max_dose:.2f} Gy is in realistic range for radiotherapy")
-            
-            # Save output (same as standalone)
-            from pathlib import Path
-            output_path = Path(f"dose_output_standalone_gui_{Path(self.ct_file).stem}.npy")
-            logger.info(f"Saving dose output to {output_path}")
-            save_dose(output_path, dose_np, affine)
-            logger.info("✓ Output saved successfully")
-            
-            # Store result path for visualization
-            self.dose_result_path = str(output_path)
-            
-            # Create NIfTI file for 3D viewing (same as standalone)
-            try:
-                nii_path = save_nifti_with_manifest(dose_np, output_path, root_dir=".")
-                if nii_path:
-                    logger.info(f"✓ NIfTI file created for 3D viewing: {nii_path}")
-            except Exception as e:
-                logger.warning(f"Failed to create NIfTI file: {e}")
-            
-            QMessageBox.information(self, "Success", f"Dose distribution calculated successfully using standalone approach.\nSaved to: {output_path}")
-
-            # Visualization using the same approach
             logger.info("Starting visualization...")
             visualization.load_and_visualize(str(output_path), self.ct_volume)
-            logger.info("✓ Visualization completed")
-            
+            logger.info("Visualization completed")
         except Exception as e:
-            logger.error("=" * 60)
-            logger.error("STANDALONE DOSE CALCULATION FAILED")
-            logger.error("=" * 60)
-            logger.error(f"Error: {e}")
-            logger.error("Dose calculation traceback:", exc_info=True)
-            QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {e}")
-            
-        finally:
-            logger.info("=" * 60)
-            logger.info("STANDALONE DOSE CALCULATION PROCESS COMPLETED")
-            logger.info("=" * 60)
+            logger.warning(f"Visualization failed: {e}")
+
+    @Slot(str)
+    def on_inference_error(self, message: str):
+        if hasattr(self, '_infer_progress'):
+            self._infer_progress.close()
+        logger.error(f"Inference error: {message}")
+        QMessageBox.critical(self, "Error", f"Failed to calculate dose distribution: {message}")
 
     # Visualize the dose distribution from inference results
     def visualize_inference_results(self):

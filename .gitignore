@@ -2,7 +2,7 @@
 *.pyc
 .DS_Store
 # ignore big/binary
-*.ckpt
+
 *.npy
 *.log
 traindata/
