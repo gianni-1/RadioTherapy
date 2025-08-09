@@ -46,13 +46,13 @@ if os.path.exists(input_file) and os.path.exists(output_file):
         # Verwende die TRAINING cube_size!
         if 'cube_size' in config:
             training_cube_size = config['cube_size']
-            print(f"  ✅ Using training cube size: {training_cube_size}")
+            print(f"   Using training cube size: {training_cube_size}")
         else:
             training_cube_size = (32, 32, 32)  # Default
-            print(f"  ⚠️  Using default cube size: {training_cube_size}")
+            print(f"    Using default cube size: {training_cube_size}")
     else:
         training_cube_size = (32, 32, 32)
-        print(f"  ⚠️  No training config found, using default: {training_cube_size}")
+        print(f"    No training config found, using default: {training_cube_size}")
     
     # Lade Autoencoder
     from generative.networks.nets import AutoencoderKL
@@ -150,11 +150,11 @@ if os.path.exists(input_file) and os.path.exists(output_file):
     print(f"  Correlation: {best_correlation:.6f}")
     
     if best_correlation > 0.3:
-        print(f"  ✅ GOOD: Reasonable correlation found!")
+        print(f"   GOOD: Reasonable correlation found!")
     else:
-        print(f"  ❌ STILL BAD: Poor correlation even with corrections")
+        print(f"   STILL BAD: Poor correlation even with corrections")
     
-    # Speichere beste Rekonstruktion
+    # Save best reconstruction
     if best_reconstruction is not None:
         np.save('debug_best_reconstruction.npy', best_reconstruction)
         print(f"  💾 Saved best reconstruction to: debug_best_reconstruction.npy")
@@ -169,7 +169,7 @@ if os.path.exists(input_file) and os.path.exists(output_file):
         print(f"  Consider retraining with more epochs or different parameters")
 
 else:
-    print(f"❌ Test files not found!")
+    print(f" Test files not found!")
 
 print("\n" + "=" * 60)
 print("Systematic analysis complete!")

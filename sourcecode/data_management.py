@@ -1,4 +1,7 @@
 # Import Dataset before using it
+import os
+import numpy as np
+import torch
 from torch.utils.data import Dataset
 from hotspot_patch_sampler import extract_hotspot_patches
 # --- HotspotPatchDataset: Patch-basierte Trainingsdaten für Hotspot-Lernen ---
@@ -9,47 +12,106 @@ class HotspotPatchDataset(Dataset):
     Jeder __getitem__ gibt einen Patch (Input, Target, Energy) zurück.
     """
     def __init__(self, root_dir, section=None, patch_size=(32,32,32), min_hotspot_voxels=1000, dose_threshold=0.5, max_patches=16, random_patches=0, transforms=None, energy=None, max_patches_per_energy=80):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         base_dir = root_dir if section is None else os.path.join(root_dir, section)
+        logger.info(f"HotspotPatchDataset: base_dir={base_dir}, section={section}, energy={energy}")
+        
+        # Check if base_dir exists
+        if not os.path.exists(base_dir):
+            logger.error(f"HotspotPatchDataset: base_dir does not exist: {base_dir}")
+            
         self.patch_size = patch_size
         self.transforms = transforms
         self.patch_records = []  # Liste: (in_fp, out_fp, energy, (z,y,x))
         self.selected_energy = energy
         self.patch_stats = []  # Liste: (n_voxels_gt0, n_voxels_gt_thresh, max_dose, mean_dose)
         self.max_patches_per_energy = max_patches_per_energy
-        for energy_folder in sorted(os.listdir(base_dir)):
+        
+        # List directories in base_dir for debugging
+        try:
+            energy_folders = sorted(os.listdir(base_dir))
+            logger.info(f"HotspotPatchDataset: Found directories in {base_dir}: {energy_folders}")
+        except Exception as e:
+            logger.error(f"HotspotPatchDataset: Error listing {base_dir}: {e}")
+            energy_folders = []
+            
+        for energy_folder in energy_folders:
             folder_path = os.path.join(base_dir, energy_folder)
+            logger.info(f"HotspotPatchDataset: Checking energy_folder={energy_folder}, folder_path={folder_path}")
+            
             if not os.path.isdir(folder_path) or energy_folder.startswith('.'):
+                logger.info(f"HotspotPatchDataset: Skipping {energy_folder} (not directory or hidden)")
                 continue
             try:
                 folder_energy = float(energy_folder.replace("_", "."))
-            except ValueError:
+                logger.info(f"HotspotPatchDataset: Parsed energy={folder_energy} from folder={energy_folder}")
+            except ValueError as e:
+                logger.info(f"HotspotPatchDataset: Skipping {energy_folder} (can't parse energy): {e}")
                 continue
             # Filter: Nur gewünschte Energie verwenden, falls gesetzt
             if self.selected_energy is not None and abs(folder_energy - self.selected_energy) > 0.01:
+                logger.info(f"HotspotPatchDataset: Skipping energy {folder_energy} (selected_energy={self.selected_energy})")
                 continue
             in_dir = os.path.join(folder_path, "inputcube")
             out_dir = os.path.join(folder_path, "outputcube")
+            logger.info(f"HotspotPatchDataset: Checking in_dir={in_dir}, out_dir={out_dir}")
+            
             if not os.path.isdir(in_dir) or not os.path.isdir(out_dir):
+                logger.warning(f"HotspotPatchDataset: Missing inputcube/outputcube in {folder_path}")
+                logger.info(f"  in_dir exists: {os.path.exists(in_dir)}, out_dir exists: {os.path.exists(out_dir)}")
+                continue
+                
+            # List files in directories for debugging
+            try:
+                input_files = os.listdir(in_dir)
+                output_files = os.listdir(out_dir)
+                logger.info(f"HotspotPatchDataset: Found {len(input_files)} input files, {len(output_files)} output files")
+            except Exception as e:
+                logger.error(f"HotspotPatchDataset: Error listing files: {e}")
                 continue
             for fname in sorted(os.listdir(in_dir)):
                 if not fname.endswith(".npy"):
                     continue
                 in_fp = os.path.join(in_dir, fname)
                 out_fp = os.path.join(out_dir, fname)
+                logger.info(f"HotspotPatchDataset: Processing file {fname}")
+                
+                # Check if output file exists
+                if not os.path.exists(out_fp):
+                    logger.warning(f"HotspotPatchDataset: Output file missing: {out_fp}")
+                    continue
+                    
                 # Lade Target-Dosis-Array, um Hotspot-Patches zu bestimmen
                 try:
                     dose_array = np.load(out_fp)
+                    logger.info(f"HotspotPatchDataset: Loaded dose array shape: {dose_array.shape}, range: {dose_array.min():.6f} to {dose_array.max():.6f}")
+                    
+                    # CRITICAL FIX: Adjust dose_threshold based on actual data range
+                    max_dose = dose_array.max()
+                    if max_dose > 0:
+                        # Use 10% of max dose as threshold instead of fixed 0.5
+                        adaptive_threshold = max(dose_threshold * max_dose, max_dose * 0.1)
+                        logger.info(f"HotspotPatchDataset: Adaptive dose threshold: {adaptive_threshold:.6f} (max_dose: {max_dose:.6f})")
+                    else:
+                        adaptive_threshold = dose_threshold
+                        logger.warning(f"HotspotPatchDataset: Max dose is 0, using default threshold: {adaptive_threshold}")
+                        
                 except Exception as e:
                     logger.warning(f"Fehler beim Laden von {out_fp}: {e}")
                     continue
+                    
                 patch_indices = extract_hotspot_patches(
                     dose_array,
                     patch_size=patch_size,
                     min_hotspot_voxels=min_hotspot_voxels,
-                    dose_threshold=dose_threshold,
+                    dose_threshold=adaptive_threshold,  # Use adaptive threshold
                     max_patches=max_patches,
                     random_patches=random_patches
                 )
+                
+                logger.info(f"HotspotPatchDataset: Found {len(patch_indices)} patches for file {fname} (adaptive_threshold={adaptive_threshold:.6f})")
                 
                 # **PATCH BALANCING: Limit patches per energy to prevent imbalance**
                 if len(patch_indices) > self.max_patches_per_energy:

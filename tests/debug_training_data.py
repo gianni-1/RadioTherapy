@@ -40,7 +40,7 @@ for i, (input_file, output_file, energy) in enumerate(zip(test_files, output_fil
         input_data = np.load(input_file)
         output_data = np.load(output_file)
         
-        print(f"  ✅ Files exist")
+        print(f"   Files exist")
         print(f"  Input shape: {input_data.shape}")
         print(f"  Output shape: {output_data.shape}")
         print(f"  Input min/max: {input_data.min():.6f} / {input_data.max():.6f}")
@@ -50,21 +50,21 @@ for i, (input_file, output_file, energy) in enumerate(zip(test_files, output_fil
         
         # Check if output is all zeros or constant
         if np.all(output_data == 0):
-            print(f"  ❌ OUTPUT IS ALL ZEROS!")
+            print(f"   OUTPUT IS ALL ZEROS!")
         elif np.all(output_data == output_data.flat[0]):
-            print(f"  ❌ OUTPUT IS CONSTANT!")
+            print(f"   OUTPUT IS CONSTANT!")
         else:
-            print(f"  ✅ Output has variation")
+            print(f"   Output has variation")
             
         # Quick correlation check between input and output
         correlation = np.corrcoef(input_data.flatten(), output_data.flatten())[0, 1]
         print(f"  Input-Output correlation: {correlation:.6f}")
         
     else:
-        print(f"  ❌ Files missing")
+        print(f"   Files missing")
 
 # Teste das Data Loading System
-print(f"\n🔄 Testing Data Loading System:")
+print(f"\n Testing Data Loading System:")
 
 try:
     from sourcecode.data_management import DataLoaderModule
@@ -104,19 +104,19 @@ try:
         
         # Check for problems
         if torch.all(output_batch == 0):
-            print(f"    ❌ BATCH OUTPUT IS ALL ZEROS!")
+            print(f"     BATCH OUTPUT IS ALL ZEROS!")
         elif torch.all(output_batch == output_batch.flat[0]):
-            print(f"    ❌ BATCH OUTPUT IS CONSTANT!")
+            print(f"     BATCH OUTPUT IS CONSTANT!")
         else:
-            print(f"    ✅ Batch output has variation")
+            print(f"     Batch output has variation")
             
         break  # Only test first batch
         
 except Exception as e:
-    print(f"  ❌ Error testing data loading: {e}")
+    print(f"   Error testing data loading: {e}")
 
 # Test if the model can even learn identity mapping
-print(f"\n🧪 Testing if model can learn identity mapping:")
+print(f"\n Testing if model can learn identity mapping:")
 
 # Create simple test: input = output
 device = torch.device("cpu")
@@ -169,9 +169,9 @@ if os.path.exists(model_path):
     print(f"  Correlation with first input channel: {correlation:.6f}")
     
     if correlation > 0.5:
-        print(f"  ✅ Model can reconstruct reasonably well")
+        print(f"   Model can reconstruct reasonably well")
     else:
-        print(f"  ❌ Model cannot even reconstruct simple inputs")
+        print(f"   Model cannot even reconstruct simple inputs")
 
 print("\n" + "=" * 50)
 print("Training data validation complete!")

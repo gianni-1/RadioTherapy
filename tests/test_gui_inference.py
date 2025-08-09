@@ -74,14 +74,14 @@ def test_gui_inference():
             
             # Check if the correlation is good (should be ~0.23)
             if correlation > 0.2:
-                print("✅ SUCCESS: GUI inference produces meaningful correlation!")
+                print(" SUCCESS: GUI inference produces meaningful correlation!")
             else:
-                print("❌ FAILURE: GUI inference correlation too low")
+                print(" FAILURE: GUI inference correlation too low")
         else:
-            print(f"❌ FAILURE: Shape mismatch - output {data.shape} vs ground truth {ground_truth.shape}")
+            print(f" FAILURE: Shape mismatch - output {data.shape} vs ground truth {ground_truth.shape}")
             
     except Exception as e:
-        print(f"❌ ERROR during inference: {e}")
+        print(f" ERROR during inference: {e}")
         import traceback
         traceback.print_exc()
 

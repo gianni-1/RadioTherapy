@@ -130,12 +130,12 @@ class DoseNormalizationDiagnostic:
         
         # Medical plausibility check
         if global_max != float('-inf'):
-            logger.info(f"\n🏥 MEDICAL PLAUSIBILITY CHECK:")
+            logger.info(f"\n MEDICAL PLAUSIBILITY CHECK:")
             logger.info(f"   Global maximum dose: {global_max:.6f}")
             if global_max < 10:
-                logger.warning("⚠️  Maximum dose < 10 - suspiciously low for radiotherapy!")
+                logger.warning("  Maximum dose < 10 - suspiciously low for radiotherapy!")
             elif global_max > 100:
-                logger.warning("⚠️  Maximum dose > 100 - suspiciously high!")
+                logger.warning("  Maximum dose > 100 - suspiciously high!")
             else:
                 logger.info("✓ Dose range appears medically plausible")
         
@@ -284,12 +284,12 @@ class DoseNormalizationDiagnostic:
             if 'denormalize_dose' in source:
                 logger.info("✓ Found denormalize_dose method in InferenceModule")
             else:
-                logger.warning("⚠️  No denormalize_dose method found in InferenceModule")
+                logger.warning("  No denormalize_dose method found in InferenceModule")
             
             if 'clip_max' in source:
                 logger.info("✓ InferenceModule references clip_max parameters")
             else:
-                logger.warning("⚠️  InferenceModule doesn't reference clip_max parameters")
+                logger.warning("  InferenceModule doesn't reference clip_max parameters")
             
             # Count occurrences of normalization-related terms
             norm_terms = ['normalize', 'denormalize', 'clip_min', 'clip_max', 'scale_factor']
@@ -331,7 +331,7 @@ class DoseNormalizationDiagnostic:
                         logger.info(f"  {key}: raw_max={raw_max:.6f}, clip_max={clip_max:.6f}, ratio={ratio:.2f}x")
                         
                         if ratio > 15:
-                            logger.warning(f"    ⚠️  Raw data is {ratio:.1f}x larger than clip_max - major discrepancy!")
+                            logger.warning(f"     Raw data is {ratio:.1f}x larger than clip_max - major discrepancy!")
                             self.results['recommendations'].append(
                                 f"CRITICAL: {key} clip_max={clip_max:.6f} is {ratio:.1f}x too small. "
                                 f"Should be close to {raw_max:.6f}"
@@ -418,7 +418,7 @@ class DoseNormalizationDiagnostic:
         
         # Print all recommendations
         for i, rec in enumerate(recommendations, 1):
-            logger.info(f"\n📋 RECOMMENDATION {i} [{rec['priority']}]:")
+            logger.info(f"\n RECOMMENDATION {i} [{rec['priority']}]:")
             logger.info(f"   Issue: {rec['issue']}")
             logger.info(f"   Description: {rec['description']}")
             logger.info(f"   Solution: {rec['solution']}")
@@ -554,7 +554,7 @@ Total Recommendations: {len(recommendations)}"""
         self.create_visualization()
         
         logger.info("=" * 80)
-        logger.info("🎯 DIAGNOSIS COMPLETE")
+        logger.info(" DIAGNOSIS COMPLETE")
         logger.info("=" * 80)
         
         return success
@@ -581,12 +581,12 @@ def main():
     success = diagnostic.run_full_diagnosis()
     
     if success:
-        logger.info("✅ Diagnosis completed successfully")
-        logger.info("📊 Check dose_diagnosis_results.json for detailed findings")
-        logger.info("📈 Check dose_diagnosis_visualization.png for visual summary")
+        logger.info(" Diagnosis completed successfully")
+        logger.info(" Check dose_diagnosis_results.json for detailed findings")
+        logger.info(" Check dose_diagnosis_visualization.png for visual summary")
         return 0
     else:
-        logger.error("❌ Diagnosis failed or incomplete")
+        logger.error(" Diagnosis failed or incomplete")
         return 1
 
 

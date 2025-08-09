@@ -43,13 +43,13 @@ try:
     
     # Check if model exists
     if not os.path.exists(config['model_path']):
-        print(f"❌ Model file not found: {config['model_path']}")
+        print(f" Model file not found: {config['model_path']}")
         exit(1)
     
     # Load the model checkpoint directly
     print("Loading model checkpoint...")
     checkpoint = torch.load(config['model_path'], map_location=device)
-    print("✅ Model checkpoint loaded successfully")
+    print(" Model checkpoint loaded successfully")
     
     print(f"Checkpoint keys: {list(checkpoint.keys())}")
     
@@ -76,14 +76,14 @@ try:
     # Load the trained weights
     if 'autoencoder' in checkpoint:
         autoencoder.load_state_dict(checkpoint['autoencoder'])
-        print("✅ Autoencoder state dict loaded from checkpoint")
+        print(" Autoencoder state dict loaded from checkpoint")
     else:
-        print("❌ Autoencoder not found in checkpoint")
+        print(" Autoencoder not found in checkpoint")
         exit(1)
     
     autoencoder.eval()
     
-    print("✅ Autoencoder model loaded and ready for testing")
+    print(" Autoencoder model loaded and ready for testing")
     
     # Load the same input data but test with different energy values
     print("\\nLoading test data...")
@@ -93,7 +93,7 @@ try:
     sample_output_path = 'traindata/11_5/outputcube/235101017859661465075472232303048949736_0.npy'
     
     if not os.path.exists(sample_input_path):
-        print(f"❌ Sample input not found: {sample_input_path}")
+        print(f" Sample input not found: {sample_input_path}")
         exit(1)
     
     # Load the physical dose distribution (first channel)
@@ -159,7 +159,7 @@ try:
         print(f"    Min:  {pred_min:.6f}")
     
     # Compare predictions between energies
-    print("\\n📊 Energy Conditioning Analysis")
+    print("\\n Energy Conditioning Analysis")
     print("-" * 30)
     
     energy_list = list(config['energies'])
@@ -188,11 +188,11 @@ try:
             # 3. Differences are meaningful relative to the prediction scale
             
             if mse > 1e-8 and correlation < 0.99:
-                print(f"  ✅ ENERGY CONDITIONING DETECTED - Model responds to energy!")
+                print(f"   ENERGY CONDITIONING DETECTED - Model responds to energy!")
             elif mse < 1e-10:
-                print(f"  ❌ NO ENERGY CONDITIONING - Predictions are identical")
+                print(f"   NO ENERGY CONDITIONING - Predictions are identical")
             else:
-                print(f"  ⚠️  WEAK ENERGY CONDITIONING - Small differences detected")
+                print(f"    WEAK ENERGY CONDITIONING - Small differences detected")
     
     # Statistical summary
     print("\\n📈 Summary Statistics")
@@ -224,21 +224,21 @@ try:
             min_correlation = min(min_correlation, correlation)
     
     if max_mse > 1e-6 and min_correlation < 0.95:
-        print("✅ SUCCESS: Energy conditioning is working!")
+        print(" SUCCESS: Energy conditioning is working!")
         print("   The model produces meaningfully different outputs for different energies.")
         print("   The original problem has been SOLVED! 🎉")
     elif max_mse > 1e-8:
-        print("⚠️  PARTIAL SUCCESS: Weak energy conditioning detected.")
+        print("  PARTIAL SUCCESS: Weak energy conditioning detected.")
         print("   The model shows some response to energy, but may need more training.")
     else:
-        print("❌ FAILURE: No energy conditioning detected.")
+        print(" FAILURE: No energy conditioning detected.")
         print("   The model ignores the energy input. Problem NOT solved.")
     
     print(f"\\nMax MSE between energies: {max_mse:.2e}")
     print(f"Min correlation between energies: {min_correlation:.6f}")
 
 except Exception as e:
-    print(f"❌ Error during validation: {e}")
+    print(f" Error during validation: {e}")
     import traceback
     traceback.print_exc()
 

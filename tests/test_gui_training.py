@@ -65,6 +65,6 @@ def test_gui_training():
 if __name__ == "__main__":
     success = test_gui_training()
     if success:
-        print("✅ GUI training test passed!")
+        print(" GUI training test passed!")
     else:
-        print("❌ GUI training test failed!")
+        print(" GUI training test failed!")

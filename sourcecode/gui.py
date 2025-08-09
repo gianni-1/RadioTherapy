@@ -130,6 +130,7 @@ class MainWindow(QMainWindow):
             batch_size=self.pm.batch_size, device=device,
             num_epochs=self.pm.num_epochs, learning_rate=self.pm.learning_rate, patience=self.pm.patience,
             cube_size= self.pm.cube_size,
+            energy_min=0.0, energy_max=50.0,
             seed=42
         )
 
@@ -360,20 +361,22 @@ class MainWindow(QMainWindow):
                 self.input_dir = input_cube_path
                 self.input_label.setText(f"Input cube folder: {self.input_dir}")
                 self.output_dir = output_cube_path
-                # Determine cube size from one of the input .npy files
+                # Determine cube size from one of the input .npy files (same as standalone_training.py)
                 files = glob.glob(os.path.join(self.input_dir, "*.npy"))
                 if files:
                     arr = np.load(files[0])
-                    self.pm.cube_size = arr.shape
+                    cube_size = arr.shape[0]  # Take only first dimension (same as standalone)
+                    self.pm.cube_size = cube_size
                     self.system_manager.cube_size = self.pm.cube_size
                     self.system_manager.transforms = self._create_transforms(self.pm.cube_size)
+                    logger.info(f"Detected cube size: {cube_size} (same as standalone_training.py)")
                 self._update_ui_state()
                 return
 
             # Otherwise treat folder as the direct input-cube directory
             self.input_dir = folder
             self.input_label.setText(f"Input folder: {folder}")
-            # determine cube size from first cube file in folder
+            # determine cube size from first cube file in folder (same as standalone_training.py)
             files = glob.glob(os.path.join(folder, "*.npy")) + glob.glob(os.path.join(folder, "*.nii")) + glob.glob(os.path.join(folder, "*.nii.gz"))
             if files:
                 sample = files[0]
@@ -382,11 +385,12 @@ class MainWindow(QMainWindow):
                         arr = np.load(sample)
                     else:
                         arr = np.asarray(nib.load(sample).dataobj)
-                    size = arr.shape
-                    self.pm.cube_size = size
+                    cube_size = arr.shape[0]  # Take only first dimension (same as standalone)
+                    self.pm.cube_size = cube_size
                     # update transforms in system_manager
                     self.system_manager.cube_size = self.pm.cube_size
                     self.system_manager.transforms = self._create_transforms(self.pm.cube_size)
+                    logger.info(f"Detected cube size: {cube_size} (same as standalone_training.py)")
                 except Exception as e:
                     QMessageBox.warning(self, "Warning", f"Failed to determine cube size: {e}")
                 logger.info(f"Cube size set to: {self.pm.cube_size}")
@@ -437,8 +441,24 @@ class MainWindow(QMainWindow):
         logger.info(f"  learning_rate={self.pm.learning_rate}")
 
         energy_folder = parent_in
-        # parent of energy_folder is the dataset root containing all energy subfolders
+        # parent of energy_folder is the dataset root containing all energy subfolders  
         dataset_root = os.path.dirname(energy_folder)
+        
+        # Debug logging: Check the directory structure (same as standalone_training.py)
+        logger.info(f"Selected energy folder: {energy_folder}")
+        logger.info(f"Dataset root: {dataset_root}")
+        logger.info(f"Input cube path: {self.input_dir}")
+        logger.info(f"Output cube path: {self.output_dir}")
+        
+        # Check if we have data files
+        input_files = glob.glob(os.path.join(self.input_dir, "*.npy"))
+        output_files = glob.glob(os.path.join(self.output_dir, "*.npy"))
+        logger.info(f"Found {len(input_files)} input files and {len(output_files)} output files")
+        
+        if len(input_files) == 0 or len(output_files) == 0:
+            QMessageBox.warning(self, "Error", f"No training data found!\nInput files: {len(input_files)}\nOutput files: {len(output_files)}")
+            return
+            
         self.system_manager.root_dir = dataset_root
         
         # update training parameters from GUI
@@ -447,52 +467,56 @@ class MainWindow(QMainWindow):
         self.system_manager.patience = self.pm.patience
         self.system_manager.learning_rate = self.pm.learning_rate
         
-        # For energy-conditioned training, use all available energies
-        use_corrected_training = self.corrected_training_radio.isChecked()
-        logger.info(f"Training method: {'Energy-Conditioned' if use_corrected_training else 'Legacy'}")
+        # Use LEGACY training method (same as standalone_training.py)
+        use_corrected_training = False  # Force legacy training to match standalone
+        logger.info(f"Training method: Legacy (same as standalone_training.py)")
         
-        if use_corrected_training:
-            # For corrected training, we need to set up energies properly
-            # Detect available energies from the dataset structure
-            available_energies = []
-            try:
-                for item in os.listdir(dataset_root):
-                    item_path = os.path.join(dataset_root, item)
-                    if os.path.isdir(item_path) and item.replace('_', '.').replace('-', '.').replace(',', '.').split('.')[0].isdigit():
-                        try:
-                            energy = float(item.replace('_', '.'))
-                            available_energies.append(energy)
-                        except ValueError:
-                            continue
+        # Get ALL available energies for proper multi-energy training (same as standalone_training.py)
+        try:
+            # List all energy subfolder names (skip hidden files) - same logic as standalone
+            energy_names = [
+                d for d in os.listdir(dataset_root)
+                if os.path.isdir(os.path.join(dataset_root, d)) and not d.startswith('.')
+            ]
+            # Parse numeric energy values from folder names and sort numerically
+            available_energies = sorted([float(name.replace("_", ".")) for name in energy_names])
+            logger.info(f"Found energies: {available_energies} (same as standalone_training.py)")
+            
+            if available_energies:
+                # Update ParameterManager with detected energies (same as standalone)
+                self.pm.energies = torch.tensor(available_energies)
+                # Recalculate energy_min and energy_max from actual energies (same as standalone)
+                min_e = min(available_energies)
+                max_e = max(available_energies)
+                self.pm.energy_min = min_e
+                self.pm.energy_max = max_e
+                self.pm.quad_energies = available_energies
+                self.pm.quad_weights = [1.0/len(available_energies)] * len(available_energies)
                 
-                if available_energies:
-                    available_energies.sort()
-                    logger.info(f"Detected available energies: {available_energies}")
-                    self.system_manager.energies = available_energies
-                    self.system_manager.quad_energies = available_energies
-                    # Set equal weights for all energies
-                    num_energies = len(available_energies)
-                    self.system_manager.quad_weights = [1.0/num_energies] * num_energies
-                    logger.info(f"Set energies: {self.system_manager.energies}")
-                    logger.info(f"Set quad weights: {self.system_manager.quad_weights}")
-                else:
-                    logger.warning("No energies detected, using default")
-                    self.system_manager.energies = [11.5, 15.75, 34.25]
-                    self.system_manager.quad_energies = [11.5, 15.75, 34.25]
-                    self.system_manager.quad_weights = [0.33, 0.33, 0.34]
-                    
-            except Exception as e:
-                logger.warning(f"Error detecting energies: {e}, using defaults")
-                self.system_manager.energies = [11.5, 15.75, 34.25]
-                self.system_manager.quad_energies = [11.5, 15.75, 34.25]
-                self.system_manager.quad_weights = [0.33, 0.33, 0.34]
+                # Update SystemManager with new parameters (same as standalone)
+                self.system_manager.energies = available_energies
+                self.system_manager.energy_min = min_e
+                self.system_manager.energy_max = max_e
+                self.system_manager.quad_energies = available_energies
+                self.system_manager.quad_weights = self.pm.quad_weights
+                
+                logger.info(f"Training with ALL energies: {available_energies} (proper multi-energy training)")
+                logger.info(f"Energy range: {min_e} to {max_e} (calculated from data)")
+                logger.info(f"Quad weights: {self.pm.quad_weights}")
+            else:
+                logger.warning("No energies detected, using fallback")
+                available_energies = [0.0]
+                
+        except Exception as e:
+            logger.warning(f"Error detecting energies: {e}, using fallback")
+            available_energies = [0.0]
         
         # reset stop_training flag
         self.system_manager.stop_training = False
 
         # run training in background thread to avoid freezing GUI
         progress = QProgressDialog(
-            f"{'Energy-Conditioned' if use_corrected_training else 'Legacy'} Training in progress... Please wait.",
+            f"Legacy Training in progress (same as standalone_training.py)... Please wait.",
             "Cancel", 0, 0, self
         )
         progress.setWindowModality(Qt.ApplicationModal)
@@ -603,13 +627,13 @@ class MainWindow(QMainWindow):
         else:
             logger.info("Model file selection cancelled by user")
 
-    # Calculate the dose distribution using the selected CT scan file(inference)
+    # Calculate the dose distribution using the standalone inference module (like standalone script)
     def calculate_dose(self):
         """
-        Placeholder for dose calculation logic. Requires a CT file to be uploaded first.
+        Calculate dose distribution using the original InferenceModule directly (standalone approach).
         """
         logger.info("=" * 60)
-        logger.info("DOSE CALCULATION STARTED VIA GUI")
+        logger.info("DOSE CALCULATION STARTED VIA GUI (STANDALONE APPROACH)")
         logger.info("=" * 60)
         
         if not self.ct_file:
@@ -632,46 +656,151 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Error", "Minimum energy must be less than maximum energy.")
             return
 
-        # compute 8‑point Gauss‑Legendre quadrature on [-1,1]
-        logger.info("Computing 8-point Gauss-Legendre quadrature...")
-        nodes, weights = np.polynomial.legendre.leggauss(8)
-        # map nodes from [-1,1] to [min_e, max_e]
-        quad_energies = 0.5 * (max_e - min_e) * nodes + 0.5 * (max_e + min_e)
-        quad_weights = weights * 0.5 * (max_e - min_e) / 2
+        # Import standalone inference module functions
+        try:
+            from inference_module import InferenceModule
+            from inference_module_standalone import (
+                load_models_from_checkpoint, 
+                get_gaussian_quadrature_4point,
+                save_dose,
+                save_nifti_with_manifest
+            )
+            logger.info("✓ Standalone inference modules imported successfully")
+        except ImportError as e:
+            logger.error(f"Failed to import standalone inference modules: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to import standalone modules: {e}")
+            return
 
-        logger.info(f"Quadrature energies: {quad_energies}")
-        logger.info(f"Quadrature weights: {quad_weights}")
-
-        # update both pm and system_manager
-        self.pm.quad_energies = list(quad_energies)
-        self.pm.quad_weights = list(quad_weights)
-        self.system_manager.quad_energies = self.pm.quad_energies
-        self.system_manager.quad_weights  = self.pm.quad_weights
-        self.system_manager.energies      = self.pm.quad_energies
+        # Use 4-point Gaussian Quadrature (same as standalone) instead of 8-point
+        logger.info("Using 4-point Gaussian Quadrature (standalone approach)...")
+        quad_energies, quad_weights = get_gaussian_quadrature_4point(min_e, max_e)
+        
+        logger.info(f"4-point Quadrature energies: {[f'{e:.2f}' for e in quad_energies]} keV")
+        logger.info(f"4-point Quadrature weights: {[f'{w:.4f}' for w in quad_weights]}")
 
         logger.info(f"CT file: {self.ct_file}")
         logger.info(f"Model checkpoint: {self.model_checkpoint}")
 
         try:
-            # Run inference
-            logger.info("Starting inference via SystemManager...")
-            out_path = self.system_manager.run_inference(self.ct_file, self.model_checkpoint)
-            # save result path for later visualization
-            self.dose_result_path = out_path
-            logger.info(f"✓ Dose calculation completed successfully")
-            logger.info(f"✓ Output saved to: {out_path}")
+            # Load CT data (same as standalone)
+            logger.info(f"Loading CT from {self.ct_file}")
+            path_lower = self.ct_file.lower()
+            if path_lower.endswith('.nii') or path_lower.endswith('.nii.gz'):
+                import nibabel as nib
+                nii = nib.load(self.ct_file)
+                ct_array = nii.get_fdata().astype(np.float32)
+                affine = nii.affine
+            elif path_lower.endswith('.npy'):
+                ct_array = np.load(self.ct_file).astype(np.float32)
+                affine = None
+            else:
+                raise ValueError(f"Unsupported CT file format: {self.ct_file}")
             
-            QMessageBox.information(self, "Success", f"Dose distribution calculated successfully.\nSaved to: {out_path}")
+            logger.info(f"CT shape: {ct_array.shape}, dtype: {ct_array.dtype}")
+            logger.info(f"CT range: {ct_array.min():.2f} to {ct_array.max():.2f}")
+            
+            # Convert to tensor (same as standalone)
+            ct_tensor = torch.from_numpy(ct_array).unsqueeze(0).float()  # [1, D, H, W]
+            logger.info(f"CT tensor shape: {ct_tensor.shape}")
+            
+            # Load models from checkpoint (same as standalone)
+            logger.info(f"Loading models from checkpoint...")
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            models_by_energy, scale_factor, clip_min_dict, clip_max_dict, dose_normalization_params = load_models_from_checkpoint(
+                self.model_checkpoint, 
+                quad_energies,
+                device=str(device)
+            )
+            
+            # Create InferenceModule (same as standalone)
+            logger.info("Creating InferenceModule...")
+            infer_mod = InferenceModule(
+                models_by_energy=models_by_energy,
+                energies=quad_energies,
+                energy_weights=quad_weights,
+                device=str(device),
+                scale_factor=scale_factor,
+                energy_min=min_e,
+                energy_max=max_e,
+                clip_min=clip_min_dict,
+                clip_max=clip_max_dict,
+                dose_normalization_params=dose_normalization_params
+            )
+            logger.info("✓ InferenceModule created successfully")
+            logger.info(f"✓ Using scale_factor from checkpoint: {scale_factor}")
+            
+            # Run inference (same as standalone)
+            target_cube_size = (64, 64, 64)  # Default cube size
+            if len(quad_energies) > 1:
+                logger.info(f"Running 4-point Gaussian Quadrature inference with {len(quad_energies)} energies...")
+                dose = infer_mod.run_inference(ct_tensor, target_cube_size=target_cube_size)
+            else:
+                energy = quad_energies[0]
+                logger.info(f"Running single energy inference at {energy} keV...")
+                dose = infer_mod.run_inference_conditioned_on_energy(
+                    ct_tensor,
+                    energy_value=energy,
+                    target_cube_size=target_cube_size
+                )
+            
+            logger.info("✓ Inference completed successfully")
+            
+            # Convert to numpy (same as standalone)
+            if isinstance(dose, torch.Tensor):
+                dose_np = dose.cpu().numpy()
+            else:
+                dose_np = np.array(dose, dtype=np.float32)
+            
+            # Remove batch dimension if present
+            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
+                dose_np = dose_np[0]
+            
+            # Remove channel dimension if present  
+            if dose_np.ndim == 4 and dose_np.shape[0] == 1:
+                dose_np = dose_np[0]
+            
+            logger.info(f"Output dose shape: {dose_np.shape}")
+            logger.info(f"Output dose range: {dose_np.min():.6f} to {dose_np.max():.6f}")
+            logger.info(f"Output dose mean: {dose_np.mean():.6f}")
+            logger.info(f"Output dose std: {dose_np.std():.6f}")
+            
+            # Check for realistic dose values (same as standalone)
+            max_dose = dose_np.max()
+            if max_dose < 1.0:
+                logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems low for radiotherapy")
+            elif max_dose > 100.0:
+                logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems high for radiotherapy")
+            else:
+                logger.info(f"✓ Max dose {max_dose:.2f} Gy is in realistic range for radiotherapy")
+            
+            # Save output (same as standalone)
+            from pathlib import Path
+            output_path = Path(f"dose_output_standalone_gui_{Path(self.ct_file).stem}.npy")
+            logger.info(f"Saving dose output to {output_path}")
+            save_dose(output_path, dose_np, affine)
+            logger.info("✓ Output saved successfully")
+            
+            # Store result path for visualization
+            self.dose_result_path = str(output_path)
+            
+            # Create NIfTI file for 3D viewing (same as standalone)
+            try:
+                nii_path = save_nifti_with_manifest(dose_np, output_path, root_dir=".")
+                if nii_path:
+                    logger.info(f"✓ NIfTI file created for 3D viewing: {nii_path}")
+            except Exception as e:
+                logger.warning(f"Failed to create NIfTI file: {e}")
+            
+            QMessageBox.information(self, "Success", f"Dose distribution calculated successfully using standalone approach.\nSaved to: {output_path}")
 
-            # Visualization of result volume using extracted utilities
-            # Load the result file based on its extension
+            # Visualization using the same approach
             logger.info("Starting visualization...")
-            visualization.load_and_visualize(out_path, self.ct_volume)
+            visualization.load_and_visualize(str(output_path), self.ct_volume)
             logger.info("✓ Visualization completed")
             
         except Exception as e:
             logger.error("=" * 60)
-            logger.error("DOSE CALCULATION FAILED")
+            logger.error("STANDALONE DOSE CALCULATION FAILED")
             logger.error("=" * 60)
             logger.error(f"Error: {e}")
             logger.error("Dose calculation traceback:", exc_info=True)
@@ -679,7 +808,7 @@ class MainWindow(QMainWindow):
             
         finally:
             logger.info("=" * 60)
-            logger.info("DOSE CALCULATION PROCESS COMPLETED")
+            logger.info("STANDALONE DOSE CALCULATION PROCESS COMPLETED")
             logger.info("=" * 60)
 
     # Visualize the dose distribution from inference results

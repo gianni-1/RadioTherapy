@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Gaussian Quadrature Inference für Radiotherapie Dose Prediction.
-Implementiert korrekte 4-Punkt Gaussian Quadrature Integration über Energien.
+Gaussian Quadrature Inference for Radiotherapie Dose Prediction.
 """
 
 import argparse

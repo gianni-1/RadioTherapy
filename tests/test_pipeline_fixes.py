@@ -42,7 +42,7 @@ def test_transforms_consistency():
         # Initialize transforms for resolution 64x64x64
         system._prepare_training(target_resolution=(64, 64, 64), energy=11.5)
         
-        logger.info("✅ Transform initialization successful")
+        logger.info(" Transform initialization successful")
         logger.info(f"   Target resolution: (64, 64, 64)")
         logger.info(f"   Cube size: {system.cube_size}")
         
@@ -55,22 +55,22 @@ def test_transforms_consistency():
         logger.info(f"   Contains SpatialPadd: {has_spatial_padd}")
         
         if has_spatial_padd:
-            logger.error("❌ SpatialPadd still present! This will cause resolution mismatch.")
+            logger.error(" SpatialPadd still present! This will cause resolution mismatch.")
             return False
         elif has_resized:
-            logger.info("✅ Pipeline uses Resized without SpatialPadd - correct!")
+            logger.info(" Pipeline uses Resized without SpatialPadd - correct!")
             return True
         else:
-            logger.warning("⚠️  No Resized found - check pipeline configuration")
+            logger.warning("  No Resized found - check pipeline configuration")
             return False
             
     except Exception as e:
-        logger.error(f"❌ Transform test failed: {e}")
+        logger.error(f" Transform test failed: {e}")
         return False
 
 def test_dose_range_detection():
     """Test dose range detection logic."""
-    logger.info("🔍 Testing dose range detection...")
+    logger.info("Testing dose range detection...")
     
     try:
         from sourcecode.training_pipeline import AutoencoderTrainer
@@ -94,14 +94,14 @@ def test_dose_range_detection():
         
         # The enhanced detection should flag low_dose as problematic
         if low_dose.max() < 5.0:
-            logger.info("✅ Enhanced detection would flag this as problematic (max < 5.0)")
+            logger.info(" Enhanced detection would flag this as problematic (max < 5.0)")
             return True
         else:
-            logger.error("❌ Detection logic may not catch this issue")
+            logger.error(" Detection logic may not catch this issue")
             return False
             
     except Exception as e:
-        logger.error(f"❌ Dose range test failed: {e}")
+        logger.error(f" Dose range test failed: {e}")
         return False
 
 def test_learning_rate_adjustment():
@@ -118,15 +118,15 @@ def test_learning_rate_adjustment():
     
     # Check if the new LR is reasonable (between old and original)
     if ultra_conservative_lr < balanced_lr < original_lr:
-        logger.info("✅ Learning rate properly balanced")
+        logger.info(" Learning rate properly balanced")
         return True
     else:
-        logger.error("❌ Learning rate not properly adjusted")
+        logger.error(" Learning rate not properly adjusted")
         return False
 
 def run_comprehensive_test():
     """Run all tests and summarize results."""
-    logger.info("🚀 Starting comprehensive pipeline fix validation...")
+    logger.info(" Starting comprehensive pipeline fix validation...")
     
     tests = [
         ("Transform Consistency", test_transforms_consistency),
@@ -140,29 +140,29 @@ def run_comprehensive_test():
         try:
             result = test_func()
             results.append((test_name, result))
-            logger.info(f"   Result: {'✅ PASS' if result else '❌ FAIL'}")
+            logger.info(f"   Result: {' PASS' if result else ' FAIL'}")
         except Exception as e:
-            logger.error(f"   Result: ❌ ERROR - {e}")
+            logger.error(f"   Result:  ERROR - {e}")
             results.append((test_name, False))
     
     # Summary
     logger.info("\n" + "="*60)
-    logger.info("🏁 TEST SUMMARY")
+    logger.info(" TEST SUMMARY")
     logger.info("="*60)
     
     passed = sum(1 for _, result in results if result)
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = " PASS" if result else " FAIL"
         logger.info(f"  {test_name:<25} {status}")
     
     logger.info(f"\nOverall: {passed}/{total} tests passed")
     
     if passed == total:
-        logger.info("🎉 All tests passed! Pipeline fixes should resolve the dose scaling issue.")
+        logger.info(" All tests passed! Pipeline fixes should resolve the dose scaling issue.")
     else:
-        logger.warning(f"⚠️  {total-passed} test(s) failed. Additional fixes may be needed.")
+        logger.warning(f"  {total-passed} test(s) failed. Additional fixes may be needed.")
     
     return passed == total
 

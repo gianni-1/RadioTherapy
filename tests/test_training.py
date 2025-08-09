@@ -64,14 +64,14 @@ try:
         seed=config['seed']
     )
     
-    print("✅ SystemManager initialized successfully")
+    print(" SystemManager initialized successfully")
     
     # Start training
     print("\\nStarting energy-conditioned training...")
     result = system_manager.run_energy_conditioned_training()
     
     if result:
-        print("\\n✅ Training completed successfully!")
+        print("\\n Training completed successfully!")
         print(f"Model saved to: {result['model_path']}")
         print("\\nFinal losses:")
         print(f"  Autoencoder train: {result['losses']['ae_train'][-1]:.4f}")
@@ -79,9 +79,9 @@ try:
         if result['losses']['diff']:
             print(f"  Diffusion: {result['losses']['diff'][-1]:.4f}")
     else:
-        print("❌ Training failed")
+        print(" Training failed")
 
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f" Error: {e}")
     import traceback
     traceback.print_exc()

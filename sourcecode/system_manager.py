@@ -239,8 +239,8 @@ class SystemManager:
                 root_dir=self.root_dir,
                 section=None,
                 patch_size=(32, 32, 32),
-                min_hotspot_voxels=1000,
-                dose_threshold=0.5,
+                min_hotspot_voxels=100,  # REDUCED: Was 1000, now 100 for low-dose data
+                dose_threshold=0.001,    # REDUCED: Was 0.5, now 0.001 for low-dose data
                 max_patches=6,
                 random_patches=0,
                 transforms=patch_transforms,
@@ -252,8 +252,8 @@ class SystemManager:
                 root_dir=self.root_dir,
                 section=None,
                 patch_size=(32, 32, 32),
-                min_hotspot_voxels=1000,
-                dose_threshold=0.5,
+                min_hotspot_voxels=100,  # REDUCED: Was 1000, now 100 for low-dose data
+                dose_threshold=0.001,    # REDUCED: Was 0.5, now 0.001 for low-dose data
                 max_patches=2,
                 random_patches=0,
                 transforms=patch_transforms,

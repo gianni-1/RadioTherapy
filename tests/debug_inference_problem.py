@@ -16,7 +16,7 @@ os.environ['PYTHONPATH'] = '/Users/giannigagliardi/Documents/Git/RadioTherapy'
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-print("🔍 DEBUG: Inference Problem Analysis")
+print(" DEBUG: Inference Problem Analysis")
 print("=" * 60)
 
 # Test: Lade den gleichen Input/Output wie in visualizationTEST
@@ -32,7 +32,7 @@ if os.path.exists(input_file) and os.path.exists(output_file):
     input_data = np.load(input_file)
     ground_truth = np.load(output_file)
     
-    print(f"\n📊 Ground Truth Analysis:")
+    print(f"\n Ground Truth Analysis:")
     print(f"  Input shape: {input_data.shape}")
     print(f"  Output shape: {ground_truth.shape}")
     print(f"  Output min/max: {ground_truth.min():.6f} / {ground_truth.max():.6f}")
@@ -67,10 +67,10 @@ if os.path.exists(input_file) and os.path.exists(output_file):
         autoencoder.load_state_dict(checkpoint['autoencoder'])
         autoencoder.eval()
         
-        print("✅ Model loaded successfully")
+        print(" Model loaded successfully")
         
         # Test: Verwende die gleiche Energie-Konditionierung wie im Training
-        print(f"\n🔧 Test 2: Energy Conditioning")
+        print(f"\n Test 2: Energy Conditioning")
         
         # Erstelle Input mit Energy-Kanal (wie im Training)
         energy_value = 11.5
@@ -90,7 +90,7 @@ if os.path.exists(input_file) and os.path.exists(output_file):
         print(f"  Input channel 1 (Energy) min/max: {input_tensor[0,1].min():.6f} / {input_tensor[0,1].max():.6f}")
         
         # Test direkte Autoencoder-Rekonstruktion
-        print(f"\n🔄 Test 3: Direct Autoencoder Reconstruction")
+        print(f"\n Test 3: Direct Autoencoder Reconstruction")
         with torch.no_grad():
             # Encode
             encoded = autoencoder.encode(input_tensor)
@@ -116,7 +116,7 @@ if os.path.exists(input_file) and os.path.exists(output_file):
             print(f"  Reconstruction mean/std: {reconstruction_np.mean():.6f} / {reconstruction_np.std():.6f}")
             
             # Vergleiche mit Ground Truth
-            print(f"\n📈 Comparison with Ground Truth:")
+            print(f"\n Comparison with Ground Truth:")
             mse = np.mean((reconstruction_np - ground_truth) ** 2)
             mae = np.mean(np.abs(reconstruction_np - ground_truth))
             correlation = np.corrcoef(reconstruction_np.flatten(), ground_truth.flatten())[0, 1]
@@ -126,25 +126,25 @@ if os.path.exists(input_file) and os.path.exists(output_file):
             print(f"  Correlation: {correlation:.6f}")
             
             if correlation > 0.5:
-                print("  ✅ GOOD: Reconstruction correlates with ground truth")
+                print("   GOOD: Reconstruction correlates with ground truth")
             else:
-                print("  ❌ BAD: Poor correlation with ground truth")
+                print("   BAD: Poor correlation with ground truth")
                 
             # Speichere zur Visualisierung
             np.save('debug_reconstruction.npy', reconstruction_np)
             np.save('debug_ground_truth.npy', ground_truth)
             np.save('debug_input.npy', input_data)
             
-            print(f"\n💾 Saved debug files:")
+            print(f"\n Saved debug files:")
             print(f"  debug_reconstruction.npy - Model reconstruction")
             print(f"  debug_ground_truth.npy - Ground truth")
             print(f"  debug_input.npy - Input data")
             
     else:
-        print(f"❌ Model not found: {model_path}")
+        print(f" Model not found: {model_path}")
         
 else:
-    print(f"❌ Test files not found!")
+    print(f" Test files not found!")
     print(f"  Looking for: {input_file}")
     print(f"  Looking for: {output_file}")
 
