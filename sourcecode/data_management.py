@@ -121,7 +121,7 @@ class HotspotPatchDataset(Dataset):
                     patch_indices = random.sample(patch_indices, self.max_patches_per_energy)
                 
                 for idx in patch_indices:
-                    # Patch-Statistiken berechnen
+                    # patch statistics
                     z, y, x = idx
                     dz, dy, dx = patch_size
                     patch = dose_array[z:z+dz, y:y+dy, x:x+dx]
@@ -131,7 +131,7 @@ class HotspotPatchDataset(Dataset):
                     mean_dose = float(patch.mean())
                     self.patch_records.append((in_fp, out_fp, folder_energy, idx))
                     self.patch_stats.append((n_voxels_gt0, n_voxels_gt_thresh, max_dose, mean_dose))
-        # Logging der Patch-Statistiken
+        # Logging 
         if len(self.patch_stats) > 0:
             n_voxels_gt0_list = [s[0] for s in self.patch_stats]
             n_voxels_gt_thresh_list = [s[1] for s in self.patch_stats]
@@ -140,7 +140,7 @@ class HotspotPatchDataset(Dataset):
             logger.info(f"Patch-Statistiken: Mittelwert Voxel>0: {np.mean(n_voxels_gt0_list):.1f}, Mittelwert Voxel>thresh: {np.mean(n_voxels_gt_thresh_list):.1f}, MaxDose Mittelwert: {np.mean(max_dose_list):.3f}, MeanDose Mittelwert: {np.mean(mean_dose_list):.3f}")
             logger.info(f"Patch-Statistiken: Min/Max Voxel>0: {np.min(n_voxels_gt0_list)}/{np.max(n_voxels_gt0_list)}, Min/Max Voxel>thresh: {np.min(n_voxels_gt_thresh_list)}/{np.max(n_voxels_gt_thresh_list)}")
         logger.info(f"HotspotPatchDataset: {len(self.patch_records)} Patches extrahiert.")
-        # Debug: Zeige die Energie der ersten 5 Patches
+        # Debug
         if len(self.patch_records) > 0:
             logger.debug(f"Energie der ersten 5 Patches: {[self.patch_records[i][2] for i in range(min(5, len(self.patch_records)))]}")
 

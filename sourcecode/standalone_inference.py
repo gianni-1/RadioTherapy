@@ -204,9 +204,9 @@ def main():
     # Check for realistic dose values
     max_dose = dose_np.max()
     if max_dose < 1.0:
-        logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems low for radiotherapy")
+        logger.warning(f"  Max dose {max_dose:.2f} Gy seems low for radiotherapy")
     elif max_dose > 100.0:
-        logger.warning(f"⚠️  Max dose {max_dose:.2f} Gy seems high for radiotherapy")
+        logger.warning(f"  Max dose {max_dose:.2f} Gy seems high for radiotherapy")
     else:
         logger.info(f"✓ Max dose {max_dose:.2f} Gy is in realistic range")
 

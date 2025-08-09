@@ -136,7 +136,7 @@ class CorrectedDoseNpyDataset(Dataset):
             'energy_specific_stats': self.original_dose_stats
         }
         
-        logger.info(f"🔧 CORRECTED: Dose normalization params: "
+        logger.info(f" CORRECTED: Dose normalization params: "
                    f"clip_min={global_clip_min:.6f}, clip_max={global_clip_max:.6f}, "
                    f"robust_max={robust_max:.6f}")
         
@@ -208,7 +208,7 @@ class CorrectedTrainingPipeline:
             EnsureTyped(keys=["input", "target"]),
             Orientationd(keys=["input", "target"], axcodes="RAS"),
             
-            # 🔥 CRITICAL FIX: Use Resized instead of Spacingd for array dimensions
+            #  CRITICAL FIX: Use Resized instead of Spacingd for array dimensions
             Resized(keys=["input", "target"], 
                    spatial_size=self.target_resolution, 
                    mode=("bilinear", "nearest")),
@@ -284,7 +284,7 @@ class CorrectedTrainingPipeline:
         """
         Execute the corrected training pipeline.
         """
-        logger.info("🔥 STARTING CORRECTED TRAINING PIPELINE")
+        logger.info(" STARTING CORRECTED TRAINING PIPELINE")
         logger.info("=" * 60)
         
         # Step 1: Create corrected dataset and get ORIGINAL dose statistics
@@ -329,7 +329,7 @@ class CorrectedTrainingPipeline:
             dose_normalization_params, scale_factor
         )
         
-        logger.info("🔥 CORRECTED TRAINING COMPLETED SUCCESSFULLY")
+        logger.info(" CORRECTED TRAINING COMPLETED SUCCESSFULLY")
         logger.info("=" * 60)
         
         return trained_models
@@ -406,7 +406,7 @@ def main():
     TARGET_RESOLUTION = (64, 64, 64)
     CUBE_SIZE = (64, 64, 64)
     
-    logger.info("🔥 STARTING CORRECTED TRAINING PIPELINE - NACHHALTIGE LÖSUNG")
+    logger.info(" STARTING CORRECTED TRAINING PIPELINE - NACHHALTIGE LÖSUNG")
     
     # Create pipeline
     pipeline = CorrectedTrainingPipeline(
@@ -422,7 +422,7 @@ def main():
     # Run corrected training
     trained_models = pipeline.run_corrected_training()
     
-    logger.info("🎯 CORRECTED TRAINING PIPELINE COMPLETED - SUSTAINABLE SOLUTION IMPLEMENTED")
+    logger.info(" CORRECTED TRAINING PIPELINE COMPLETED - SUSTAINABLE SOLUTION IMPLEMENTED")
     return trained_models
 
 if __name__ == "__main__":

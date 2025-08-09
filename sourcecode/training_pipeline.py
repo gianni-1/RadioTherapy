@@ -159,7 +159,7 @@ class AutoencoderTrainer:
             
             # Check if values seem suspiciously low (should be in tens, not decimals)
             if nonzero_values.max() < 5.0:
-                logger.error(f"🚨 DOSE VALUES TOO LOW! Max dose {nonzero_values.max():.6f} < 5.0")
+                logger.error(f" DOSE VALUES TOO LOW! Max dose {nonzero_values.max():.6f} < 5.0")
                 logger.error("Expected dose values in range 10-50+ for radiotherapy!")
                 logger.error("This suggests a major pipeline or data scaling issue.")
         
@@ -171,12 +171,12 @@ class AutoencoderTrainer:
             # **CRITICAL FIX: For very high energies, use actual max to preserve signal strength**
             # Don't use percentiles for high energies as they cause severe underestimation
             clip_max_candidate = float(np.max(all_dose_values))
-            logger.info(f"🔥 High energy ({energy:.2f}): Using ACTUAL maximum for clip_max: {clip_max_candidate:.2f}")
+            logger.info(f" High energy ({energy:.2f}): Using ACTUAL maximum for clip_max: {clip_max_candidate:.2f}")
             
             # Only cap if extremely unreasonable (>150 Gy)
             if clip_max_candidate > 150.0:
                 clip_max_candidate = 100.0
-                logger.info(f"🔥 Capping clip_max to 100.0 for energy {energy:.2f} (was {float(np.max(all_dose_values)):.2f})")
+                logger.info(f" Capping clip_max to 100.0 for energy {energy:.2f} (was {float(np.max(all_dose_values)):.2f})")
             else:
                 logger.info(f"✓ Using full range clip_max={clip_max_candidate:.2f} for energy {energy:.2f}")
         else:
@@ -239,8 +239,8 @@ class AutoencoderTrainer:
             dose_threshold: Minimum value to consider as "real dose"
         """
         # Create extreme weight mask
-        # Erhöhe die Gewichtung für Dosis-Voxel deutlich
-        weights = torch.where(target > dose_threshold, 100000.0, 0.01)  # 100.000x für Dosis, fast ignorieren sonst
+        # Weights are 10,000x for dose voxels, nearly zero for background
+        weights = torch.where(target > dose_threshold, 100000.0, 0.01)  
         
         # Weighted absolute difference
         weighted_diff = torch.abs(pred - target) * weights
@@ -309,8 +309,8 @@ class AutoencoderTrainer:
         masked_pred = pred[dose_mask]
         masked_target = target[dose_mask]
         pure_dose_loss = F.mse_loss(masked_pred, masked_target)
-        
-        # MEGA-ULTRA-weighted loss for EXTREME sparsity (1,000,000x weight for dose - MASSIVE INCREASE for 0.005% sparsity)
+
+        # EXTREME weighted loss for EXTREME sparsity (1,000,000x weight for dose - MASSIVE INCREASE for 0.005% sparsity)
         sparsity_percent = 100 * dose_voxels / target.numel()
         
         # Adaptive weight based on actual sparsity level - MUCH MORE AGGRESSIVE
@@ -336,7 +336,7 @@ class AutoencoderTrainer:
             combined_loss = 0.8 * pure_dose_loss + 0.2 * weighted_loss
         
         total_voxels = target.numel()
-        logger.debug(f"MEGA-ULTRA-EXTREME loss - {dose_voxels}/{total_voxels} dose voxels "
+        logger.debug(f"EXTREME loss - {dose_voxels}/{total_voxels} dose voxels "
                     f"({sparsity_percent:.5f}%), dose_weight: {dose_weight:.0f}, "
                     f"pure_MSE: {pure_dose_loss:.6f}, weighted_{dose_weight:.0f}: {weighted_loss:.6f}, combined: {combined_loss:.6f}")
         
@@ -548,7 +548,7 @@ class AutoencoderTrainer:
             if dose_voxels < 10000:  # Schwelle für MEGA-ULTRA-EXTREME deutlich erhöht
                 # Ultra-sparse batch - use extreme loss
                 recons_loss = self.extreme_dose_focused_loss(reconstruction_norm.float(), dose_target_norm.float())
-                loss_type = "MEGA-ULTRA-EXTREME (1,000,000x weights + MSE)"
+                loss_type = "EXTREME (1,000,000x weights + MSE)"
             else:
                 # Normal sparse batch - use combined weighted/masked approach
                 weighted_loss = self.weighted_dose_loss(reconstruction_norm.float(), dose_target_norm.float())
@@ -561,7 +561,7 @@ class AutoencoderTrainer:
                 recons_loss = recons_loss * 1.5  # 50% stronger weighting
                 loss_type += " + HIGH_ENERGY_BOOST"
                 if step < 3:  # Log only for first few batches
-                    logger.info(f"🔥 Applied 1.5x loss boost for high energy {current_energy:.2f}")
+                    logger.info(f" Applied 1.5x loss boost for high energy {current_energy:.2f}")
                     
             # **ENHANCED: Comprehensive sparse data analysis**
             dose_ratio = dose_voxels / total_voxels
@@ -589,9 +589,9 @@ class AutoencoderTrainer:
             # Nur jede 20. Warnung loggen, um Spam zu vermeiden
             if step % 20 == 0:
                 if signal_ratio < 0.01:
-                    logger.warning(f"💀 SIGNAL COLLAPSE: ratio={signal_ratio:.6f} - model barely responding!")
+                    logger.warning(f" SIGNAL COLLAPSE: ratio={signal_ratio:.6f} - model barely responding!")
                 elif signal_ratio < 0.1:
-                    logger.warning(f"⚠️  WEAK SIGNAL: ratio={signal_ratio:.6f} - consider higher weights!")
+                    logger.warning(f"  WEAK SIGNAL: ratio={signal_ratio:.6f} - consider higher weights!")
             
             # **CRITICAL FIX: Check for NaN in loss**
             if torch.isnan(recons_loss) or torch.isinf(recons_loss):
@@ -621,16 +621,16 @@ class AutoencoderTrainer:
             if step % 20 == 0:
                 ratio = recon_max / max(target_max, 1e-6)
                 if recon_max < collapse_threshold and target_max > 0.01:
-                    logger.warning(f"🚨 CRITICAL MODEL COLLAPSE: recon_max={recon_max:.6f}, target_max={target_max:.6f}")
+                    logger.warning(f" CRITICAL MODEL COLLAPSE: recon_max={recon_max:.6f}, target_max={target_max:.6f}")
                     logger.warning(f"   Signal ratio: {ratio:.8f} (should be >{degradation_threshold})")
                     if current_energy is not None and current_energy > 40.0:
-                        logger.warning(f"🔥 HIGH ENERGY COLLAPSE: energy={current_energy:.2f} - Consider reducing clip_max")
+                        logger.warning(f" HIGH ENERGY COLLAPSE: energy={current_energy:.2f} - Consider reducing clip_max")
                     logger.warning(f"   URGENT: Consider 500K+ weights or alternative loss function")
                 elif ratio < degradation_threshold and target_max > 0.1:
-                    logger.warning(f"⚠️  MODEL DEGRADATION: recon_max={recon_max:.6f}, target_max={target_max:.6f}")
+                    logger.warning(f"  MODEL DEGRADATION: recon_max={recon_max:.6f}, target_max={target_max:.6f}")
                     logger.warning(f"   Model producing weak signals - monitor closely")
                     if current_energy is not None and current_energy > 40.0:
-                        logger.warning(f"🔥 HIGH ENERGY DEGRADATION: energy={current_energy:.2f}, ratio={ratio:.6f}")
+                        logger.warning(f" HIGH ENERGY DEGRADATION: energy={current_energy:.2f}, ratio={ratio:.6f}")
                         logger.warning(f"   Suggested: Reduce dose normalization clip_max")
             
             # compute adversarial loss if using discriminator
@@ -660,15 +660,15 @@ class AutoencoderTrainer:
             torch.nn.utils.clip_grad_value_(self.autoencoder.parameters(), clip_value=0.01)  # Much more conservative
             self.optimizer_g.step()
 
-            # Training des Diskriminators (nur nach Warm-up Phase)
+            # **CRITICAL FIX: Check for NaN in generator loss**
             if epoch > self.warm_up_epochs and self.discriminator is not None:
                 self.optimizer_d.zero_grad(set_to_none=True)
                 
-                # Diskriminator auf gefälschte (rekonstruierte) Bilder anwenden
+                # Discriminator loss: real vs fake
                 logits_fake = self.discriminator(reconstruction.contiguous().detach())[-1]
                 loss_d_fake = F.mse_loss(logits_fake, torch.zeros_like(logits_fake))
                 
-                # Diskriminator auf echte (Ziel-) Bilder anwenden
+                # Discriminator loss: real vs real
                 logits_real = self.discriminator(dose_target.contiguous().detach())[-1]
                 loss_d_real = F.mse_loss(logits_real, torch.ones_like(logits_real))
                 
@@ -695,7 +695,7 @@ class AutoencoderTrainer:
                 param_group['lr'] = original_lr_g
             for param_group in self.optimizer_d.param_groups:
                 param_group['lr'] = original_lr_d
-            logger.info(f"🔥 Restored original learning rates: G={original_lr_g:.6f}, D={original_lr_d:.6f}")
+            logger.info(f" Restored original learning rates: G={original_lr_g:.6f}, D={original_lr_d:.6f}")
 
         return avg_loss, avg_gen_loss, avg_disc_loss
 

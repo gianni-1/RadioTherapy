@@ -164,8 +164,8 @@ class SystemManager:
         
         # CORRECTED TRAINING STRATEGY: Use single resolution (64x64x64) for all energies
         target_resolution = (64, 64, 64)  # Fixed single resolution for stability
-        logger.info(f"🔧 CORRECTED: Using SINGLE resolution {target_resolution} for ALL energies (instead of multi-resolution)")
-        logger.info(f"🔧 CORRECTED: Energy Loop -> Resolution Loop (proper architecture)")
+        logger.info(f" CORRECTED: Using SINGLE resolution {target_resolution} for ALL energies (instead of multi-resolution)")
+        logger.info(f" CORRECTED: Energy Loop -> Resolution Loop (proper architecture)")
         
         # instantiate models - before the loop to avoid re-instantiation
         autoencoder = AutoencoderKL(
@@ -208,8 +208,8 @@ class SystemManager:
             if self.stop_training:
                 logger.info("Training aborted by user.")
                 return
-            logger.info(f"🔧 --- CORRECTED: Training energy={energy} eV at resolution={target_resolution} ---")
-            logger.info(f"🔧 CORRECTED: Pipeline uses consistent resolution: {target_resolution}")
+            logger.info(f" --- CORRECTED: Training energy={energy} eV at resolution={target_resolution} ---")
+            logger.info(f" CORRECTED: Pipeline uses consistent resolution: {target_resolution}")
             # Separate transforms for patch-based training and validation
             patch_transforms = Compose([
                 EnsureTyped(keys=["input", "target"]),
@@ -324,7 +324,7 @@ class SystemManager:
 
             inferer = LatentDiffusionInferer(scheduler, scale_factor=scale_factor)
 
-            # 🔧 AGGRESSIVE learning rate for faster convergence (problems identified)
+            #  AGGRESSIVE learning rate for faster convergence (problems identified)
             # Current signal ratios 0.03-0.08 too low, need stronger learning
             aggressive_lr = self.learning_rate * 1.0  # Use full original LR (1e-5)
             logger.info(f"Using AGGRESSIVE learning rate: {aggressive_lr} (original: {self.learning_rate}) for faster convergence")
@@ -807,15 +807,15 @@ class SystemManager:
         logger.info(f"--- Training unified model at resolution={res} with energies={self.energies} ---")
         
         # Setup transforms
-        logger.info(f"🔧 CORRECTED: Pipeline uses consistent resolution: {res}")
+        logger.info(f" CORRECTED: Pipeline uses consistent resolution: {res}")
         self.transforms = Compose([
             LoadImaged(keys=["input", "target"], reader=NumpyReader),
             EnsureChannelFirstd(keys=["input", "target"]),
             EnsureTyped(keys=["input", "target"]),
             Orientationd(keys=["input", "target"], axcodes="RAS"),
-            # 🔥 CRITICAL FIX: Use Resized instead of Spacingd for array dimensions
+            #  CRITICAL FIX: Use Resized instead of Spacingd for array dimensions
             Resized(keys=["input", "target"], spatial_size=res, mode=("bilinear", "nearest")),
-            # 🔧 REMOVED: SpatialPadd and CenterSpatialCropd that destroyed the target resolution
+            #  REMOVED: SpatialPadd and CenterSpatialCropd that destroyed the target resolution
             # SpatialPadd(keys=["input", "target"], spatial_size=self.cube_size, method="symmetric"),
             # CenterSpatialCropd(keys=["input", "target"], roi_size=self.cube_size),
             ScaleIntensityRangePercentilesd(
@@ -984,7 +984,7 @@ class SystemManager:
             }
         }, model_path)
         
-        logger.info(f"✅ Unified energy-conditioned model saved to: {model_path}")
+        logger.info(f" Unified energy-conditioned model saved to: {model_path}")
         logger.info("=== ENERGY-CONDITIONED TRAINING COMPLETED ===")
         
         return {

@@ -80,10 +80,10 @@ class InferenceModule:
         
         # Check if fallback parameters seem reasonable for radiotherapy
         if fallback_clip_max < 5.0:
-            logger.warning(f"🚨 Fallback clip_max ({fallback_clip_max:.2f}) too low for radiotherapy, using emergency default")
+            logger.warning(f" Fallback clip_max ({fallback_clip_max:.2f}) too low for radiotherapy, using emergency default")
             fallback_clip_max = 50.0  # Reasonable default for radiotherapy
             fallback_clip_min = 0.0
-            logger.info(f"🚨 Using emergency defaults: clip_min=0.0, clip_max=50.0")
+            logger.info(f" Using emergency defaults: clip_min=0.0, clip_max=50.0")
         
         return {
             'clip_min': fallback_clip_min,
@@ -281,14 +281,14 @@ class InferenceModule:
             logger.info(f"Training normalization params: clip_min={clip_min:.6f}, clip_max={clip_max:.6f}, range={dose_range:.6f}")
             
             if dose_range < 1.0:
-                logger.warning(f"⚠️  SUSPICIOUS: Dose range ({dose_range:.6f}) seems very small for radiotherapy!")
-                logger.warning(f"⚠️  This may indicate training normalization issues.")
-                logger.warning(f"⚠️  Expected ranges: 10-70 Gy for typical treatments.")
+                logger.warning(f"  SUSPICIOUS: Dose range ({dose_range:.6f}) seems very small for radiotherapy!")
+                logger.warning(f"  This may indicate training normalization issues.")
+                logger.warning(f"  Expected ranges: 10-70 Gy for typical treatments.")
             
             if clip_max < 5.0:
-                logger.error(f"🚨 CRITICAL: clip_max ({clip_max:.6f}) is suspiciously low!")
-                logger.error(f"🚨 Expected clip_max: 20-70 Gy for radiotherapy")
-                logger.error(f"🚨 This will cause severely underestimated dose predictions!")
+                logger.error(f" CRITICAL: clip_max ({clip_max:.6f}) is suspiciously low!")
+                logger.error(f" Expected clip_max: 20-70 Gy for radiotherapy")
+                logger.error(f" This will cause severely underestimated dose predictions!")
             
             logger.info(f"Applying dose denormalization for energy {energy_value}: clip_min={clip_min:.6f}, clip_max={clip_max:.6f}")
             
@@ -304,9 +304,9 @@ class InferenceModule:
             # **QUALITY CHECK: Compare with expected radiotherapy ranges**
             max_dose = dose_distribution.max().item()
             if max_dose < 1.0:
-                logger.error(f"🚨 RESULT TOO LOW: Max dose {max_dose:.6f} Gy is unrealistic for radiotherapy!")
+                logger.error(f" RESULT TOO LOW: Max dose {max_dose:.6f} Gy is unrealistic for radiotherapy!")
             elif max_dose < 10.0:
-                logger.warning(f"⚠️  RESULT LOW: Max dose {max_dose:.6f} Gy seems low for typical radiotherapy.")
+                logger.warning(f"  RESULT LOW: Max dose {max_dose:.6f} Gy seems low for typical radiotherapy.")
             else:
                 logger.info(f"✓ Max dose {max_dose:.6f} Gy is in reasonable range for radiotherapy.")
                 
