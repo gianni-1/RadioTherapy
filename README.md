@@ -1,4 +1,12 @@
 
+
+# About this Project
+
+This project was developed as part of a **university internship supervised by Prof. Hesser**.  
+It builds upon and extends the work of **Josch Hagedorn’s Master’s Thesis**, which introduced latent diffusion models for radiotherapy dose prediction.  
+The goal of the internship project was to create a practical framework with a user-friendly GUI that allows configurable training and inference of autoencoder–diffusion models for radiation dose distribution prediction.
+
+
 # RadioTherapy Dose Prediction
 
 A PyTorch/MONAI-based application for training and running latent diffusion models to predict radiation dose distributions from CT scans, with support for Gaussian quadrature over multiple energy levels.
