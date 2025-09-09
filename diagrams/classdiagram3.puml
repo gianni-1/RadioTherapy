@@ -1,0 +1,323 @@
+@startuml classdiagram3
+title Aktualisiertes Klassendiagramm: RadioTherapy Training & Inferenz Pipeline 2025
+
+!define PRIMARYCOLOR #2E86AB
+!define SECONDARYCOLOR #A23B72
+!define ACCENTCOLOR #F18F01
+!define LIGHTCOLOR #C73E1D
+
+' ========== GUI Layer ==========
+package "GUI Layer" <<Rectangle>> {
+    class MainWindow {
+        -ct_file: str
+        -model_checkpoint: str
+        -input_dir: str
+        -output_dir: str
+        -system_manager: SystemManager
+        -pm: ParameterManager
+        -ct_volume: np.array
+        -dose_result_path: str
+        --
+        +select_input_folder()
+        +train_model()
+        +open_file_dialog()
+        +open_model_dialog()
+        +calculate_dose()
+        +visualize_inference_results()
+        +show_training_plots()
+        +_create_transforms(cube_size): Compose
+        +_update_ui_state()
+    }
+    
+    class TrainingWorker <<QObject>> {
+        -manager: SystemManager
+        --
+        +run()
+        --
+        finished: Signal
+        error: Signal(str)
+        progress: Signal(int, int)
+    }
+    
+    class InferenceWorker <<QObject>> {
+        -ct_file: str
+        -model_checkpoint: str
+        -min_e: float
+        -max_e: float
+        --
+        +run()
+        --
+        finished: Signal(str)
+        error: Signal(str)
+    }
+}
+
+' ========== Core Management ==========
+package "Core Management" <<Rectangle>> {
+    class SystemManager {
+        -root_dir: str
+        -transforms: Compose
+        -energies: List[float]
+        -quad_energies: List[float]
+        -quad_weights: List[float]
+        -models_by_energy: Dict[float, Tuple]
+        -device: torch.device
+        -stop_training: bool
+        --
+        +run_training()
+        +run_energy_conditioned_training()
+        +save_models(energy: float)
+        +load_models(energy: float)
+        +get_models_for_inference()
+        +_setup_models_for_energy()
+        +_train_autoencoder_for_energy()
+        +_train_diffusion_for_energy()
+    }
+    
+    class ParameterManager {
+        +energies: List[float]
+        +quad_energies: List[float]
+        +quad_weights: List[float]
+        +resolutions: List[Tuple]
+        +batch_size: int
+        +cube_size: int
+        +num_epochs: int
+        +learning_rate: float
+        +patience: int
+        --
+        +getParameter(): dict
+        +update_from_data()
+    }
+}
+
+' ========== Data Management ==========
+package "Data Management" <<Rectangle>> {
+    class DataLoaderModule {
+        +load_dataset(root_dir: str, section: str, energy: float): Dataset
+        +split_dataset(dataset: Dataset, train_ratio: float): Tuple
+        +create_dataloader(dataset: Dataset, batch_size: int): DataLoader
+        +get_energy_folders(root_dir: str): List[str]
+    }
+    
+    class HotspotPatchDataset <<Dataset>> {
+        -patch_records: List[Tuple]
+        -patch_size: Tuple[int, int, int]
+        -transforms: Compose
+        -selected_energy: float
+        -patch_stats: List[Tuple]
+        -max_patches_per_energy: int
+        --
+        +__init__(root_dir, energy, patch_size, min_hotspot_voxels, dose_threshold)
+        +__len__(): int
+        +__getitem__(idx): Dict[str, torch.Tensor]
+        +_extract_patches_from_cube()
+        +_validate_patch_extraction()
+    }
+    
+    note right of HotspotPatchDataset : Nutzt extract_hotspot_patches()\nfür dynamische Patch-Extraktion\nmit adaptiver Dose-Threshold
+}
+
+' ========== Training Pipeline ==========
+package "Training Pipeline" <<Rectangle>> {
+    class AutoencoderTrainer {
+        -autoencoder: AutoencoderKL
+        -discriminator: PatchDiscriminator
+        -optimizer_g: Adam
+        -optimizer_d: Adam
+        -energy_min: float
+        -energy_max: float
+        -clip_min: float
+        -clip_max: float
+        --
+        +train_one_epoch(train_loader): Tuple[float, float, float]
+        +validate(val_loader): float
+        +calculate_dose_normalization_params(train_loader, energy)
+        +setup_loss_functions()
+        +normalize_dose_batch(dose_batch): torch.Tensor
+        +denormalize_dose_batch(dose_batch): torch.Tensor
+    }
+    
+    class DiffusionTrainer {
+        -unet: DiffusionModelUNet
+        -scheduler: DDPMScheduler
+        -optimizer: Adam
+        -inferer: LatentDiffusionInferer
+        --
+        +train_one_epoch(train_loader): float
+        +validate(val_loader): float
+        +sample(input_tensor): torch.Tensor
+    }
+    
+    class EarlyStopping {
+        -patience: int
+        -best_val_loss: float
+        -epochs_no_improvement: int
+        --
+        +update(val_loss: float): bool
+        +reset()
+        +should_stop(): bool
+    }
+}
+
+' ========== Neural Networks ==========
+package "Neural Networks" <<Rectangle>> {
+    class AutoencoderKL <<MONAI Generative>> {
+        +spatial_dims: int
+        +in_channels: int
+        +out_channels: int
+        +latent_channels: int
+        --
+        +encode(x): torch.Tensor
+        +decode(z): torch.Tensor
+        +forward(x): torch.Tensor
+    }
+    
+    class PatchDiscriminator <<MONAI Generative>> {
+        +spatial_dims: int
+        +in_channels: int
+        +num_layers_d: int
+        --
+        +forward(x): torch.Tensor
+    }
+    
+    class DiffusionModelUNet <<MONAI Generative>> {
+        +spatial_dims: int
+        +in_channels: int
+        +out_channels: int
+        +num_res_blocks: int
+        +attention_levels: List[int]
+        --
+        +forward(x, timesteps, context): torch.Tensor
+    }
+    
+    class DDPMScheduler <<MONAI Generative>> {
+        +num_train_timesteps: int
+        +beta_schedule: str
+        --
+        +add_noise(original_samples, noise, timesteps): torch.Tensor
+        +step(model_output, timestep, sample): torch.Tensor
+    }
+}
+
+' ========== Inference Pipeline ==========
+package "Inference Pipeline" <<Rectangle>> {
+    class InferenceModule {
+        -device: torch.device
+        -models_by_energy: Dict[float, Tuple]
+        -quad_energies: List[float]
+        -quad_weights: List[float]
+        --
+        +run_inference(ct_data, output_path)
+        +compute_4_point_gaussian_quadrature(ct_preprocessed): np.array
+        +_single_energy_inference(ct_data, energy): np.array
+        +_preprocess_ct(ct_data): torch.Tensor
+        +_postprocess_dose(dose_tensor): np.array
+    }
+    
+    note right of InferenceModule : Verwendet 4-Punkt Gauß-Quadratur\nüber separate Modelle pro Energie\nfür finale Dosisberechnung
+    
+    class LatentDiffusionInferer <<MONAI Generative>> {
+        +scheduler: DDPMScheduler
+        +scale_factor: float
+        --
+        +sample(input_noise, autoencoder, unet): torch.Tensor
+    }
+}
+
+' ========== Visualization & Storage ==========
+package "Visualization & Storage" <<Rectangle>> {
+    class Visualization {
+        --
+        +plot_learning_curve(epochs, loss_list)
+        +plot_adversarial_curves(epochs, gen_loss, disc_loss)
+        +load_and_visualize(file_path, ct_volume): matplotlib.Figure
+        +volume_rendering(dose_array, ct_array): matplotlib.Figure
+    }
+    
+    class MplCanvas <<QWidget>> {
+        +figure: matplotlib.Figure
+        +axes: matplotlib.Axes
+        --
+        +plot_data(data)
+        +clear()
+        +update_plot()
+    }
+    
+    class Storage {
+        --
+        +save_nifti_with_manifest(dose_array, output_path)
+        +load_nifti_or_numpy(file_path): Tuple[np.array, Any]
+        +create_output_filename(base_name): str
+    }
+}
+
+' ========== Standalone Modules ==========
+package "Standalone Modules" <<Rectangle>> {
+    class InferenceModuleStandalone {
+        --
+        +main(ct_path, model_path, min_e, max_e)
+        +load_ct(path): Tuple[np.array, Any]
+        +create_dose_visualization(dose_array, output_path)
+        +save_nifti_with_manifest(dose_array, output_path)
+    }
+    
+    note right of InferenceModuleStandalone : Standalone-Version für\nKommandozeilen-Inferenz\nohne GUI-Abhängigkeiten
+}
+
+' ========== Utility Modules ==========
+package "Utility Modules" <<Rectangle>> {
+    class HotspotPatchSampler {
+        --
+        +extract_hotspot_patches(volume, patch_size, min_hotspot_voxels, dose_threshold): List[Tuple]
+        +calculate_adaptive_threshold(dose_volume): float
+        +validate_patch_bounds(patch_coords, volume_shape): bool
+    }
+    
+    note right of HotspotPatchSampler : Adaptive Dose-Threshold\nberechnung für optimale\nPatch-Extraktion
+}
+
+' ========== Beziehungen ==========
+
+' GUI zu Core
+MainWindow --> SystemManager : orchestriert
+MainWindow --> ParameterManager : konfiguriert
+MainWindow ..> TrainingWorker : erstellt
+MainWindow ..> InferenceWorker : erstellt
+TrainingWorker --> SystemManager : führt Training aus
+InferenceWorker --> InferenceModuleStandalone : führt Inferenz aus
+
+' Core Management
+SystemManager --> ParameterManager : nutzt Konfiguration
+SystemManager --> DataLoaderModule : lädt Daten
+SystemManager --> AutoencoderTrainer : trainiert Autoencoder
+SystemManager --> DiffusionTrainer : trainiert Diffusion
+SystemManager --> InferenceModule : führt Inferenz aus
+SystemManager --> Storage : speichert Modelle
+
+' Data Management
+DataLoaderModule ..> HotspotPatchDataset : erstellt
+HotspotPatchDataset --> HotspotPatchSampler : nutzt für Patch-Extraktion
+
+' Training Pipeline
+AutoencoderTrainer --> AutoencoderKL : trainiert
+AutoencoderTrainer --> PatchDiscriminator : trainiert
+AutoencoderTrainer --> EarlyStopping : überwacht
+DiffusionTrainer --> DiffusionModelUNet : trainiert
+DiffusionTrainer --> DDPMScheduler : nutzt
+DiffusionTrainer --> LatentDiffusionInferer : nutzt
+DiffusionTrainer --> EarlyStopping : überwacht
+
+' Inference
+InferenceModule --> AutoencoderKL : nutzt trainierte Modelle
+InferenceModule --> DiffusionModelUNet : nutzt trainierte Modelle
+InferenceModule --> LatentDiffusionInferer : nutzt für Sampling
+
+' Visualization
+MainWindow --> Visualization : zeigt Plots
+MainWindow --> MplCanvas : embeds Plots
+SystemManager --> Visualization : erstellt Plots
+
+' Standalone
+InferenceModuleStandalone --> InferenceModule : nutzt Core-Logik
+
+@enduml

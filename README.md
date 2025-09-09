@@ -114,4 +114,14 @@ The GUI lets you pick an **energy range**; we then compute the 8 quadrature poin
 
 ![Example result dose distribution](graph/dose_example.png)
 
+
 ---
+
+## Pretrained Model & Inference
+
+In addition to the application builds, the release also includes:
+
+- A **pretrained model (trained for 300 epochs)** that can be loaded directly in the GUI under the *Inference* tab to start inference immediately. (.ckpt)
+- A **NIfTI file** provided as an example output of inference. This file can be selected in the GUI’s *Inference* visualization panel to directly view the resulting visualization. (.nii.gz)
+
+This allows users to quickly test inference and visualization without retraining the model.
